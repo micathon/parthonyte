@@ -1,0 +1,37 @@
+10 20 30
+-45 -75 -99 12345L
+(* class myclass)
+(* abclass myabclass)
+(* scool myscool)
+(* enum myenum)
+(* var (a b c))
+(* def mydef)
+(* abdef myabdef)
+0xFFA9087C
+0x9
+0xaa
+0o777764010
+0O377
+0B0010101011111
+0b1
++ - * / add minus mpy div if else return
+len range lyfunc __init__ __main__
+(do
+ (if "abc" uuu "def")
+ (else 77 "xyz")
+"Mike Hahn"
+) 987
+-e88 -5678L
+-0xFE4A
+-0b010101
+-0o7244
+3.14
+-4.88e-7
+508E+4
+2.818
+-0.0003545
+-9e66
+50e-e4
+3.88724
+3.745e1
+

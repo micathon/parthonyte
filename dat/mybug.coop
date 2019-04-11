@@ -1,0 +1,13 @@
+do (
+import m1;
+idefun g
+  do (
+  addset x 150;
+  if flag do (
+    set q r;
+  );
+  set a z;
+);
+class C do ();
+)
+
