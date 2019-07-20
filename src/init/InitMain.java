@@ -7,7 +7,7 @@ import page.Store;
 import page.Page;
 import page.AddrNode;
 import page.Node;
-import scancoop.ScanCoop;
+import scanpsyva.ScanPsyva;
 import synchk.SynChk;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -46,26 +46,26 @@ public class InitMain implements IConst {
 			InputStreamReader(System.in));
 		String inbuf;
 		BufferedReader fbr;
-		ScanCoop scanCoop;
+		ScanPsyva scanPsyva;
 		SynChk synchk;
 		boolean fatalErr = false;
 
 		if (fileName.length() > 0) {
-			scanCoop = new ScanCoop(store);
-			synchk = new SynChk(scanCoop, store);
-			scanCoop.setSynChk(synchk);
+			scanPsyva = new ScanPsyva(store);
+			synchk = new SynChk(scanPsyva, store);
+			scanPsyva.setSynChk(synchk);
 			try {
 				fbr = new BufferedReader(new FileReader(fileName));
 				while ((inbuf = fbr.readLine()) != null) {
-					if (!scanCoop.scanCodeBuf(inbuf)) {
+					if (!scanPsyva.scanCodeBuf(inbuf)) {
 						fatalErr = true;
 						break;
 					}
 				}
-				if (scanCoop.inCmtBlk) {
-					scanCoop.putErr(TokenTyp.ERRINCMTEOF);
+				if (scanPsyva.inCmtBlk) {
+					scanPsyva.putErr(TokenTyp.ERRINCMTEOF);
 				}
-				scanCoop.scanSummary(fatalErr);
+				scanPsyva.scanSummary(fatalErr);
 			} catch (IOException exc) {
 				System.out.println("I/O Error: " + exc);
 			}
