@@ -1,0 +1,93 @@
+do (
+import (as (: x y) z);
+import m3 (as m1 m2) m480 (as (: m n) m99);
+import m (dot h1 j2) n;
+from (: a b c d e) import m2 (as a1 a2);
+from rm2 import m3 (as m1 m2) m480 (as n777 m99);
+#abdefun (abby e f);
+gdefun
+  (var y z x23)
+  (ivar a)
+  do (
+  #set x y; 
+);
+defun (f x y (set c 3) (= b "xyz")(= a 3.1416)(* d)(** e))
+  (var u v)
+  (decor c d e (f g)(: a (A1 A2))(: b (c)))
+  do (
+  set w 66;
+);
+idefun (g)
+  (var h1 h2 h3)
+  do (
+  if flag do (
+    set q r;
+  );
+  set a z;
+);
+defun (minimal) do ();
+class C (: m B) (does p q) (var a b c) (ivar i j k) do (
+  defun (altmini) do ();
+  idefun (gz)
+    (var h1 h2 h3)
+    do (
+      if flag do (
+        set q r;
+      );
+    set a z;
+  );
+);
+iclass D Dsuper 
+  (does r s t) (var a1 b1) do (
+  defun (m87 i j) (var x) (gvar y z) do (
+    set x y;
+  );
+);
+abclass Abacus (does u) (ivar c1 d1 e4) do (
+  idefun (hz z1) (var i j k) do (
+    set k (- j 1007);
+  );
+  defun (p) (var s) (gvar t) do ();
+  abdefun (ad64 x numby) (decor f g (: b c)(: d (e1 e2 e3)));
+);
+class E Esuper (does u v w) (var p q)(ivar r) do (
+  defun (mymini) do ();
+  defun (q a) (gvar g) do (
+    set g 0;
+    set h 0;
+  );
+);
+scool S (does t1 t2 t3) (const
+  (a 100)
+  (b 200)
+  (c 300))
+  do (
+  abdefun (ad128 y gumby);
+  defimp (r) do ();
+  defimp (r b) 
+    (var i j) 
+    (gvar h) 
+    do (
+    set h i;
+  );
+);
+iscool SLoc (const (pi 3.1416)) do (
+  abdefun (ad16 xyz) (decor f (: b c) g);
+  defimp (r b c d) (var i j) (gvar h) do (
+    set h i;
+  );
+);
+enum E 3 (: 1 2) (: 4 5);
+ienum ENum (: "a" "b") "c" (: "x" "e");
+enum E4 4;
+)
+{
+iclass D E do ();
+abclass H do (;);
+scool S do ();
+iscool T does (S) do ();
+enum e a b c;
+ienum f x y;
+);
+}
+
