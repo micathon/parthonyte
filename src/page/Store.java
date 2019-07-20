@@ -310,6 +310,14 @@ public class Store implements IConst {
 		return stackTab.pushByte(byteval);
 	}
 	
+	public boolean appendNodep(int nodep, int lineno) {
+		return stackTab.appendNodep(nodep, lineno);
+	}
+	
+	public int lookupLineNo(int matchp) {
+		return stackTab.lookupLineNo(matchp);
+	}
+	
 	public Node getSubNode(Node node) {
 		int downp;
 		int idx;
@@ -330,11 +338,12 @@ public class Store implements IConst {
 class PageTab implements IConst {
 	
 	private Page pageTab[];
-	private Page nodepg;
+	private Page nodepg, nodelstpg;
 	private int nodeStkLstIdx;
 	private int nodeStkIdx;
 	private int opStkPgIdx;
 	private int opStkIdx;
+	private int nodeLstIdx, nodeMastIdx;
 	
 	public PageTab(PageTyp pgtyp) {
 		Page page;
@@ -349,6 +358,7 @@ class PageTab implements IConst {
 	public PageTab() {
 		Page page;
 		ArrayList<AddrNode> list = initStkLst(NODESTKLEN);
+		ArrayList<Integer> nodeplist = initNodepLst(NODESTKLEN);
 
 		pageTab = new Page[OPSTKLEN];
 		for (int i=0; i < OPSTKLEN; i++) {
@@ -365,6 +375,14 @@ class PageTab implements IConst {
 		nodepg.setList(0, list);
 		for (int i=1; i < INTPGLEN; i++) {
 			nodepg.setList(i, null);
+		}
+
+		nodeMastIdx = 0;
+		nodeLstIdx = 0;
+		nodelstpg = new Page(PageTyp.LIST);
+		nodelstpg.setList(0, nodeplist);
+		for (int i=1; i < INTPGLEN; i++) {
+			nodelstpg.setList(i, null);
 		}
 	}
 	
@@ -384,6 +402,16 @@ class PageTab implements IConst {
 		for (int i=0; i < len; i++) {
 			node = new AddrNode(0, 0);
 			list.add(node);
+		}
+		return list;
+	}
+	
+	private ArrayList<Integer> initNodepLst(int len) {
+		ArrayList<Integer> list = new ArrayList<Integer>(); 
+
+		list.clear();
+		for (int i=0; i < len; i++) {
+			list.add(0);
 		}
 		return list;
 	}
@@ -470,6 +498,47 @@ class PageTab implements IConst {
 		addrNode.setHeader(header);
 		addrNode.setAddr(addr);
 		return true;
+	}
+
+	@SuppressWarnings("unchecked")
+	public boolean appendNodep(int nodep, int lineno) {
+		ArrayList<Integer> list;
+
+		if (nodeLstIdx < NODESTKLEN) { 
+			list = (ArrayList<Integer>) nodelstpg.getList(nodeMastIdx);
+		}
+		else if (nodeMastIdx < INTPGLEN - 1) {
+			list = (ArrayList<Integer>) nodelstpg.getList(++nodeMastIdx);
+			if (list == null) {
+				list = initNodepLst(NODESTKLEN);
+			}
+			nodeLstIdx = 0;
+		}
+		else {
+			return false;
+		}
+		list.set(nodeLstIdx++, nodep);
+		list.set(nodeLstIdx++, lineno);
+		return true;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public int lookupLineNo(int matchp) {
+		ArrayList<Integer> list;
+		int mastIdx, idx;
+		int nodep, lineno;
+		
+		for (mastIdx = 0; mastIdx <= nodeMastIdx; mastIdx++) {
+			list = (ArrayList<Integer>) nodelstpg.getList(nodeMastIdx);
+			for (idx = 0; idx <= nodeLstIdx; idx += 2) {
+				nodep = list.get(idx);
+				lineno = list.get(idx + 1);
+				if (matchp == nodep) {
+					return lineno;
+				}
+			}
+		}
+		return 0;
 	}
 
 	@SuppressWarnings("unchecked")
