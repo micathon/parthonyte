@@ -1,0 +1,119 @@
+10 20 30
+-45 -75 -99
+0xFFA9087C
+0x9
+0xaa
+0o777764010
+0O377
+0B0010101011111
+0b1
+123z
+-e88
+-0xFE4A
+-0b010101
+-0o7244
+3.14
+-4.88e-7
+508E+4
+2.818
+-0.0003545
+-9e66
+50e-e4
+3.88724
+3.745e1
+	none do use import from all as class pubclass abclass
+	scool pubscool does const decor def pubdef absdef
+	pubvar var return raise lstg call untup slice
+	if elif else while for in try finally except
+	break continue del quote is tuple lyst bitarray
+	dict cast print echo lambda true false
+	dot set addset minusset mpyset divset idivset modset 
+	shlset shrset shruset andbset xorbset orbset
+	andset xorset orset quest minus notbitz not
+	div idiv mod mpy add 
+	ge le gt lt eq ne shl shr shru 
+	andbitz xorbitz orbitz and xor or strdo strcat
+     dot :
+     set =
+     addset +=
+     minusset -=
+     mpyset *=
+     divset /=
+     idivset //=
+     modset %=
+     shlset <<=
+     shrset >>=
+     shruset >>>=
+     andbset &=
+     xorbset ^=
+     orbset |=
+     andset &&=
+     xorset ^^=
+     orset ||=
+     quest ?
+     minus -
+     notbitz ~
+     not !
+     div /
+     idiv //
+     mod %
+     mpy *
+     add +
+     ge >=
+     le <=
+     gt >
+     lt <
+     eq ==
+     ne !=
+     shl <<
+     shr >>
+     shru >>>
+     andbitz &
+     xorbitz ^
+     orbitz |
+     and &&
+     xor ^^
+     or ||
+
+     dot :x
+     set =x
+     addset +=x
+     minusset -=x
+     mpyset *=x
+     divset /=x
+     idivset //=x
+     modset %=x
+     shlset <<=x
+     shrset >>=x
+     shruset >>>=x
+     andbset &=x
+     xorbset ^=x
+     orbset |=x
+     andset &&=x
+     xorset ^^=x
+     orset ||=x
+     quest ?x
+     minus -x
+     notbitz ~x
+     not !x
+     div /x
+     idiv //x
+     mod %x
+     mpy *x
+     add +x
+     ge >=x
+     le <=x
+     gt >x
+     lt <x
+     eq ==x
+     ne !=x
+     shl <<x
+     shr >>x
+     shru >>>x
+     andbitz &x
+     xorbitz ^x
+     orbitz |x
+     and &&x
+     xor ^^x
+     or ||x
+
