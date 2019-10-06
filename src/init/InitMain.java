@@ -7,7 +7,7 @@ import page.Store;
 import page.Page;
 import page.AddrNode;
 import page.Node;
-import scanpsyva.ScanPsyva;
+import scanlyst.ScanLyst;
 import synchk.SynChk;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -46,26 +46,26 @@ public class InitMain implements IConst {
 			InputStreamReader(System.in));
 		String inbuf;
 		BufferedReader fbr;
-		ScanPsyva scanPsyva;
+		ScanLyst scanLyst;
 		SynChk synchk;
 		boolean fatalErr = false;
 
 		if (fileName.length() > 0) {
-			scanPsyva = new ScanPsyva(store);
-			synchk = new SynChk(scanPsyva, store);
-			scanPsyva.setSynChk(synchk);
+			scanLyst = new ScanLyst(store);
+			synchk = new SynChk(scanLyst, store);
+			scanLyst.setSynChk(synchk);
 			try {
 				fbr = new BufferedReader(new FileReader(fileName));
 				while ((inbuf = fbr.readLine()) != null) {
-					if (!scanPsyva.scanCodeBuf(inbuf)) {
+					if (!scanLyst.scanCodeBuf(inbuf)) {
 						fatalErr = true;
 						break;
 					}
 				}
-				if (scanPsyva.inCmtBlk) {
-					scanPsyva.putErr(TokenTyp.ERRINCMTEOF);
+				if (scanLyst.inCmtBlk) {
+					scanLyst.putErr(TokenTyp.ERRINCMTEOF);
 				}
-				scanPsyva.scanSummary(fatalErr);
+				scanLyst.scanSummary(fatalErr);
 			} catch (IOException exc) {
 				System.out.println("I/O Error: " + exc);
 			}
