@@ -5,16 +5,16 @@ import iconst.NodeCellTyp;
 import page.Node;
 import page.Page;
 import page.Store;
-import scanpsyva.ScanPsyva;
+import scanlyst.ScanLyst;
 
 public class SynChk {
 	
-	private ScanPsyva scan;
+	private ScanLyst scan;
 	private Store store;
 	private boolean isZparen;
 	private static final int ABPHASE = 100;
 
-	public SynChk(ScanPsyva scan, Store store) {
+	public SynChk(ScanLyst scan, Store store) {
 		this.scan = scan;
 		this.store = store;
 	}
@@ -32,8 +32,8 @@ public class SynChk {
 			preLineNoStr = "Line " + lineno + " - ";
 			msg = preLineNoStr + msg;
 		}
-		scan.out("Syntax Error:");
-		scan.out(msg);
+		scan.omsg("Syntax Error:");
+		scan.omsg(msg);
 	}
 	
 	public int getNodeCount() {
@@ -107,7 +107,7 @@ public class SynChk {
 		return tokenCount + (listCount << 16);
 	}
 	
-	public boolean isValidPsyva() {
+	public boolean isValidLyst() {
 		int stmtCount = 0;
 		int count;
 		int rightp, downp;
@@ -121,7 +121,7 @@ public class SynChk {
 		int stmtNo = 0;
 		int doBlkCount = 0;
 
-		out("Top of isValidPsyva");
+		out("Top of isValidLyst");
 		rightp = scan.getRootNodep();
 		if (rightp == 0) {
 			return false;
@@ -216,12 +216,13 @@ public class SynChk {
 		NodeCellTyp celltyp;
 		boolean first = true;
 		boolean isGlbDef = false;
+		boolean isZparen;
 		int currPhaseNo = phaseNo;
 		int rightq;
 		int initp = rightp;
 		String phaseDesc;
 
-		while (rightp != 0) {
+		while (rightp > 0) {
 			page = store.getPage(rightp);
 			idx = store.getElemIdx(rightp);
 			node = page.getNode(idx);
@@ -238,14 +239,20 @@ public class SynChk {
 						" encountered unexpectedly");
 					return -1;
 				}
+				isZparen = (kwtyp == KeywordTyp.ZPAREN);
 				rightq = rightp;
 				rightp = node.getRightp();
+				if (rightp <= 0 && !isZparen) {
+					oerr(rightq, "Null pointer encountered unexpectedly " +
+						"after " + kwtyp);
+					rightq = -1;
+				}
 				switch (currPhaseNo) {
 				case 1:
 					rightq = chkImportStmt(rightp, kwtyp);
 					if (rightq == -1) {
 						oerr(initp, "Keyword 'import' followed by " +
-							"no module names");
+							"no module names or invalid text");
 					}
 					break;
 				case 2:
@@ -357,7 +364,7 @@ public class SynChk {
 					kwtyp.toString());
 				return 0;
 			}
-			else if (hasColonCase && isColonList(node)) {
+			else if (hasColonCase && isColonListQuiet(node)) {
 				out("celltyp = PTR, (: a b)");
 			}
 			else {
@@ -421,6 +428,14 @@ public class SynChk {
 	}
 	
 	private boolean isColonList(Node node) {
+		return isColonListRtn(node, true);
+	}
+	
+	private boolean isColonListQuiet(Node node) {
+		return isColonListRtn(node, false);
+	}
+	
+	private boolean isColonListRtn(Node node, boolean verbose) {
 		Page page;
 		int idx;
 		KeywordTyp kwtyp;
@@ -437,9 +452,13 @@ public class SynChk {
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
 		kwtyp = node.getKeywordTyp();
-		if (kwtyp != KeywordTyp.DOT) {
+		if (kwtyp == KeywordTyp.DOT) { }
+		else if (verbose) {
 			oerr(rightp, "Expecting colon operator, instead found: " +
 				kwtyp.toString());
+			return false;
+		}
+		else {
 			return false;
 		}
 		colonp = rightp;
@@ -450,19 +469,26 @@ public class SynChk {
 			idx = store.getElemIdx(rightp);
 			node = page.getNode(idx);
 			celltyp = node.getDownCellTyp();
-			if (celltyp != NodeCellTyp.ID) {
+			if (celltyp == NodeCellTyp.ID) { }
+			else if (verbose) {
 				oerr(rightp, "Expecting identifier after colon operator, " +
 					"invalid text found");
 				return false;
 			}
+			else {
+				return false;
+			}
 			rightp = node.getRightp();
 		}
-		if (count < 2) {
-			oerr(colonp, "Expecting multiple identifiers after colon operator, " +
-				"less than 2 found");
+		if (count >= 2) {
+			return true;
+		}
+		if (!verbose) {
 			return false;
 		}
-		return true;
+		oerr(colonp, "Expecting multiple identifiers after colon operator, " +
+				"less than 2 found");
+		return false;
 	}
 	
 	private boolean isRelModList(Node node) {
@@ -470,9 +496,13 @@ public class SynChk {
 		int idx;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
-		int rightp;
+		int rightp, rightq;
 		int count = 0;
 		
+		celltyp = node.getDownCellTyp();
+		if (celltyp != NodeCellTyp.PTR) {
+			return false;
+		}
 		rightp = node.getDownp();		
 		if (rightp <= 0) {
 			return false;
@@ -482,10 +512,13 @@ public class SynChk {
 		node = page.getNode(idx);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DOT) {
+			oerr(rightp, "Keyword 'from' needs dot operator");
 			return false;
 		}
+		rightq = rightp;
 		rightp = node.getRightp();
 		if (rightp <= 0) {
+			oerr(rightq, "Keyword 'from', dot operator, followed by null pointer");
 			return false;
 		}
 		page = store.getPage(rightp);
@@ -503,11 +536,15 @@ public class SynChk {
 			node = page.getNode(idx);
 			celltyp = node.getDownCellTyp();
 			if (celltyp != NodeCellTyp.ID) {
+				oerr(rightp, "Keyword 'from', dot operator, " +
+					"expecting list of identifiers");
 				return false;
 			}
+			rightq = rightp;
 			rightp = node.getRightp();
 		}
 		if (count <= 0) {
+			oerr(rightq, "Keyword 'from', dot operator, no arguments found");
 			return false;
 		}
 		return true;
@@ -520,10 +557,12 @@ public class SynChk {
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 		int savep = rightp;
+		int rightq;
 
 		if (rightp <= 0) {
 			return -1;
 		}
+		rightq = rightp;
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
@@ -535,20 +574,26 @@ public class SynChk {
 			rightp = node.getRightp();
 		}
 		else {
+			oerr(rightq, "Keyword 'from' followed by incorrect text");
 			return -1;
 		}
 		if (rightp <= 0) {
+			oerr(rightq, "Keyword 'from' followed by null pointer");
 			return -1;
 		}
+		rightq = rightp;
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.IMPORT) {
+			oerr(rightp, "Keyword: 'from' missing 'import' clause");
 			return -1;
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
+			oerr(rightq, "Keyword 'import' in 'from' statement " +
+				"encountered w/o list of modules");
 			return -1;
 		}
 		page = store.getPage(rightp);
@@ -558,13 +603,21 @@ public class SynChk {
 		if (kwtyp == KeywordTyp.ALL) { 
 			rightp = node.getRightp();
 			if (rightp > 0) {
+				oerr(rightp, "Keyword 'all' in 'from' statement followed by " +
+					"unexpected text");
 				return -1;
 			}
 			else {
 				return savep;
 			}
 		}
-		return chkImportKwd(rightp, false);
+		rightq = rightp;
+		savep = chkImportKwd(rightp, false);
+		if (savep <= 0) {
+			oerr(rightq, "Keyword 'import' in 'from' statement " +
+				"followed by incorrect text");
+		}
+		return savep;
 	}
 	
 	private int chkGlbDefStmt(int rightp) {
