@@ -1,0 +1,4586 @@
+[do (]
+main loop: doToken = do
+currNodep = 4096, idx = 0
+rightp = 4097, celltyp = DO, kwd = DO
+addNode: nodep = 4097, idx = 1, kwd = DO
+do
+doToken: do
+currNodep = 4097, idx = 1
+rightp = 4098, celltyp = PTR, kwd = DO
+doParen: downp = 4099
+( [import (as (: x y) z);]
+main loop: doToken = import
+List kwtyp = IMPORT, downp = 3
+currNodep = 4099, celltyp = KWD
+addNode: nodep = 4099, idx = 3, kwd = IMPORT
+import
+doToken: import
+currNodep = 4099, idx = 3
+rightp = 4100, celltyp = PTR, kwd = IMPORT
+doParen: downp = 4101
+( main loop: doToken = as
+List kwtyp = AS, downp = 6
+currNodep = 4101, celltyp = KWD
+addNode: nodep = 4101, idx = 5, kwd = AS
+as
+doToken: as
+currNodep = 4101, idx = 5
+rightp = 4102, celltyp = PTR, kwd = AS
+doParen: downp = 4103
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 4103, celltyp = KWD
+addNode: nodep = 4103, idx = 7, kwd = DOT
+:
+doToken: :
+main loop: doToken = x
+Ident added: x
+currNodep = 4103, idx = 7
+rightp = 4104, celltyp = ID, kwd = DOT
+addNode: nodep = 4104, idx = 8, kwd = DOT
+x
+doToken: x
+main loop: doToken = y
+Ident added: y
+currNodep = 4104, idx = 8
+rightp = 4105, celltyp = ID, kwd = DOT
+addNode: nodep = 4105, idx = 9, kwd = DOT
+y
+doToken: y
+byteval popped = 54
+1:pop currNodep = 4102
+byteval = 6
+) main loop: doToken = z
+Ident added: z
+currNodep = 4102, idx = 6
+rightp = 4106, celltyp = ID, kwd = AS
+addNode: nodep = 4106, idx = 10, kwd = AS
+z
+doToken: z
+byteval popped = 6
+1:pop currNodep = 4100
+byteval = 6
+) byteval popped = 6
+1:pop currNodep = 4098
+byteval = 3
+currNodep = 4098, idx = 2
+rightp = 4107, celltyp = PTR, kwd = DO
+doParen: downp = 4108
+; [import (as (: b d) e);]
+main loop: doToken = import
+List kwtyp = IMPORT, downp = 3
+currNodep = 4108, celltyp = KWD
+addNode: nodep = 4108, idx = 12, kwd = IMPORT
+import
+doToken: import
+currNodep = 4108, idx = 12
+rightp = 4109, celltyp = PTR, kwd = IMPORT
+doParen: downp = 4110
+( main loop: doToken = as
+List kwtyp = AS, downp = 6
+currNodep = 4110, celltyp = KWD
+addNode: nodep = 4110, idx = 14, kwd = AS
+as
+doToken: as
+currNodep = 4110, idx = 14
+rightp = 4111, celltyp = PTR, kwd = AS
+doParen: downp = 4112
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 4112, celltyp = KWD
+addNode: nodep = 4112, idx = 16, kwd = DOT
+:
+doToken: :
+main loop: doToken = b
+Ident added: b
+currNodep = 4112, idx = 16
+rightp = 4113, celltyp = ID, kwd = DOT
+addNode: nodep = 4113, idx = 17, kwd = DOT
+b
+doToken: b
+main loop: doToken = d
+Ident added: d
+currNodep = 4113, idx = 17
+rightp = 4114, celltyp = ID, kwd = DOT
+addNode: nodep = 4114, idx = 18, kwd = DOT
+d
+doToken: d
+byteval popped = 54
+1:pop currNodep = 4111
+byteval = 6
+) main loop: doToken = e
+Ident added: e
+currNodep = 4111, idx = 15
+rightp = 4115, celltyp = ID, kwd = AS
+addNode: nodep = 4115, idx = 19, kwd = AS
+e
+doToken: e
+byteval popped = 6
+1:pop currNodep = 4109
+byteval = 6
+) byteval popped = 6
+1:pop currNodep = 4107
+byteval = 3
+currNodep = 4107, idx = 11
+rightp = 4116, celltyp = PTR, kwd = DO
+doParen: downp = 4117
+; [import m3 (as m1 m2) m4809 (as (: m n) m99);]
+main loop: doToken = import
+List kwtyp = IMPORT, downp = 3
+currNodep = 4117, celltyp = KWD
+addNode: nodep = 4117, idx = 21, kwd = IMPORT
+import
+doToken: import
+main loop: doToken = m3
+Ident added: m3
+currNodep = 4117, idx = 21
+rightp = 4118, celltyp = ID, kwd = IMPORT
+addNode: nodep = 4118, idx = 22, kwd = IMPORT
+m3
+doToken: m3
+currNodep = 4118, idx = 22
+rightp = 4119, celltyp = PTR, kwd = IMPORT
+doParen: downp = 4120
+( main loop: doToken = as
+List kwtyp = AS, downp = 6
+currNodep = 4120, celltyp = KWD
+addNode: nodep = 4120, idx = 24, kwd = AS
+as
+doToken: as
+main loop: doToken = m1
+Ident added: m1
+currNodep = 4120, idx = 24
+rightp = 4121, celltyp = ID, kwd = AS
+addNode: nodep = 4121, idx = 25, kwd = AS
+m1
+doToken: m1
+main loop: doToken = m2
+Ident added: m2
+currNodep = 4121, idx = 25
+rightp = 4122, celltyp = ID, kwd = AS
+addNode: nodep = 4122, idx = 26, kwd = AS
+m2
+doToken: m2
+byteval popped = 6
+1:pop currNodep = 4119
+byteval = 3
+) main loop: doToken = m4809
+Ident added: m4809
+currNodep = 4119, idx = 23
+rightp = 4123, celltyp = ID, kwd = IMPORT
+addNode: nodep = 4123, idx = 27, kwd = IMPORT
+m4809
+doToken: m4809
+currNodep = 4123, idx = 27
+rightp = 4124, celltyp = PTR, kwd = IMPORT
+doParen: downp = 4125
+( main loop: doToken = as
+List kwtyp = AS, downp = 6
+currNodep = 4125, celltyp = KWD
+addNode: nodep = 4125, idx = 29, kwd = AS
+as
+doToken: as
+currNodep = 4125, idx = 29
+rightp = 4126, celltyp = PTR, kwd = AS
+doParen: downp = 4127
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 4127, celltyp = KWD
+addNode: nodep = 4127, idx = 31, kwd = DOT
+:
+doToken: :
+main loop: doToken = m
+Ident added: m
+currNodep = 4127, idx = 31
+rightp = 4128, celltyp = ID, kwd = DOT
+addNode: nodep = 4128, idx = 32, kwd = DOT
+m
+doToken: m
+main loop: doToken = n
+Ident added: n
+currNodep = 4128, idx = 32
+rightp = 4129, celltyp = ID, kwd = DOT
+addNode: nodep = 4129, idx = 33, kwd = DOT
+n
+doToken: n
+byteval popped = 54
+1:pop currNodep = 4126
+byteval = 6
+) main loop: doToken = m99
+Ident added: m99
+currNodep = 4126, idx = 30
+rightp = 4130, celltyp = ID, kwd = AS
+addNode: nodep = 4130, idx = 34, kwd = AS
+m99
+doToken: m99
+byteval popped = 6
+1:pop currNodep = 4124
+byteval = 6
+) byteval popped = 6
+1:pop currNodep = 4116
+byteval = 3
+currNodep = 4116, idx = 20
+rightp = 4131, celltyp = PTR, kwd = DO
+doParen: downp = 4132
+; [import m (as (: y8 a) z9);]
+main loop: doToken = import
+List kwtyp = IMPORT, downp = 3
+currNodep = 4132, celltyp = KWD
+addNode: nodep = 4132, idx = 36, kwd = IMPORT
+import
+doToken: import
+main loop: doToken = m
+Ident added: m
+currNodep = 4132, idx = 36
+rightp = 4133, celltyp = ID, kwd = IMPORT
+addNode: nodep = 4133, idx = 37, kwd = IMPORT
+m
+doToken: m
+currNodep = 4133, idx = 37
+rightp = 4134, celltyp = PTR, kwd = IMPORT
+doParen: downp = 4135
+( main loop: doToken = as
+List kwtyp = AS, downp = 6
+currNodep = 4135, celltyp = KWD
+addNode: nodep = 4135, idx = 39, kwd = AS
+as
+doToken: as
+currNodep = 4135, idx = 39
+rightp = 4136, celltyp = PTR, kwd = AS
+doParen: downp = 4137
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 4137, celltyp = KWD
+addNode: nodep = 4137, idx = 41, kwd = DOT
+:
+doToken: :
+main loop: doToken = y8
+Ident added: y8
+currNodep = 4137, idx = 41
+rightp = 4138, celltyp = ID, kwd = DOT
+addNode: nodep = 4138, idx = 42, kwd = DOT
+y8
+doToken: y8
+main loop: doToken = a
+Ident added: a
+currNodep = 4138, idx = 42
+rightp = 4139, celltyp = ID, kwd = DOT
+addNode: nodep = 4139, idx = 43, kwd = DOT
+a
+doToken: a
+byteval popped = 54
+1:pop currNodep = 4136
+byteval = 6
+) main loop: doToken = z9
+Ident added: z9
+currNodep = 4136, idx = 40
+rightp = 4140, celltyp = ID, kwd = AS
+addNode: nodep = 4140, idx = 44, kwd = AS
+z9
+doToken: z9
+byteval popped = 6
+1:pop currNodep = 4134
+byteval = 6
+) byteval popped = 6
+1:pop currNodep = 4131
+byteval = 3
+currNodep = 4131, idx = 35
+rightp = 4141, celltyp = PTR, kwd = DO
+doParen: downp = 4142
+; [#from (: 2) import i (as 6);]
+[from om import (as a b4) e f;]
+main loop: doToken = from
+List kwtyp = FROM, downp = 4
+currNodep = 4142, celltyp = KWD
+addNode: nodep = 4142, idx = 46, kwd = FROM
+from
+doToken: from
+main loop: doToken = om
+Ident added: om
+currNodep = 4142, idx = 46
+rightp = 4143, celltyp = ID, kwd = FROM
+addNode: nodep = 4143, idx = 47, kwd = FROM
+om
+doToken: om
+main loop: doToken = import
+currNodep = 4143, idx = 47
+rightp = 4144, celltyp = KWD, kwd = IMPORT
+addNode: nodep = 4144, idx = 48, kwd = IMPORT
+import
+doToken: import
+currNodep = 4144, idx = 48
+rightp = 4145, celltyp = PTR, kwd = IMPORT
+doParen: downp = 4146
+( main loop: doToken = as
+List kwtyp = AS, downp = 6
+currNodep = 4146, celltyp = KWD
+addNode: nodep = 4146, idx = 50, kwd = AS
+as
+doToken: as
+main loop: doToken = a
+Ident added: a
+currNodep = 4146, idx = 50
+rightp = 4147, celltyp = ID, kwd = AS
+addNode: nodep = 4147, idx = 51, kwd = AS
+a
+doToken: a
+main loop: doToken = b4
+Ident added: b4
+currNodep = 4147, idx = 51
+rightp = 4148, celltyp = ID, kwd = AS
+addNode: nodep = 4148, idx = 52, kwd = AS
+b4
+doToken: b4
+byteval popped = 6
+1:pop currNodep = 4145
+byteval = 3
+) main loop: doToken = e
+Ident added: e
+currNodep = 4145, idx = 49
+rightp = 4149, celltyp = ID, kwd = IMPORT
+addNode: nodep = 4149, idx = 53, kwd = IMPORT
+e
+doToken: e
+main loop: doToken = f
+Ident added: f
+currNodep = 4149, idx = 53
+rightp = 4150, celltyp = ID, kwd = IMPORT
+addNode: nodep = 4150, idx = 54, kwd = IMPORT
+f
+doToken: f
+byteval popped = 3
+1:pop currNodep = 4141
+byteval = 4
+currNodep = 4141, idx = 45
+rightp = 4151, celltyp = PTR, kwd = DO
+doParen: downp = 4152
+; [from (: a b c d e) import (as a1 a2);]
+main loop: doToken = from
+List kwtyp = FROM, downp = 4
+currNodep = 4152, celltyp = KWD
+addNode: nodep = 4152, idx = 56, kwd = FROM
+from
+doToken: from
+currNodep = 4152, idx = 56
+rightp = 4153, celltyp = PTR, kwd = FROM
+doParen: downp = 4154
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 4154, celltyp = KWD
+addNode: nodep = 4154, idx = 58, kwd = DOT
+:
+doToken: :
+main loop: doToken = a
+Ident added: a
+currNodep = 4154, idx = 58
+rightp = 4155, celltyp = ID, kwd = DOT
+addNode: nodep = 4155, idx = 59, kwd = DOT
+a
+doToken: a
+main loop: doToken = b
+Ident added: b
+currNodep = 4155, idx = 59
+rightp = 4156, celltyp = ID, kwd = DOT
+addNode: nodep = 4156, idx = 60, kwd = DOT
+b
+doToken: b
+main loop: doToken = c
+Ident added: c
+currNodep = 4156, idx = 60
+rightp = 4157, celltyp = ID, kwd = DOT
+addNode: nodep = 4157, idx = 61, kwd = DOT
+c
+doToken: c
+main loop: doToken = d
+Ident added: d
+currNodep = 4157, idx = 61
+rightp = 4158, celltyp = ID, kwd = DOT
+addNode: nodep = 4158, idx = 62, kwd = DOT
+d
+doToken: d
+main loop: doToken = e
+Ident added: e
+currNodep = 4158, idx = 62
+rightp = 4159, celltyp = ID, kwd = DOT
+addNode: nodep = 4159, idx = 63, kwd = DOT
+e
+doToken: e
+byteval popped = 54
+1:pop currNodep = 4153
+byteval = 4
+) main loop: doToken = import
+currNodep = 4153, idx = 57
+rightp = 4160, celltyp = KWD, kwd = IMPORT
+addNode: nodep = 4160, idx = 64, kwd = IMPORT
+import
+doToken: import
+currNodep = 4160, idx = 64
+rightp = 4161, celltyp = PTR, kwd = IMPORT
+doParen: downp = 4162
+( main loop: doToken = as
+List kwtyp = AS, downp = 6
+currNodep = 4162, celltyp = KWD
+addNode: nodep = 4162, idx = 66, kwd = AS
+as
+doToken: as
+main loop: doToken = a1
+Ident added: a1
+currNodep = 4162, idx = 66
+rightp = 4163, celltyp = ID, kwd = AS
+addNode: nodep = 4163, idx = 67, kwd = AS
+a1
+doToken: a1
+main loop: doToken = a2
+Ident added: a2
+currNodep = 4163, idx = 67
+rightp = 4164, celltyp = ID, kwd = AS
+addNode: nodep = 4164, idx = 68, kwd = AS
+a2
+doToken: a2
+byteval popped = 6
+1:pop currNodep = 4161
+byteval = 3
+) byteval popped = 3
+1:pop currNodep = 4151
+byteval = 4
+currNodep = 4151, idx = 55
+rightp = 4165, celltyp = PTR, kwd = DO
+doParen: downp = 4166
+; [from rm2 import m3 (as m1 m2) m480 (as n777 m99);]
+main loop: doToken = from
+List kwtyp = FROM, downp = 4
+currNodep = 4166, celltyp = KWD
+addNode: nodep = 4166, idx = 70, kwd = FROM
+from
+doToken: from
+main loop: doToken = rm2
+Ident added: rm2
+currNodep = 4166, idx = 70
+rightp = 4167, celltyp = ID, kwd = FROM
+addNode: nodep = 4167, idx = 71, kwd = FROM
+rm2
+doToken: rm2
+main loop: doToken = import
+currNodep = 4167, idx = 71
+rightp = 4168, celltyp = KWD, kwd = IMPORT
+addNode: nodep = 4168, idx = 72, kwd = IMPORT
+import
+doToken: import
+main loop: doToken = m3
+Ident added: m3
+currNodep = 4168, idx = 72
+rightp = 4169, celltyp = ID, kwd = IMPORT
+addNode: nodep = 4169, idx = 73, kwd = IMPORT
+m3
+doToken: m3
+currNodep = 4169, idx = 73
+rightp = 4170, celltyp = PTR, kwd = IMPORT
+doParen: downp = 4171
+( main loop: doToken = as
+List kwtyp = AS, downp = 6
+currNodep = 4171, celltyp = KWD
+addNode: nodep = 4171, idx = 75, kwd = AS
+as
+doToken: as
+main loop: doToken = m1
+Ident added: m1
+currNodep = 4171, idx = 75
+rightp = 4172, celltyp = ID, kwd = AS
+addNode: nodep = 4172, idx = 76, kwd = AS
+m1
+doToken: m1
+main loop: doToken = m2
+Ident added: m2
+currNodep = 4172, idx = 76
+rightp = 4173, celltyp = ID, kwd = AS
+addNode: nodep = 4173, idx = 77, kwd = AS
+m2
+doToken: m2
+byteval popped = 6
+1:pop currNodep = 4170
+byteval = 3
+) main loop: doToken = m480
+Ident added: m480
+currNodep = 4170, idx = 74
+rightp = 4174, celltyp = ID, kwd = IMPORT
+addNode: nodep = 4174, idx = 78, kwd = IMPORT
+m480
+doToken: m480
+currNodep = 4174, idx = 78
+rightp = 4175, celltyp = PTR, kwd = IMPORT
+doParen: downp = 4176
+( main loop: doToken = as
+List kwtyp = AS, downp = 6
+currNodep = 4176, celltyp = KWD
+addNode: nodep = 4176, idx = 80, kwd = AS
+as
+doToken: as
+main loop: doToken = n777
+Ident added: n777
+currNodep = 4176, idx = 80
+rightp = 4177, celltyp = ID, kwd = AS
+addNode: nodep = 4177, idx = 81, kwd = AS
+n777
+doToken: n777
+main loop: doToken = m99
+Ident added: m99
+currNodep = 4177, idx = 81
+rightp = 4178, celltyp = ID, kwd = AS
+addNode: nodep = 4178, idx = 82, kwd = AS
+m99
+doToken: m99
+byteval popped = 6
+1:pop currNodep = 4175
+byteval = 3
+) byteval popped = 3
+1:pop currNodep = 4165
+byteval = 3
+currNodep = 4165, idx = 69
+rightp = 4179, celltyp = PTR, kwd = DO
+doParen: downp = 4180
+; [from f6 import all;]
+main loop: doToken = from
+List kwtyp = FROM, downp = 4
+currNodep = 4180, celltyp = KWD
+addNode: nodep = 4180, idx = 84, kwd = FROM
+from
+doToken: from
+main loop: doToken = f6
+Ident added: f6
+currNodep = 4180, idx = 84
+rightp = 4181, celltyp = ID, kwd = FROM
+addNode: nodep = 4181, idx = 85, kwd = FROM
+f6
+doToken: f6
+main loop: doToken = import
+currNodep = 4181, idx = 85
+rightp = 4182, celltyp = KWD, kwd = IMPORT
+addNode: nodep = 4182, idx = 86, kwd = IMPORT
+import
+doToken: import
+main loop: doToken = all
+currNodep = 4182, idx = 86
+rightp = 4183, celltyp = KWD, kwd = ALL
+addNode: nodep = 4183, idx = 87, kwd = ALL
+all
+doToken: all
+byteval popped = 4
+1:pop currNodep = 4179
+byteval = 2
+currNodep = 4179, idx = 83
+rightp = 4184, celltyp = PTR, kwd = DO
+doParen: downp = 4185
+; [#abdefun (abby e f);]
+[gdefun]
+List kwtyp = GDEFUN, downp = 15
+currNodep = 4185, celltyp = KWD
+addNode: nodep = 4185, idx = 89, kwd = GDEFUN
+gdefun
+doToken: gdefun
+[(var y z x23)]
+currNodep = 4185, idx = 89
+rightp = 4186, celltyp = PTR, kwd = GDEFUN
+doParen: downp = 4187
+( main loop: doToken = var
+List kwtyp = VAR, downp = 17
+currNodep = 4187, celltyp = KWD
+addNode: nodep = 4187, idx = 91, kwd = VAR
+var
+doToken: var
+main loop: doToken = y
+Ident added: y
+currNodep = 4187, idx = 91
+rightp = 4188, celltyp = ID, kwd = VAR
+addNode: nodep = 4188, idx = 92, kwd = VAR
+y
+doToken: y
+main loop: doToken = z
+Ident added: z
+currNodep = 4188, idx = 92
+rightp = 4189, celltyp = ID, kwd = VAR
+addNode: nodep = 4189, idx = 93, kwd = VAR
+z
+doToken: z
+main loop: doToken = x23
+Ident added: x23
+currNodep = 4189, idx = 93
+rightp = 4190, celltyp = ID, kwd = VAR
+addNode: nodep = 4190, idx = 94, kwd = VAR
+x23
+doToken: x23
+byteval popped = 17
+1:pop currNodep = 4186
+byteval = 15
+) [(ivar a)]
+currNodep = 4186, idx = 90
+rightp = 4191, celltyp = PTR, kwd = GDEFUN
+doParen: downp = 4192
+( main loop: doToken = ivar
+List kwtyp = IVAR, downp = 18
+currNodep = 4192, celltyp = KWD
+addNode: nodep = 4192, idx = 96, kwd = IVAR
+ivar
+doToken: ivar
+main loop: doToken = a
+Ident added: a
+currNodep = 4192, idx = 96
+rightp = 4193, celltyp = ID, kwd = IVAR
+addNode: nodep = 4193, idx = 97, kwd = IVAR
+a
+doToken: a
+byteval popped = 18
+1:pop currNodep = 4191
+byteval = 15
+) [do (]
+main loop: doToken = do
+currNodep = 4191, idx = 95
+rightp = 4194, celltyp = DO, kwd = DO
+addNode: nodep = 4194, idx = 98, kwd = DO
+do
+doToken: do
+currNodep = 4194, idx = 98
+rightp = 4195, celltyp = PTR, kwd = DO
+doParen: downp = 4196
+( [#set x y;]
+[);]
+byteval popped = 1
+pop currNodep = 4195, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4194
+) byteval popped = 15
+1:pop currNodep = 4184
+byteval = 15
+currNodep = 4184, idx = 88
+rightp = 4197, celltyp = PTR, kwd = DO
+doParen: downp = 4198
+; [defun (f x y (set c 3) (= b "xyz")(= a 3.1416)(* d)(** e))]
+main loop: doToken = defun
+List kwtyp = DEFUN, downp = 12
+currNodep = 4198, celltyp = KWD
+addNode: nodep = 4198, idx = 102, kwd = DEFUN
+defun
+doToken: defun
+currNodep = 4198, idx = 102
+rightp = 4199, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4200
+( main loop: doToken = f
+Ident added: f
+Func kwtyp = CALL, downp = 8233
+currNodep = 4200, celltyp = FUNC
+addNode: nodep = 4200, idx = 104, kwd = CALL
+f
+doToken: f
+main loop: doToken = x
+Ident added: x
+currNodep = 4200, idx = 104
+rightp = 4201, celltyp = ID, kwd = CALL
+addNode: nodep = 4201, idx = 105, kwd = CALL
+x
+doToken: x
+main loop: doToken = y
+Ident added: y
+currNodep = 4201, idx = 105
+rightp = 4202, celltyp = ID, kwd = CALL
+addNode: nodep = 4202, idx = 106, kwd = CALL
+y
+doToken: y
+currNodep = 4202, idx = 106
+rightp = 4203, celltyp = PTR, kwd = CALL
+doParen: downp = 4204
+( main loop: doToken = set
+List kwtyp = SET, downp = 55
+currNodep = 4204, celltyp = KWD
+addNode: nodep = 4204, idx = 108, kwd = SET
+set
+doToken: set
+main loop: doToken = c
+Ident added: c
+currNodep = 4204, idx = 108
+rightp = 4205, celltyp = ID, kwd = SET
+addNode: nodep = 4205, idx = 109, kwd = SET
+c
+doToken: c
+main loop: doToken = 3
+currNodep = 4205, idx = 109
+rightp = 4206, celltyp = INT, kwd = SET
+addNode: nodep = 4206, idx = 110, kwd = SET
+3
+doToken: 3
+byteval popped = 55
+1:pop currNodep = 4203
+byteval = 27
+) currNodep = 4203, idx = 107
+rightp = 4207, celltyp = PTR, kwd = CALL
+doParen: downp = 4208
+( main loop: doToken = =
+List kwtyp = SET, downp = 55
+currNodep = 4208, celltyp = KWD
+addNode: nodep = 4208, idx = 112, kwd = SET
+=
+doToken: =
+main loop: doToken = b
+Ident added: b
+currNodep = 4208, idx = 112
+rightp = 4209, celltyp = ID, kwd = SET
+addNode: nodep = 4209, idx = 113, kwd = SET
+b
+doToken: b
+"xyz"
+currNodep = 4209, idx = 113
+rightp = 4210, celltyp = STRING, kwd = SET
+addNode: nodep = 4210, idx = 114, kwd = SET
+main loop: doToken = 
+byteval popped = 55
+1:pop currNodep = 4207
+byteval = 27
+) currNodep = 4207, idx = 111
+rightp = 4211, celltyp = PTR, kwd = CALL
+doParen: downp = 4212
+( main loop: doToken = =
+List kwtyp = SET, downp = 55
+currNodep = 4212, celltyp = KWD
+addNode: nodep = 4212, idx = 116, kwd = SET
+=
+doToken: =
+main loop: doToken = a
+Ident added: a
+currNodep = 4212, idx = 116
+rightp = 4213, celltyp = ID, kwd = SET
+addNode: nodep = 4213, idx = 117, kwd = SET
+a
+doToken: a
+main loop: doToken = 3.1416
+currNodep = 4213, idx = 117
+rightp = 4214, celltyp = DOUBLE, kwd = SET
+addNode: nodep = 4214, idx = 118, kwd = SET
+3.1416
+doToken: 3.1416
+byteval popped = 55
+1:pop currNodep = 4211
+byteval = 27
+) currNodep = 4211, idx = 115
+rightp = 4215, celltyp = PTR, kwd = CALL
+doParen: downp = 4216
+( main loop: doToken = *
+List kwtyp = MPY, downp = 78
+currNodep = 4216, celltyp = KWD
+addNode: nodep = 4216, idx = 120, kwd = MPY
+*
+doToken: *
+main loop: doToken = d
+Ident added: d
+currNodep = 4216, idx = 120
+rightp = 4217, celltyp = ID, kwd = MPY
+addNode: nodep = 4217, idx = 121, kwd = MPY
+d
+doToken: d
+byteval popped = 78
+1:pop currNodep = 4215
+byteval = 27
+) currNodep = 4215, idx = 119
+rightp = 4218, celltyp = PTR, kwd = CALL
+doParen: downp = 4219
+( main loop: doToken = **
+List kwtyp = DBLSTAR, downp = 98
+currNodep = 4219, celltyp = KWD
+addNode: nodep = 4219, idx = 123, kwd = DBLSTAR
+**
+doToken: **
+main loop: doToken = e
+Ident added: e
+currNodep = 4219, idx = 123
+rightp = 4220, celltyp = ID, kwd = DBLSTAR
+addNode: nodep = 4220, idx = 124, kwd = DBLSTAR
+e
+doToken: e
+byteval popped = 98
+1:pop currNodep = 4218
+byteval = 27
+) byteval popped = 27
+1:pop currNodep = 4199
+byteval = 27
+) [(var u v)]
+currNodep = 4199, idx = 103
+rightp = 4221, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4222
+( main loop: doToken = var
+List kwtyp = VAR, downp = 17
+currNodep = 4222, celltyp = KWD
+addNode: nodep = 4222, idx = 126, kwd = VAR
+var
+doToken: var
+main loop: doToken = u
+Ident added: u
+currNodep = 4222, idx = 126
+rightp = 4223, celltyp = ID, kwd = VAR
+addNode: nodep = 4223, idx = 127, kwd = VAR
+u
+doToken: u
+main loop: doToken = v
+Ident added: v
+currNodep = 4223, idx = 127
+rightp = 4224, celltyp = ID, kwd = VAR
+addNode: nodep = 4224, idx = 128, kwd = VAR
+v
+doToken: v
+byteval popped = 17
+1:pop currNodep = 4221
+byteval = 12
+) [(decor c d e (f g)(: a (A1 A2))(: b (c)))]
+currNodep = 4221, idx = 125
+rightp = 4225, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4226
+( main loop: doToken = decor
+List kwtyp = DECOR, downp = 24
+currNodep = 4226, celltyp = KWD
+addNode: nodep = 4226, idx = 130, kwd = DECOR
+decor
+doToken: decor
+main loop: doToken = c
+Ident added: c
+currNodep = 4226, idx = 130
+rightp = 4227, celltyp = ID, kwd = DECOR
+addNode: nodep = 4227, idx = 131, kwd = DECOR
+c
+doToken: c
+main loop: doToken = d
+Ident added: d
+currNodep = 4227, idx = 131
+rightp = 4228, celltyp = ID, kwd = DECOR
+addNode: nodep = 4228, idx = 132, kwd = DECOR
+d
+doToken: d
+main loop: doToken = e
+Ident added: e
+currNodep = 4228, idx = 132
+rightp = 4229, celltyp = ID, kwd = DECOR
+addNode: nodep = 4229, idx = 133, kwd = DECOR
+e
+doToken: e
+currNodep = 4229, idx = 133
+rightp = 4230, celltyp = PTR, kwd = DECOR
+doParen: downp = 4231
+( main loop: doToken = f
+Ident added: f
+Func kwtyp = CALL, downp = 8247
+currNodep = 4231, celltyp = FUNC
+addNode: nodep = 4231, idx = 135, kwd = CALL
+f
+doToken: f
+main loop: doToken = g
+Ident added: g
+currNodep = 4231, idx = 135
+rightp = 4232, celltyp = ID, kwd = CALL
+addNode: nodep = 4232, idx = 136, kwd = CALL
+g
+doToken: g
+byteval popped = 27
+1:pop currNodep = 4230
+byteval = 24
+) currNodep = 4230, idx = 134
+rightp = 4233, celltyp = PTR, kwd = DECOR
+doParen: downp = 4234
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 4234, celltyp = KWD
+addNode: nodep = 4234, idx = 138, kwd = DOT
+:
+doToken: :
+main loop: doToken = a
+Ident added: a
+currNodep = 4234, idx = 138
+rightp = 4235, celltyp = ID, kwd = DOT
+addNode: nodep = 4235, idx = 139, kwd = DOT
+a
+doToken: a
+currNodep = 4235, idx = 139
+rightp = 4236, celltyp = PTR, kwd = DOT
+doParen: downp = 4237
+( main loop: doToken = A1
+Ident added: A1
+Func kwtyp = CALL, downp = 8250
+currNodep = 4237, celltyp = FUNC
+addNode: nodep = 4237, idx = 141, kwd = CALL
+A1
+doToken: A1
+main loop: doToken = A2
+Ident added: A2
+currNodep = 4237, idx = 141
+rightp = 4238, celltyp = ID, kwd = CALL
+addNode: nodep = 4238, idx = 142, kwd = CALL
+A2
+doToken: A2
+byteval popped = 27
+1:pop currNodep = 4236
+byteval = 54
+) byteval popped = 54
+1:pop currNodep = 4233
+byteval = 54
+) currNodep = 4233, idx = 137
+rightp = 4239, celltyp = PTR, kwd = DECOR
+doParen: downp = 4240
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 4240, celltyp = KWD
+addNode: nodep = 4240, idx = 144, kwd = DOT
+:
+doToken: :
+main loop: doToken = b
+Ident added: b
+currNodep = 4240, idx = 144
+rightp = 4241, celltyp = ID, kwd = DOT
+addNode: nodep = 4241, idx = 145, kwd = DOT
+b
+doToken: b
+currNodep = 4241, idx = 145
+rightp = 4242, celltyp = PTR, kwd = DOT
+doParen: downp = 4243
+( main loop: doToken = c
+Ident added: c
+Func kwtyp = CALL, downp = 8253
+currNodep = 4243, celltyp = FUNC
+addNode: nodep = 4243, idx = 147, kwd = CALL
+c
+doToken: c
+byteval popped = 27
+1:pop currNodep = 4242
+byteval = 54
+) byteval popped = 54
+1:pop currNodep = 4239
+byteval = 54
+) byteval popped = 54
+1:pop currNodep = 4225
+byteval = 24
+) [do (]
+main loop: doToken = do
+currNodep = 4225, idx = 129
+rightp = 4244, celltyp = DO, kwd = DO
+addNode: nodep = 4244, idx = 148, kwd = DO
+do
+doToken: do
+currNodep = 4244, idx = 148
+rightp = 4245, celltyp = PTR, kwd = DO
+doParen: downp = 4246
+( [set w 66;]
+main loop: doToken = set
+List kwtyp = SET, downp = 55
+currNodep = 4246, celltyp = KWD
+addNode: nodep = 4246, idx = 150, kwd = SET
+set
+doToken: set
+main loop: doToken = w
+Ident added: w
+currNodep = 4246, idx = 150
+rightp = 4247, celltyp = ID, kwd = SET
+addNode: nodep = 4247, idx = 151, kwd = SET
+w
+doToken: w
+main loop: doToken = 66
+currNodep = 4247, idx = 151
+rightp = 4248, celltyp = INT, kwd = SET
+addNode: nodep = 4248, idx = 152, kwd = SET
+66
+doToken: 66
+byteval popped = 55
+1:pop currNodep = 4245
+byteval = 2
+currNodep = 4245, idx = 149
+rightp = 4249, celltyp = PTR, kwd = DO
+doParen: downp = 4250
+; [);]
+byteval popped = 1
+pop currNodep = 4249, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4244
+) byteval popped = 2
+1:pop currNodep = 4197
+byteval = 24
+currNodep = 4197, idx = 101
+rightp = 4251, celltyp = PTR, kwd = DO
+doParen: downp = 4252
+; [idefun (g)]
+main loop: doToken = idefun
+List kwtyp = IDEFUN, downp = 13
+currNodep = 4252, celltyp = KWD
+addNode: nodep = 4252, idx = 156, kwd = IDEFUN
+idefun
+doToken: idefun
+currNodep = 4252, idx = 156
+rightp = 4253, celltyp = PTR, kwd = IDEFUN
+doParen: downp = 4254
+( main loop: doToken = g
+Ident added: g
+Func kwtyp = CALL, downp = 8255
+currNodep = 4254, celltyp = FUNC
+addNode: nodep = 4254, idx = 158, kwd = CALL
+g
+doToken: g
+byteval popped = 27
+1:pop currNodep = 4253
+byteval = 13
+) [(var h1 h2 h3)]
+currNodep = 4253, idx = 157
+rightp = 4255, celltyp = PTR, kwd = IDEFUN
+doParen: downp = 4256
+( main loop: doToken = var
+List kwtyp = VAR, downp = 17
+currNodep = 4256, celltyp = KWD
+addNode: nodep = 4256, idx = 160, kwd = VAR
+var
+doToken: var
+main loop: doToken = h1
+Ident added: h1
+currNodep = 4256, idx = 160
+rightp = 4257, celltyp = ID, kwd = VAR
+addNode: nodep = 4257, idx = 161, kwd = VAR
+h1
+doToken: h1
+main loop: doToken = h2
+Ident added: h2
+currNodep = 4257, idx = 161
+rightp = 4258, celltyp = ID, kwd = VAR
+addNode: nodep = 4258, idx = 162, kwd = VAR
+h2
+doToken: h2
+main loop: doToken = h3
+Ident added: h3
+currNodep = 4258, idx = 162
+rightp = 4259, celltyp = ID, kwd = VAR
+addNode: nodep = 4259, idx = 163, kwd = VAR
+h3
+doToken: h3
+byteval popped = 17
+1:pop currNodep = 4255
+byteval = 13
+) [do (]
+main loop: doToken = do
+currNodep = 4255, idx = 159
+rightp = 4260, celltyp = DO, kwd = DO
+addNode: nodep = 4260, idx = 164, kwd = DO
+do
+doToken: do
+currNodep = 4260, idx = 164
+rightp = 4261, celltyp = PTR, kwd = DO
+doParen: downp = 4262
+( [if flag do (]
+main loop: doToken = if
+List kwtyp = IF, downp = 30
+currNodep = 4262, celltyp = KWD
+addNode: nodep = 4262, idx = 166, kwd = IF
+if
+doToken: if
+main loop: doToken = flag
+Ident added: flag
+currNodep = 4262, idx = 166
+rightp = 4263, celltyp = ID, kwd = IF
+addNode: nodep = 4263, idx = 167, kwd = IF
+flag
+doToken: flag
+main loop: doToken = do
+currNodep = 4263, idx = 167
+rightp = 4264, celltyp = DO, kwd = DO
+addNode: nodep = 4264, idx = 168, kwd = DO
+do
+doToken: do
+currNodep = 4264, idx = 168
+rightp = 4265, celltyp = PTR, kwd = DO
+doParen: downp = 4266
+( [set q r;]
+main loop: doToken = set
+List kwtyp = SET, downp = 55
+currNodep = 4266, celltyp = KWD
+addNode: nodep = 4266, idx = 170, kwd = SET
+set
+doToken: set
+main loop: doToken = q
+Ident added: q
+currNodep = 4266, idx = 170
+rightp = 4267, celltyp = ID, kwd = SET
+addNode: nodep = 4267, idx = 171, kwd = SET
+q
+doToken: q
+main loop: doToken = r
+Ident added: r
+currNodep = 4267, idx = 171
+rightp = 4268, celltyp = ID, kwd = SET
+addNode: nodep = 4268, idx = 172, kwd = SET
+r
+doToken: r
+byteval popped = 55
+1:pop currNodep = 4265
+byteval = 2
+currNodep = 4265, idx = 169
+rightp = 4269, celltyp = PTR, kwd = DO
+doParen: downp = 4270
+; [);]
+byteval popped = 1
+pop currNodep = 4269, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4264
+) byteval popped = 2
+1:pop currNodep = 4261
+byteval = 30
+currNodep = 4261, idx = 165
+rightp = 4271, celltyp = PTR, kwd = DO
+doParen: downp = 4272
+; [set a z;]
+main loop: doToken = set
+List kwtyp = SET, downp = 55
+currNodep = 4272, celltyp = KWD
+addNode: nodep = 4272, idx = 176, kwd = SET
+set
+doToken: set
+main loop: doToken = a
+Ident added: a
+currNodep = 4272, idx = 176
+rightp = 4273, celltyp = ID, kwd = SET
+addNode: nodep = 4273, idx = 177, kwd = SET
+a
+doToken: a
+main loop: doToken = z
+Ident added: z
+currNodep = 4273, idx = 177
+rightp = 4274, celltyp = ID, kwd = SET
+addNode: nodep = 4274, idx = 178, kwd = SET
+z
+doToken: z
+byteval popped = 55
+1:pop currNodep = 4271
+byteval = 2
+currNodep = 4271, idx = 175
+rightp = 4275, celltyp = PTR, kwd = DO
+doParen: downp = 4276
+; [);]
+byteval popped = 1
+pop currNodep = 4275, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4260
+) byteval popped = 2
+1:pop currNodep = 4251
+byteval = 30
+currNodep = 4251, idx = 155
+rightp = 4277, celltyp = PTR, kwd = DO
+doParen: downp = 4278
+; [defun (minimal) do ();]
+main loop: doToken = defun
+List kwtyp = DEFUN, downp = 12
+currNodep = 4278, celltyp = KWD
+addNode: nodep = 4278, idx = 182, kwd = DEFUN
+defun
+doToken: defun
+currNodep = 4278, idx = 182
+rightp = 4279, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4280
+( main loop: doToken = minimal
+Ident added: minimal
+Func kwtyp = CALL, downp = 8264
+currNodep = 4280, celltyp = FUNC
+addNode: nodep = 4280, idx = 184, kwd = CALL
+minimal
+doToken: minimal
+byteval popped = 27
+1:pop currNodep = 4279
+byteval = 12
+) main loop: doToken = do
+currNodep = 4279, idx = 183
+rightp = 4281, celltyp = DO, kwd = DO
+addNode: nodep = 4281, idx = 185, kwd = DO
+do
+doToken: do
+currNodep = 4281, idx = 185
+rightp = 4282, celltyp = PTR, kwd = DO
+doParen: downp = 4283
+( byteval popped = 1
+pop currNodep = 4282, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4281
+) byteval popped = 12
+1:pop currNodep = 4277
+byteval = 12
+currNodep = 4277, idx = 181
+rightp = 4284, celltyp = PTR, kwd = DO
+doParen: downp = 4285
+; [class C (: m B) (does p q) (var a b c) (ivar i j k) do (]
+main loop: doToken = class
+List kwtyp = CLASS, downp = 7
+currNodep = 4285, celltyp = KWD
+addNode: nodep = 4285, idx = 189, kwd = CLASS
+class
+doToken: class
+main loop: doToken = C
+Ident added: C
+currNodep = 4285, idx = 189
+rightp = 4286, celltyp = ID, kwd = CLASS
+addNode: nodep = 4286, idx = 190, kwd = CLASS
+C
+doToken: C
+currNodep = 4286, idx = 190
+rightp = 4287, celltyp = PTR, kwd = CLASS
+doParen: downp = 4288
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 4288, celltyp = KWD
+addNode: nodep = 4288, idx = 192, kwd = DOT
+:
+doToken: :
+main loop: doToken = m
+Ident added: m
+currNodep = 4288, idx = 192
+rightp = 4289, celltyp = ID, kwd = DOT
+addNode: nodep = 4289, idx = 193, kwd = DOT
+m
+doToken: m
+main loop: doToken = B
+Ident added: B
+currNodep = 4289, idx = 193
+rightp = 4290, celltyp = ID, kwd = DOT
+addNode: nodep = 4290, idx = 194, kwd = DOT
+B
+doToken: B
+byteval popped = 54
+1:pop currNodep = 4287
+byteval = 7
+) currNodep = 4287, idx = 191
+rightp = 4291, celltyp = PTR, kwd = CLASS
+doParen: downp = 4292
+( main loop: doToken = does
+List kwtyp = DOES, downp = 22
+currNodep = 4292, celltyp = KWD
+addNode: nodep = 4292, idx = 196, kwd = DOES
+does
+doToken: does
+main loop: doToken = p
+Ident added: p
+currNodep = 4292, idx = 196
+rightp = 4293, celltyp = ID, kwd = DOES
+addNode: nodep = 4293, idx = 197, kwd = DOES
+p
+doToken: p
+main loop: doToken = q
+Ident added: q
+currNodep = 4293, idx = 197
+rightp = 4294, celltyp = ID, kwd = DOES
+addNode: nodep = 4294, idx = 198, kwd = DOES
+q
+doToken: q
+byteval popped = 22
+1:pop currNodep = 4291
+byteval = 7
+) currNodep = 4291, idx = 195
+rightp = 4295, celltyp = PTR, kwd = CLASS
+doParen: downp = 4296
+( main loop: doToken = var
+List kwtyp = VAR, downp = 17
+currNodep = 4296, celltyp = KWD
+addNode: nodep = 4296, idx = 200, kwd = VAR
+var
+doToken: var
+main loop: doToken = a
+Ident added: a
+currNodep = 4296, idx = 200
+rightp = 4297, celltyp = ID, kwd = VAR
+addNode: nodep = 4297, idx = 201, kwd = VAR
+a
+doToken: a
+main loop: doToken = b
+Ident added: b
+currNodep = 4297, idx = 201
+rightp = 4298, celltyp = ID, kwd = VAR
+addNode: nodep = 4298, idx = 202, kwd = VAR
+b
+doToken: b
+main loop: doToken = c
+Ident added: c
+currNodep = 4298, idx = 202
+rightp = 4299, celltyp = ID, kwd = VAR
+addNode: nodep = 4299, idx = 203, kwd = VAR
+c
+doToken: c
+byteval popped = 17
+1:pop currNodep = 4295
+byteval = 7
+) currNodep = 4295, idx = 199
+rightp = 4300, celltyp = PTR, kwd = CLASS
+doParen: downp = 4301
+( main loop: doToken = ivar
+List kwtyp = IVAR, downp = 18
+currNodep = 4301, celltyp = KWD
+addNode: nodep = 4301, idx = 205, kwd = IVAR
+ivar
+doToken: ivar
+main loop: doToken = i
+Ident added: i
+currNodep = 4301, idx = 205
+rightp = 4302, celltyp = ID, kwd = IVAR
+addNode: nodep = 4302, idx = 206, kwd = IVAR
+i
+doToken: i
+main loop: doToken = j
+Ident added: j
+currNodep = 4302, idx = 206
+rightp = 4303, celltyp = ID, kwd = IVAR
+addNode: nodep = 4303, idx = 207, kwd = IVAR
+j
+doToken: j
+main loop: doToken = k
+Ident added: k
+currNodep = 4303, idx = 207
+rightp = 4304, celltyp = ID, kwd = IVAR
+addNode: nodep = 4304, idx = 208, kwd = IVAR
+k
+doToken: k
+byteval popped = 18
+1:pop currNodep = 4300
+byteval = 7
+) main loop: doToken = do
+currNodep = 4300, idx = 204
+rightp = 4305, celltyp = DO, kwd = DO
+addNode: nodep = 4305, idx = 209, kwd = DO
+do
+doToken: do
+currNodep = 4305, idx = 209
+rightp = 4306, celltyp = PTR, kwd = DO
+doParen: downp = 4307
+( [defun (altmini) do ();]
+main loop: doToken = defun
+List kwtyp = DEFUN, downp = 12
+currNodep = 4307, celltyp = KWD
+addNode: nodep = 4307, idx = 211, kwd = DEFUN
+defun
+doToken: defun
+currNodep = 4307, idx = 211
+rightp = 4308, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4309
+( main loop: doToken = altmini
+Ident added: altmini
+Func kwtyp = CALL, downp = 8276
+currNodep = 4309, celltyp = FUNC
+addNode: nodep = 4309, idx = 213, kwd = CALL
+altmini
+doToken: altmini
+byteval popped = 27
+1:pop currNodep = 4308
+byteval = 12
+) main loop: doToken = do
+currNodep = 4308, idx = 212
+rightp = 4310, celltyp = DO, kwd = DO
+addNode: nodep = 4310, idx = 214, kwd = DO
+do
+doToken: do
+currNodep = 4310, idx = 214
+rightp = 4311, celltyp = PTR, kwd = DO
+doParen: downp = 4312
+( byteval popped = 1
+pop currNodep = 4311, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4310
+) byteval popped = 12
+1:pop currNodep = 4306
+byteval = 12
+currNodep = 4306, idx = 210
+rightp = 4313, celltyp = PTR, kwd = DO
+doParen: downp = 4314
+; [idefun (gz)]
+main loop: doToken = idefun
+List kwtyp = IDEFUN, downp = 13
+currNodep = 4314, celltyp = KWD
+addNode: nodep = 4314, idx = 218, kwd = IDEFUN
+idefun
+doToken: idefun
+currNodep = 4314, idx = 218
+rightp = 4315, celltyp = PTR, kwd = IDEFUN
+doParen: downp = 4316
+( main loop: doToken = gz
+Ident added: gz
+Func kwtyp = CALL, downp = 8277
+currNodep = 4316, celltyp = FUNC
+addNode: nodep = 4316, idx = 220, kwd = CALL
+gz
+doToken: gz
+byteval popped = 27
+1:pop currNodep = 4315
+byteval = 13
+) [(var h1 h2 h3)]
+currNodep = 4315, idx = 219
+rightp = 4317, celltyp = PTR, kwd = IDEFUN
+doParen: downp = 4318
+( main loop: doToken = var
+List kwtyp = VAR, downp = 17
+currNodep = 4318, celltyp = KWD
+addNode: nodep = 4318, idx = 222, kwd = VAR
+var
+doToken: var
+main loop: doToken = h1
+Ident added: h1
+currNodep = 4318, idx = 222
+rightp = 4319, celltyp = ID, kwd = VAR
+addNode: nodep = 4319, idx = 223, kwd = VAR
+h1
+doToken: h1
+main loop: doToken = h2
+Ident added: h2
+currNodep = 4319, idx = 223
+rightp = 4320, celltyp = ID, kwd = VAR
+addNode: nodep = 4320, idx = 224, kwd = VAR
+h2
+doToken: h2
+main loop: doToken = h3
+Ident added: h3
+currNodep = 4320, idx = 224
+rightp = 4321, celltyp = ID, kwd = VAR
+addNode: nodep = 4321, idx = 225, kwd = VAR
+h3
+doToken: h3
+byteval popped = 17
+1:pop currNodep = 4317
+byteval = 13
+) [do (]
+main loop: doToken = do
+currNodep = 4317, idx = 221
+rightp = 4322, celltyp = DO, kwd = DO
+addNode: nodep = 4322, idx = 226, kwd = DO
+do
+doToken: do
+currNodep = 4322, idx = 226
+rightp = 4323, celltyp = PTR, kwd = DO
+doParen: downp = 4324
+( [if flag do (]
+main loop: doToken = if
+List kwtyp = IF, downp = 30
+currNodep = 4324, celltyp = KWD
+addNode: nodep = 4324, idx = 228, kwd = IF
+if
+doToken: if
+main loop: doToken = flag
+Ident added: flag
+currNodep = 4324, idx = 228
+rightp = 4325, celltyp = ID, kwd = IF
+addNode: nodep = 4325, idx = 229, kwd = IF
+flag
+doToken: flag
+main loop: doToken = do
+currNodep = 4325, idx = 229
+rightp = 4326, celltyp = DO, kwd = DO
+addNode: nodep = 4326, idx = 230, kwd = DO
+do
+doToken: do
+currNodep = 4326, idx = 230
+rightp = 4327, celltyp = PTR, kwd = DO
+doParen: downp = 4328
+( [set q r;]
+main loop: doToken = set
+List kwtyp = SET, downp = 55
+currNodep = 4328, celltyp = KWD
+addNode: nodep = 4328, idx = 232, kwd = SET
+set
+doToken: set
+main loop: doToken = q
+Ident added: q
+currNodep = 4328, idx = 232
+rightp = 4329, celltyp = ID, kwd = SET
+addNode: nodep = 4329, idx = 233, kwd = SET
+q
+doToken: q
+main loop: doToken = r
+Ident added: r
+currNodep = 4329, idx = 233
+rightp = 4330, celltyp = ID, kwd = SET
+addNode: nodep = 4330, idx = 234, kwd = SET
+r
+doToken: r
+byteval popped = 55
+1:pop currNodep = 4327
+byteval = 2
+currNodep = 4327, idx = 231
+rightp = 4331, celltyp = PTR, kwd = DO
+doParen: downp = 4332
+; [);]
+byteval popped = 1
+pop currNodep = 4331, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4326
+) byteval popped = 2
+1:pop currNodep = 4323
+byteval = 30
+currNodep = 4323, idx = 227
+rightp = 4333, celltyp = PTR, kwd = DO
+doParen: downp = 4334
+; [set a z;]
+main loop: doToken = set
+List kwtyp = SET, downp = 55
+currNodep = 4334, celltyp = KWD
+addNode: nodep = 4334, idx = 238, kwd = SET
+set
+doToken: set
+main loop: doToken = a
+Ident added: a
+currNodep = 4334, idx = 238
+rightp = 4335, celltyp = ID, kwd = SET
+addNode: nodep = 4335, idx = 239, kwd = SET
+a
+doToken: a
+main loop: doToken = z
+Ident added: z
+currNodep = 4335, idx = 239
+rightp = 4336, celltyp = ID, kwd = SET
+addNode: nodep = 4336, idx = 240, kwd = SET
+z
+doToken: z
+byteval popped = 55
+1:pop currNodep = 4333
+byteval = 2
+currNodep = 4333, idx = 237
+rightp = 4337, celltyp = PTR, kwd = DO
+doParen: downp = 4338
+; [);]
+byteval popped = 1
+pop currNodep = 4337, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4322
+) byteval popped = 2
+1:pop currNodep = 4313
+byteval = 30
+currNodep = 4313, idx = 217
+rightp = 4339, celltyp = PTR, kwd = DO
+doParen: downp = 4340
+; [);]
+byteval popped = 1
+pop currNodep = 4339, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4305
+) byteval popped = 30
+1:pop currNodep = 4284
+byteval = 2
+currNodep = 4284, idx = 188
+rightp = 4341, celltyp = PTR, kwd = DO
+doParen: downp = 4342
+; [iclass D Dsuper]
+main loop: doToken = iclass
+List kwtyp = ICLASS, downp = 8
+currNodep = 4342, celltyp = KWD
+addNode: nodep = 4342, idx = 246, kwd = ICLASS
+iclass
+doToken: iclass
+main loop: doToken = D
+Ident added: D
+currNodep = 4342, idx = 246
+rightp = 4343, celltyp = ID, kwd = ICLASS
+addNode: nodep = 4343, idx = 247, kwd = ICLASS
+D
+doToken: D
+Ident added: Dsuper
+currNodep = 4343, idx = 247
+rightp = 4344, celltyp = ID, kwd = ICLASS
+addNode: nodep = 4344, idx = 248, kwd = ICLASS
+Dsuper
+doToken: Dsuper
+[(does r s t) (var a1 b1) do (]
+currNodep = 4344, idx = 248
+rightp = 4345, celltyp = PTR, kwd = ICLASS
+doParen: downp = 4346
+( main loop: doToken = does
+List kwtyp = DOES, downp = 22
+currNodep = 4346, celltyp = KWD
+addNode: nodep = 4346, idx = 250, kwd = DOES
+does
+doToken: does
+main loop: doToken = r
+Ident added: r
+currNodep = 4346, idx = 250
+rightp = 4347, celltyp = ID, kwd = DOES
+addNode: nodep = 4347, idx = 251, kwd = DOES
+r
+doToken: r
+main loop: doToken = s
+Ident added: s
+currNodep = 4347, idx = 251
+rightp = 4348, celltyp = ID, kwd = DOES
+addNode: nodep = 4348, idx = 252, kwd = DOES
+s
+doToken: s
+main loop: doToken = t
+Ident added: t
+currNodep = 4348, idx = 252
+rightp = 4349, celltyp = ID, kwd = DOES
+addNode: nodep = 4349, idx = 253, kwd = DOES
+t
+doToken: t
+byteval popped = 22
+1:pop currNodep = 4345
+byteval = 8
+) currNodep = 4345, idx = 249
+rightp = 4350, celltyp = PTR, kwd = ICLASS
+doParen: downp = 4351
+( main loop: doToken = var
+List kwtyp = VAR, downp = 17
+currNodep = 4351, celltyp = KWD
+addNode: nodep = 4351, idx = 255, kwd = VAR
+var
+doToken: var
+main loop: doToken = a1
+Ident added: a1
+currNodep = 4351, idx = 255
+rightp = 4352, celltyp = ID, kwd = VAR
+addNode: nodep = 4352, idx = 256, kwd = VAR
+a1
+doToken: a1
+main loop: doToken = b1
+Ident added: b1
+currNodep = 4352, idx = 256
+rightp = 4353, celltyp = ID, kwd = VAR
+addNode: nodep = 4353, idx = 257, kwd = VAR
+b1
+doToken: b1
+byteval popped = 17
+1:pop currNodep = 4350
+byteval = 8
+) main loop: doToken = do
+currNodep = 4350, idx = 254
+rightp = 4354, celltyp = DO, kwd = DO
+addNode: nodep = 4354, idx = 258, kwd = DO
+do
+doToken: do
+currNodep = 4354, idx = 258
+rightp = 4355, celltyp = PTR, kwd = DO
+doParen: downp = 4356
+( [defun (m87 i j) (var x) (gvar y z) do (]
+main loop: doToken = defun
+List kwtyp = DEFUN, downp = 12
+currNodep = 4356, celltyp = KWD
+addNode: nodep = 4356, idx = 260, kwd = DEFUN
+defun
+doToken: defun
+currNodep = 4356, idx = 260
+rightp = 4357, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4358
+( main loop: doToken = m87
+Ident added: m87
+Func kwtyp = CALL, downp = 8293
+currNodep = 4358, celltyp = FUNC
+addNode: nodep = 4358, idx = 262, kwd = CALL
+m87
+doToken: m87
+main loop: doToken = i
+Ident added: i
+currNodep = 4358, idx = 262
+rightp = 4359, celltyp = ID, kwd = CALL
+addNode: nodep = 4359, idx = 263, kwd = CALL
+i
+doToken: i
+main loop: doToken = j
+Ident added: j
+currNodep = 4359, idx = 263
+rightp = 4360, celltyp = ID, kwd = CALL
+addNode: nodep = 4360, idx = 264, kwd = CALL
+j
+doToken: j
+byteval popped = 27
+1:pop currNodep = 4357
+byteval = 12
+) currNodep = 4357, idx = 261
+rightp = 4361, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4362
+( main loop: doToken = var
+List kwtyp = VAR, downp = 17
+currNodep = 4362, celltyp = KWD
+addNode: nodep = 4362, idx = 266, kwd = VAR
+var
+doToken: var
+main loop: doToken = x
+Ident added: x
+currNodep = 4362, idx = 266
+rightp = 4363, celltyp = ID, kwd = VAR
+addNode: nodep = 4363, idx = 267, kwd = VAR
+x
+doToken: x
+byteval popped = 17
+1:pop currNodep = 4361
+byteval = 12
+) currNodep = 4361, idx = 265
+rightp = 4364, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4365
+( main loop: doToken = gvar
+List kwtyp = GVAR, downp = 19
+currNodep = 4365, celltyp = KWD
+addNode: nodep = 4365, idx = 269, kwd = GVAR
+gvar
+doToken: gvar
+main loop: doToken = y
+Ident added: y
+currNodep = 4365, idx = 269
+rightp = 4366, celltyp = ID, kwd = GVAR
+addNode: nodep = 4366, idx = 270, kwd = GVAR
+y
+doToken: y
+main loop: doToken = z
+Ident added: z
+currNodep = 4366, idx = 270
+rightp = 4367, celltyp = ID, kwd = GVAR
+addNode: nodep = 4367, idx = 271, kwd = GVAR
+z
+doToken: z
+byteval popped = 19
+1:pop currNodep = 4364
+byteval = 12
+) main loop: doToken = do
+currNodep = 4364, idx = 268
+rightp = 4368, celltyp = DO, kwd = DO
+addNode: nodep = 4368, idx = 272, kwd = DO
+do
+doToken: do
+currNodep = 4368, idx = 272
+rightp = 4369, celltyp = PTR, kwd = DO
+doParen: downp = 4370
+( [set x y;]
+main loop: doToken = set
+List kwtyp = SET, downp = 55
+currNodep = 4370, celltyp = KWD
+addNode: nodep = 4370, idx = 274, kwd = SET
+set
+doToken: set
+main loop: doToken = x
+Ident added: x
+currNodep = 4370, idx = 274
+rightp = 4371, celltyp = ID, kwd = SET
+addNode: nodep = 4371, idx = 275, kwd = SET
+x
+doToken: x
+main loop: doToken = y
+Ident added: y
+currNodep = 4371, idx = 275
+rightp = 4372, celltyp = ID, kwd = SET
+addNode: nodep = 4372, idx = 276, kwd = SET
+y
+doToken: y
+byteval popped = 55
+1:pop currNodep = 4369
+byteval = 2
+currNodep = 4369, idx = 273
+rightp = 4373, celltyp = PTR, kwd = DO
+doParen: downp = 4374
+; [);]
+byteval popped = 1
+pop currNodep = 4373, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4368
+) byteval popped = 2
+1:pop currNodep = 4355
+byteval = 12
+currNodep = 4355, idx = 259
+rightp = 4375, celltyp = PTR, kwd = DO
+doParen: downp = 4376
+; [);]
+byteval popped = 1
+pop currNodep = 4375, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4354
+) byteval popped = 12
+1:pop currNodep = 4341
+byteval = 12
+currNodep = 4341, idx = 245
+rightp = 4377, celltyp = PTR, kwd = DO
+doParen: downp = 4378
+; [abclass Abacus (does u) (ivar c1 d1 e4) do (]
+main loop: doToken = abclass
+List kwtyp = ABCLASS, downp = 9
+currNodep = 4378, celltyp = KWD
+addNode: nodep = 4378, idx = 282, kwd = ABCLASS
+abclass
+doToken: abclass
+main loop: doToken = Abacus
+Ident added: Abacus
+currNodep = 4378, idx = 282
+rightp = 4379, celltyp = ID, kwd = ABCLASS
+addNode: nodep = 4379, idx = 283, kwd = ABCLASS
+Abacus
+doToken: Abacus
+currNodep = 4379, idx = 283
+rightp = 4380, celltyp = PTR, kwd = ABCLASS
+doParen: downp = 4381
+( main loop: doToken = does
+List kwtyp = DOES, downp = 22
+currNodep = 4381, celltyp = KWD
+addNode: nodep = 4381, idx = 285, kwd = DOES
+does
+doToken: does
+main loop: doToken = u
+Ident added: u
+currNodep = 4381, idx = 285
+rightp = 4382, celltyp = ID, kwd = DOES
+addNode: nodep = 4382, idx = 286, kwd = DOES
+u
+doToken: u
+byteval popped = 22
+1:pop currNodep = 4380
+byteval = 9
+) currNodep = 4380, idx = 284
+rightp = 4383, celltyp = PTR, kwd = ABCLASS
+doParen: downp = 4384
+( main loop: doToken = ivar
+List kwtyp = IVAR, downp = 18
+currNodep = 4384, celltyp = KWD
+addNode: nodep = 4384, idx = 288, kwd = IVAR
+ivar
+doToken: ivar
+main loop: doToken = c1
+Ident added: c1
+currNodep = 4384, idx = 288
+rightp = 4385, celltyp = ID, kwd = IVAR
+addNode: nodep = 4385, idx = 289, kwd = IVAR
+c1
+doToken: c1
+main loop: doToken = d1
+Ident added: d1
+currNodep = 4385, idx = 289
+rightp = 4386, celltyp = ID, kwd = IVAR
+addNode: nodep = 4386, idx = 290, kwd = IVAR
+d1
+doToken: d1
+main loop: doToken = e4
+Ident added: e4
+currNodep = 4386, idx = 290
+rightp = 4387, celltyp = ID, kwd = IVAR
+addNode: nodep = 4387, idx = 291, kwd = IVAR
+e4
+doToken: e4
+byteval popped = 18
+1:pop currNodep = 4383
+byteval = 9
+) main loop: doToken = do
+currNodep = 4383, idx = 287
+rightp = 4388, celltyp = DO, kwd = DO
+addNode: nodep = 4388, idx = 292, kwd = DO
+do
+doToken: do
+currNodep = 4388, idx = 292
+rightp = 4389, celltyp = PTR, kwd = DO
+doParen: downp = 4390
+( [idefun (hz z1) (var i j k) do (]
+main loop: doToken = idefun
+List kwtyp = IDEFUN, downp = 13
+currNodep = 4390, celltyp = KWD
+addNode: nodep = 4390, idx = 294, kwd = IDEFUN
+idefun
+doToken: idefun
+currNodep = 4390, idx = 294
+rightp = 4391, celltyp = PTR, kwd = IDEFUN
+doParen: downp = 4392
+( main loop: doToken = hz
+Ident added: hz
+Func kwtyp = CALL, downp = 8306
+currNodep = 4392, celltyp = FUNC
+addNode: nodep = 4392, idx = 296, kwd = CALL
+hz
+doToken: hz
+main loop: doToken = z1
+Ident added: z1
+currNodep = 4392, idx = 296
+rightp = 4393, celltyp = ID, kwd = CALL
+addNode: nodep = 4393, idx = 297, kwd = CALL
+z1
+doToken: z1
+byteval popped = 27
+1:pop currNodep = 4391
+byteval = 13
+) currNodep = 4391, idx = 295
+rightp = 4394, celltyp = PTR, kwd = IDEFUN
+doParen: downp = 4395
+( main loop: doToken = var
+List kwtyp = VAR, downp = 17
+currNodep = 4395, celltyp = KWD
+addNode: nodep = 4395, idx = 299, kwd = VAR
+var
+doToken: var
+main loop: doToken = i
+Ident added: i
+currNodep = 4395, idx = 299
+rightp = 4396, celltyp = ID, kwd = VAR
+addNode: nodep = 4396, idx = 300, kwd = VAR
+i
+doToken: i
+main loop: doToken = j
+Ident added: j
+currNodep = 4396, idx = 300
+rightp = 4397, celltyp = ID, kwd = VAR
+addNode: nodep = 4397, idx = 301, kwd = VAR
+j
+doToken: j
+main loop: doToken = k
+Ident added: k
+currNodep = 4397, idx = 301
+rightp = 4398, celltyp = ID, kwd = VAR
+addNode: nodep = 4398, idx = 302, kwd = VAR
+k
+doToken: k
+byteval popped = 17
+1:pop currNodep = 4394
+byteval = 13
+) main loop: doToken = do
+currNodep = 4394, idx = 298
+rightp = 4399, celltyp = DO, kwd = DO
+addNode: nodep = 4399, idx = 303, kwd = DO
+do
+doToken: do
+currNodep = 4399, idx = 303
+rightp = 4400, celltyp = PTR, kwd = DO
+doParen: downp = 4401
+( [set k (- j 1007);]
+main loop: doToken = set
+List kwtyp = SET, downp = 55
+currNodep = 4401, celltyp = KWD
+addNode: nodep = 4401, idx = 305, kwd = SET
+set
+doToken: set
+main loop: doToken = k
+Ident added: k
+currNodep = 4401, idx = 305
+rightp = 4402, celltyp = ID, kwd = SET
+addNode: nodep = 4402, idx = 306, kwd = SET
+k
+doToken: k
+currNodep = 4402, idx = 306
+rightp = 4403, celltyp = PTR, kwd = SET
+doParen: downp = 4404
+( main loop: doToken = -
+List kwtyp = MINUS, downp = 72
+currNodep = 4404, celltyp = KWD
+addNode: nodep = 4404, idx = 308, kwd = MINUS
+-
+doToken: -
+main loop: doToken = j
+Ident added: j
+currNodep = 4404, idx = 308
+rightp = 4405, celltyp = ID, kwd = MINUS
+addNode: nodep = 4405, idx = 309, kwd = MINUS
+j
+doToken: j
+main loop: doToken = 1007
+currNodep = 4405, idx = 309
+rightp = 4406, celltyp = INT, kwd = MINUS
+addNode: nodep = 4406, idx = 310, kwd = MINUS
+1007
+doToken: 1007
+byteval popped = 72
+1:pop currNodep = 4403
+byteval = 55
+) byteval popped = 55
+1:pop currNodep = 4400
+byteval = 55
+currNodep = 4400, idx = 304
+rightp = 4407, celltyp = PTR, kwd = DO
+doParen: downp = 4408
+; [);]
+byteval popped = 1
+pop currNodep = 4407, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4399
+) byteval popped = 55
+1:pop currNodep = 4389
+byteval = 2
+currNodep = 4389, idx = 293
+rightp = 4409, celltyp = PTR, kwd = DO
+doParen: downp = 4410
+; [defun (p) (var s) (gvar t) do ();]
+main loop: doToken = defun
+List kwtyp = DEFUN, downp = 12
+currNodep = 4410, celltyp = KWD
+addNode: nodep = 4410, idx = 314, kwd = DEFUN
+defun
+doToken: defun
+currNodep = 4410, idx = 314
+rightp = 4411, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4412
+( main loop: doToken = p
+Ident added: p
+Func kwtyp = CALL, downp = 8313
+currNodep = 4412, celltyp = FUNC
+addNode: nodep = 4412, idx = 316, kwd = CALL
+p
+doToken: p
+byteval popped = 27
+1:pop currNodep = 4411
+byteval = 12
+) currNodep = 4411, idx = 315
+rightp = 4413, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4414
+( main loop: doToken = var
+List kwtyp = VAR, downp = 17
+currNodep = 4414, celltyp = KWD
+addNode: nodep = 4414, idx = 318, kwd = VAR
+var
+doToken: var
+main loop: doToken = s
+Ident added: s
+currNodep = 4414, idx = 318
+rightp = 4415, celltyp = ID, kwd = VAR
+addNode: nodep = 4415, idx = 319, kwd = VAR
+s
+doToken: s
+byteval popped = 17
+1:pop currNodep = 4413
+byteval = 12
+) currNodep = 4413, idx = 317
+rightp = 4416, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4417
+( main loop: doToken = gvar
+List kwtyp = GVAR, downp = 19
+currNodep = 4417, celltyp = KWD
+addNode: nodep = 4417, idx = 321, kwd = GVAR
+gvar
+doToken: gvar
+main loop: doToken = t
+Ident added: t
+currNodep = 4417, idx = 321
+rightp = 4418, celltyp = ID, kwd = GVAR
+addNode: nodep = 4418, idx = 322, kwd = GVAR
+t
+doToken: t
+byteval popped = 19
+1:pop currNodep = 4416
+byteval = 12
+) main loop: doToken = do
+currNodep = 4416, idx = 320
+rightp = 4419, celltyp = DO, kwd = DO
+addNode: nodep = 4419, idx = 323, kwd = DO
+do
+doToken: do
+currNodep = 4419, idx = 323
+rightp = 4420, celltyp = PTR, kwd = DO
+doParen: downp = 4421
+( byteval popped = 1
+pop currNodep = 4420, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4419
+) byteval popped = 12
+1:pop currNodep = 4409
+byteval = 12
+currNodep = 4409, idx = 313
+rightp = 4422, celltyp = PTR, kwd = DO
+doParen: downp = 4423
+; [abdefun (ad64 x numby) (decor f g (: b c)(: d (e1 e2 e3)));]
+main loop: doToken = abdefun
+List kwtyp = ABDEFUN, downp = 14
+currNodep = 4423, celltyp = KWD
+addNode: nodep = 4423, idx = 327, kwd = ABDEFUN
+abdefun
+doToken: abdefun
+currNodep = 4423, idx = 327
+rightp = 4424, celltyp = PTR, kwd = ABDEFUN
+doParen: downp = 4425
+( main loop: doToken = ad64
+Ident added: ad64
+Func kwtyp = CALL, downp = 8316
+currNodep = 4425, celltyp = FUNC
+addNode: nodep = 4425, idx = 329, kwd = CALL
+ad64
+doToken: ad64
+main loop: doToken = x
+Ident added: x
+currNodep = 4425, idx = 329
+rightp = 4426, celltyp = ID, kwd = CALL
+addNode: nodep = 4426, idx = 330, kwd = CALL
+x
+doToken: x
+main loop: doToken = numby
+Ident added: numby
+currNodep = 4426, idx = 330
+rightp = 4427, celltyp = ID, kwd = CALL
+addNode: nodep = 4427, idx = 331, kwd = CALL
+numby
+doToken: numby
+byteval popped = 27
+1:pop currNodep = 4424
+byteval = 14
+) currNodep = 4424, idx = 328
+rightp = 4428, celltyp = PTR, kwd = ABDEFUN
+doParen: downp = 4429
+( main loop: doToken = decor
+List kwtyp = DECOR, downp = 24
+currNodep = 4429, celltyp = KWD
+addNode: nodep = 4429, idx = 333, kwd = DECOR
+decor
+doToken: decor
+main loop: doToken = f
+Ident added: f
+currNodep = 4429, idx = 333
+rightp = 4430, celltyp = ID, kwd = DECOR
+addNode: nodep = 4430, idx = 334, kwd = DECOR
+f
+doToken: f
+main loop: doToken = g
+Ident added: g
+currNodep = 4430, idx = 334
+rightp = 4431, celltyp = ID, kwd = DECOR
+addNode: nodep = 4431, idx = 335, kwd = DECOR
+g
+doToken: g
+currNodep = 4431, idx = 335
+rightp = 4432, celltyp = PTR, kwd = DECOR
+doParen: downp = 4433
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 4433, celltyp = KWD
+addNode: nodep = 4433, idx = 337, kwd = DOT
+:
+doToken: :
+main loop: doToken = b
+Ident added: b
+currNodep = 4433, idx = 337
+rightp = 4434, celltyp = ID, kwd = DOT
+addNode: nodep = 4434, idx = 338, kwd = DOT
+b
+doToken: b
+main loop: doToken = c
+Ident added: c
+currNodep = 4434, idx = 338
+rightp = 4435, celltyp = ID, kwd = DOT
+addNode: nodep = 4435, idx = 339, kwd = DOT
+c
+doToken: c
+byteval popped = 54
+1:pop currNodep = 4432
+byteval = 24
+) currNodep = 4432, idx = 336
+rightp = 4436, celltyp = PTR, kwd = DECOR
+doParen: downp = 4437
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 4437, celltyp = KWD
+addNode: nodep = 4437, idx = 341, kwd = DOT
+:
+doToken: :
+main loop: doToken = d
+Ident added: d
+currNodep = 4437, idx = 341
+rightp = 4438, celltyp = ID, kwd = DOT
+addNode: nodep = 4438, idx = 342, kwd = DOT
+d
+doToken: d
+currNodep = 4438, idx = 342
+rightp = 4439, celltyp = PTR, kwd = DOT
+doParen: downp = 4440
+( main loop: doToken = e1
+Ident added: e1
+Func kwtyp = CALL, downp = 8324
+currNodep = 4440, celltyp = FUNC
+addNode: nodep = 4440, idx = 344, kwd = CALL
+e1
+doToken: e1
+main loop: doToken = e2
+Ident added: e2
+currNodep = 4440, idx = 344
+rightp = 4441, celltyp = ID, kwd = CALL
+addNode: nodep = 4441, idx = 345, kwd = CALL
+e2
+doToken: e2
+main loop: doToken = e3
+Ident added: e3
+currNodep = 4441, idx = 345
+rightp = 4442, celltyp = ID, kwd = CALL
+addNode: nodep = 4442, idx = 346, kwd = CALL
+e3
+doToken: e3
+byteval popped = 27
+1:pop currNodep = 4439
+byteval = 54
+) byteval popped = 54
+1:pop currNodep = 4436
+byteval = 54
+) byteval popped = 54
+1:pop currNodep = 4428
+byteval = 24
+) byteval popped = 24
+1:pop currNodep = 4422
+byteval = 24
+currNodep = 4422, idx = 326
+rightp = 4443, celltyp = PTR, kwd = DO
+doParen: downp = 4444
+; [);]
+byteval popped = 1
+pop currNodep = 4443, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4388
+) byteval popped = 24
+1:pop currNodep = 4377
+byteval = 24
+currNodep = 4377, idx = 281
+rightp = 4445, celltyp = PTR, kwd = DO
+doParen: downp = 4446
+; [class E Esuper (does u v w) (var p q)(ivar r) do (]
+main loop: doToken = class
+List kwtyp = CLASS, downp = 7
+currNodep = 4446, celltyp = KWD
+addNode: nodep = 4446, idx = 350, kwd = CLASS
+class
+doToken: class
+main loop: doToken = E
+Ident added: E
+currNodep = 4446, idx = 350
+rightp = 4447, celltyp = ID, kwd = CLASS
+addNode: nodep = 4447, idx = 351, kwd = CLASS
+E
+doToken: E
+main loop: doToken = Esuper
+Ident added: Esuper
+currNodep = 4447, idx = 351
+rightp = 4448, celltyp = ID, kwd = CLASS
+addNode: nodep = 4448, idx = 352, kwd = CLASS
+Esuper
+doToken: Esuper
+currNodep = 4448, idx = 352
+rightp = 4449, celltyp = PTR, kwd = CLASS
+doParen: downp = 4450
+( main loop: doToken = does
+List kwtyp = DOES, downp = 22
+currNodep = 4450, celltyp = KWD
+addNode: nodep = 4450, idx = 354, kwd = DOES
+does
+doToken: does
+main loop: doToken = u
+Ident added: u
+currNodep = 4450, idx = 354
+rightp = 4451, celltyp = ID, kwd = DOES
+addNode: nodep = 4451, idx = 355, kwd = DOES
+u
+doToken: u
+main loop: doToken = v
+Ident added: v
+currNodep = 4451, idx = 355
+rightp = 4452, celltyp = ID, kwd = DOES
+addNode: nodep = 4452, idx = 356, kwd = DOES
+v
+doToken: v
+main loop: doToken = w
+Ident added: w
+currNodep = 4452, idx = 356
+rightp = 4453, celltyp = ID, kwd = DOES
+addNode: nodep = 4453, idx = 357, kwd = DOES
+w
+doToken: w
+byteval popped = 22
+1:pop currNodep = 4449
+byteval = 7
+) currNodep = 4449, idx = 353
+rightp = 4454, celltyp = PTR, kwd = CLASS
+doParen: downp = 4455
+( main loop: doToken = var
+List kwtyp = VAR, downp = 17
+currNodep = 4455, celltyp = KWD
+addNode: nodep = 4455, idx = 359, kwd = VAR
+var
+doToken: var
+main loop: doToken = p
+Ident added: p
+currNodep = 4455, idx = 359
+rightp = 4456, celltyp = ID, kwd = VAR
+addNode: nodep = 4456, idx = 360, kwd = VAR
+p
+doToken: p
+main loop: doToken = q
+Ident added: q
+currNodep = 4456, idx = 360
+rightp = 4457, celltyp = ID, kwd = VAR
+addNode: nodep = 4457, idx = 361, kwd = VAR
+q
+doToken: q
+byteval popped = 17
+1:pop currNodep = 4454
+byteval = 7
+) currNodep = 4454, idx = 358
+rightp = 4458, celltyp = PTR, kwd = CLASS
+doParen: downp = 4459
+( main loop: doToken = ivar
+List kwtyp = IVAR, downp = 18
+currNodep = 4459, celltyp = KWD
+addNode: nodep = 4459, idx = 363, kwd = IVAR
+ivar
+doToken: ivar
+main loop: doToken = r
+Ident added: r
+currNodep = 4459, idx = 363
+rightp = 4460, celltyp = ID, kwd = IVAR
+addNode: nodep = 4460, idx = 364, kwd = IVAR
+r
+doToken: r
+byteval popped = 18
+1:pop currNodep = 4458
+byteval = 7
+) main loop: doToken = do
+currNodep = 4458, idx = 362
+rightp = 4461, celltyp = DO, kwd = DO
+addNode: nodep = 4461, idx = 365, kwd = DO
+do
+doToken: do
+currNodep = 4461, idx = 365
+rightp = 4462, celltyp = PTR, kwd = DO
+doParen: downp = 4463
+( [defun (mymini) do ();]
+main loop: doToken = defun
+List kwtyp = DEFUN, downp = 12
+currNodep = 4463, celltyp = KWD
+addNode: nodep = 4463, idx = 367, kwd = DEFUN
+defun
+doToken: defun
+currNodep = 4463, idx = 367
+rightp = 4464, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4465
+( main loop: doToken = mymini
+Ident added: mymini
+Func kwtyp = CALL, downp = 8335
+currNodep = 4465, celltyp = FUNC
+addNode: nodep = 4465, idx = 369, kwd = CALL
+mymini
+doToken: mymini
+byteval popped = 27
+1:pop currNodep = 4464
+byteval = 12
+) main loop: doToken = do
+currNodep = 4464, idx = 368
+rightp = 4466, celltyp = DO, kwd = DO
+addNode: nodep = 4466, idx = 370, kwd = DO
+do
+doToken: do
+currNodep = 4466, idx = 370
+rightp = 4467, celltyp = PTR, kwd = DO
+doParen: downp = 4468
+( byteval popped = 1
+pop currNodep = 4467, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4466
+) byteval popped = 12
+1:pop currNodep = 4462
+byteval = 12
+currNodep = 4462, idx = 366
+rightp = 4469, celltyp = PTR, kwd = DO
+doParen: downp = 4470
+; [defun (q a) (gvar g) do (]
+main loop: doToken = defun
+List kwtyp = DEFUN, downp = 12
+currNodep = 4470, celltyp = KWD
+addNode: nodep = 4470, idx = 374, kwd = DEFUN
+defun
+doToken: defun
+currNodep = 4470, idx = 374
+rightp = 4471, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4472
+( main loop: doToken = q
+Ident added: q
+Func kwtyp = CALL, downp = 8336
+currNodep = 4472, celltyp = FUNC
+addNode: nodep = 4472, idx = 376, kwd = CALL
+q
+doToken: q
+main loop: doToken = a
+Ident added: a
+currNodep = 4472, idx = 376
+rightp = 4473, celltyp = ID, kwd = CALL
+addNode: nodep = 4473, idx = 377, kwd = CALL
+a
+doToken: a
+byteval popped = 27
+1:pop currNodep = 4471
+byteval = 12
+) currNodep = 4471, idx = 375
+rightp = 4474, celltyp = PTR, kwd = DEFUN
+doParen: downp = 4475
+( main loop: doToken = gvar
+List kwtyp = GVAR, downp = 19
+currNodep = 4475, celltyp = KWD
+addNode: nodep = 4475, idx = 379, kwd = GVAR
+gvar
+doToken: gvar
+main loop: doToken = g
+Ident added: g
+currNodep = 4475, idx = 379
+rightp = 4476, celltyp = ID, kwd = GVAR
+addNode: nodep = 4476, idx = 380, kwd = GVAR
+g
+doToken: g
+byteval popped = 19
+1:pop currNodep = 4474
+byteval = 12
+) main loop: doToken = do
+currNodep = 4474, idx = 378
+rightp = 4477, celltyp = DO, kwd = DO
+addNode: nodep = 4477, idx = 381, kwd = DO
+do
+doToken: do
+currNodep = 4477, idx = 381
+rightp = 4478, celltyp = PTR, kwd = DO
+doParen: downp = 4479
+( [set g 0;]
+main loop: doToken = set
+List kwtyp = SET, downp = 55
+currNodep = 4479, celltyp = KWD
+addNode: nodep = 4479, idx = 383, kwd = SET
+set
+doToken: set
+main loop: doToken = g
+Ident added: g
+currNodep = 4479, idx = 383
+rightp = 4480, celltyp = ID, kwd = SET
+addNode: nodep = 4480, idx = 384, kwd = SET
+g
+doToken: g
+main loop: doToken = 0
+currNodep = 4480, idx = 384
+rightp = 4481, celltyp = INT, kwd = SET
+addNode: nodep = 4481, idx = 385, kwd = SET
+0
+doToken: 0
+byteval popped = 55
+1:pop currNodep = 4478
+byteval = 2
+currNodep = 4478, idx = 382
+rightp = 4482, celltyp = PTR, kwd = DO
+doParen: downp = 4483
+; [set h 0;]
+main loop: doToken = set
+List kwtyp = SET, downp = 55
+currNodep = 4483, celltyp = KWD
+addNode: nodep = 4483, idx = 387, kwd = SET
+set
+doToken: set
+main loop: doToken = h
+Ident added: h
+currNodep = 4483, idx = 387
+rightp = 4484, celltyp = ID, kwd = SET
+addNode: nodep = 4484, idx = 388, kwd = SET
+h
+doToken: h
+main loop: doToken = 0
+currNodep = 4484, idx = 388
+rightp = 4485, celltyp = INT, kwd = SET
+addNode: nodep = 4485, idx = 389, kwd = SET
+0
+doToken: 0
+byteval popped = 55
+1:pop currNodep = 4482
+byteval = 2
+currNodep = 4482, idx = 386
+rightp = 4486, celltyp = PTR, kwd = DO
+doParen: downp = 4487
+; [);]
+byteval popped = 1
+pop currNodep = 4486, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4477
+) byteval popped = 2
+1:pop currNodep = 4469
+byteval = 2
+currNodep = 4469, idx = 373
+rightp = 4488, celltyp = PTR, kwd = DO
+doParen: downp = 4489
+; [);]
+byteval popped = 1
+pop currNodep = 4488, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4461
+) byteval popped = 2
+1:pop currNodep = 4445
+byteval = 12
+currNodep = 4445, idx = 349
+rightp = 4490, celltyp = PTR, kwd = DO
+doParen: downp = 4491
+; [scool S (does t1 t2 t3) (const]
+main loop: doToken = scool
+List kwtyp = SCOOL, downp = 10
+currNodep = 4491, celltyp = KWD
+addNode: nodep = 4491, idx = 395, kwd = SCOOL
+scool
+doToken: scool
+main loop: doToken = S
+Ident added: S
+currNodep = 4491, idx = 395
+rightp = 4492, celltyp = ID, kwd = SCOOL
+addNode: nodep = 4492, idx = 396, kwd = SCOOL
+S
+doToken: S
+currNodep = 4492, idx = 396
+rightp = 4493, celltyp = PTR, kwd = SCOOL
+doParen: downp = 4494
+( main loop: doToken = does
+List kwtyp = DOES, downp = 22
+currNodep = 4494, celltyp = KWD
+addNode: nodep = 4494, idx = 398, kwd = DOES
+does
+doToken: does
+main loop: doToken = t1
+Ident added: t1
+currNodep = 4494, idx = 398
+rightp = 4495, celltyp = ID, kwd = DOES
+addNode: nodep = 4495, idx = 399, kwd = DOES
+t1
+doToken: t1
+main loop: doToken = t2
+Ident added: t2
+currNodep = 4495, idx = 399
+rightp = 4496, celltyp = ID, kwd = DOES
+addNode: nodep = 4496, idx = 400, kwd = DOES
+t2
+doToken: t2
+main loop: doToken = t3
+Ident added: t3
+currNodep = 4496, idx = 400
+rightp = 4497, celltyp = ID, kwd = DOES
+addNode: nodep = 4497, idx = 401, kwd = DOES
+t3
+doToken: t3
+byteval popped = 22
+1:pop currNodep = 4493
+byteval = 10
+) currNodep = 4493, idx = 397
+rightp = 4498, celltyp = PTR, kwd = SCOOL
+doParen: downp = 4499
+( List kwtyp = CONST, downp = 23
+currNodep = 4499, celltyp = KWD
+addNode: nodep = 4499, idx = 403, kwd = CONST
+const
+doToken: const
+[(a 100)]
+currNodep = 4499, idx = 403
+rightp = 4500, celltyp = PTR, kwd = CONST
+doParen: downp = 4501
+( main loop: doToken = a
+Ident added: a
+Func kwtyp = CALL, downp = 8345
+currNodep = 4501, celltyp = FUNC
+addNode: nodep = 4501, idx = 405, kwd = CALL
+a
+doToken: a
+main loop: doToken = 100
+currNodep = 4501, idx = 405
+rightp = 4502, celltyp = INT, kwd = CALL
+addNode: nodep = 4502, idx = 406, kwd = CALL
+100
+doToken: 100
+byteval popped = 27
+1:pop currNodep = 4500
+byteval = 23
+) [(b 200)]
+currNodep = 4500, idx = 404
+rightp = 4503, celltyp = PTR, kwd = CONST
+doParen: downp = 4504
+( main loop: doToken = b
+Ident added: b
+Func kwtyp = CALL, downp = 8346
+currNodep = 4504, celltyp = FUNC
+addNode: nodep = 4504, idx = 408, kwd = CALL
+b
+doToken: b
+main loop: doToken = 200
+currNodep = 4504, idx = 408
+rightp = 16384, celltyp = INT, kwd = CALL
+addNode: nodep = 16384, idx = 0, kwd = CALL
+200
+doToken: 200
+byteval popped = 27
+1:pop currNodep = 4503
+byteval = 23
+) [(c 300))]
+currNodep = 4503, idx = 407
+rightp = 16385, celltyp = PTR, kwd = CONST
+doParen: downp = 16386
+( main loop: doToken = c
+Ident added: c
+Func kwtyp = CALL, downp = 8347
+currNodep = 16386, celltyp = FUNC
+addNode: nodep = 16386, idx = 2, kwd = CALL
+c
+doToken: c
+main loop: doToken = 300
+currNodep = 16386, idx = 2
+rightp = 16387, celltyp = INT, kwd = CALL
+addNode: nodep = 16387, idx = 3, kwd = CALL
+300
+doToken: 300
+byteval popped = 27
+1:pop currNodep = 16385
+byteval = 23
+) byteval popped = 23
+1:pop currNodep = 4498
+byteval = 23
+) [do (]
+main loop: doToken = do
+currNodep = 4498, idx = 402
+rightp = 16388, celltyp = DO, kwd = DO
+addNode: nodep = 16388, idx = 4, kwd = DO
+do
+doToken: do
+currNodep = 16388, idx = 4
+rightp = 16389, celltyp = PTR, kwd = DO
+doParen: downp = 16390
+( [abdefun (ad128 y gumby);]
+main loop: doToken = abdefun
+List kwtyp = ABDEFUN, downp = 14
+currNodep = 16390, celltyp = KWD
+addNode: nodep = 16390, idx = 6, kwd = ABDEFUN
+abdefun
+doToken: abdefun
+currNodep = 16390, idx = 6
+rightp = 16391, celltyp = PTR, kwd = ABDEFUN
+doParen: downp = 16392
+( main loop: doToken = ad128
+Ident added: ad128
+Func kwtyp = CALL, downp = 8348
+currNodep = 16392, celltyp = FUNC
+addNode: nodep = 16392, idx = 8, kwd = CALL
+ad128
+doToken: ad128
+main loop: doToken = y
+Ident added: y
+currNodep = 16392, idx = 8
+rightp = 16393, celltyp = ID, kwd = CALL
+addNode: nodep = 16393, idx = 9, kwd = CALL
+y
+doToken: y
+main loop: doToken = gumby
+Ident added: gumby
+currNodep = 16393, idx = 9
+rightp = 16394, celltyp = ID, kwd = CALL
+addNode: nodep = 16394, idx = 10, kwd = CALL
+gumby
+doToken: gumby
+byteval popped = 27
+1:pop currNodep = 16391
+byteval = 14
+) byteval popped = 14
+1:pop currNodep = 16389
+byteval = 14
+currNodep = 16389, idx = 5
+rightp = 16395, celltyp = PTR, kwd = DO
+doParen: downp = 16396
+; [defimp (r) do ();]
+main loop: doToken = defimp
+List kwtyp = DEFIMP, downp = 16
+currNodep = 16396, celltyp = KWD
+addNode: nodep = 16396, idx = 12, kwd = DEFIMP
+defimp
+doToken: defimp
+currNodep = 16396, idx = 12
+rightp = 16397, celltyp = PTR, kwd = DEFIMP
+doParen: downp = 16398
+( main loop: doToken = r
+Ident added: r
+Func kwtyp = CALL, downp = 8351
+currNodep = 16398, celltyp = FUNC
+addNode: nodep = 16398, idx = 14, kwd = CALL
+r
+doToken: r
+byteval popped = 27
+1:pop currNodep = 16397
+byteval = 16
+) main loop: doToken = do
+currNodep = 16397, idx = 13
+rightp = 16399, celltyp = DO, kwd = DO
+addNode: nodep = 16399, idx = 15, kwd = DO
+do
+doToken: do
+currNodep = 16399, idx = 15
+rightp = 16400, celltyp = PTR, kwd = DO
+doParen: downp = 16401
+( byteval popped = 1
+pop currNodep = 16400, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 16399
+) byteval popped = 16
+1:pop currNodep = 16395
+byteval = 16
+currNodep = 16395, idx = 11
+rightp = 16402, celltyp = PTR, kwd = DO
+doParen: downp = 16403
+; [defimp (r b)]
+main loop: doToken = defimp
+List kwtyp = DEFIMP, downp = 16
+currNodep = 16403, celltyp = KWD
+addNode: nodep = 16403, idx = 19, kwd = DEFIMP
+defimp
+doToken: defimp
+currNodep = 16403, idx = 19
+rightp = 16404, celltyp = PTR, kwd = DEFIMP
+doParen: downp = 16405
+( main loop: doToken = r
+Ident added: r
+Func kwtyp = CALL, downp = 8352
+currNodep = 16405, celltyp = FUNC
+addNode: nodep = 16405, idx = 21, kwd = CALL
+r
+doToken: r
+main loop: doToken = b
+Ident added: b
+currNodep = 16405, idx = 21
+rightp = 16406, celltyp = ID, kwd = CALL
+addNode: nodep = 16406, idx = 22, kwd = CALL
+b
+doToken: b
+byteval popped = 27
+1:pop currNodep = 16404
+byteval = 16
+) [(var i j)]
+currNodep = 16404, idx = 20
+rightp = 16407, celltyp = PTR, kwd = DEFIMP
+doParen: downp = 16408
+( main loop: doToken = var
+List kwtyp = VAR, downp = 17
+currNodep = 16408, celltyp = KWD
+addNode: nodep = 16408, idx = 24, kwd = VAR
+var
+doToken: var
+main loop: doToken = i
+Ident added: i
+currNodep = 16408, idx = 24
+rightp = 16409, celltyp = ID, kwd = VAR
+addNode: nodep = 16409, idx = 25, kwd = VAR
+i
+doToken: i
+main loop: doToken = j
+Ident added: j
+currNodep = 16409, idx = 25
+rightp = 16410, celltyp = ID, kwd = VAR
+addNode: nodep = 16410, idx = 26, kwd = VAR
+j
+doToken: j
+byteval popped = 17
+1:pop currNodep = 16407
+byteval = 16
+) [(gvar h)]
+currNodep = 16407, idx = 23
+rightp = 16411, celltyp = PTR, kwd = DEFIMP
+doParen: downp = 16412
+( main loop: doToken = gvar
+List kwtyp = GVAR, downp = 19
+currNodep = 16412, celltyp = KWD
+addNode: nodep = 16412, idx = 28, kwd = GVAR
+gvar
+doToken: gvar
+main loop: doToken = h
+Ident added: h
+currNodep = 16412, idx = 28
+rightp = 16413, celltyp = ID, kwd = GVAR
+addNode: nodep = 16413, idx = 29, kwd = GVAR
+h
+doToken: h
+byteval popped = 19
+1:pop currNodep = 16411
+byteval = 16
+) [do (]
+main loop: doToken = do
+currNodep = 16411, idx = 27
+rightp = 16414, celltyp = DO, kwd = DO
+addNode: nodep = 16414, idx = 30, kwd = DO
+do
+doToken: do
+currNodep = 16414, idx = 30
+rightp = 16415, celltyp = PTR, kwd = DO
+doParen: downp = 16416
+( [set h i;]
+main loop: doToken = set
+List kwtyp = SET, downp = 55
+currNodep = 16416, celltyp = KWD
+addNode: nodep = 16416, idx = 32, kwd = SET
+set
+doToken: set
+main loop: doToken = h
+Ident added: h
+currNodep = 16416, idx = 32
+rightp = 16417, celltyp = ID, kwd = SET
+addNode: nodep = 16417, idx = 33, kwd = SET
+h
+doToken: h
+main loop: doToken = i
+Ident added: i
+currNodep = 16417, idx = 33
+rightp = 16418, celltyp = ID, kwd = SET
+addNode: nodep = 16418, idx = 34, kwd = SET
+i
+doToken: i
+byteval popped = 55
+1:pop currNodep = 16415
+byteval = 2
+currNodep = 16415, idx = 31
+rightp = 16419, celltyp = PTR, kwd = DO
+doParen: downp = 16420
+; [);]
+byteval popped = 1
+pop currNodep = 16419, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 16414
+) byteval popped = 2
+1:pop currNodep = 16402
+byteval = 16
+currNodep = 16402, idx = 18
+rightp = 16421, celltyp = PTR, kwd = DO
+doParen: downp = 16422
+; [);]
+byteval popped = 1
+pop currNodep = 16421, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 16388
+) byteval popped = 16
+1:pop currNodep = 4490
+byteval = 16
+currNodep = 4490, idx = 394
+rightp = 16423, celltyp = PTR, kwd = DO
+doParen: downp = 16424
+; [iscool SLoc (const (pi 3.1416)) do (]
+main loop: doToken = iscool
+List kwtyp = ISCOOL, downp = 11
+currNodep = 16424, celltyp = KWD
+addNode: nodep = 16424, idx = 40, kwd = ISCOOL
+iscool
+doToken: iscool
+main loop: doToken = SLoc
+Ident added: SLoc
+currNodep = 16424, idx = 40
+rightp = 16425, celltyp = ID, kwd = ISCOOL
+addNode: nodep = 16425, idx = 41, kwd = ISCOOL
+SLoc
+doToken: SLoc
+currNodep = 16425, idx = 41
+rightp = 16426, celltyp = PTR, kwd = ISCOOL
+doParen: downp = 16427
+( main loop: doToken = const
+List kwtyp = CONST, downp = 23
+currNodep = 16427, celltyp = KWD
+addNode: nodep = 16427, idx = 43, kwd = CONST
+const
+doToken: const
+currNodep = 16427, idx = 43
+rightp = 16428, celltyp = PTR, kwd = CONST
+doParen: downp = 16429
+( main loop: doToken = pi
+Ident added: pi
+Func kwtyp = CALL, downp = 8360
+currNodep = 16429, celltyp = FUNC
+addNode: nodep = 16429, idx = 45, kwd = CALL
+pi
+doToken: pi
+main loop: doToken = 3.1416
+currNodep = 16429, idx = 45
+rightp = 16430, celltyp = DOUBLE, kwd = CALL
+addNode: nodep = 16430, idx = 46, kwd = CALL
+3.1416
+doToken: 3.1416
+byteval popped = 27
+1:pop currNodep = 16428
+byteval = 23
+) byteval popped = 23
+1:pop currNodep = 16426
+byteval = 23
+) main loop: doToken = do
+currNodep = 16426, idx = 42
+rightp = 16431, celltyp = DO, kwd = DO
+addNode: nodep = 16431, idx = 47, kwd = DO
+do
+doToken: do
+currNodep = 16431, idx = 47
+rightp = 16432, celltyp = PTR, kwd = DO
+doParen: downp = 16433
+( [abdefun (ad16 xyz) (decor f (: b c) g);]
+main loop: doToken = abdefun
+List kwtyp = ABDEFUN, downp = 14
+currNodep = 16433, celltyp = KWD
+addNode: nodep = 16433, idx = 49, kwd = ABDEFUN
+abdefun
+doToken: abdefun
+currNodep = 16433, idx = 49
+rightp = 16434, celltyp = PTR, kwd = ABDEFUN
+doParen: downp = 16435
+( main loop: doToken = ad16
+Ident added: ad16
+Func kwtyp = CALL, downp = 8361
+currNodep = 16435, celltyp = FUNC
+addNode: nodep = 16435, idx = 51, kwd = CALL
+ad16
+doToken: ad16
+main loop: doToken = xyz
+Ident added: xyz
+currNodep = 16435, idx = 51
+rightp = 16436, celltyp = ID, kwd = CALL
+addNode: nodep = 16436, idx = 52, kwd = CALL
+xyz
+doToken: xyz
+byteval popped = 27
+1:pop currNodep = 16434
+byteval = 14
+) currNodep = 16434, idx = 50
+rightp = 16437, celltyp = PTR, kwd = ABDEFUN
+doParen: downp = 16438
+( main loop: doToken = decor
+List kwtyp = DECOR, downp = 24
+currNodep = 16438, celltyp = KWD
+addNode: nodep = 16438, idx = 54, kwd = DECOR
+decor
+doToken: decor
+main loop: doToken = f
+Ident added: f
+currNodep = 16438, idx = 54
+rightp = 16439, celltyp = ID, kwd = DECOR
+addNode: nodep = 16439, idx = 55, kwd = DECOR
+f
+doToken: f
+currNodep = 16439, idx = 55
+rightp = 16440, celltyp = PTR, kwd = DECOR
+doParen: downp = 16441
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 16441, celltyp = KWD
+addNode: nodep = 16441, idx = 57, kwd = DOT
+:
+doToken: :
+main loop: doToken = b
+Ident added: b
+currNodep = 16441, idx = 57
+rightp = 16442, celltyp = ID, kwd = DOT
+addNode: nodep = 16442, idx = 58, kwd = DOT
+b
+doToken: b
+main loop: doToken = c
+Ident added: c
+currNodep = 16442, idx = 58
+rightp = 16443, celltyp = ID, kwd = DOT
+addNode: nodep = 16443, idx = 59, kwd = DOT
+c
+doToken: c
+byteval popped = 54
+1:pop currNodep = 16440
+byteval = 24
+) main loop: doToken = g
+Ident added: g
+currNodep = 16440, idx = 56
+rightp = 16444, celltyp = ID, kwd = DECOR
+addNode: nodep = 16444, idx = 60, kwd = DECOR
+g
+doToken: g
+byteval popped = 24
+1:pop currNodep = 16437
+byteval = 24
+) byteval popped = 24
+1:pop currNodep = 16432
+byteval = 14
+currNodep = 16432, idx = 48
+rightp = 16445, celltyp = PTR, kwd = DO
+doParen: downp = 16446
+; [defimp (r b c d) (var i j) (gvar h) do (]
+main loop: doToken = defimp
+List kwtyp = DEFIMP, downp = 16
+currNodep = 16446, celltyp = KWD
+addNode: nodep = 16446, idx = 62, kwd = DEFIMP
+defimp
+doToken: defimp
+currNodep = 16446, idx = 62
+rightp = 16447, celltyp = PTR, kwd = DEFIMP
+doParen: downp = 16448
+( main loop: doToken = r
+Ident added: r
+Func kwtyp = CALL, downp = 8367
+currNodep = 16448, celltyp = FUNC
+addNode: nodep = 16448, idx = 64, kwd = CALL
+r
+doToken: r
+main loop: doToken = b
+Ident added: b
+currNodep = 16448, idx = 64
+rightp = 16449, celltyp = ID, kwd = CALL
+addNode: nodep = 16449, idx = 65, kwd = CALL
+b
+doToken: b
+main loop: doToken = c
+Ident added: c
+currNodep = 16449, idx = 65
+rightp = 16450, celltyp = ID, kwd = CALL
+addNode: nodep = 16450, idx = 66, kwd = CALL
+c
+doToken: c
+main loop: doToken = d
+Ident added: d
+currNodep = 16450, idx = 66
+rightp = 16451, celltyp = ID, kwd = CALL
+addNode: nodep = 16451, idx = 67, kwd = CALL
+d
+doToken: d
+byteval popped = 27
+1:pop currNodep = 16447
+byteval = 16
+) currNodep = 16447, idx = 63
+rightp = 16452, celltyp = PTR, kwd = DEFIMP
+doParen: downp = 16453
+( main loop: doToken = var
+List kwtyp = VAR, downp = 17
+currNodep = 16453, celltyp = KWD
+addNode: nodep = 16453, idx = 69, kwd = VAR
+var
+doToken: var
+main loop: doToken = i
+Ident added: i
+currNodep = 16453, idx = 69
+rightp = 16454, celltyp = ID, kwd = VAR
+addNode: nodep = 16454, idx = 70, kwd = VAR
+i
+doToken: i
+main loop: doToken = j
+Ident added: j
+currNodep = 16454, idx = 70
+rightp = 16455, celltyp = ID, kwd = VAR
+addNode: nodep = 16455, idx = 71, kwd = VAR
+j
+doToken: j
+byteval popped = 17
+1:pop currNodep = 16452
+byteval = 16
+) currNodep = 16452, idx = 68
+rightp = 16456, celltyp = PTR, kwd = DEFIMP
+doParen: downp = 16457
+( main loop: doToken = gvar
+List kwtyp = GVAR, downp = 19
+currNodep = 16457, celltyp = KWD
+addNode: nodep = 16457, idx = 73, kwd = GVAR
+gvar
+doToken: gvar
+main loop: doToken = h
+Ident added: h
+currNodep = 16457, idx = 73
+rightp = 16458, celltyp = ID, kwd = GVAR
+addNode: nodep = 16458, idx = 74, kwd = GVAR
+h
+doToken: h
+byteval popped = 19
+1:pop currNodep = 16456
+byteval = 16
+) main loop: doToken = do
+currNodep = 16456, idx = 72
+rightp = 16459, celltyp = DO, kwd = DO
+addNode: nodep = 16459, idx = 75, kwd = DO
+do
+doToken: do
+currNodep = 16459, idx = 75
+rightp = 16460, celltyp = PTR, kwd = DO
+doParen: downp = 16461
+( [set h i;]
+main loop: doToken = set
+List kwtyp = SET, downp = 55
+currNodep = 16461, celltyp = KWD
+addNode: nodep = 16461, idx = 77, kwd = SET
+set
+doToken: set
+main loop: doToken = h
+Ident added: h
+currNodep = 16461, idx = 77
+rightp = 16462, celltyp = ID, kwd = SET
+addNode: nodep = 16462, idx = 78, kwd = SET
+h
+doToken: h
+main loop: doToken = i
+Ident added: i
+currNodep = 16462, idx = 78
+rightp = 16463, celltyp = ID, kwd = SET
+addNode: nodep = 16463, idx = 79, kwd = SET
+i
+doToken: i
+byteval popped = 55
+1:pop currNodep = 16460
+byteval = 2
+currNodep = 16460, idx = 76
+rightp = 16464, celltyp = PTR, kwd = DO
+doParen: downp = 16465
+; [);]
+byteval popped = 1
+pop currNodep = 16464, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 16459
+) byteval popped = 2
+1:pop currNodep = 16445
+byteval = 16
+currNodep = 16445, idx = 61
+rightp = 16466, celltyp = PTR, kwd = DO
+doParen: downp = 16467
+; [);]
+byteval popped = 1
+pop currNodep = 16466, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 16431
+) byteval popped = 16
+1:pop currNodep = 16423
+byteval = 16
+currNodep = 16423, idx = 39
+rightp = 16468, celltyp = PTR, kwd = DO
+doParen: downp = 16469
+; [enum E 3 (: 1 2) (: 4 5);]
+main loop: doToken = enum
+List kwtyp = ENUM, downp = 20
+currNodep = 16469, celltyp = KWD
+addNode: nodep = 16469, idx = 85, kwd = ENUM
+enum
+doToken: enum
+main loop: doToken = E
+Ident added: E
+currNodep = 16469, idx = 85
+rightp = 16470, celltyp = ID, kwd = ENUM
+addNode: nodep = 16470, idx = 86, kwd = ENUM
+E
+doToken: E
+main loop: doToken = 3
+currNodep = 16470, idx = 86
+rightp = 16471, celltyp = INT, kwd = ENUM
+addNode: nodep = 16471, idx = 87, kwd = ENUM
+3
+doToken: 3
+currNodep = 16471, idx = 87
+rightp = 16472, celltyp = PTR, kwd = ENUM
+doParen: downp = 16473
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 16473, celltyp = KWD
+addNode: nodep = 16473, idx = 89, kwd = DOT
+:
+doToken: :
+main loop: doToken = 1
+currNodep = 16473, idx = 89
+rightp = 16474, celltyp = INT, kwd = DOT
+addNode: nodep = 16474, idx = 90, kwd = DOT
+1
+doToken: 1
+main loop: doToken = 2
+currNodep = 16474, idx = 90
+rightp = 16475, celltyp = INT, kwd = DOT
+addNode: nodep = 16475, idx = 91, kwd = DOT
+2
+doToken: 2
+byteval popped = 54
+1:pop currNodep = 16472
+byteval = 20
+) currNodep = 16472, idx = 88
+rightp = 16476, celltyp = PTR, kwd = ENUM
+doParen: downp = 16477
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 16477, celltyp = KWD
+addNode: nodep = 16477, idx = 93, kwd = DOT
+:
+doToken: :
+main loop: doToken = 4
+currNodep = 16477, idx = 93
+rightp = 16478, celltyp = INT, kwd = DOT
+addNode: nodep = 16478, idx = 94, kwd = DOT
+4
+doToken: 4
+main loop: doToken = 5
+currNodep = 16478, idx = 94
+rightp = 16479, celltyp = INT, kwd = DOT
+addNode: nodep = 16479, idx = 95, kwd = DOT
+5
+doToken: 5
+byteval popped = 54
+1:pop currNodep = 16476
+byteval = 20
+) byteval popped = 20
+1:pop currNodep = 16468
+byteval = 20
+currNodep = 16468, idx = 84
+rightp = 16480, celltyp = PTR, kwd = DO
+doParen: downp = 16481
+; [ienum ENum (: "a" "b") "c" (: "x" "e");]
+main loop: doToken = ienum
+List kwtyp = IENUM, downp = 21
+currNodep = 16481, celltyp = KWD
+addNode: nodep = 16481, idx = 97, kwd = IENUM
+ienum
+doToken: ienum
+main loop: doToken = ENum
+Ident added: ENum
+currNodep = 16481, idx = 97
+rightp = 16482, celltyp = ID, kwd = IENUM
+addNode: nodep = 16482, idx = 98, kwd = IENUM
+ENum
+doToken: ENum
+currNodep = 16482, idx = 98
+rightp = 16483, celltyp = PTR, kwd = IENUM
+doParen: downp = 16484
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 16484, celltyp = KWD
+addNode: nodep = 16484, idx = 100, kwd = DOT
+:
+doToken: :
+"a"
+currNodep = 16484, idx = 100
+rightp = 16485, celltyp = STRING, kwd = DOT
+addNode: nodep = 16485, idx = 101, kwd = DOT
+main loop: doToken = 
+"b"
+currNodep = 16485, idx = 101
+rightp = 16486, celltyp = STRING, kwd = DOT
+addNode: nodep = 16486, idx = 102, kwd = DOT
+main loop: doToken = 
+byteval popped = 54
+1:pop currNodep = 16483
+byteval = 21
+) "c"
+currNodep = 16483, idx = 99
+rightp = 16487, celltyp = STRING, kwd = IENUM
+addNode: nodep = 16487, idx = 103, kwd = IENUM
+main loop: doToken = 
+currNodep = 16487, idx = 103
+rightp = 16488, celltyp = PTR, kwd = IENUM
+doParen: downp = 16489
+( main loop: doToken = :
+List kwtyp = DOT, downp = 54
+currNodep = 16489, celltyp = KWD
+addNode: nodep = 16489, idx = 105, kwd = DOT
+:
+doToken: :
+"x"
+currNodep = 16489, idx = 105
+rightp = 16490, celltyp = STRING, kwd = DOT
+addNode: nodep = 16490, idx = 106, kwd = DOT
+main loop: doToken = 
+"e"
+currNodep = 16490, idx = 106
+rightp = 16491, celltyp = STRING, kwd = DOT
+addNode: nodep = 16491, idx = 107, kwd = DOT
+main loop: doToken = 
+byteval popped = 54
+1:pop currNodep = 16488
+byteval = 21
+) byteval popped = 21
+1:pop currNodep = 16480
+byteval = 21
+currNodep = 16480, idx = 96
+rightp = 16492, celltyp = PTR, kwd = DO
+doParen: downp = 16493
+; [enum E4 4;]
+main loop: doToken = enum
+List kwtyp = ENUM, downp = 20
+currNodep = 16493, celltyp = KWD
+addNode: nodep = 16493, idx = 109, kwd = ENUM
+enum
+doToken: enum
+main loop: doToken = E4
+Ident added: E4
+currNodep = 16493, idx = 109
+rightp = 16494, celltyp = ID, kwd = ENUM
+addNode: nodep = 16494, idx = 110, kwd = ENUM
+E4
+doToken: E4
+main loop: doToken = 4
+currNodep = 16494, idx = 110
+rightp = 16495, celltyp = INT, kwd = ENUM
+addNode: nodep = 16495, idx = 111, kwd = ENUM
+4
+doToken: 4
+byteval popped = 20
+1:pop currNodep = 16492
+byteval = 2
+currNodep = 16492, idx = 108
+rightp = 16496, celltyp = PTR, kwd = DO
+doParen: downp = 16497
+; [)]
+byteval popped = 1
+pop currNodep = 16496, kwd = DO
+2:byteval popped = 2
+2:pop currNodep = 4097
+) [{]
+[iclass D E do ();]
+[abclass H do (;);]
+[scool S do ();]
+[iscool T does (S) do ();]
+[enum e a b c;]
+[ienum f x y;]
+[);]
+[}]
+[]
+rightp = 4096, idx = 0, kwd = NULL, celtyp = KWD
+rightp = 4097, idx = 1, kwd = DO, celtyp = DO
+Here is open par!
+root downp = 4098, rightp = 0
+rightp = 4098, idx = 2, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4099, idx = 3, kwd = IMPORT, celtyp = KWD
+rightp = 4100, idx = 4, kwd = IMPORT, celtyp = PTR
+Here is (
+rightp = 4101, idx = 5, kwd = AS, celtyp = KWD
+rightp = 4102, idx = 6, kwd = AS, celtyp = PTR
+Here is (
+rightp = 4103, idx = 7, kwd = DOT, celtyp = KWD
+rightp = 4104, idx = 8, kwd = DOT, celtyp = ID
+rightp = 4105, idx = 9, kwd = DOT, celtyp = ID
+Here is )
+rightp = 4106, idx = 10, kwd = AS, celtyp = ID
+Here is )
+Here is )
+rightp = 4107, idx = 11, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4108, idx = 12, kwd = IMPORT, celtyp = KWD
+rightp = 4109, idx = 13, kwd = IMPORT, celtyp = PTR
+Here is (
+rightp = 4110, idx = 14, kwd = AS, celtyp = KWD
+rightp = 4111, idx = 15, kwd = AS, celtyp = PTR
+Here is (
+rightp = 4112, idx = 16, kwd = DOT, celtyp = KWD
+rightp = 4113, idx = 17, kwd = DOT, celtyp = ID
+rightp = 4114, idx = 18, kwd = DOT, celtyp = ID
+Here is )
+rightp = 4115, idx = 19, kwd = AS, celtyp = ID
+Here is )
+Here is )
+rightp = 4116, idx = 20, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4117, idx = 21, kwd = IMPORT, celtyp = KWD
+rightp = 4118, idx = 22, kwd = IMPORT, celtyp = ID
+rightp = 4119, idx = 23, kwd = IMPORT, celtyp = PTR
+Here is (
+rightp = 4120, idx = 24, kwd = AS, celtyp = KWD
+rightp = 4121, idx = 25, kwd = AS, celtyp = ID
+rightp = 4122, idx = 26, kwd = AS, celtyp = ID
+Here is )
+rightp = 4123, idx = 27, kwd = IMPORT, celtyp = ID
+rightp = 4124, idx = 28, kwd = IMPORT, celtyp = PTR
+Here is (
+rightp = 4125, idx = 29, kwd = AS, celtyp = KWD
+rightp = 4126, idx = 30, kwd = AS, celtyp = PTR
+Here is (
+rightp = 4127, idx = 31, kwd = DOT, celtyp = KWD
+rightp = 4128, idx = 32, kwd = DOT, celtyp = ID
+rightp = 4129, idx = 33, kwd = DOT, celtyp = ID
+Here is )
+rightp = 4130, idx = 34, kwd = AS, celtyp = ID
+Here is )
+Here is )
+rightp = 4131, idx = 35, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4132, idx = 36, kwd = IMPORT, celtyp = KWD
+rightp = 4133, idx = 37, kwd = IMPORT, celtyp = ID
+rightp = 4134, idx = 38, kwd = IMPORT, celtyp = PTR
+Here is (
+rightp = 4135, idx = 39, kwd = AS, celtyp = KWD
+rightp = 4136, idx = 40, kwd = AS, celtyp = PTR
+Here is (
+rightp = 4137, idx = 41, kwd = DOT, celtyp = KWD
+rightp = 4138, idx = 42, kwd = DOT, celtyp = ID
+rightp = 4139, idx = 43, kwd = DOT, celtyp = ID
+Here is )
+rightp = 4140, idx = 44, kwd = AS, celtyp = ID
+Here is )
+Here is )
+rightp = 4141, idx = 45, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4142, idx = 46, kwd = FROM, celtyp = KWD
+rightp = 4143, idx = 47, kwd = FROM, celtyp = ID
+rightp = 4144, idx = 48, kwd = IMPORT, celtyp = KWD
+rightp = 4145, idx = 49, kwd = IMPORT, celtyp = PTR
+Here is (
+rightp = 4146, idx = 50, kwd = AS, celtyp = KWD
+rightp = 4147, idx = 51, kwd = AS, celtyp = ID
+rightp = 4148, idx = 52, kwd = AS, celtyp = ID
+Here is )
+rightp = 4149, idx = 53, kwd = IMPORT, celtyp = ID
+rightp = 4150, idx = 54, kwd = IMPORT, celtyp = ID
+Here is )
+rightp = 4151, idx = 55, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4152, idx = 56, kwd = FROM, celtyp = KWD
+rightp = 4153, idx = 57, kwd = FROM, celtyp = PTR
+Here is (
+rightp = 4154, idx = 58, kwd = DOT, celtyp = KWD
+rightp = 4155, idx = 59, kwd = DOT, celtyp = ID
+rightp = 4156, idx = 60, kwd = DOT, celtyp = ID
+rightp = 4157, idx = 61, kwd = DOT, celtyp = ID
+rightp = 4158, idx = 62, kwd = DOT, celtyp = ID
+rightp = 4159, idx = 63, kwd = DOT, celtyp = ID
+Here is )
+rightp = 4160, idx = 64, kwd = IMPORT, celtyp = KWD
+rightp = 4161, idx = 65, kwd = IMPORT, celtyp = PTR
+Here is (
+rightp = 4162, idx = 66, kwd = AS, celtyp = KWD
+rightp = 4163, idx = 67, kwd = AS, celtyp = ID
+rightp = 4164, idx = 68, kwd = AS, celtyp = ID
+Here is )
+Here is )
+rightp = 4165, idx = 69, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4166, idx = 70, kwd = FROM, celtyp = KWD
+rightp = 4167, idx = 71, kwd = FROM, celtyp = ID
+rightp = 4168, idx = 72, kwd = IMPORT, celtyp = KWD
+rightp = 4169, idx = 73, kwd = IMPORT, celtyp = ID
+rightp = 4170, idx = 74, kwd = IMPORT, celtyp = PTR
+Here is (
+rightp = 4171, idx = 75, kwd = AS, celtyp = KWD
+rightp = 4172, idx = 76, kwd = AS, celtyp = ID
+rightp = 4173, idx = 77, kwd = AS, celtyp = ID
+Here is )
+rightp = 4174, idx = 78, kwd = IMPORT, celtyp = ID
+rightp = 4175, idx = 79, kwd = IMPORT, celtyp = PTR
+Here is (
+rightp = 4176, idx = 80, kwd = AS, celtyp = KWD
+rightp = 4177, idx = 81, kwd = AS, celtyp = ID
+rightp = 4178, idx = 82, kwd = AS, celtyp = ID
+Here is )
+Here is )
+rightp = 4179, idx = 83, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4180, idx = 84, kwd = FROM, celtyp = KWD
+rightp = 4181, idx = 85, kwd = FROM, celtyp = ID
+rightp = 4182, idx = 86, kwd = IMPORT, celtyp = KWD
+rightp = 4183, idx = 87, kwd = ALL, celtyp = KWD
+Here is )
+rightp = 4184, idx = 88, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4185, idx = 89, kwd = GDEFUN, celtyp = KWD
+rightp = 4186, idx = 90, kwd = GDEFUN, celtyp = PTR
+Here is (
+rightp = 4187, idx = 91, kwd = VAR, celtyp = KWD
+rightp = 4188, idx = 92, kwd = VAR, celtyp = ID
+rightp = 4189, idx = 93, kwd = VAR, celtyp = ID
+rightp = 4190, idx = 94, kwd = VAR, celtyp = ID
+Here is )
+rightp = 4191, idx = 95, kwd = GDEFUN, celtyp = PTR
+Here is (
+rightp = 4192, idx = 96, kwd = IVAR, celtyp = KWD
+rightp = 4193, idx = 97, kwd = IVAR, celtyp = ID
+Here is )
+rightp = 4194, idx = 98, kwd = DO, celtyp = DO
+Here is (
+rightp = 4195, idx = 99, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4196, idx = 100, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4197, idx = 101, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4198, idx = 102, kwd = DEFUN, celtyp = KWD
+rightp = 4199, idx = 103, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4200, idx = 104, kwd = CALL, celtyp = FUNC
+rightp = 4201, idx = 105, kwd = CALL, celtyp = ID
+rightp = 4202, idx = 106, kwd = CALL, celtyp = ID
+rightp = 4203, idx = 107, kwd = CALL, celtyp = PTR
+Here is (
+rightp = 4204, idx = 108, kwd = SET, celtyp = KWD
+rightp = 4205, idx = 109, kwd = SET, celtyp = ID
+rightp = 4206, idx = 110, kwd = SET, celtyp = INT
+Here is )
+rightp = 4207, idx = 111, kwd = CALL, celtyp = PTR
+Here is (
+rightp = 4208, idx = 112, kwd = SET, celtyp = KWD
+rightp = 4209, idx = 113, kwd = SET, celtyp = ID
+rightp = 4210, idx = 114, kwd = SET, celtyp = STRING
+Here is )
+rightp = 4211, idx = 115, kwd = CALL, celtyp = PTR
+Here is (
+rightp = 4212, idx = 116, kwd = SET, celtyp = KWD
+rightp = 4213, idx = 117, kwd = SET, celtyp = ID
+rightp = 4214, idx = 118, kwd = SET, celtyp = DOUBLE
+Here is )
+rightp = 4215, idx = 119, kwd = CALL, celtyp = PTR
+Here is (
+rightp = 4216, idx = 120, kwd = MPY, celtyp = KWD
+rightp = 4217, idx = 121, kwd = MPY, celtyp = ID
+Here is )
+rightp = 4218, idx = 122, kwd = CALL, celtyp = PTR
+Here is (
+rightp = 4219, idx = 123, kwd = DBLSTAR, celtyp = KWD
+rightp = 4220, idx = 124, kwd = DBLSTAR, celtyp = ID
+Here is )
+Here is )
+rightp = 4221, idx = 125, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4222, idx = 126, kwd = VAR, celtyp = KWD
+rightp = 4223, idx = 127, kwd = VAR, celtyp = ID
+rightp = 4224, idx = 128, kwd = VAR, celtyp = ID
+Here is )
+rightp = 4225, idx = 129, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4226, idx = 130, kwd = DECOR, celtyp = KWD
+rightp = 4227, idx = 131, kwd = DECOR, celtyp = ID
+rightp = 4228, idx = 132, kwd = DECOR, celtyp = ID
+rightp = 4229, idx = 133, kwd = DECOR, celtyp = ID
+rightp = 4230, idx = 134, kwd = DECOR, celtyp = PTR
+Here is (
+rightp = 4231, idx = 135, kwd = CALL, celtyp = FUNC
+rightp = 4232, idx = 136, kwd = CALL, celtyp = ID
+Here is )
+rightp = 4233, idx = 137, kwd = DECOR, celtyp = PTR
+Here is (
+rightp = 4234, idx = 138, kwd = DOT, celtyp = KWD
+rightp = 4235, idx = 139, kwd = DOT, celtyp = ID
+rightp = 4236, idx = 140, kwd = DOT, celtyp = PTR
+Here is (
+rightp = 4237, idx = 141, kwd = CALL, celtyp = FUNC
+rightp = 4238, idx = 142, kwd = CALL, celtyp = ID
+Here is )
+Here is )
+rightp = 4239, idx = 143, kwd = DECOR, celtyp = PTR
+Here is (
+rightp = 4240, idx = 144, kwd = DOT, celtyp = KWD
+rightp = 4241, idx = 145, kwd = DOT, celtyp = ID
+rightp = 4242, idx = 146, kwd = DOT, celtyp = PTR
+Here is (
+rightp = 4243, idx = 147, kwd = CALL, celtyp = FUNC
+Here is )
+Here is )
+Here is )
+rightp = 4244, idx = 148, kwd = DO, celtyp = DO
+Here is (
+rightp = 4245, idx = 149, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4246, idx = 150, kwd = SET, celtyp = KWD
+rightp = 4247, idx = 151, kwd = SET, celtyp = ID
+rightp = 4248, idx = 152, kwd = SET, celtyp = INT
+Here is )
+rightp = 4249, idx = 153, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4250, idx = 154, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4251, idx = 155, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4252, idx = 156, kwd = IDEFUN, celtyp = KWD
+rightp = 4253, idx = 157, kwd = IDEFUN, celtyp = PTR
+Here is (
+rightp = 4254, idx = 158, kwd = CALL, celtyp = FUNC
+Here is )
+rightp = 4255, idx = 159, kwd = IDEFUN, celtyp = PTR
+Here is (
+rightp = 4256, idx = 160, kwd = VAR, celtyp = KWD
+rightp = 4257, idx = 161, kwd = VAR, celtyp = ID
+rightp = 4258, idx = 162, kwd = VAR, celtyp = ID
+rightp = 4259, idx = 163, kwd = VAR, celtyp = ID
+Here is )
+rightp = 4260, idx = 164, kwd = DO, celtyp = DO
+Here is (
+rightp = 4261, idx = 165, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4262, idx = 166, kwd = IF, celtyp = KWD
+rightp = 4263, idx = 167, kwd = IF, celtyp = ID
+rightp = 4264, idx = 168, kwd = DO, celtyp = DO
+Here is (
+rightp = 4265, idx = 169, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4266, idx = 170, kwd = SET, celtyp = KWD
+rightp = 4267, idx = 171, kwd = SET, celtyp = ID
+rightp = 4268, idx = 172, kwd = SET, celtyp = ID
+Here is )
+rightp = 4269, idx = 173, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4270, idx = 174, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4271, idx = 175, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4272, idx = 176, kwd = SET, celtyp = KWD
+rightp = 4273, idx = 177, kwd = SET, celtyp = ID
+rightp = 4274, idx = 178, kwd = SET, celtyp = ID
+Here is )
+rightp = 4275, idx = 179, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4276, idx = 180, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4277, idx = 181, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4278, idx = 182, kwd = DEFUN, celtyp = KWD
+rightp = 4279, idx = 183, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4280, idx = 184, kwd = CALL, celtyp = FUNC
+Here is )
+rightp = 4281, idx = 185, kwd = DO, celtyp = DO
+Here is (
+rightp = 4282, idx = 186, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4283, idx = 187, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4284, idx = 188, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4285, idx = 189, kwd = CLASS, celtyp = KWD
+rightp = 4286, idx = 190, kwd = CLASS, celtyp = ID
+rightp = 4287, idx = 191, kwd = CLASS, celtyp = PTR
+Here is (
+rightp = 4288, idx = 192, kwd = DOT, celtyp = KWD
+rightp = 4289, idx = 193, kwd = DOT, celtyp = ID
+rightp = 4290, idx = 194, kwd = DOT, celtyp = ID
+Here is )
+rightp = 4291, idx = 195, kwd = CLASS, celtyp = PTR
+Here is (
+rightp = 4292, idx = 196, kwd = DOES, celtyp = KWD
+rightp = 4293, idx = 197, kwd = DOES, celtyp = ID
+rightp = 4294, idx = 198, kwd = DOES, celtyp = ID
+Here is )
+rightp = 4295, idx = 199, kwd = CLASS, celtyp = PTR
+Here is (
+rightp = 4296, idx = 200, kwd = VAR, celtyp = KWD
+rightp = 4297, idx = 201, kwd = VAR, celtyp = ID
+rightp = 4298, idx = 202, kwd = VAR, celtyp = ID
+rightp = 4299, idx = 203, kwd = VAR, celtyp = ID
+Here is )
+rightp = 4300, idx = 204, kwd = CLASS, celtyp = PTR
+Here is (
+rightp = 4301, idx = 205, kwd = IVAR, celtyp = KWD
+rightp = 4302, idx = 206, kwd = IVAR, celtyp = ID
+rightp = 4303, idx = 207, kwd = IVAR, celtyp = ID
+rightp = 4304, idx = 208, kwd = IVAR, celtyp = ID
+Here is )
+rightp = 4305, idx = 209, kwd = DO, celtyp = DO
+Here is (
+rightp = 4306, idx = 210, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4307, idx = 211, kwd = DEFUN, celtyp = KWD
+rightp = 4308, idx = 212, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4309, idx = 213, kwd = CALL, celtyp = FUNC
+Here is )
+rightp = 4310, idx = 214, kwd = DO, celtyp = DO
+Here is (
+rightp = 4311, idx = 215, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4312, idx = 216, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4313, idx = 217, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4314, idx = 218, kwd = IDEFUN, celtyp = KWD
+rightp = 4315, idx = 219, kwd = IDEFUN, celtyp = PTR
+Here is (
+rightp = 4316, idx = 220, kwd = CALL, celtyp = FUNC
+Here is )
+rightp = 4317, idx = 221, kwd = IDEFUN, celtyp = PTR
+Here is (
+rightp = 4318, idx = 222, kwd = VAR, celtyp = KWD
+rightp = 4319, idx = 223, kwd = VAR, celtyp = ID
+rightp = 4320, idx = 224, kwd = VAR, celtyp = ID
+rightp = 4321, idx = 225, kwd = VAR, celtyp = ID
+Here is )
+rightp = 4322, idx = 226, kwd = DO, celtyp = DO
+Here is (
+rightp = 4323, idx = 227, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4324, idx = 228, kwd = IF, celtyp = KWD
+rightp = 4325, idx = 229, kwd = IF, celtyp = ID
+rightp = 4326, idx = 230, kwd = DO, celtyp = DO
+Here is (
+rightp = 4327, idx = 231, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4328, idx = 232, kwd = SET, celtyp = KWD
+rightp = 4329, idx = 233, kwd = SET, celtyp = ID
+rightp = 4330, idx = 234, kwd = SET, celtyp = ID
+Here is )
+rightp = 4331, idx = 235, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4332, idx = 236, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4333, idx = 237, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4334, idx = 238, kwd = SET, celtyp = KWD
+rightp = 4335, idx = 239, kwd = SET, celtyp = ID
+rightp = 4336, idx = 240, kwd = SET, celtyp = ID
+Here is )
+rightp = 4337, idx = 241, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4338, idx = 242, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4339, idx = 243, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4340, idx = 244, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4341, idx = 245, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4342, idx = 246, kwd = ICLASS, celtyp = KWD
+rightp = 4343, idx = 247, kwd = ICLASS, celtyp = ID
+rightp = 4344, idx = 248, kwd = ICLASS, celtyp = ID
+rightp = 4345, idx = 249, kwd = ICLASS, celtyp = PTR
+Here is (
+rightp = 4346, idx = 250, kwd = DOES, celtyp = KWD
+rightp = 4347, idx = 251, kwd = DOES, celtyp = ID
+rightp = 4348, idx = 252, kwd = DOES, celtyp = ID
+rightp = 4349, idx = 253, kwd = DOES, celtyp = ID
+Here is )
+rightp = 4350, idx = 254, kwd = ICLASS, celtyp = PTR
+Here is (
+rightp = 4351, idx = 255, kwd = VAR, celtyp = KWD
+rightp = 4352, idx = 256, kwd = VAR, celtyp = ID
+rightp = 4353, idx = 257, kwd = VAR, celtyp = ID
+Here is )
+rightp = 4354, idx = 258, kwd = DO, celtyp = DO
+Here is (
+rightp = 4355, idx = 259, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4356, idx = 260, kwd = DEFUN, celtyp = KWD
+rightp = 4357, idx = 261, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4358, idx = 262, kwd = CALL, celtyp = FUNC
+rightp = 4359, idx = 263, kwd = CALL, celtyp = ID
+rightp = 4360, idx = 264, kwd = CALL, celtyp = ID
+Here is )
+rightp = 4361, idx = 265, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4362, idx = 266, kwd = VAR, celtyp = KWD
+rightp = 4363, idx = 267, kwd = VAR, celtyp = ID
+Here is )
+rightp = 4364, idx = 268, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4365, idx = 269, kwd = GVAR, celtyp = KWD
+rightp = 4366, idx = 270, kwd = GVAR, celtyp = ID
+rightp = 4367, idx = 271, kwd = GVAR, celtyp = ID
+Here is )
+rightp = 4368, idx = 272, kwd = DO, celtyp = DO
+Here is (
+rightp = 4369, idx = 273, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4370, idx = 274, kwd = SET, celtyp = KWD
+rightp = 4371, idx = 275, kwd = SET, celtyp = ID
+rightp = 4372, idx = 276, kwd = SET, celtyp = ID
+Here is )
+rightp = 4373, idx = 277, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4374, idx = 278, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4375, idx = 279, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4376, idx = 280, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4377, idx = 281, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4378, idx = 282, kwd = ABCLASS, celtyp = KWD
+rightp = 4379, idx = 283, kwd = ABCLASS, celtyp = ID
+rightp = 4380, idx = 284, kwd = ABCLASS, celtyp = PTR
+Here is (
+rightp = 4381, idx = 285, kwd = DOES, celtyp = KWD
+rightp = 4382, idx = 286, kwd = DOES, celtyp = ID
+Here is )
+rightp = 4383, idx = 287, kwd = ABCLASS, celtyp = PTR
+Here is (
+rightp = 4384, idx = 288, kwd = IVAR, celtyp = KWD
+rightp = 4385, idx = 289, kwd = IVAR, celtyp = ID
+rightp = 4386, idx = 290, kwd = IVAR, celtyp = ID
+rightp = 4387, idx = 291, kwd = IVAR, celtyp = ID
+Here is )
+rightp = 4388, idx = 292, kwd = DO, celtyp = DO
+Here is (
+rightp = 4389, idx = 293, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4390, idx = 294, kwd = IDEFUN, celtyp = KWD
+rightp = 4391, idx = 295, kwd = IDEFUN, celtyp = PTR
+Here is (
+rightp = 4392, idx = 296, kwd = CALL, celtyp = FUNC
+rightp = 4393, idx = 297, kwd = CALL, celtyp = ID
+Here is )
+rightp = 4394, idx = 298, kwd = IDEFUN, celtyp = PTR
+Here is (
+rightp = 4395, idx = 299, kwd = VAR, celtyp = KWD
+rightp = 4396, idx = 300, kwd = VAR, celtyp = ID
+rightp = 4397, idx = 301, kwd = VAR, celtyp = ID
+rightp = 4398, idx = 302, kwd = VAR, celtyp = ID
+Here is )
+rightp = 4399, idx = 303, kwd = DO, celtyp = DO
+Here is (
+rightp = 4400, idx = 304, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4401, idx = 305, kwd = SET, celtyp = KWD
+rightp = 4402, idx = 306, kwd = SET, celtyp = ID
+rightp = 4403, idx = 307, kwd = SET, celtyp = PTR
+Here is (
+rightp = 4404, idx = 308, kwd = MINUS, celtyp = KWD
+rightp = 4405, idx = 309, kwd = MINUS, celtyp = ID
+rightp = 4406, idx = 310, kwd = MINUS, celtyp = INT
+Here is )
+Here is )
+rightp = 4407, idx = 311, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4408, idx = 312, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4409, idx = 313, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4410, idx = 314, kwd = DEFUN, celtyp = KWD
+rightp = 4411, idx = 315, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4412, idx = 316, kwd = CALL, celtyp = FUNC
+Here is )
+rightp = 4413, idx = 317, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4414, idx = 318, kwd = VAR, celtyp = KWD
+rightp = 4415, idx = 319, kwd = VAR, celtyp = ID
+Here is )
+rightp = 4416, idx = 320, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4417, idx = 321, kwd = GVAR, celtyp = KWD
+rightp = 4418, idx = 322, kwd = GVAR, celtyp = ID
+Here is )
+rightp = 4419, idx = 323, kwd = DO, celtyp = DO
+Here is (
+rightp = 4420, idx = 324, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4421, idx = 325, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4422, idx = 326, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4423, idx = 327, kwd = ABDEFUN, celtyp = KWD
+rightp = 4424, idx = 328, kwd = ABDEFUN, celtyp = PTR
+Here is (
+rightp = 4425, idx = 329, kwd = CALL, celtyp = FUNC
+rightp = 4426, idx = 330, kwd = CALL, celtyp = ID
+rightp = 4427, idx = 331, kwd = CALL, celtyp = ID
+Here is )
+rightp = 4428, idx = 332, kwd = ABDEFUN, celtyp = PTR
+Here is (
+rightp = 4429, idx = 333, kwd = DECOR, celtyp = KWD
+rightp = 4430, idx = 334, kwd = DECOR, celtyp = ID
+rightp = 4431, idx = 335, kwd = DECOR, celtyp = ID
+rightp = 4432, idx = 336, kwd = DECOR, celtyp = PTR
+Here is (
+rightp = 4433, idx = 337, kwd = DOT, celtyp = KWD
+rightp = 4434, idx = 338, kwd = DOT, celtyp = ID
+rightp = 4435, idx = 339, kwd = DOT, celtyp = ID
+Here is )
+rightp = 4436, idx = 340, kwd = DECOR, celtyp = PTR
+Here is (
+rightp = 4437, idx = 341, kwd = DOT, celtyp = KWD
+rightp = 4438, idx = 342, kwd = DOT, celtyp = ID
+rightp = 4439, idx = 343, kwd = DOT, celtyp = PTR
+Here is (
+rightp = 4440, idx = 344, kwd = CALL, celtyp = FUNC
+rightp = 4441, idx = 345, kwd = CALL, celtyp = ID
+rightp = 4442, idx = 346, kwd = CALL, celtyp = ID
+Here is )
+Here is )
+Here is )
+Here is )
+rightp = 4443, idx = 347, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4444, idx = 348, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4445, idx = 349, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4446, idx = 350, kwd = CLASS, celtyp = KWD
+rightp = 4447, idx = 351, kwd = CLASS, celtyp = ID
+rightp = 4448, idx = 352, kwd = CLASS, celtyp = ID
+rightp = 4449, idx = 353, kwd = CLASS, celtyp = PTR
+Here is (
+rightp = 4450, idx = 354, kwd = DOES, celtyp = KWD
+rightp = 4451, idx = 355, kwd = DOES, celtyp = ID
+rightp = 4452, idx = 356, kwd = DOES, celtyp = ID
+rightp = 4453, idx = 357, kwd = DOES, celtyp = ID
+Here is )
+rightp = 4454, idx = 358, kwd = CLASS, celtyp = PTR
+Here is (
+rightp = 4455, idx = 359, kwd = VAR, celtyp = KWD
+rightp = 4456, idx = 360, kwd = VAR, celtyp = ID
+rightp = 4457, idx = 361, kwd = VAR, celtyp = ID
+Here is )
+rightp = 4458, idx = 362, kwd = CLASS, celtyp = PTR
+Here is (
+rightp = 4459, idx = 363, kwd = IVAR, celtyp = KWD
+rightp = 4460, idx = 364, kwd = IVAR, celtyp = ID
+Here is )
+rightp = 4461, idx = 365, kwd = DO, celtyp = DO
+Here is (
+rightp = 4462, idx = 366, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4463, idx = 367, kwd = DEFUN, celtyp = KWD
+rightp = 4464, idx = 368, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4465, idx = 369, kwd = CALL, celtyp = FUNC
+Here is )
+rightp = 4466, idx = 370, kwd = DO, celtyp = DO
+Here is (
+rightp = 4467, idx = 371, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4468, idx = 372, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4469, idx = 373, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4470, idx = 374, kwd = DEFUN, celtyp = KWD
+rightp = 4471, idx = 375, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4472, idx = 376, kwd = CALL, celtyp = FUNC
+rightp = 4473, idx = 377, kwd = CALL, celtyp = ID
+Here is )
+rightp = 4474, idx = 378, kwd = DEFUN, celtyp = PTR
+Here is (
+rightp = 4475, idx = 379, kwd = GVAR, celtyp = KWD
+rightp = 4476, idx = 380, kwd = GVAR, celtyp = ID
+Here is )
+rightp = 4477, idx = 381, kwd = DO, celtyp = DO
+Here is (
+rightp = 4478, idx = 382, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4479, idx = 383, kwd = SET, celtyp = KWD
+rightp = 4480, idx = 384, kwd = SET, celtyp = ID
+rightp = 4481, idx = 385, kwd = SET, celtyp = INT
+Here is )
+rightp = 4482, idx = 386, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4483, idx = 387, kwd = SET, celtyp = KWD
+rightp = 4484, idx = 388, kwd = SET, celtyp = ID
+rightp = 4485, idx = 389, kwd = SET, celtyp = INT
+Here is )
+rightp = 4486, idx = 390, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4487, idx = 391, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4488, idx = 392, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4489, idx = 393, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 4490, idx = 394, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4491, idx = 395, kwd = SCOOL, celtyp = KWD
+rightp = 4492, idx = 396, kwd = SCOOL, celtyp = ID
+rightp = 4493, idx = 397, kwd = SCOOL, celtyp = PTR
+Here is (
+rightp = 4494, idx = 398, kwd = DOES, celtyp = KWD
+rightp = 4495, idx = 399, kwd = DOES, celtyp = ID
+rightp = 4496, idx = 400, kwd = DOES, celtyp = ID
+rightp = 4497, idx = 401, kwd = DOES, celtyp = ID
+Here is )
+rightp = 4498, idx = 402, kwd = SCOOL, celtyp = PTR
+Here is (
+rightp = 4499, idx = 403, kwd = CONST, celtyp = KWD
+rightp = 4500, idx = 404, kwd = CONST, celtyp = PTR
+Here is (
+rightp = 4501, idx = 405, kwd = CALL, celtyp = FUNC
+rightp = 4502, idx = 406, kwd = CALL, celtyp = INT
+Here is )
+rightp = 4503, idx = 407, kwd = CONST, celtyp = PTR
+Here is (
+rightp = 4504, idx = 408, kwd = CALL, celtyp = FUNC
+rightp = 16384, idx = 0, kwd = CALL, celtyp = INT
+Here is )
+rightp = 16385, idx = 1, kwd = CONST, celtyp = PTR
+Here is (
+rightp = 16386, idx = 2, kwd = CALL, celtyp = FUNC
+rightp = 16387, idx = 3, kwd = CALL, celtyp = INT
+Here is )
+Here is )
+rightp = 16388, idx = 4, kwd = DO, celtyp = DO
+Here is (
+rightp = 16389, idx = 5, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16390, idx = 6, kwd = ABDEFUN, celtyp = KWD
+rightp = 16391, idx = 7, kwd = ABDEFUN, celtyp = PTR
+Here is (
+rightp = 16392, idx = 8, kwd = CALL, celtyp = FUNC
+rightp = 16393, idx = 9, kwd = CALL, celtyp = ID
+rightp = 16394, idx = 10, kwd = CALL, celtyp = ID
+Here is )
+Here is )
+rightp = 16395, idx = 11, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16396, idx = 12, kwd = DEFIMP, celtyp = KWD
+rightp = 16397, idx = 13, kwd = DEFIMP, celtyp = PTR
+Here is (
+rightp = 16398, idx = 14, kwd = CALL, celtyp = FUNC
+Here is )
+rightp = 16399, idx = 15, kwd = DO, celtyp = DO
+Here is (
+rightp = 16400, idx = 16, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16401, idx = 17, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 16402, idx = 18, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16403, idx = 19, kwd = DEFIMP, celtyp = KWD
+rightp = 16404, idx = 20, kwd = DEFIMP, celtyp = PTR
+Here is (
+rightp = 16405, idx = 21, kwd = CALL, celtyp = FUNC
+rightp = 16406, idx = 22, kwd = CALL, celtyp = ID
+Here is )
+rightp = 16407, idx = 23, kwd = DEFIMP, celtyp = PTR
+Here is (
+rightp = 16408, idx = 24, kwd = VAR, celtyp = KWD
+rightp = 16409, idx = 25, kwd = VAR, celtyp = ID
+rightp = 16410, idx = 26, kwd = VAR, celtyp = ID
+Here is )
+rightp = 16411, idx = 27, kwd = DEFIMP, celtyp = PTR
+Here is (
+rightp = 16412, idx = 28, kwd = GVAR, celtyp = KWD
+rightp = 16413, idx = 29, kwd = GVAR, celtyp = ID
+Here is )
+rightp = 16414, idx = 30, kwd = DO, celtyp = DO
+Here is (
+rightp = 16415, idx = 31, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16416, idx = 32, kwd = SET, celtyp = KWD
+rightp = 16417, idx = 33, kwd = SET, celtyp = ID
+rightp = 16418, idx = 34, kwd = SET, celtyp = ID
+Here is )
+rightp = 16419, idx = 35, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16420, idx = 36, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 16421, idx = 37, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16422, idx = 38, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 16423, idx = 39, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16424, idx = 40, kwd = ISCOOL, celtyp = KWD
+rightp = 16425, idx = 41, kwd = ISCOOL, celtyp = ID
+rightp = 16426, idx = 42, kwd = ISCOOL, celtyp = PTR
+Here is (
+rightp = 16427, idx = 43, kwd = CONST, celtyp = KWD
+rightp = 16428, idx = 44, kwd = CONST, celtyp = PTR
+Here is (
+rightp = 16429, idx = 45, kwd = CALL, celtyp = FUNC
+rightp = 16430, idx = 46, kwd = CALL, celtyp = DOUBLE
+Here is )
+Here is )
+rightp = 16431, idx = 47, kwd = DO, celtyp = DO
+Here is (
+rightp = 16432, idx = 48, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16433, idx = 49, kwd = ABDEFUN, celtyp = KWD
+rightp = 16434, idx = 50, kwd = ABDEFUN, celtyp = PTR
+Here is (
+rightp = 16435, idx = 51, kwd = CALL, celtyp = FUNC
+rightp = 16436, idx = 52, kwd = CALL, celtyp = ID
+Here is )
+rightp = 16437, idx = 53, kwd = ABDEFUN, celtyp = PTR
+Here is (
+rightp = 16438, idx = 54, kwd = DECOR, celtyp = KWD
+rightp = 16439, idx = 55, kwd = DECOR, celtyp = ID
+rightp = 16440, idx = 56, kwd = DECOR, celtyp = PTR
+Here is (
+rightp = 16441, idx = 57, kwd = DOT, celtyp = KWD
+rightp = 16442, idx = 58, kwd = DOT, celtyp = ID
+rightp = 16443, idx = 59, kwd = DOT, celtyp = ID
+Here is )
+rightp = 16444, idx = 60, kwd = DECOR, celtyp = ID
+Here is )
+Here is )
+rightp = 16445, idx = 61, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16446, idx = 62, kwd = DEFIMP, celtyp = KWD
+rightp = 16447, idx = 63, kwd = DEFIMP, celtyp = PTR
+Here is (
+rightp = 16448, idx = 64, kwd = CALL, celtyp = FUNC
+rightp = 16449, idx = 65, kwd = CALL, celtyp = ID
+rightp = 16450, idx = 66, kwd = CALL, celtyp = ID
+rightp = 16451, idx = 67, kwd = CALL, celtyp = ID
+Here is )
+rightp = 16452, idx = 68, kwd = DEFIMP, celtyp = PTR
+Here is (
+rightp = 16453, idx = 69, kwd = VAR, celtyp = KWD
+rightp = 16454, idx = 70, kwd = VAR, celtyp = ID
+rightp = 16455, idx = 71, kwd = VAR, celtyp = ID
+Here is )
+rightp = 16456, idx = 72, kwd = DEFIMP, celtyp = PTR
+Here is (
+rightp = 16457, idx = 73, kwd = GVAR, celtyp = KWD
+rightp = 16458, idx = 74, kwd = GVAR, celtyp = ID
+Here is )
+rightp = 16459, idx = 75, kwd = DO, celtyp = DO
+Here is (
+rightp = 16460, idx = 76, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16461, idx = 77, kwd = SET, celtyp = KWD
+rightp = 16462, idx = 78, kwd = SET, celtyp = ID
+rightp = 16463, idx = 79, kwd = SET, celtyp = ID
+Here is )
+rightp = 16464, idx = 80, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16465, idx = 81, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 16466, idx = 82, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16467, idx = 83, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is )
+Here is )
+rightp = 16468, idx = 84, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16469, idx = 85, kwd = ENUM, celtyp = KWD
+rightp = 16470, idx = 86, kwd = ENUM, celtyp = ID
+rightp = 16471, idx = 87, kwd = ENUM, celtyp = INT
+rightp = 16472, idx = 88, kwd = ENUM, celtyp = PTR
+Here is (
+rightp = 16473, idx = 89, kwd = DOT, celtyp = KWD
+rightp = 16474, idx = 90, kwd = DOT, celtyp = INT
+rightp = 16475, idx = 91, kwd = DOT, celtyp = INT
+Here is )
+rightp = 16476, idx = 92, kwd = ENUM, celtyp = PTR
+Here is (
+rightp = 16477, idx = 93, kwd = DOT, celtyp = KWD
+rightp = 16478, idx = 94, kwd = DOT, celtyp = INT
+rightp = 16479, idx = 95, kwd = DOT, celtyp = INT
+Here is )
+Here is )
+rightp = 16480, idx = 96, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16481, idx = 97, kwd = IENUM, celtyp = KWD
+rightp = 16482, idx = 98, kwd = IENUM, celtyp = ID
+rightp = 16483, idx = 99, kwd = IENUM, celtyp = PTR
+Here is (
+rightp = 16484, idx = 100, kwd = DOT, celtyp = KWD
+rightp = 16485, idx = 101, kwd = DOT, celtyp = STRING
+rightp = 16486, idx = 102, kwd = DOT, celtyp = STRING
+Here is )
+rightp = 16487, idx = 103, kwd = IENUM, celtyp = STRING
+rightp = 16488, idx = 104, kwd = IENUM, celtyp = PTR
+Here is (
+rightp = 16489, idx = 105, kwd = DOT, celtyp = KWD
+rightp = 16490, idx = 106, kwd = DOT, celtyp = STRING
+rightp = 16491, idx = 107, kwd = DOT, celtyp = STRING
+Here is )
+Here is )
+rightp = 16492, idx = 108, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16493, idx = 109, kwd = ENUM, celtyp = KWD
+rightp = 16494, idx = 110, kwd = ENUM, celtyp = ID
+rightp = 16495, idx = 111, kwd = ENUM, celtyp = INT
+Here is )
+rightp = 16496, idx = 112, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16497, idx = 113, kwd = ZPAREN, celtyp = NULL
+Here is )
+Here is close par!
+Nodes created = 523
+Lists created = 178
+
+Lines read = 97
+
+Tokens found: Identifiers
+  Count of KEYWORD = 116
+  Count of IDENTIFIER = 186
+Tokens found: Numeric Literals
+  Count of DECIMAL = 14
+  Count of FLOAT = 2
+Tokens found: Punctuation
+  Count of OPENPAR = 108
+  Count of CLOSEPAR = 108
+  Count of SEMICOLON = 47
+  Count of CMTLINE = 3
+  Count of CMTBLK = 1
+  Count of STRLIT = 6
+  Count of OPERATOR = 20
+
+Top of isValidJte
+rightp = 4096, idx = 0, kwd = NULL, celtyp = KWD
+rightp = 4097, idx = 1, kwd = DO, celtyp = DO
+Here is open par!
+root downp = 4098, rightp = 0
+rightp = 4098, idx = 2, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4099, idx = 3, kwd = IMPORT, celtyp = KWD
+Statement kwd = IMPORT
+modCount = 1
+rightp = 4100, idx = 4, kwd = IMPORT, celtyp = PTR
+Here is ()
+Here is )
+rightp = 4107, idx = 11, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4108, idx = 12, kwd = IMPORT, celtyp = KWD
+Statement kwd = IMPORT
+modCount = 1
+rightp = 4109, idx = 13, kwd = IMPORT, celtyp = PTR
+Here is ()
+Here is )
+rightp = 4116, idx = 20, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4117, idx = 21, kwd = IMPORT, celtyp = KWD
+Statement kwd = IMPORT
+modCount = 1
+celltyp = ID
+modCount = 2
+modCount = 3
+celltyp = ID
+modCount = 4
+rightp = 4118, idx = 22, kwd = IMPORT, celtyp = ID
+rightp = 4119, idx = 23, kwd = IMPORT, celtyp = PTR
+Here is ()
+rightp = 4123, idx = 27, kwd = IMPORT, celtyp = ID
+rightp = 4124, idx = 28, kwd = IMPORT, celtyp = PTR
+Here is ()
+Here is )
+rightp = 4131, idx = 35, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4132, idx = 36, kwd = IMPORT, celtyp = KWD
+Statement kwd = IMPORT
+modCount = 1
+celltyp = ID
+modCount = 2
+rightp = 4133, idx = 37, kwd = IMPORT, celtyp = ID
+rightp = 4134, idx = 38, kwd = IMPORT, celtyp = PTR
+Here is ()
+Here is )
+rightp = 4141, idx = 45, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4142, idx = 46, kwd = FROM, celtyp = KWD
+Statement kwd = FROM
+modCount = 1
+modCount = 2
+celltyp = ID
+modCount = 3
+celltyp = ID
+rightp = 4143, idx = 47, kwd = FROM, celtyp = ID
+rightp = 4144, idx = 48, kwd = IMPORT, celtyp = KWD
+rightp = 4145, idx = 49, kwd = IMPORT, celtyp = PTR
+Here is ()
+rightp = 4149, idx = 53, kwd = IMPORT, celtyp = ID
+rightp = 4150, idx = 54, kwd = IMPORT, celtyp = ID
+Here is )
+rightp = 4151, idx = 55, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4152, idx = 56, kwd = FROM, celtyp = KWD
+Statement kwd = FROM
+modCount = 1
+rightp = 4153, idx = 57, kwd = FROM, celtyp = PTR
+Here is ()
+rightp = 4160, idx = 64, kwd = IMPORT, celtyp = KWD
+rightp = 4161, idx = 65, kwd = IMPORT, celtyp = PTR
+Here is ()
+Here is )
+rightp = 4165, idx = 69, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4166, idx = 70, kwd = FROM, celtyp = KWD
+Statement kwd = FROM
+modCount = 1
+celltyp = ID
+modCount = 2
+modCount = 3
+celltyp = ID
+modCount = 4
+rightp = 4167, idx = 71, kwd = FROM, celtyp = ID
+rightp = 4168, idx = 72, kwd = IMPORT, celtyp = KWD
+rightp = 4169, idx = 73, kwd = IMPORT, celtyp = ID
+rightp = 4170, idx = 74, kwd = IMPORT, celtyp = PTR
+Here is ()
+rightp = 4174, idx = 78, kwd = IMPORT, celtyp = ID
+rightp = 4175, idx = 79, kwd = IMPORT, celtyp = PTR
+Here is ()
+Here is )
+rightp = 4179, idx = 83, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4180, idx = 84, kwd = FROM, celtyp = KWD
+Statement kwd = FROM
+rightp = 4181, idx = 85, kwd = FROM, celtyp = ID
+rightp = 4182, idx = 86, kwd = IMPORT, celtyp = KWD
+rightp = 4183, idx = 87, kwd = ALL, celtyp = KWD
+Here is )
+rightp = 4184, idx = 88, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4185, idx = 89, kwd = GDEFUN, celtyp = KWD
+Statement kwd = GDEFUN
+var (): count = 1
+var (): count = 2
+var (): count = 3
+var (): count = 1
+gdefun: chk DO
+rightp = 4186, idx = 90, kwd = GDEFUN, celtyp = PTR
+Here is ()
+rightp = 4191, idx = 95, kwd = GDEFUN, celtyp = PTR
+Here is ()
+rightp = 4194, idx = 98, kwd = DO, celtyp = DO
+Here is ()
+Here is )
+rightp = 4197, idx = 101, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4198, idx = 102, kwd = DEFUN, celtyp = KWD
+Statement kwd = DEFUN
+parm # 1
+parm # 2
+parm # 3
+parm # 4
+parm # 5
+parm # 6
+parm # 7
+var (): count = 1
+var (): count = 2
+decor # 1
+decor # 2
+decor # 3
+var (): count = 1
+var (): count = 2
+decor # 4
+dotCall: count = 1
+var (): count = 1
+var (): count = 2
+decor # 5
+dotCall: count = 1
+var (): count = 1
+decor # 6
+gdefun: chk DO
+rightp = 4199, idx = 103, kwd = DEFUN, celtyp = PTR
+Here is ()
+rightp = 4221, idx = 125, kwd = DEFUN, celtyp = PTR
+Here is ()
+rightp = 4225, idx = 129, kwd = DEFUN, celtyp = PTR
+Here is ()
+rightp = 4244, idx = 148, kwd = DO, celtyp = DO
+Here is ()
+Here is )
+rightp = 4251, idx = 155, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4252, idx = 156, kwd = IDEFUN, celtyp = KWD
+Statement kwd = IDEFUN
+var (): count = 1
+var (): count = 2
+var (): count = 3
+gdefun: chk DO
+rightp = 4253, idx = 157, kwd = IDEFUN, celtyp = PTR
+Here is ()
+rightp = 4255, idx = 159, kwd = IDEFUN, celtyp = PTR
+Here is ()
+rightp = 4260, idx = 164, kwd = DO, celtyp = DO
+Here is ()
+Here is )
+rightp = 4277, idx = 181, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4278, idx = 182, kwd = DEFUN, celtyp = KWD
+Statement kwd = DEFUN
+gdefun: chk DO
+rightp = 4279, idx = 183, kwd = DEFUN, celtyp = PTR
+Here is ()
+rightp = 4281, idx = 185, kwd = DO, celtyp = DO
+Here is ()
+Here is )
+rightp = 4284, idx = 188, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4285, idx = 189, kwd = CLASS, celtyp = KWD
+Statement kwd = CLASS
+var (): count = 1
+var (): count = 2
+var (): count = 1
+var (): count = 2
+var (): count = 3
+var (): count = 1
+var (): count = 2
+var (): count = 3
+class: chk DO
+doDefBlock (): OK - 3
+gdefun: chk DO
+doDefBlock (): OK - 3
+var (): count = 1
+var (): count = 2
+var (): count = 3
+gdefun: chk DO
+rightp = 4286, idx = 190, kwd = CLASS, celtyp = ID
+rightp = 4287, idx = 191, kwd = CLASS, celtyp = PTR
+Here is ()
+rightp = 4291, idx = 195, kwd = CLASS, celtyp = PTR
+Here is ()
+rightp = 4295, idx = 199, kwd = CLASS, celtyp = PTR
+Here is ()
+rightp = 4300, idx = 204, kwd = CLASS, celtyp = PTR
+Here is ()
+rightp = 4305, idx = 209, kwd = DO, celtyp = DO
+Here is ()
+Here is )
+rightp = 4341, idx = 245, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4342, idx = 246, kwd = ICLASS, celtyp = KWD
+Statement kwd = ICLASS
+var (): count = 1
+var (): count = 2
+class: chk DO
+doDefBlock (): OK - 3
+parm # 1
+parm # 2
+var (): count = 1
+var (): count = 1
+var (): count = 2
+gdefun: chk DO
+rightp = 4343, idx = 247, kwd = ICLASS, celtyp = ID
+rightp = 4344, idx = 248, kwd = ICLASS, celtyp = ID
+rightp = 4345, idx = 249, kwd = ICLASS, celtyp = PTR
+Here is ()
+rightp = 4350, idx = 254, kwd = ICLASS, celtyp = PTR
+Here is ()
+rightp = 4354, idx = 258, kwd = DO, celtyp = DO
+Here is ()
+Here is )
+rightp = 4377, idx = 281, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4378, idx = 282, kwd = ABCLASS, celtyp = KWD
+Statement kwd = ABCLASS
+var (): count = 1
+var (): count = 2
+var (): count = 3
+class: chk DO
+doDefBlock (): OK - 3
+parm # 1
+var (): count = 1
+var (): count = 2
+var (): count = 3
+gdefun: chk DO
+doDefBlock (): OK - 3
+var (): count = 1
+var (): count = 1
+gdefun: chk DO
+doDefBlock (): OK - 3
+parm # 1
+parm # 2
+decor # 1
+decor # 2
+dotCall: count = 1
+dotCall: count = 2
+decor # 3
+dotCall: count = 1
+var (): count = 1
+var (): count = 2
+var (): count = 3
+decor # 4
+abdefun: end loop
+rightp = 4379, idx = 283, kwd = ABCLASS, celtyp = ID
+rightp = 4380, idx = 284, kwd = ABCLASS, celtyp = PTR
+Here is ()
+rightp = 4383, idx = 287, kwd = ABCLASS, celtyp = PTR
+Here is ()
+rightp = 4388, idx = 292, kwd = DO, celtyp = DO
+Here is ()
+Here is )
+rightp = 4445, idx = 349, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4446, idx = 350, kwd = CLASS, celtyp = KWD
+Statement kwd = CLASS
+var (): count = 1
+var (): count = 2
+var (): count = 1
+class: chk DO
+doDefBlock (): OK - 3
+gdefun: chk DO
+doDefBlock (): OK - 3
+parm # 1
+var (): count = 1
+gdefun: chk DO
+rightp = 4447, idx = 351, kwd = CLASS, celtyp = ID
+rightp = 4448, idx = 352, kwd = CLASS, celtyp = ID
+rightp = 4449, idx = 353, kwd = CLASS, celtyp = PTR
+Here is ()
+rightp = 4454, idx = 358, kwd = CLASS, celtyp = PTR
+Here is ()
+rightp = 4458, idx = 362, kwd = CLASS, celtyp = PTR
+Here is ()
+rightp = 4461, idx = 365, kwd = DO, celtyp = DO
+Here is ()
+Here is )
+rightp = 4490, idx = 394, kwd = DO, celtyp = PTR
+Here is (
+rightp = 4491, idx = 395, kwd = SCOOL, celtyp = KWD
+Statement kwd = SCOOL
+isValidConstList (): bottom
+scool: chk DO
+parm # 1
+parm # 2
+abdefun: end loop
+doScoolBlock (): OK - 5
+gdefun: chk DO
+doScoolBlock (): OK - 5
+parm # 1
+var (): count = 1
+var (): count = 2
+var (): count = 1
+gdefun: chk DO
+doScoolBlock (): OK - 5
+rightp = 4492, idx = 396, kwd = SCOOL, celtyp = ID
+rightp = 4493, idx = 397, kwd = SCOOL, celtyp = PTR
+Here is ()
+rightp = 4498, idx = 402, kwd = SCOOL, celtyp = PTR
+Here is ()
+rightp = 16388, idx = 4, kwd = DO, celtyp = DO
+Here is ()
+Here is )
+rightp = 16423, idx = 39, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16424, idx = 40, kwd = ISCOOL, celtyp = KWD
+Statement kwd = ISCOOL
+isValidConstList (): bottom
+scool: chk DO
+parm # 1
+decor # 1
+dotCall: count = 1
+dotCall: count = 2
+decor # 2
+decor # 3
+abdefun: end loop
+doScoolBlock (): OK - 5
+parm # 1
+parm # 2
+parm # 3
+var (): count = 1
+var (): count = 2
+var (): count = 1
+gdefun: chk DO
+doScoolBlock (): OK - 5
+rightp = 16425, idx = 41, kwd = ISCOOL, celtyp = ID
+rightp = 16426, idx = 42, kwd = ISCOOL, celtyp = PTR
+Here is ()
+rightp = 16431, idx = 47, kwd = DO, celtyp = DO
+Here is ()
+Here is )
+rightp = 16468, idx = 84, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16469, idx = 85, kwd = ENUM, celtyp = KWD
+Statement kwd = ENUM
+getEnumPair() = 1
+getEnumPair() = 1
+rightp = 16470, idx = 86, kwd = ENUM, celtyp = ID
+rightp = 16471, idx = 87, kwd = ENUM, celtyp = INT
+rightp = 16472, idx = 88, kwd = ENUM, celtyp = PTR
+Here is ()
+rightp = 16476, idx = 92, kwd = ENUM, celtyp = PTR
+Here is ()
+Here is )
+rightp = 16480, idx = 96, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16481, idx = 97, kwd = IENUM, celtyp = KWD
+Statement kwd = IENUM
+getEnumPair() = 2
+getEnumPair() = 2
+rightp = 16482, idx = 98, kwd = IENUM, celtyp = ID
+rightp = 16483, idx = 99, kwd = IENUM, celtyp = PTR
+Here is ()
+rightp = 16487, idx = 103, kwd = IENUM, celtyp = STRING
+rightp = 16488, idx = 104, kwd = IENUM, celtyp = PTR
+Here is ()
+Here is )
+rightp = 16492, idx = 108, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16493, idx = 109, kwd = ENUM, celtyp = KWD
+Statement kwd = ENUM
+rightp = 16494, idx = 110, kwd = ENUM, celtyp = ID
+rightp = 16495, idx = 111, kwd = ENUM, celtyp = INT
+Here is )
+rightp = 16496, idx = 112, kwd = DO, celtyp = PTR
+Here is (
+rightp = 16497, idx = 113, kwd = ZPAREN, celtyp = NULL
+Statement kwd = ZPAREN
+Here is )
+Here is close par!
+Stmt count = 22
+Jte file is valid.
