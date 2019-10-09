@@ -5,16 +5,16 @@ import iconst.NodeCellTyp;
 import page.Node;
 import page.Page;
 import page.Store;
-import scanlyst.ScanLyst;
+import scanjte.ScanJte;
 
 public class SynChk {
 	
-	private ScanLyst scan;
+	private ScanJte scan;
 	private Store store;
 	private boolean isZparen;
 	private static final int ABPHASE = 100;
 
-	public SynChk(ScanLyst scan, Store store) {
+	public SynChk(ScanJte scan, Store store) {
 		this.scan = scan;
 		this.store = store;
 	}
@@ -107,7 +107,7 @@ public class SynChk {
 		return tokenCount + (listCount << 16);
 	}
 	
-	public boolean isValidLyst() {
+	public boolean isValidJte() {
 		int stmtCount = 0;
 		int count;
 		int rightp, downp;
@@ -121,7 +121,7 @@ public class SynChk {
 		int stmtNo = 0;
 		int doBlkCount = 0;
 
-		out("Top of isValidLyst");
+		out("Top of isValidJte");
 		rightp = scan.getRootNodep();
 		if (rightp == 0) {
 			return false;
