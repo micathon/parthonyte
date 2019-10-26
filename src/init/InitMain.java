@@ -7,7 +7,7 @@ import page.Store;
 import page.Page;
 import page.AddrNode;
 import page.Node;
-import scanjte.ScanJte;
+import scanpreef.ScanPreef;
 import synchk.SynChk;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -46,26 +46,26 @@ public class InitMain implements IConst {
 			InputStreamReader(System.in));
 		String inbuf;
 		BufferedReader fbr;
-		ScanJte scanJte;
+		ScanPreef scanPreef;
 		SynChk synchk;
 		boolean fatalErr = false;
 
 		if (fileName.length() > 0) {
-			scanJte = new ScanJte(store);
-			synchk = new SynChk(scanJte, store);
-			scanJte.setSynChk(synchk);
+			scanPreef = new ScanPreef(store);
+			synchk = new SynChk(scanPreef, store);
+			scanPreef.setSynChk(synchk);
 			try {
 				fbr = new BufferedReader(new FileReader(fileName));
 				while ((inbuf = fbr.readLine()) != null) {
-					if (!scanJte.scanCodeBuf(inbuf)) {
+					if (!scanPreef.scanCodeBuf(inbuf)) {
 						fatalErr = true;
 						break;
 					}
 				}
-				if (scanJte.inCmtBlk) {
-					scanJte.putErr(TokenTyp.ERRINCMTEOF);
+				if (scanPreef.inCmtBlk) {
+					scanPreef.putErr(TokenTyp.ERRINCMTEOF);
 				}
-				scanJte.scanSummary(fatalErr);
+				scanPreef.scanSummary(fatalErr);
 			} catch (IOException exc) {
 				System.out.println("I/O Error: " + exc);
 			}
