@@ -5,16 +5,16 @@ import iconst.NodeCellTyp;
 import page.Node;
 import page.Page;
 import page.Store;
-import scanpreef.ScanPreef;
+import scanjyno.ScanJyno;
 
 public class SynChk {
 	
-	private ScanPreef scan;
+	private ScanJyno scan;
 	private Store store;
 	private boolean isZparen;
 	private static final int ABPHASE = 100;
 
-	public SynChk(ScanPreef scan, Store store) {
+	public SynChk(ScanJyno scan, Store store) {
 		this.scan = scan;
 		this.store = store;
 	}
@@ -107,7 +107,7 @@ public class SynChk {
 		return tokenCount + (listCount << 16);
 	}
 	
-	public boolean isValidPreef() {
+	public boolean isValidJyno() {
 		int stmtCount = 0;
 		int count;
 		int rightp, downp;
@@ -121,7 +121,7 @@ public class SynChk {
 		int stmtNo = 0;
 		int doBlkCount = 0;
 
-		out("Top of isValidPreef");
+		out("Top of isValidJyno");
 		rightp = scan.getRootNodep();
 		if (rightp == 0) {
 			return false;

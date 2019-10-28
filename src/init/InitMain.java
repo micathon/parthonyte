@@ -7,7 +7,7 @@ import page.Store;
 import page.Page;
 import page.AddrNode;
 import page.Node;
-import scanpreef.ScanPreef;
+import scanjyno.ScanJyno;
 import synchk.SynChk;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -46,26 +46,26 @@ public class InitMain implements IConst {
 			InputStreamReader(System.in));
 		String inbuf;
 		BufferedReader fbr;
-		ScanPreef scanPreef;
+		ScanJyno scanJyno;
 		SynChk synchk;
 		boolean fatalErr = false;
 
 		if (fileName.length() > 0) {
-			scanPreef = new ScanPreef(store);
-			synchk = new SynChk(scanPreef, store);
-			scanPreef.setSynChk(synchk);
+			scanJyno = new ScanJyno(store);
+			synchk = new SynChk(scanJyno, store);
+			scanJyno.setSynChk(synchk);
 			try {
 				fbr = new BufferedReader(new FileReader(fileName));
 				while ((inbuf = fbr.readLine()) != null) {
-					if (!scanPreef.scanCodeBuf(inbuf)) {
+					if (!scanJyno.scanCodeBuf(inbuf)) {
 						fatalErr = true;
 						break;
 					}
 				}
-				if (scanPreef.inCmtBlk) {
-					scanPreef.putErr(TokenTyp.ERRINCMTEOF);
+				if (scanJyno.inCmtBlk) {
+					scanJyno.putErr(TokenTyp.ERRINCMTEOF);
 				}
-				scanPreef.scanSummary(fatalErr);
+				scanJyno.scanSummary(fatalErr);
 			} catch (IOException exc) {
 				System.out.println("I/O Error: " + exc);
 			}
