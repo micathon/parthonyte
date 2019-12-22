@@ -5,16 +5,16 @@ import iconst.NodeCellTyp;
 import page.Node;
 import page.Page;
 import page.Store;
-import scanjyno.ScanJyno;
+import scanremo.ScanRemo;
 
 public class SynChk {
 	
-	private ScanJyno scan;
+	private ScanRemo scan;
 	private Store store;
 	private boolean isZparen;
 	private static final int ABPHASE = 100;
 
-	public SynChk(ScanJyno scan, Store store) {
+	public SynChk(ScanRemo scan, Store store) {
 		this.scan = scan;
 		this.store = store;
 	}
@@ -107,7 +107,7 @@ public class SynChk {
 		return tokenCount + (listCount << 16);
 	}
 	
-	public boolean isValidJyno() {
+	public boolean isValidRemo() {
 		int stmtCount = 0;
 		int count;
 		int rightp, downp;
@@ -121,7 +121,7 @@ public class SynChk {
 		int stmtNo = 0;
 		int doBlkCount = 0;
 
-		out("Top of isValidJyno");
+		out("Top of isValidRemo");
 		rightp = scan.getRootNodep();
 		if (rightp == 0) {
 			return false;
@@ -215,7 +215,6 @@ public class SynChk {
 		KeywordTyp kwtyp = null;
 		NodeCellTyp celltyp;
 		boolean first = true;
-		boolean isGlbDef = false;
 		boolean isZparen;
 		int currPhaseNo = phaseNo;
 		int rightq;
@@ -256,12 +255,12 @@ public class SynChk {
 					}
 					break;
 				case 2:
-					if (isGlbDef) {
+					if (currPhaseNo == phaseNo) {
+						oerr(rightp, "Multiple gdefun statements encountered");
 						rightq = 0;
 					}
 					else {
 						rightq = chkGlbDefStmt(rightp);
-						isGlbDef = true;
 					}
 					break;
 				case 3:
@@ -626,6 +625,7 @@ public class SynChk {
 		Node node, parNode;
 		KeywordTyp kwtyp;
 		int savep = rightp;
+		int rightq = 0;
 		int phaseNo = 0;
 		int oldPhaseNo = 0;
 
@@ -638,6 +638,7 @@ public class SynChk {
 				kwtyp = node.getKeywordTyp();
 			}
 			else if (parNode.getKeywordTyp() == KeywordTyp.DO) {
+				rightq = rightp;
 				break;
 			}
 			else {
@@ -659,10 +660,11 @@ public class SynChk {
 				return -1;
 			}
 			oldPhaseNo = phaseNo;
+			rightq = rightp;
 			rightp = parNode.getRightp();
 		}
 		out("gdefun: chk DO");
-		rightp = chkDoBlock(rightp);
+		rightp = chkDoBlock(rightq);
 		if (rightp != 0) {
 			return -1;
 		}
@@ -751,19 +753,26 @@ public class SynChk {
 			if (subNode != null) {
 				subRightp = node.getDownp();
 				if (chkVarList(subRightp) < 1) {
+					oerr(rightp, "Invalid dot-call: terminating identifier list " +
+						"has no identifiers");
 					return -1;
 				}
 				rightp = node.getRightp();
 				if (rightp > 0) {
+					oerr(rightp, "Invalid dot-call: terminating identifier list " +
+						"followed by unexpected text");
 					return -1;
 				}
 				if (count < 1) {
+					oerr(rightp, "Invalid dot-call: terminating identifier list " +
+						"not preceded by identifier(s)");
 					return -1;
 				}
 				return count + 1;
 			}
 			celltyp = node.getDownCellTyp();
 			if (celltyp != NodeCellTyp.ID) {
+				oerr(rightp, "Invalid dot-call: expecting identifier");
 				out("dotCall: fail 1");
 				return -1;
 			}
@@ -779,6 +788,7 @@ public class SynChk {
 		int idx;
 		Node node, parNode;
 		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
 		int subRightp;
 		int phaseNo = 0;
 		int oldPhaseNo = 0;
@@ -790,16 +800,29 @@ public class SynChk {
 			idx = store.getElemIdx(rightp);
 			parNode = page.getNode(idx);
 			node = store.getSubNode(parNode);
+			celltyp = parNode.getDownCellTyp();
 			if (node != null) {
 				kwtyp = node.getKeywordTyp();
 				subRightp = node.getRightp();
+			}
+			else if (celltyp != NodeCellTyp.ID) {
+				oerr(rightp, "Keyword or constant encountered, " +
+					"identifier expected");
+				return false;
 			}
 			else {
 				kwtyp = KeywordTyp.NULL;
 				subRightp = 0;
 			}
 			phaseNo = getParmPhase(kwtyp);
+			if (phaseNo < 0) {
+				oerr(rightp, "Invalid keyword: " + kwtyp.toString() +
+					" encountered in parameter list");
+				return false;
+			}
 			if (phaseNo < oldPhaseNo) {
+				oerr(rightp, "Parameter list error: " +
+					kwtyp.toString() + " encountered unexpectedly");
 				return false;
 			}
 			switch (phaseNo) {
@@ -813,6 +836,8 @@ public class SynChk {
 			case 3:
 			case 4:
 				if (!chkStarParm(subRightp)) {
+					oerr(rightp, "Invalid star-type parameter encountered " +
+						"in parameter list");
 					return false;
 				}
 				break;
@@ -871,12 +896,14 @@ public class SynChk {
 			inCellTyp = NodeCellTyp.ID;
 		}
 		if (celltyp != inCellTyp) {
+			oerr(rightp, "Error in default parameter: identifier not found");
 			out("chkDefParm (): celltyp = " + celltyp);
 			out("chkDefParm (): fail 0");
 			return false;
 		}
 		rightp = node.getRightp();
 		if (!isConstExpr(rightp)) {
+			oerr(rightp, "Error in default parameter: constant expr. not found");
 			out("chkDefParm (): fail 1");
 			return false;
 		}
@@ -928,8 +955,10 @@ public class SynChk {
 		int idx;
 		Node node, parNode;
 		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
 		int subRightp;
 		int count = 0;
+		int n;
 		
 		while (rightp > 0) {
 			count++;
@@ -937,9 +966,15 @@ public class SynChk {
 			idx = store.getElemIdx(rightp);
 			parNode = page.getNode(idx);
 			node = store.getSubNode(parNode);
+			celltyp = parNode.getDownCellTyp();
 			if (node != null) {
 				kwtyp = node.getKeywordTyp();
 				subRightp = node.getRightp();
+			}
+			else if (celltyp != NodeCellTyp.ID) {
+				oerr(rightp, "Keyword or constant encountered, " +
+					"identifier expected");
+				return false;
 			}
 			else {
 				kwtyp = KeywordTyp.NULL;
@@ -951,15 +986,25 @@ public class SynChk {
 			case CALL:
 				subRightp = parNode.getDownp();
 				if (chkVarList(subRightp) < 2) {
+					oerr(rightp, "Decor error: " +
+						"under 2 identifiers encountered in list");
 					return false;
 				}
 				break;
 			case DOT:
-				if (chkDotCall(subRightp) < 2) {
-					return false;
+				n = chkDotCall(subRightp);
+				if (n >= 2) {
+					break;
 				}
-				break;
+				if (n >= 0) {
+					oerr(rightp, "Decor error: " +
+						"under 2 identifiers encountered in dot-list");
+					// more error messages in chkDotCall
+				}
+				return false;
 			default:
+				oerr(rightp, "Invalid keyword: " + kwtyp.toString() +
+					" encountered in decor list");
 				return false;
 			}
 			rightp = parNode.getRightp();
@@ -973,8 +1018,10 @@ public class SynChk {
 		int idx;
 		Node node;
 		KeywordTyp kwtyp;
+		int rightq = 0;
 		
 		if (rightp <= 0) {
+			oerr(0, "Internal error: do-block handler was passed zero address");
 			out("doBlock (): fail 0");
 			return -1;
 		}
@@ -983,27 +1030,30 @@ public class SynChk {
 		node = page.getNode(idx);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
+			oerr(rightp, "Internal error: do-block handler called, no DO keyword");
 			out("doBlock (): fail 1");
 			return -1;
 		}
-		if (!node.isOpenPar()) {
+		rightq = node.getRightp();
+		if (rightq > 0) {
+			oerr(rightp, "Unexpected/invalid text encountered after " +
+				"do-block/keyword of defun stmt.");
 			out("doBlock (): fail 1.5");
 			return -1;
 		}
-		rightp = node.getRightp();
-		if (rightp > 0) {
+		if (!node.isOpenPar()) {  // never lands here
+			oerr(rightp, "Do block error: body lacks parentheses");
 			out("doBlock (): fail 2");
 			return -1;
 		}
 		rightp = node.getDownp();
+		if (rightp <= 0) {
+			return 0; // OK
+		}
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
-		if (!node.isOpenPar()) {
-			out("doBlock (): fail 3");
-			return -1;
-		}
-		return 0;
+		return 0; // OK
 	}
 	
 	private int chkDefunStmt(int rightp) {
@@ -1012,6 +1062,7 @@ public class SynChk {
 		Node node, parNode;
 		KeywordTyp kwtyp;
 		int savep = rightp;
+		int rightq = 0;
 		int phaseNo = 0;
 		int oldPhaseNo = 0;
 		boolean isParms = false;
@@ -1025,19 +1076,31 @@ public class SynChk {
 				kwtyp = node.getKeywordTyp();
 			}
 			else if (parNode.getKeywordTyp() == KeywordTyp.DO) {
+				rightq = rightp;
 				break;
 			}
 			else {
+				oerr(rightp, "Invalid text encountered in defun stmt. header");
 				out("chkDefunStmt (): fail 0");
 				return -1;
 			}
 			rightp = node.getRightp();
 			phaseNo = getDefunPhase(kwtyp);
+			if (phaseNo < 0) {
+				oerr(rightp, "Invalid keyword " + kwtyp.toString() + 
+					" encountered in defun stmt.");
+				out("chkDefunStmt (): fail 0.5");
+				return -1;
+			}
 			if (phaseNo <= oldPhaseNo) {
+				oerr(rightp, "Defun statement header error: " +
+					kwtyp.toString() + " encountered unexpectedly");
 				out("chkDefunStmt (): fail 1");
 				return -1;
 			}
 			if (phaseNo > 1 && !isParms) {
+				oerr(rightp, "Defun statement header error: " +
+					"missing function name/parameters");
 				out("chkDefunStmt (): fail 2");
 				return -1;
 			}
@@ -1052,6 +1115,8 @@ public class SynChk {
 			case 2:
 			case 3:
 				if (chkVarList(rightp) < 0) {
+					oerr(rightp, "Error in var list of defun stmt.: " +
+						"invalid text found when processing identifier list");
 					out("chkDefunStmt (): fail 4");
 					return -1;
 				}
@@ -1063,20 +1128,26 @@ public class SynChk {
 				}
 				break;
 			default:
+				oerr(rightp, "Invalid keyword encountered in " +
+					"defun stmt. header");
 				out("chkDefunStmt (): fail 6");
 				return -1;
 			}
 			oldPhaseNo = phaseNo;
+			rightq = rightp;
 			rightp = parNode.getRightp();
 		}
 		if (!isParms) {
+			oerr(rightq, "Defun statement header error: " +
+				"missing function name/parameters, post-loop");
 			out("chkDefunStmt (): fail 7");
 			return -1;
 		}
-		out("gdefun: chk DO");
-		rightp = chkDoBlock(rightp);
-		if (rightp != 0) {
-			out("chkDefunStmt (): fail 1");
+		out("defun: chk DO");
+		rightp = chkDoBlock(rightq);
+		if (rightp < 0) {
+			oerr(rightq, "Error in do-block of defun stmt.");
+			out("chkDefunStmt (): fail 8");
 			return -1;
 		}
 		return savep;
