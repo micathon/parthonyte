@@ -7,7 +7,7 @@ import page.Store;
 import page.Page;
 import page.AddrNode;
 import page.Node;
-import scanremo.ScanRemo;
+import scansrc.ScanSrc;
 import synchk.SynChk;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -46,26 +46,26 @@ public class InitMain implements IConst {
 			InputStreamReader(System.in));
 		String inbuf;
 		BufferedReader fbr;
-		ScanRemo scanRemo;
+		ScanSrc scanSrc;
 		SynChk synchk;
 		boolean fatalErr = false;
 
 		if (fileName.length() > 0) {
-			scanRemo = new ScanRemo(store);
-			synchk = new SynChk(scanRemo, store);
-			scanRemo.setSynChk(synchk);
+			scanSrc = new ScanSrc(store);
+			synchk = new SynChk(scanSrc, store);
+			scanSrc.setSynChk(synchk);
 			try {
 				fbr = new BufferedReader(new FileReader(fileName));
 				while ((inbuf = fbr.readLine()) != null) {
-					if (!scanRemo.scanCodeBuf(inbuf)) {
+					if (!scanSrc.scanCodeBuf(inbuf)) {
 						fatalErr = true;
 						break;
 					}
 				}
-				if (scanRemo.inCmtBlk) {
-					scanRemo.putErr(TokenTyp.ERRINCMTEOF);
+				if (scanSrc.inCmtBlk) {
+					scanSrc.putErr(TokenTyp.ERRINCMTEOF);
 				}
-				scanRemo.scanSummary(fatalErr);
+				scanSrc.scanSummary(fatalErr);
 			} catch (IOException exc) {
 				System.out.println("I/O Error: " + exc);
 			}
