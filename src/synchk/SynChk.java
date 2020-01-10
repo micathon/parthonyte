@@ -1107,6 +1107,7 @@ public class SynChk {
 			switch (phaseNo) {
 			case 1:
 				if (!chkParmList(rightp)) {
+					oerr(rightp, "Error in parm list of defun stmt.");
 					out("chkDefunStmt (): fail 3");
 					return -1;
 				}
@@ -1123,6 +1124,7 @@ public class SynChk {
 				break;
 			case 4:
 				if (!chkDecorList(rightp)) {
+					oerr(rightp, "Error in decor list of defun stmt.");
 					out("chkDefunStmt (): fail 5");
 					return -1;
 				}
