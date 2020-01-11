@@ -1,0 +1,38 @@
+do (
+import m3 (as m1 m2) m480 (as (: m n) m99);
+import m (dot h1 j2) n;
+from (: a b c d e) import m2 (as a1 a2);
+from rm2 import m3 (as m1 m2) m480 (as n777 m99);
+gdefun
+  (var y z x23)
+  (ivar a)
+  do (
+  #set x y; 
+);
+defun (f x y (set c 3) (= b "xyz")(= a 3.1416)(* d)(** e))
+  (var u v)
+  (decor c d e (f g)(: a (A1 A2))(: b (c)))
+  do (
+  set w 66;
+);
+idefun (g)
+  (var h1 h2 h3)
+  do (
+  if flag do (
+    set q r;
+  );
+  set a z;
+);
+defun (minimal) do ();
+class C (: m B) (does p q) (var a b c) (ivar i j k) do ();
+iclass D E do ();
+)
+{
+abclass H do (;);
+scool S do ();
+iscool T does (S) do ();
+enum e a b c;
+ienum f x y;
+);
+}
+
