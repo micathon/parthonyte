@@ -5,7 +5,7 @@
 * Step 8 "While doing..." has several sub-tasks which are indented
 * Those sub-tasks are where you can get started
 * One task, writing unit tests, is something I've neglected since I graduated in 1984. They didn't teach us unit tests, and in my previous job my boss never required that particular coding task
-* Contact me if you wish to write detailed design specs
+* Contact me if you wish to write detailed design specs or anything more ambitious
 * At this point I don't have much documentation for coders, just email me with your questions for now
 # How to run Cooperscript
 * Install the Java SDK
