@@ -6,6 +6,7 @@
 * Psyvaspace, an online community of consumer/survivors, is built using Cooperscript
 * Empowers consumer/survivors to learn how to code
 # Info for contributors
+* For detailed info, see [Contributing](CONTRIBUTING.md) file
 * Not quite ready yet to accept contributions (am now developing syntax checker of Cooperscript compiler)
 * I am busy helping my friend run his perfume store, which supports E-commerce
 * I hope to begin accepting contributions in late 2020
