@@ -11,9 +11,9 @@
 * $ cd path/to/bin
 * $ java coop dotop > out.txt
 * text files:
-** dat/dotop.coop: sample Cooperscript source code
-** bin/out.txt: used for debugging
-** both dotop and out.txt file names can be any valid Linux file name
+  * dat/dotop.coop: sample Cooperscript source code
+  * bin/out.txt: used for debugging
+  * both dotop and out.txt file names can be any valid Linux file name
 # Roadmap
 * Go to home page of website, click on Steps
 # Contact Me
