@@ -14,7 +14,7 @@
 * text files:
   * `dat/dotop.coop`: sample Cooperscript source code
   * `bin/out.txt`: used for debugging and logging what my code is doing
-  * both `dotop` and `out.txt` file names can be any valid Linux file name
+  * both `dotop` and `out.txt` file names can be any valid Linux file name (or Windows/Mac)
 # Roadmap
 * Go to home page of [website](http://cooperscript.com), click on Steps
 # Contact Me
