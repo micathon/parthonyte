@@ -19,4 +19,4 @@
 * Go to home page of [website](http://cooperscript.com), click on Steps
 # Contact Me
 * Please send me an email, ask me anything, any comments are always welcome
-* Expecting a tsunami of comments is like trying to be on the first page of Google w/o marketing or SEO, but at least I've now put the readme, contributing, and code-of-conduct files up on GitHub
+* Expecting a tsunami of comments is like trying to be on the first page of Google w/o marketing or SEO, but at least I've now put the readme, contributing, and code-of-conduct files up on GitHub. Thanks again for dropping by.
