@@ -19,4 +19,4 @@
 * Go to home page of [website](http://cooperscript.com), click on Steps
 # Contact Me
 * Please send me an email, ask me anything, any comments are always welcome
-* Now at least I've now put the readme, contributing, and code-of-conduct files up on GitHub. Thanks again for dropping by. I've lots of code to write before I can hope to recruit lots of people willing to be contributors.
+* Now that the readme, contributing, and code-of-conduct files are up on GitHub, I'm closer to accepting contributions when the time comes. Thanks again for dropping by.
