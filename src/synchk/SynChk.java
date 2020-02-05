@@ -642,21 +642,28 @@ public class SynChk {
 				break;
 			}
 			else {
+				kwtyp = parNode.getKeywordTyp();
+				oerr(rightp, "Invalid keyword: " + kwtyp + " found in gdefun stmt.");
 				return -1;
 			}
 			phaseNo = getGdefunPhase(kwtyp);
 			if (phaseNo <= oldPhaseNo) {
+				oerr(rightp, "Error in gdefun stmt.: keyword " + kwtyp +
+					" encountered unexpectedly");
 				return -1;
 			}
 			switch (phaseNo) {
 			case 1:
 			case 2:
+				rightq = rightp;
 				rightp = node.getRightp();
 				if (chkVarList(rightp) < 0) {
+					oerr(rightq, "Error in gdefun stmt.: invalid var list");
 					return -1;
 				}
 				break;
 			default:
+				oerr(rightp, "Invalid keyword: (" + kwtyp + "...) found in gdefun stmt.");
 				return -1;
 			}
 			oldPhaseNo = phaseNo;
@@ -842,6 +849,9 @@ public class SynChk {
 				}
 				break;
 			default:
+				// dup. cond'n, case already handled after getParmPhase() call
+				oerr(rightp, "Invalid keyword: " + kwtyp.toString() +
+					" encountered in parameter list");
 				return false;
 			}
 			oldPhaseNo = phaseNo;
