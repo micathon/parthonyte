@@ -246,6 +246,13 @@ public class SynChk {
 						"after " + kwtyp);
 					rightq = -1;
 				}
+				else if (rightp <= 0) {
+					rightp = rightq;  // isZparen is true
+				}
+				else {
+					isZparen = false;
+				}
+				// rightp > 0 inside following switch
 				switch (currPhaseNo) {
 				case 1:
 					rightq = chkImportStmt(rightp, kwtyp);
@@ -275,6 +282,9 @@ public class SynChk {
 							"top level unexpectedly");
 						rightq = -1;
 					}
+				}
+				if (isZparen) {
+					rightp = node.getRightp();
 				}
 				if (rightq > 0) {
 					rightp = rightq;
@@ -1234,8 +1244,10 @@ public class SynChk {
 		int idx;
 		Node node, parNode;
 		int savep = rightp;
+		int rightq;
 		int phaseNo = 0;
 		int oldPhaseNo = 0;
+		KeywordTyp curkwtyp;
 		boolean isNameFound = false;
 		boolean isDotOK = true;
 		boolean isAbCls = (kwtyp == KeywordTyp.ABCLASS);
@@ -1251,9 +1263,11 @@ public class SynChk {
 			break;
 		}
 		while (rightp > 0) {
+			rightq = rightp;
 			page = store.getPage(rightp);
 			idx = store.getElemIdx(rightp);
 			parNode = page.getNode(idx);
+			curkwtyp = parNode.getKeywordTyp();
 			node = store.getSubNode(parNode);
 			if (node != null) {
 				kwtyp = node.getKeywordTyp();
@@ -1265,11 +1279,18 @@ public class SynChk {
 				kwtyp = KeywordTyp.NULL;
 			}
 			else {
+				oerr(rightp, "Error in class def, unexpected keyword found: " +
+					curkwtyp);
 				out("chkClassStmt (): fail 0");
 				return -1;
 			}
 			phaseNo = getClassPhase(kwtyp, oldPhaseNo);
+			if (phaseNo < 0) {
+				oerr(rightp, "Malformed class def");
+				return -1;
+			}
 			if (phaseNo <= oldPhaseNo) {
+				oerr(rightp, "Malformed (mixed up) class def");
 				out("chkClassStmt (): fail 1");
 				return -1;
 			}
@@ -1294,21 +1315,30 @@ public class SynChk {
 			case 5:
 				rightp = node.getRightp();
 				if (chkVarList(rightp) < 0) {
+					oerr(rightq, "Error in class def: malformed var list");
 					out("chkClassStmt (): fail 2");
 					return -1;
 				}
 				break;
 			default:
+				// never happens because getClassPhase will catch it
+				oerr(rightp, "Error in class def: system error");
 				out("chkClassStmt (): fail 3");
 				return -1;
 			}
 			if (!isNameFound && (phaseNo > 1)) {
-				out("chkClassStmt (): fail 4");
 				oerr(rightp, "Class definition: Name of class not found");
+				out("chkClassStmt (): fail 4");
 				return -1;
 			}
-			if (!isDotOK) {
-				out("chkClassStmt (): fail 5");
+			if (isDotOK) { }
+			else if (phaseNo == 2) {
+				//out("chkClassStmt (): fail 5");
+				oerr(rightq, "Error in class def: base class has invalid dot list");
+				return -1;
+			}
+			else {
+				oerr(rightq, "Error in class def: does list is invalid");
 				return -1;
 			}
 			oldPhaseNo = phaseNo;
@@ -1607,17 +1637,21 @@ public class SynChk {
 			subNode = store.getSubNode(node);
 			if (node.getDownCellTyp() == NodeCellTyp.ID) {} 
 			else if (subNode == null) {
+				oerr(rightp, "Error in does list: expecting identifier or dot list");
 				out("isValidDoesList (): fail 0");
 				return false;
 			}
 			else {
 				kwtyp = subNode.getKeywordTyp();
 				if (kwtyp != KeywordTyp.DOT) {
+					oerr(rightp, "Error in does list: expecting dot operator, " +
+						kwtyp + " found");
 					out("isValidDoesList (): fail 1");
 					return false;
 				}
 				subRightp = subNode.getRightp();
 				if (!isValidDotList(subRightp)) {
+					oerr(rightp, "Error in does list: malformed dot list");
 					out("isValidDoesList (): fail 2");
 					return false;
 				}
@@ -1627,6 +1661,7 @@ public class SynChk {
 		}
 		isValid = (count >= 1);
 		if (!isValid) {
+			oerr(rightp, "Error in does list: no args found (identifiers/dot-lists)");
 			out("isValidDoesList (): fail 3");
 		}
 		return isValid;
