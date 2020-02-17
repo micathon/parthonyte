@@ -1181,10 +1181,12 @@ public class SynChk {
 		Node node, parNode;
 		KeywordTyp kwtyp;
 		int savep = rightp;
+		int rightq = 0;
 		int phaseNo = 0;
 		int oldPhaseNo = 0;
 		boolean isParms = false;
 
+		out("chkAbDefunStmt() - top");
 		while (rightp > 0) {
 			page = store.getPage(rightp);
 			idx = store.getElemIdx(rightp);
@@ -1194,17 +1196,24 @@ public class SynChk {
 				kwtyp = node.getKeywordTyp();
 			}
 			else if (parNode.getKeywordTyp() == KeywordTyp.DO) {
+				oerr(rightp, "Error: DO keyword found in abdefun stmt.");
 				break;
 			}
 			else {
+				oerr(rightp, "Invalid text encountered in abdefun stmt. header");
 				return -1;
 			}
+			rightq = rightp;
 			rightp = node.getRightp();
 			phaseNo = getDefunPhase(kwtyp);
-			if (phaseNo <= oldPhaseNo) {
+			if (phaseNo < 0) {
+				oerr(rightp, "Invalid keyword " + kwtyp + 
+					" encountered in abdefun stmt.");
 				return -1;
 			}
-			if (phaseNo > 1 && !isParms) {
+			if (phaseNo <= oldPhaseNo) {
+				oerr(rightp, "Abdefun statement header error: " +
+					kwtyp + " encountered unexpectedly");
 				return -1;
 			}
 			switch (phaseNo) {
@@ -1216,6 +1225,7 @@ public class SynChk {
 				break;
 			case 2:
 			case 3:
+				oerr(rightp, "Error: abdefun stmt. invalid phase = " + kwtyp);
 				return -1;
 			case 4:
 				if (!chkDecorList(rightp)) {
@@ -1223,17 +1233,20 @@ public class SynChk {
 				}
 				break;
 			default:
+				oerr(rightp, "Error: abdefun stmt. unknown phase = " + kwtyp);
 				return -1;
 			}
 			oldPhaseNo = phaseNo;
 			rightp = parNode.getRightp();
 		}
 		if (!isParms) {
+			oerr(rightq, "Abdefun statement header error: " +
+				"missing function name/parameters, post-loop");
 			return -1;
 		}
 		out("abdefun: end loop");
-		//rightp = chkDoBlock(rightp);
-		if (rightp != 0) {
+		if (rightp > 0) {
+			//oerr(rightp, "Error: DO keyword #2 found in abdefun stmt.");
 			return -1;
 		}
 		return savep;
@@ -1244,7 +1257,7 @@ public class SynChk {
 		int idx;
 		Node node, parNode;
 		int savep = rightp;
-		int rightq;
+		int rightq = 0;
 		int phaseNo = 0;
 		int oldPhaseNo = 0;
 		KeywordTyp curkwtyp;
@@ -1345,9 +1358,15 @@ public class SynChk {
 			rightp = parNode.getRightp();
 		}
 		out("class: chk DO");
+		if (rightp <= 0) {
+			oerr(rightq, "Missing DO in class def");
+			out("chkClassStmt (): fail 6");
+			return -1;
+		}
 		rightp = chkDoDefBlock(rightp, isAbCls);
 		if (rightp != 0) {
-			out("chkClassStmt (): fail 6");
+			oerr(rightq, "Error in DO block in class def");
+			out("chkClassStmt (): fail 7");
 			return -1;
 		}
 		return savep;
@@ -1673,6 +1692,7 @@ public class SynChk {
 		Node node, subNode;
 		KeywordTyp kwtyp;
 		int downp, downq;
+		int rightq = 0;
 		int phaseNo;
 		boolean abfound;
 		
@@ -1685,15 +1705,20 @@ public class SynChk {
 		node = page.getNode(idx);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
+			oerr(rightp, "Error in class def DO block, instead of DO, " +
+				kwtyp + " encountered");
 			out("doDefBlock (): fail 1");
 			return -1;
 		}
 		if (!node.isOpenPar()) {
+			oerr(rightp, "Class def DO block missing body");
 			out("doDefBlock (): fail 1.5");
 			return -1;
 		}
+		rightq = rightp;
 		rightp = node.getRightp();
 		if (rightp > 0) {
+			oerr(rightq, "Class def DO block body followed by invalid text");
 			out("doDefBlock (): fail 2");
 			return -1;
 		}
@@ -1703,6 +1728,7 @@ public class SynChk {
 			idx = store.getElemIdx(rightp);
 			node = page.getNode(idx);
 			if (!node.isOpenPar()) {
+				oerr(rightp, "Class def DO block system error: isOpenPar failure");
 				out("doDefBlock (): fail 5");
 				return -1;
 			}
@@ -1723,6 +1749,7 @@ public class SynChk {
 				abfound = true;
 				break;
 			default:
+				oerr(rightp, "Expecting func def, " + kwtyp + " found");
 				out("doDefBlock (): fail 3");
 				return -1;
 			}
@@ -1732,6 +1759,7 @@ public class SynChk {
 				downq = chkAbDefunStmt(downp);
 			}
 			else if (abfound) {
+				oerr(downp, "Error: ABDEFUN found in DO block of class def");
 				out("doDefBlock (): fail 4");
 				return -1;
 			}
@@ -1739,6 +1767,7 @@ public class SynChk {
 				downq = chkDefunStmt(downp);
 			}
 			if (downq <= 0) {
+				oerr(downp, "Error in func def");
 				out("doDefBlock (): fail 5");
 				return -1;
 			}
