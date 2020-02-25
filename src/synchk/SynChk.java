@@ -916,14 +916,16 @@ public class SynChk {
 			inCellTyp = NodeCellTyp.ID;
 		}
 		if (celltyp != inCellTyp) {
-			oerr(rightp, "Error in default parameter: identifier not found");
+			oerr(rightp, "Error in default parameter (or const. pair):" +
+				" identifier not found");
 			out("chkDefParm (): celltyp = " + celltyp);
 			out("chkDefParm (): fail 0");
 			return false;
 		}
 		rightp = node.getRightp();
 		if (!isConstExpr(rightp)) {
-			oerr(rightp, "Error in default parameter: constant expr. not found");
+			oerr(rightp, "Error in default parameter (or const. pair):" +
+				" constant expr. not found");
 			out("chkDefParm (): fail 1");
 			return false;
 		}
@@ -1322,7 +1324,7 @@ public class SynChk {
 			case 3:
 				// does
 				rightp = node.getRightp();
-				isDotOK = isValidDoesList(rightp);
+				isDotOK = isValidDoesList(rightp, rightq);
 				break;
 			case 4:
 			case 5:
@@ -1405,12 +1407,14 @@ public class SynChk {
 		Node node;
 		Node parNode;
 		int savep = rightp;
+		int rightq = 0;
 		int phaseNo = 0;
 		int oldPhaseNo = 0;
 		boolean isNameFound = false;
 		KeywordTyp kwtyp = null;
 
 		while (rightp > 0) {
+			rightq = rightp;
 			page = store.getPage(rightp);
 			idx = store.getElemIdx(rightp);
 			parNode = page.getNode(idx);
@@ -1425,11 +1429,17 @@ public class SynChk {
 				kwtyp = KeywordTyp.NULL;
 			}
 			else {
+				oerr(rightp, "Error in scool def: unexpected keyword encountered");
 				out("chkScoolStmt (): fail 0");
 				return -1;
 			}
 			phaseNo = getScoolPhase(kwtyp, oldPhaseNo);
+			if (phaseNo < 0) {
+				oerr(rightp, "Malformed scool def with invalid keyword: " + kwtyp);
+				return -1;
+			}
 			if (phaseNo <= oldPhaseNo) {
+				oerr(rightp, "Malformed (mixed up) scool def");
 				out("chkScoolStmt (): fail 1");
 				return -1;
 			}
@@ -1440,7 +1450,7 @@ public class SynChk {
 			case 2:
 				// does
 				rightp = node.getRightp();
-				if (!isValidDoesList(rightp)) {
+				if (!isValidDoesList(rightp, rightq)) {
 					out("chkScoolStmt (): fail 2");
 					return -1;
 				}
@@ -1448,7 +1458,7 @@ public class SynChk {
 			case 3:
 				// const
 				rightp = node.getRightp();
-				if (!isValidConstList(rightp)) {
+				if (!isValidConstList(rightp, rightq)) {
 					out("chkScoolStmt (): fail 3");
 					return -1;
 				}
@@ -1457,6 +1467,7 @@ public class SynChk {
 				break;
 			}
 			if (!isNameFound && (phaseNo > 1)) {
+				oerr(rightp, "Error in scool def: missing scool name");
 				out("chkScoolStmt (): fail 4");
 				return -1;
 			}
@@ -1464,8 +1475,13 @@ public class SynChk {
 			rightp = parNode.getRightp();
 		}
 		out("scool: chk DO");
+		if (rightp <= 0) {
+			oerr(rightq, "Missing DO in scool def");
+			return -1;
+		}
 		rightp = chkScoolDoBlock(rightp);
 		if (rightp != 0) {
+			oerr(rightq, "Error in DO block in scool def");
 			out("chkScoolStmt (): fail 5");
 			return -1;
 		}
@@ -1486,22 +1502,28 @@ public class SynChk {
 		}
 	}
 	
-	private boolean isValidConstList(int rightp) {
+	private boolean isValidConstList(int rightp, int rightq) {
 		Page page;
 		int idx;
-		Node node;
+		Node node, subnode;
 		int downp;
 		int count = 0;
+		boolean isValid;
 		
 		while (rightp > 0) {
 			count++;
 			page = store.getPage(rightp);
 			idx = store.getElemIdx(rightp);
 			node = page.getNode(idx);
+			subnode = store.getSubNode(node);
 			downp = node.getDownp();
-			if (downp == 0 || !isValidConstPair(downp)) {
-				if (downp == 0) {
-					out("isValidConstList (): zero downp!");
+			if (subnode == null || !isValidConstPair(downp)) {
+				if (subnode == null) {
+					oerr(rightp, "Error in const list: missing parens");
+					out("isValidConstList (): null subnode!");
+				}
+				else {
+					oerr(rightp, "Error in const list: invalid const pair");
 				}
 				out("isValidConstList (): count = " + count);
 				out("isValidConstList (): fail 1");
@@ -1510,7 +1532,12 @@ public class SynChk {
 			rightp = node.getRightp();
 		}
 		out("isValidConstList (): bottom");
-		return count > 0;
+		isValid = (count >= 1);
+		if (!isValid) {
+			oerr(rightq, "Error in const list: no const pairs found");
+			out("isValidConstList (): fail 2");
+		}
+		return isValid;
 	}
 			
 	private int chkEnumStmt(int rightp) {
@@ -1518,6 +1545,7 @@ public class SynChk {
 		int idx;
 		Node node, subNode;
 		int savep = rightp;
+		int rightq;
 		int count = 0;
 		int enumTyp = -1;  // 0: id, 1: int, 2: char
 		int etyp;
@@ -1525,10 +1553,12 @@ public class SynChk {
 		if (rightp == 0) {
 			return -1;
 		}
+		rightq = rightp;
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
 		if (node.getDownCellTyp() != NodeCellTyp.ID) {
+			oerr(rightp, "Error in enum def: missing enum name");
 			return -1;
 		} 
 		rightp = node.getRightp();
@@ -1539,23 +1569,26 @@ public class SynChk {
 			node = page.getNode(idx);
 			subNode = store.getSubNode(node);
 			if (subNode != null) {
-				etyp = getEnumPair(subNode);
+				etyp = getEnumPair(rightp);
 			}
 			else {
 				etyp = getEnumTyp(node);
 			}
 			if (etyp < 0) {
+				oerr(rightp, "Error in enum def: invalid enum id/val/pair found");
 				return -1;
 			}
 			if (enumTyp < 0) {
 				enumTyp = etyp;
 			}
 			else if (etyp != enumTyp) {
+				oerr(rightp, "Error in enum def: mixed id/val/pairs found");
 				return -1;
 			}
 			rightp = node.getRightp();
 		}
 		if (count == 0) {
+			oerr(rightq, "Error in enum def: no id/val/pairs found");
 			return -1;
 		}
 		return savep;
@@ -1578,17 +1611,28 @@ public class SynChk {
 		}
 	}
 	
-	private int getEnumPair(Node node) {
+	private int getEnumPair(int rightp) {
 		Page page;
 		int idx;
+		Node node, parNode;
+		int rightq = 0;
 		int enumTyp, etyp;
-		int rightp;
 		
-		if (node.getKeywordTyp() != KeywordTyp.DOT) {
+		if (rightp <= 0) {
 			return -1;
 		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		parNode = page.getNode(idx);
+		node = store.getSubNode(parNode);
+		if (node.getKeywordTyp() != KeywordTyp.DOT) {
+			oerr(rightp, "Invalid enum pair: missing DOT operator");
+			return -1;
+		}
+		rightq = rightp;
 		rightp = node.getRightp();
 		if (rightp <= 0) {
+			oerr(rightq, "Invalid enum pair: DOT operator has no operands");
 			out("getEnumPair (): fail 0");
 			return -1;
 		}
@@ -1596,8 +1640,10 @@ public class SynChk {
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
 		enumTyp = getEnumTyp(node);
+		rightq = rightp;
 		rightp = node.getRightp();
 		if (rightp <= 0) {
+			oerr(rightq, "Invalid enum pair: DOT operator has only single operand");
 			out("getEnumPair (): fail 0.5");
 			return -1;
 		}
@@ -1607,14 +1653,21 @@ public class SynChk {
 		etyp = getEnumTyp(node);
 		rightp = node.getRightp();
 		if (rightp > 0) {
+			oerr(rightq, "Invalid enum pair: DOT operator has more than 2 operands");
 			out("getEnumPair (): fail 1");
 			return -1;
 		}
 		if (etyp != enumTyp) {
+			oerr(rightq, "Invalid enum pair: DOT operator has mixed operands");
 			out("getEnumPair (): fail 2");
 			return -1;
 		}
 		out("getEnumPair() = " + enumTyp);
+		if (enumTyp == 0) {
+			oerr(rightq, "Invalid enum pair: expecting constants, identifiers found");
+			out("getEnumPair (): fail 2");
+			return -1;
+		}
 		return enumTyp;
 	}
 	
@@ -1640,7 +1693,7 @@ public class SynChk {
 		return (chkVarList(rightp) >= 2);
 	}
 	
-	private boolean isValidDoesList(int rightp) {
+	private boolean isValidDoesList(int rightp, int rightq) {
 		Page page;
 		int idx;
 		Node node, subNode;
@@ -1680,7 +1733,7 @@ public class SynChk {
 		}
 		isValid = (count >= 1);
 		if (!isValid) {
-			oerr(rightp, "Error in does list: no args found (identifiers/dot-lists)");
+			oerr(rightq, "Error in does list: no args found (identifiers/dot-lists)");
 			out("isValidDoesList (): fail 3");
 		}
 		return isValid;
@@ -1792,15 +1845,18 @@ public class SynChk {
 		node = page.getNode(idx);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
+			oerr(rightp, "System error in scool do block: missing DO keyword");
 			out("doScoolBlock (): fail 1");
 			return -1;
 		}
 		if (!node.isOpenPar()) {
+			oerr(rightp, "Error in scool do block: parentheses not found");
 			out("doScoolBlock (): fail 1.5");
 			return -1;
 		}
 		rightp = node.getRightp();
 		if (rightp > 0) {
+			oerr(rightp, "Error in scool do block: invalid trailing text found");
 			out("doScoolBlock (): fail 2");
 			return -1;
 		}
@@ -1810,6 +1866,7 @@ public class SynChk {
 			idx = store.getElemIdx(rightp);
 			node = page.getNode(idx);
 			if (!node.isOpenPar()) {
+				oerr(rightp, "System error in scool do block: isOpenPar failure");
 				out("doScoolBlock (): fail 3");
 				return -1;
 			}
@@ -1823,6 +1880,8 @@ public class SynChk {
 			}
 			downp = subNode.getRightp();
 			if (downp == 0) {
+				oerr(rightp, "Error in scool def: " + kwtyp +
+					" missing open paren");
 				out("doScoolBlock (): fail 4");
 				return -1;
 			}
@@ -1834,11 +1893,14 @@ public class SynChk {
 				downq = chkDefunStmt(downp);
 				break;
 			default:
+				oerr(downp, "Error in scool def: unexpected keyword " +
+					kwtyp + " found");
 				out("doScoolBlock (): fail 5");
 				return -1;
 			}
 			out("doScoolBlock (): OK - 5");
 			if (downq <= 0) {
+				oerr(downp, "Error in scool def: invalid abdefun/defimp def");
 				out("doScoolBlock (): fail 6");
 				return -1;
 			}
