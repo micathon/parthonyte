@@ -14,7 +14,7 @@ public enum KeywordTyp {
 	DIV, IDIV, MOD, MPY, ADD, 
 	GE, LE, GT, LT, EQ, NE, SHL, SHR, SHRU, 
 	ANDBITZ, XORBITZ, ORBITZ, AND, XOR, OR, 
-	STRDO, STRCAT, STAR, DBLSTAR;
+	STRDO, STRCAT, STAR, DBLSTAR, CALLFUN;
 	
 	public static final KeywordTyp values[] = values();
 }
