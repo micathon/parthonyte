@@ -6,24 +6,32 @@ import page.Node;
 import page.Page;
 import page.Store;
 import scansrc.ScanSrc;
+import synchk.SynChkStmt;
+import synchk.SynChkExpr;
 
 public class SynChk {
 	
+	public SynChkStmt synStmt;
+	public SynChkExpr synExpr;
 	private ScanSrc scan;
 	private Store store;
-	private boolean isZparen;
+	private boolean isZpar;
 	private static final int ABPHASE = 100;
 
 	public SynChk(ScanSrc scan, Store store) {
 		this.scan = scan;
 		this.store = store;
+		this.synStmt = new SynChkStmt(this, scan, store);
+		this.synExpr = new SynChkExpr(this, scan, store);
+		synStmt.init();
+		synExpr.init();
 	}
 	
-	private void out(String msg) {
+	public void out(String msg) {
 		scan.out(msg);
 	}
 	
-	private void oerr(int nodep, String msg) {
+	public void oerr(int nodep, String msg) {
 		int lineno;
 		String preLineNoStr;
 		
@@ -196,7 +204,7 @@ public class SynChk {
 				out("Here is )");
 			}
 			rightp = node.getRightp();
-			if (isZparen) {
+			if (isZpar) {
 				out("Zparen found");
 				continue;
 			}
@@ -299,7 +307,7 @@ public class SynChk {
 			rightp = node.getRightp();
 			first = false;
 		}
-		isZparen = (kwtyp == KeywordTyp.ZPAREN);
+		isZpar = (kwtyp == KeywordTyp.ZPAREN);
 		return currPhaseNo;
 	}
 	
@@ -701,7 +709,7 @@ public class SynChk {
 	
 	private int getDefunPhase(KeywordTyp kwtyp) {
 		switch (kwtyp) {
-		case CALL:
+		case CALLFUN:
 			return 1;
 		case VAR:
 			return 2;
@@ -1005,7 +1013,7 @@ public class SynChk {
 			switch (kwtyp) {
 			case NULL:
 				break;
-			case CALL:
+			case CALLFUN:
 				subRightp = parNode.getDownp();
 				if (chkVarList(subRightp) < 2) {
 					oerr(rightp, "Decor error: " +
@@ -1068,6 +1076,11 @@ public class SynChk {
 			out("doBlock (): fail 2");
 			return -1;
 		}
+		if (synStmt.chkDo(rightp) < 0) {
+			return -1;
+		}
+		return 0;
+		/*
 		rightp = node.getDownp();
 		if (rightp <= 0) {
 			return 0; // OK
@@ -1076,6 +1089,7 @@ public class SynChk {
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
 		return 0; // OK
+		*/
 	}
 	
 	private int chkDefunStmt(int rightp) {
