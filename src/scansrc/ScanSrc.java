@@ -1189,7 +1189,7 @@ public class ScanSrc implements IConst {
 			return currNodep;
 		}
 		else if (celltyp == NodeCellTyp.ID) {  // (func x y z)
-			kwtyp = KeywordTyp.CALL;
+			kwtyp = KeywordTyp.CALLFUN;
 			celltyp = NodeCellTyp.FUNC;
 			currNode.setKeywordTyp(kwtyp);
 			currNode.setDownCellTyp(celltyp.ordinal());
@@ -1391,7 +1391,7 @@ public class ScanSrc implements IConst {
 			return currNodep;
 		}
 		else if (celltyp == NodeCellTyp.ID) {  // (func x y z)
-			kwtyp = KeywordTyp.CALL;
+			kwtyp = KeywordTyp.CALLFUN;
 			celltyp = NodeCellTyp.FUNC;
 			currNode.setKeywordTyp(kwtyp);
 			currNode.setDownCellTyp(celltyp.ordinal());
