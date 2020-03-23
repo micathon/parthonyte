@@ -14,7 +14,6 @@ public class SynChkStmt {
 	private ScanSrc scan;
 	private Store store;
 	private SynChk synChk;
-	@SuppressWarnings("unused")
 	private SynChkExpr synExpr;
 	private boolean isZpar;
 	
@@ -68,7 +67,7 @@ public class SynChkStmt {
 			celltyp = node.getDownCellTyp();
 			out("rightp = " + rightp + ", idx = " + idx + 
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
-			if (!node.isOpenPar()) {
+			if (!node.isOpenPar()) {  // may never happen
 				oerr(rightp, "Do block error (in chkDo): body lacks semicolon(s)");
 				return -1;
 			}
@@ -109,7 +108,9 @@ public class SynChkStmt {
 		case TRY: return doTryStmt(rightp);
 		case DEL: return doDelStmt(rightp);
 		case PRINT: return doPrintStmt(rightp);
+		case ECHO: return doEchoStmt(rightp);
 		case CALL: return doCallStmt(rightp);
+		case CALLFUN: return doCallFunStmt(rightp);
 		case DOT: return doDotStmt(rightp);
 		case RAISE: return doRaiseStmt(rightp);
 		case CONTINUE: return doContinueStmt(rightp);
@@ -135,24 +136,32 @@ public class SynChkStmt {
 			isZpar = true;
 			return true;
 		default:
-			if (celltyp == NodeCellTyp.ID) {
-				return doIdStmt(rightp);
-			}
 			oerr(rightp, "Invalid keyword: " + kwtyp.toString() +
 				" encountered at beginning of statement");
 			return false;
 		}
 	}
 	
-	private boolean doSetStmt(int rightp) {
-		return true;
+	private boolean doIfStmt(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return true;
+		}
+		return synExpr.doExpr(rightp);
 	}
 	
 	private boolean doSetOpStmt(int rightp, KeywordTyp kwtyp) {
 		return true;
 	}
 	
-	private boolean doIfStmt(int rightp) {
+	private boolean doSetStmt(int rightp) {
 		return true;
 	}
 	
@@ -176,15 +185,19 @@ public class SynChkStmt {
 		return true;
 	}
 	
+	private boolean doEchoStmt(int rightp) {
+		return true;
+	}
+	
 	private boolean doCallStmt(int rightp) {
 		return true;
 	}
 	
-	private boolean doDotStmt(int rightp) {
+	private boolean doCallFunStmt(int rightp) {
 		return true;
 	}
 	
-	private boolean doIdStmt(int rightp) {
+	private boolean doDotStmt(int rightp) {
 		return true;
 	}
 	
@@ -204,72 +217,4 @@ public class SynChkStmt {
 		return true;
 	}
 	
-	/*
-				currPhaseNo = getPhaseNo(kwtyp);
-				phaseDesc = getPhaseDesc(currPhaseNo);
-				if (currPhaseNo < phaseNo) {
-					oerr(rightp, "Top-level " + phaseDesc + 
-						" encountered unexpectedly");
-					return -1;
-				}
-				isZparen = (kwtyp == KeywordTyp.ZPAREN);
-				rightq = rightp;
-				rightp = node.getRightp();
-				if (rightp <= 0 && !isZparen) {
-					oerr(rightq, "Null pointer encountered unexpectedly " +
-						"after " + kwtyp);
-					rightq = -1;
-				}
-				else if (rightp <= 0) {
-					rightp = rightq;  // isZparen is true
-				}
-				else {
-					isZparen = false;
-				}
-				// rightp > 0 inside following switch
-				switch (currPhaseNo) {
-				case 1:
-					rightq = chkImportStmt(rightp, kwtyp);
-					if (rightq == -1) {
-						oerr(initp, "Keyword 'import' followed by " +
-							"no module names or invalid text");
-					}
-					break;
-				case 2:
-					if (currPhaseNo == phaseNo) {
-						oerr(rightp, "Multiple gdefun statements encountered");
-						rightq = 0;
-					}
-					else {
-						rightq = chkGlbDefStmt(rightp);
-					}
-					break;
-				case 3:
-					rightq = chkDefunStmt(rightp);
-					break;
-				case 4:
-					rightq = chkClassStmt(rightp, kwtyp);
-					break;
-				default:
-					if (currPhaseNo <= ABPHASE) {
-						oerr(rightq, "Keyword 'abdefun' encountered at " +
-							"top level unexpectedly");
-						rightq = -1;
-					}
-				}
-				if (isZparen) {
-					rightp = node.getRightp();
-				}
-				if (rightq > 0) {
-					rightp = rightq;
-				}
-				else {
-					return -1;
-				}
-			
-			if (node.isOpenPar()) {
-				out("Here is ()");
-			}
-			rightp = node.getRightp();
-	 */
 }
