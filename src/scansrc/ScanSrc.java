@@ -54,6 +54,8 @@ public class ScanSrc implements IConst {
 	private boolean inStrLit;
 	private boolean isAllWhiteSp;
 	private String strLitBuf;
+	private boolean wasdo;
+	private boolean wasparen;
 	private int fatalRtnCode = 0;
 	
 	public ScanSrc(Store store) {
@@ -70,6 +72,8 @@ public class ScanSrc implements IConst {
 		inStrLit = false;
 		isAllWhiteSp = false;
 		strLitBuf = "";
+		wasdo = false;
+		wasparen = false;
 		this.store = store;
 		rootNode = new Node(0, KeywordTyp.NULL.ordinal(), 0);
 		rootNode.setKeywordTyp(KeywordTyp.NULL);
@@ -525,13 +529,14 @@ public class ScanSrc implements IConst {
 		KeywordTyp kwtyp = KeywordTyp.NULL;
 		BifTyp cftyp = BifTyp.NULL;
 		boolean isKeyword = true;
+		boolean isBif;
 		int kwidx;
 		String intok = token;
 		int rtnCode = 0;
 		TokenTyp toktyp = TokenTyp.IDENTIFIER;
 		
 		token = token.toUpperCase();
-		if (token.equals("ZPAREN")) {   // zparen = identifier
+		if (token.charAt(0) == 'Z') {   // zparen, zstmt, zcall: internal use
 			isKeyword = false;
 		}
 		try {
@@ -544,13 +549,13 @@ public class ScanSrc implements IConst {
 			toktyp = TokenTyp.KEYWORD;
 		}
 		else {
-			isKeyword = true;
+			isBif = true;
 			try {
 				cftyp = BifTyp.valueOf(token);  // cftyp != zparen
 			} catch (IllegalArgumentException exc) {
-				isKeyword = false;
+				isBif = false;
 			}
-			if (isKeyword) {
+			if (isBif) {
 				putFun(token, cftyp);
 				kwidx = cftyp.ordinal() | (BIFBYTNO << 8);
 				rtnCode = addNode(NodeCellTyp.KWD, kwidx, 0.0, "");
@@ -1164,10 +1169,11 @@ public class ScanSrc implements IConst {
 	}
 	
 	private int addZparNode(NodeCellTyp celltyp, int downp) {
-		Node currNode;
+		Node currNode, node;
 		Page page;
 		int idx;
 		KeywordTyp kwtyp;
+		int rightp;
 
 		page = store.getPage(currNodep);
 		idx = store.getElemIdx(currNodep);
@@ -1189,7 +1195,7 @@ public class ScanSrc implements IConst {
 			return currNodep;
 		}
 		else if (celltyp == NodeCellTyp.ID) {  // (func x y z)
-			kwtyp = KeywordTyp.CALLFUN;
+			kwtyp = KeywordTyp.ZCALL;
 			celltyp = NodeCellTyp.FUNC;
 			currNode.setKeywordTyp(kwtyp);
 			currNode.setDownCellTyp(celltyp.ordinal());
@@ -1205,6 +1211,18 @@ public class ScanSrc implements IConst {
 			return currNodep;
 		}
 		else if (isConstCellTyp(celltyp)) {
+			kwtyp = KeywordTyp.TUPLE;
+			celltyp = NodeCellTyp.KWD;
+			currNode.setKeywordTyp(kwtyp);
+			currNode.setDownCellTyp(celltyp.ordinal());
+			currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+			page.setNode(idx, currNode);
+			node = currNode;
+			currNode = new Node(0, 0, 0);
+			rightp = store.allocNode(currNode);
+			node.setRightp(rightp);
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
 			kwtyp = KeywordTyp.NULL;
 			currNode.setKeywordTyp(kwtyp);
 			currNode.setDownCellTyp(celltyp.ordinal());
@@ -1238,7 +1256,7 @@ public class ScanSrc implements IConst {
 	
 	private int closeParen(boolean isSemicln) {
 		AddrNode addrNode;
-		int byteval;
+		int byteval, bytesave;
 		int downp;
 		KeywordTyp kwtyp;
 		boolean isDoKwd;
@@ -1251,13 +1269,21 @@ public class ScanSrc implements IConst {
 		if (addrNode == null) {
 			return getNegErrCode(TokenTyp.ERRSTKUNDFLW);
 		}
+		bytesave = byteval;
 		out("byteval popped = " + byteval);
 		byteval = store.topByte();
-		isDoKwd = (
-			byteval == KeywordTyp.DO.ordinal()
-			// || byteval == KeywordTyp.ZPAREN.ordinal()
-		);
+		isDoKwd = (byteval == KeywordTyp.DO.ordinal());
 		currNodep = addrNode.getAddr();
+		if (isSemicln) { }
+		else if (bytesave == KeywordTyp.ZPAREN.ordinal()) {
+			out("Just popped ZPAREN");
+			kwtyp = KeywordTyp.TUPLE;
+			page = store.getPage(currNodep);
+			idx = store.getElemIdx(currNodep);
+			node = page.getNode(idx);
+			node.setKeywordTyp(kwtyp);
+			page.setNode(idx, node);
+		}
 		if (isSemicln || !isDoKwd) { 
 			out("1:pop currNodep = " + currNodep);
 			out("byteval = " + byteval);
@@ -1284,7 +1310,7 @@ public class ScanSrc implements IConst {
 		node = page.getNode(idx);
 		kwtyp = node.getKeywordTyp(); 
 		if (kwtyp != KeywordTyp.ZPAREN) {
-			return 0;
+			return 0;  // may always happen
 		}
 		store.popByte();
 		addrNode = store.popNode();
@@ -1391,7 +1417,7 @@ public class ScanSrc implements IConst {
 			return currNodep;
 		}
 		else if (celltyp == NodeCellTyp.ID) {  // (func x y z)
-			kwtyp = KeywordTyp.CALLFUN;
+			kwtyp = KeywordTyp.ZCALL;
 			celltyp = NodeCellTyp.FUNC;
 			currNode.setKeywordTyp(kwtyp);
 			currNode.setDownCellTyp(celltyp.ordinal());
