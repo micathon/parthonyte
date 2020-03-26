@@ -709,7 +709,7 @@ public class SynChk {
 	
 	private int getDefunPhase(KeywordTyp kwtyp) {
 		switch (kwtyp) {
-		case CALLFUN:
+		case ZCALL:
 			return 1;
 		case VAR:
 			return 2;
@@ -1013,7 +1013,7 @@ public class SynChk {
 			switch (kwtyp) {
 			case NULL:
 				break;
-			case CALLFUN:
+			case ZCALL:
 				subRightp = parNode.getDownp();
 				if (chkVarList(subRightp) < 2) {
 					oerr(rightp, "Decor error: " +
@@ -1080,16 +1080,6 @@ public class SynChk {
 			return -1;
 		}
 		return 0;
-		/*
-		rightp = node.getDownp();
-		if (rightp <= 0) {
-			return 0; // OK
-		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
-		return 0; // OK
-		*/
 	}
 	
 	private int chkDefunStmt(int rightp) {

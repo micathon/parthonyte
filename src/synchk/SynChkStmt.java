@@ -110,7 +110,7 @@ public class SynChkStmt {
 		case PRINT: return doPrintStmt(rightp);
 		case ECHO: return doEchoStmt(rightp);
 		case CALL: return doCallStmt(rightp);
-		case CALLFUN: return doCallFunStmt(rightp);
+		case ZCALL: return doCallFunStmt(rightp);
 		case DOT: return doDotStmt(rightp);
 		case RAISE: return doRaiseStmt(rightp);
 		case CONTINUE: return doContinueStmt(rightp);

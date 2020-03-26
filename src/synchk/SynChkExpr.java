@@ -90,18 +90,38 @@ public class SynChkExpr {
 		case NOTBITZ:
 		case NOT:
 			return doUnaryOp(rightp);
+		case TUPLE:
+			return doTuple(rightp);
 		case ZPAREN:
 			oerr(rightp, "Error: ZPAREN encountered in expression");
 			return false;
 		default:
-			oerr(rightp, "Invalid keyword: " + kwtyp.toString() +
+			oerr(rightp, "Invalid keyword: " + kwtyp +
 				" encountered at beginning of expression");
 			return false;
 		}
 	}
 	
 	private boolean doKwdConst(int rightp) {
-		return true;
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		switch (kwtyp) {
+		case TRUE:
+		case FALSE:
+		case NULL:
+			return true;
+		default:
+			oerr(rightp, "Invalid keyword: " + kwtyp +
+				" encountered in middle of expression");
+			return false;
+		}
 	}
 	
 	private boolean doIdentifier(int rightp) {
@@ -121,6 +141,11 @@ public class SynChkExpr {
 	}
 	
 	private boolean doUnaryOp(int rightp) {
+		return true;
+	}
+	
+	private boolean doTuple(int rightp) {
+		out("TUPLE keyword encountered at beginning of expression");
 		return true;
 	}
 /*	
