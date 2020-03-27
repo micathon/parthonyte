@@ -104,6 +104,7 @@ public class SynChk {
 				out("Here is (");
 				listCount++;
 				downp = node.getDownp();
+				out("doLstCts: recurse, downp = " + downp);
 				count = doListCounts(downp);
 				tokenCount += count & 0xFFFF;
 				listCount += count >>> 16;
