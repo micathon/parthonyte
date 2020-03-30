@@ -1054,6 +1054,7 @@ public class ScanSrc implements IConst {
 		AddrNode addrNode;
 		int rightp;
 		int ctyp;
+		boolean nullCellTyp;
 
 		page = store.getPage(currNodep);
 		idx = store.getElemIdx(currNodep);
@@ -1118,25 +1119,28 @@ public class ScanSrc implements IConst {
 			currNodep = rightp;
 			return currNodep;
 		}
-		if (isConstCellTyp(celltyp)) {
+		nullCellTyp = (celltyp == NodeCellTyp.NULL);
+		if (isConstCellTyp(celltyp) || nullCellTyp) {
 			kwtyp = KeywordTyp.TUPLE;
 			celltyp = NodeCellTyp.KWD;
 			currNode.setKeywordTyp(kwtyp);
 			currNode.setDownCellTyp(celltyp.ordinal());
 			currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
 			page.setNode(idx, currNode);
-			node = currNode;
-			currNode = new Node(0, 0, 0);
-			rightp = store.allocNode(currNode);
-			node.setRightp(rightp);
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			kwtyp = KeywordTyp.NULL;
-			currNode.setKeywordTyp(kwtyp);
-			currNode.setDownCellTyp(celltyp.ordinal());
-			currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
-			currNode.setDownp(downp);
-			page.setNode(idx, currNode);
+			if (!nullCellTyp) {
+				node = currNode;
+				currNode = new Node(0, 0, 0);
+				rightp = store.allocNode(currNode);
+				node.setRightp(rightp);
+				page = store.getPage(rightp);
+				idx = store.getElemIdx(rightp);
+				kwtyp = KeywordTyp.NULL;
+				currNode.setKeywordTyp(kwtyp);
+				currNode.setDownCellTyp(celltyp.ordinal());
+				currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+				currNode.setDownp(downp);
+				page.setNode(idx, currNode);
+			}
 			out("Const kwtyp = " + kwtyp + ", downp = " + downp);
 			out("rightp = " + rightp + ", celltyp = " + celltyp);
 			currNodep = rightp;
@@ -1150,7 +1154,15 @@ public class ScanSrc implements IConst {
 		AddrNode addrNode;
 		int byteval;
 		KeywordTyp kwtyp;
+		int rtnval;
 		
+		if (wasparen) {
+			wasparen = false;
+			rtnval = addZparNode(NodeCellTyp.NULL, 0);
+			if (rtnval < 0) {
+				return rtnval;
+			}
+		}
 		byteval = store.popByte();
 		addrNode = store.popNode();
 		if (addrNode == null) {
