@@ -56,6 +56,8 @@ public class ScanSrc implements IConst {
 	private String strLitBuf;
 	private boolean wasdo;
 	private boolean wasparen;
+	private boolean wassemicln;
+	private boolean wasstmt;
 	private int fatalRtnCode = 0;
 	
 	public ScanSrc(Store store) {
@@ -74,6 +76,8 @@ public class ScanSrc implements IConst {
 		strLitBuf = "";
 		wasdo = false;
 		wasparen = false;
+		wassemicln = false;
+		wasstmt = true;
 		this.store = store;
 		rootNode = new Node(0, KeywordTyp.NULL.ordinal(), 0);
 		rootNode.setKeywordTyp(KeywordTyp.NULL);
@@ -94,6 +98,7 @@ public class ScanSrc implements IConst {
 		String lineNoBuf;
 		String tabstr = TABSTR;
 		int colIdx = 0;
+		int rtnval;
 		boolean wasBackslash;
 		boolean wasWhiteSp, inWhiteSp;
 		boolean isAtEnd;
@@ -230,26 +235,31 @@ public class ScanSrc implements IConst {
 				incTokCount(TokenTyp.CMTLINE);
 				break;
 			}
+			rtnval = 0;
 			if (ch == OPENPARCH) {
-				putPar(1);
+				rtnval = putPar(1);
 				incTokCount(TokenTyp.OPENPAR);
 				outStructTok(ch);
 			}
 			else if (ch == CLOSEPARCH) {
 				//out("ch = ), oldch = [" + oldch + ']');
-				putPar(2);
+				rtnval = putPar(2);
 				incTokCount(TokenTyp.CLOSEPAR);
 				outStructTok(ch);
 			}
 			else if (ch == SEMICOLONCH) {
-				putPar(3);
+				rtnval = putPar(3);
 				incTokCount(TokenTyp.SEMICOLON);
 				outStructTok(ch);
 			}
 			else if (errstr.indexOf(ch) >= 0) {
+				rtnval = 0;
 				putColErr(TokenTyp.ERRSYM, colIdx);
 				incTokCount(TokenTyp.ERRSYM);
 				inWhiteSp = true;
+			}
+			if (rtnval < 0) {
+				putRtnCodeErr(rtnval);
 			}
 		}
 		if (inStrLit) {
@@ -1000,6 +1010,8 @@ public class ScanSrc implements IConst {
 		default:
 			downp = 0;
 		}
+		wasstmt = true;
+		wassemicln = false;
 		if (wasparen) {
 			wasparen = false;
 			return addZparNode(celltyp, downp);
@@ -1150,14 +1162,17 @@ public class ScanSrc implements IConst {
 		return getNegErrCode(TokenTyp.ERRPOSTPARTOK);
 	}
 	
-	private int closeParen() {
+	private int closeParenRtn(boolean isSemicln) {
 		AddrNode addrNode;
 		int byteval;
 		KeywordTyp kwtyp;
+		boolean isDoBlk = false;
 		int rtnval;
 		
-		if (wasparen) {
-			wasparen = false;
+		wasparen = false;
+		wassemicln = false;
+		if (!isSemicln && !wasstmt) {
+			isDoBlk = wasdo;
 			rtnval = addZparNode(NodeCellTyp.NULL, 0);
 			if (rtnval < 0) {
 				return rtnval;
@@ -1174,6 +1189,19 @@ public class ScanSrc implements IConst {
 		case ZPAREN:
 			break;
 		case ZSTMT:
+			if (isDoBlk) {
+				byteval = store.popByte();
+				addrNode = store.popNode();
+				if (addrNode == null) {
+					return getNegErrCode(TokenTyp.ERRSTKUNDFLW);
+				}
+				kwtyp = KeywordTyp.values[byteval];
+				if (kwtyp != KeywordTyp.DO) {
+					return getNegErrCode(TokenTyp.ERRBADDO);
+				}
+				currNodep = addrNode.getAddr();
+			}
+			wasdo = !isDoBlk;
 			break;
 		default:
 			return getNegErrCode(TokenTyp.ERRBADPOPBYTE);
@@ -1183,36 +1211,53 @@ public class ScanSrc implements IConst {
 		
 	private int doAddSemicolon() {
 		KeywordTyp kwtyp;
-		AddrNode addrNode;
+		boolean isZstmt;
+		boolean isDoBlk;
 		int byteval;
 		int rtnval;
 
+		if (wassemicln) {
+			return 0;
+		}
 		byteval = store.topByte();
 		kwtyp = KeywordTyp.values[byteval];
-		if (kwtyp == KeywordTyp.ZPAREN) {
-			addrNode = new AddrNode(0, currNodep);
-			if (!store.pushNode(addrNode)) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-			if (!store.pushByte((byte) kwtyp.ordinal())) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
+		isZstmt = (kwtyp == KeywordTyp.ZSTMT);
+		isDoBlk = (kwtyp == KeywordTyp.DO);
+		if (!isZstmt && !isDoBlk) {
+			return getNegErrCode(TokenTyp.ERRSEMICLN);
 		}
-		rtnval = closeParen();
+		if (isDoBlk) {
+			return 0;
+		}
+		// isZstmt = Y
+		rtnval = closeParenRtn(true);
 		if (rtnval == 0) {
-			rtnval = doAddParen();
+			rtnval = doAddParenRtn(true);
 		}
+		wasparen = false;
+		wassemicln = true;
 		return rtnval;
 	}
-		
+	
+	private int closeParen() {
+		return closeParenRtn(false);
+	}
+	
 	private int doAddParen() {
+		return doAddParenRtn(false);
+	}
+		
+	private int doAddParenRtn(boolean isSemicln) {
 		if (wasparen) {
 			return getNegErrCode(TokenTyp.ERRPARENRPT);
 		}
 		wasparen = true;
+		if (!isSemicln) {
+			wasstmt = false;
+		}
 		return 0;
 	}
-
+	
 	private boolean isConstCellTyp(NodeCellTyp celltyp) {
 		switch (celltyp) {
 		case BOOLEAN:
@@ -2009,6 +2054,10 @@ public class ScanSrc implements IConst {
 			return "Invalid byte popped";
 		case ERRMULTISTRLITBADCHAR:
 			return "Invalid non-white space: multiline string literal";
+		case ERRSEMICLN:
+			return "Semicolon encountered unexpectedly";
+		case ERRBADDO:
+			return "Internal error: expecting DO on stack";
 		default:
 			return "";
 		}
