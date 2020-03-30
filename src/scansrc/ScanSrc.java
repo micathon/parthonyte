@@ -1088,10 +1088,11 @@ public class ScanSrc implements IConst {
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		currNode = new Node(0, 0, 0);
-		currNode.setOpenPar(true); 
 		rightp = store.allocNode(currNode);
 		node.setDownp(rightp);
 		page.setNode(idx, node);
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
 		if (celltyp == NodeCellTyp.KWD && downp < 256) {
 			// prev token = open paren, curr token = kwd
 			kwtyp = KeywordTyp.values[downp];
