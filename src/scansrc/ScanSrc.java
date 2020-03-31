@@ -1171,12 +1171,18 @@ public class ScanSrc implements IConst {
 		
 		wasparen = false;
 		wassemicln = false;
-		if (!isSemicln && !wasstmt) {
+		out("closeParen: semi/wasstmt = (" + isSemicln + ", " + wasstmt + ")");
+		if (isSemicln) { }
+		else if (wasstmt) { 
+			isDoBlk = true;
+		}
+		else {
 			isDoBlk = wasdo;
 			rtnval = addZparNode(NodeCellTyp.NULL, 0);
 			if (rtnval < 0) {
 				return rtnval;
 			}
+			out("closeParen: rtnval = " + rtnval);
 		}
 		byteval = store.popByte();
 		addrNode = store.popNode();
@@ -1185,6 +1191,7 @@ public class ScanSrc implements IConst {
 		}
 		currNodep = addrNode.getAddr();
 		kwtyp = KeywordTyp.values[byteval];
+		out("closeParen: kwtyp = " + kwtyp);
 		switch (kwtyp) {
 		case ZPAREN:
 			break;
@@ -1200,10 +1207,18 @@ public class ScanSrc implements IConst {
 					return getNegErrCode(TokenTyp.ERRBADDO);
 				}
 				currNodep = addrNode.getAddr();
+				out("closeParen: isDoBlk, currNodep = " + currNodep);
+				wasstmt = true;
 			}
 			wasdo = !isDoBlk;
 			break;
+		case DO:
+			if (isSemicln) {
+				return getNegErrCode(TokenTyp.ERRSEMICLN);
+			}
+			break;
 		default:
+			out("closeParen: badop, currNodep = " + currNodep);
 			return getNegErrCode(TokenTyp.ERRBADPOPBYTE);
 		}
 		return 0;
@@ -1234,7 +1249,6 @@ public class ScanSrc implements IConst {
 		if (rtnval == 0) {
 			rtnval = doAddParenRtn(true);
 		}
-		wasparen = false;
 		wassemicln = true;
 		return rtnval;
 	}
