@@ -979,6 +979,7 @@ public class ScanSrc implements IConst {
 	private int addSimpleNode(NodeCellTyp celltyp, long val, double dval,
 		String sval)
 	{
+		// Handle non-structural tokens, not parentheses or semicolons
 		Node node, currNode;
 		Page page;
 		int downp = 0;
@@ -1017,15 +1018,15 @@ public class ScanSrc implements IConst {
 			return addZparNode(celltyp, downp);
 		}
 		if (wasdo) {
+			// do keyword must be followed by (
 			wasdo = false;
 			return getNegErrCode(TokenTyp.ERRDOMISSINGBLK);
 		}
-		wasdo = false;
 		page = store.getPage(currNodep);
 		idx = store.getElemIdx(currNodep);
 		currNode = page.getNode(idx);
 		kwtyp = currNode.getKeywordTyp();
-		node = new Node(0, downp, 0);
+		node = new Node(0, downp, 0);  // node of new token
 		if (celltyp == NodeCellTyp.KWD) { 
 			kwtyp = KeywordTyp.values[downp];
 		}
@@ -1038,6 +1039,7 @@ public class ScanSrc implements IConst {
 			", kwd = " + node.getKeywordTyp());
 		page.setPtrNode(idx, rightp);
 		if (isDoBlock) {
+			// push do node
 			out("addSimp: isDoBlk");
 			wasdo = true;
 			node.setOpenPar(true);
@@ -1053,12 +1055,13 @@ public class ScanSrc implements IConst {
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		page.setNode(idx, node);
-		store.appendNodep(rightp, lineCount);
+		store.appendNodep(rightp, lineCount);  // store line no. of token
 		currNodep = rightp;
 		return currNodep;
 	}
 		
 	private int addZparNode(NodeCellTyp celltyp, int downp) {
+		// Insert zparen or zstmt node (after open paren)
 		Node currNode, node;
 		Page page;
 		int idx;
@@ -1086,6 +1089,7 @@ public class ScanSrc implements IConst {
 			out("addZpar: currNodep = " + currNodep);
 		}
 		page.setNode(idx, currNode);
+		// push zparen or zstmt keyword and pointer to new node
 		addrNode = new AddrNode(0, rightp);
 		if (!store.pushNode(addrNode)) {
 			return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
@@ -1100,7 +1104,7 @@ public class ScanSrc implements IConst {
 		node.setOpenPar(true);
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
-		currNode = new Node(0, 0, 0);
+		currNode = new Node(0, 0, 0);  // insert 2nd node containing token after (
 		rightp = store.allocNode(currNode);
 		node.setDownp(rightp);
 		page.setNode(idx, node);
@@ -1133,6 +1137,8 @@ public class ScanSrc implements IConst {
 		}
 		nullCellTyp = (celltyp == NodeCellTyp.NULL);
 		if (isConstCellTyp(celltyp) || nullCellTyp) {
+			// handle () or (123 ...) or ("hello" ...)
+			// insert tuple keyword node
 			kwtyp = KeywordTyp.TUPLE;
 			celltyp = NodeCellTyp.KWD;
 			currNode.setKeywordTyp(kwtyp);
@@ -1140,6 +1146,7 @@ public class ScanSrc implements IConst {
 			currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
 			page.setNode(idx, currNode);
 			if (!nullCellTyp) {
+				// insert node of numeric constant or string literal
 				node = currNode;
 				currNode = new Node(0, 0, 0);
 				rightp = store.allocNode(currNode);
@@ -1162,28 +1169,51 @@ public class ScanSrc implements IConst {
 		return getNegErrCode(TokenTyp.ERRPOSTPARTOK);
 	}
 	
-	private int closeParenRtn(boolean isSemicln) {
+	private int doAddZtuple() {
+		// "do (" [;]... + )
+		// or:
+		// "curr (" + )
+		int rtnval;
+		
+		// do => zstmt, [push zstmt] => tuple
+		// or:
+		// curr -> zparen, [push zparen]
+		//
+		// Notation: ->: rightp, =>: downp
+		wasstmt = true;
+		rtnval = addZparNode(NodeCellTyp.NULL, 0);
+		if (rtnval < 0) {
+			return rtnval;
+		}
+		out("doAddZtuple: rtnval = " + rtnval);
+		return popZparStmt(true);
+	}
+	
+	private int popZparStmt(boolean isTuple) {
+		// pop zstmt or zparen
 		AddrNode addrNode;
 		int byteval;
 		KeywordTyp kwtyp;
-		boolean isDoBlk = false;
-		int rtnval;
-		
-		wasparen = false;
-		wassemicln = false;
-		out("closeParen: semi/wasstmt = (" + isSemicln + ", " + wasstmt + ")");
-		if (isSemicln) { }
-		else if (wasstmt) { 
-			isDoBlk = true;
-		}
-		else {
-			isDoBlk = wasdo;
-			rtnval = addZparNode(NodeCellTyp.NULL, 0);
-			if (rtnval < 0) {
-				return rtnval;
+		boolean isZstmt;
+		boolean isZparen;
+
+		if (isTuple) { }
+		else if (wassemicln) {
+			// pop do
+			byteval = store.popByte();
+			addrNode = store.popNode();
+			if (addrNode == null) {
+				return getNegErrCode(TokenTyp.ERRSTKUNDFLW);
 			}
-			out("closeParen: rtnval = " + rtnval);
+			kwtyp = KeywordTyp.values[byteval];
+			if (kwtyp != KeywordTyp.DO) {
+				return getNegErrCode(TokenTyp.ERRBADDO);
+			}
+			currNodep = addrNode.getAddr();
+			out("popZparStmt: isDoBlk, currNodep = " + currNodep);
+			return 0;
 		}
+		// pop zstmt or zparen
 		byteval = store.popByte();
 		addrNode = store.popNode();
 		if (addrNode == null) {
@@ -1191,43 +1221,71 @@ public class ScanSrc implements IConst {
 		}
 		currNodep = addrNode.getAddr();
 		kwtyp = KeywordTyp.values[byteval];
-		out("closeParen: kwtyp = " + kwtyp);
-		switch (kwtyp) {
-		case ZPAREN:
-			break;
-		case ZSTMT:
-			if (isDoBlk) {
-				byteval = store.popByte();
-				addrNode = store.popNode();
-				if (addrNode == null) {
-					return getNegErrCode(TokenTyp.ERRSTKUNDFLW);
-				}
-				kwtyp = KeywordTyp.values[byteval];
-				if (kwtyp != KeywordTyp.DO) {
-					return getNegErrCode(TokenTyp.ERRBADDO);
-				}
-				currNodep = addrNode.getAddr();
-				out("closeParen: isDoBlk, currNodep = " + currNodep);
-				wasstmt = true;
-			}
-			wasdo = !isDoBlk;
-			break;
-		case DO:
-			if (isSemicln) {
-				return getNegErrCode(TokenTyp.ERRSEMICLN);
-			}
-			break;
-		default:
-			out("closeParen: badop, currNodep = " + currNodep);
-			return getNegErrCode(TokenTyp.ERRBADPOPBYTE);
+		out("popZparStmt: kwtyp = " + kwtyp);
+		isZstmt = (kwtyp == KeywordTyp.ZSTMT); 
+		isZparen = (kwtyp == KeywordTyp.ZPAREN); 
+		if (!isZstmt && !isZparen) {
+			return getNegErrCode(TokenTyp.ERRBADZPAREN);
 		}
+		if (isZparen) {
+			return 0;
+		}
+		// pop do
+		byteval = store.popByte();
+		addrNode = store.popNode();
+		if (addrNode == null) {
+			return getNegErrCode(TokenTyp.ERRSTKUNDFLW);
+		}
+		kwtyp = KeywordTyp.values[byteval];
+		if (kwtyp != KeywordTyp.DO) {
+			return getNegErrCode(TokenTyp.ERRBADDO);
+		}
+		currNodep = addrNode.getAddr();
+		out("popZparStmt: popped do, currNodep = " + currNodep);
 		return 0;
 	}
 		
+	private int popZstmt() {
+		// pop zstmt
+		AddrNode addrNode;
+		int byteval;
+		KeywordTyp kwtyp;
+		boolean isZstmt;
+		//boolean isZparen;
+
+		byteval = store.popByte();
+		addrNode = store.popNode();
+		if (addrNode == null) {
+			return getNegErrCode(TokenTyp.ERRSTKUNDFLW);
+		}
+		currNodep = addrNode.getAddr();
+		kwtyp = KeywordTyp.values[byteval];
+		out("popZparStmt: kwtyp = " + kwtyp);
+		isZstmt = (kwtyp == KeywordTyp.ZSTMT); 
+		//isZparen = (kwtyp == KeywordTyp.ZPAREN); 
+		if (!isZstmt) {
+			return getNegErrCode(TokenTyp.ERRBADZPAREN);
+		}
+		out("popZparStmt: currNodep = " + currNodep);
+		return 0;
+	}
+		
+	private int closeParenRtn(boolean isSemicln) {
+		wassemicln = false;
+		wasparen = false;
+		out("closeParen: semi/wasstmt = (" + isSemicln + ", " + wasstmt + ")");
+		if (!isSemicln && !wasstmt) { 
+			return doAddZtuple();
+		}
+		if (isSemicln) {
+			return popZstmt();
+		}
+		return popZparStmt(false);
+	}
+
 	private int doAddSemicolon() {
 		KeywordTyp kwtyp;
 		boolean isZstmt;
-		boolean isDoBlk;
 		int byteval;
 		int rtnval;
 
@@ -1237,14 +1295,9 @@ public class ScanSrc implements IConst {
 		byteval = store.topByte();
 		kwtyp = KeywordTyp.values[byteval];
 		isZstmt = (kwtyp == KeywordTyp.ZSTMT);
-		isDoBlk = (kwtyp == KeywordTyp.DO);
-		if (!isZstmt && !isDoBlk) {
+		if (!isZstmt) { 
 			return getNegErrCode(TokenTyp.ERRSEMICLN);
 		}
-		if (isDoBlk) {
-			return 0;
-		}
-		// isZstmt = Y
 		rtnval = closeParenRtn(true);
 		if (rtnval == 0) {
 			rtnval = doAddParenRtn(true);
@@ -1285,426 +1338,6 @@ public class ScanSrc implements IConst {
 		}
 	}
 	
-	/*	
-		celltyp = NodeCellTyp.PTR;
-		page = store.getPage(currNodep);
-		idx = store.getElemIdx(currNodep);
-		currNode = page.getNode(idx);
-		kwtyp = currNode.getKeywordTyp();
-		node = new Node(0, 0, 0);
-		rtnval = closeParen(true);
-		if (rtnval < 0) {
-			return rtnval;
-		}
-		page = store.getPage(currNodep);
-		idx = store.getElemIdx(currNodep);
-		kwtyp = KeywordTyp.DO;
-		node.setKeywordTyp(kwtyp);
-		node.setDownCellTyp(celltyp.ordinal());
-		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
-		out("currNodep = " + currNodep + ", idx = " + idx);
-		rightp = store.allocNode(node);
-		out("rightp = " + rightp + ", celltyp = " + celltyp +
-			", kwd = " + node.getKeywordTyp());
-		page.setPtrNode(idx, rightp);
-		isDoBlock = (kwtyp == KeywordTyp.DO);
-		if (isDoBlock) {
-			node.setOpenPar(true);
-			node.setDownp(0);
-			addrNode = new AddrNode(0, rightp);
-			if (!store.pushNode(addrNode)) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-		}
-		if (!store.pushByte((byte) kwtyp.ordinal())) {
-			return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		page.setNode(idx, node);
-		currNodep = rightp;
-		return doMyParen(rightp, true);
-	}
-	*/
-	
-	/*
-		bytesave = byteval;
-		out("byteval popped = " + byteval);
-		byteval = store.topByte();
-		isDoKwd = (byteval == KeywordTyp.DO.ordinal());
-		currNodep = addrNode.getAddr();
-		if (isSemicln) { }
-		else if (bytesave == KeywordTyp.ZPAREN.ordinal()) {
-			out("Just popped ZPAREN");
-			kwtyp = KeywordTyp.TUPLE;
-			page = store.getPage(currNodep);
-			idx = store.getElemIdx(currNodep);
-			node = page.getNode(idx);
-			node.setKeywordTyp(kwtyp);
-			page.setNode(idx, node);
-		}
-		if (isSemicln || !isDoKwd) { 
-			out("1:pop currNodep = " + currNodep);
-			out("byteval = " + byteval);
-			return 0;
-		}
-		kwtyp = KeywordTyp.values[byteval];
-		out("pop currNodep = " + currNodep + ", kwd = " + kwtyp);
-		byteval = store.popByte();
-		addrNode = store.popNode();
-		if (addrNode == null) {
-			out("2nd popNode = null");
-			return getNegErrCode(TokenTyp.ERRSTKUNDFLW);
-		}
-		out("2:byteval popped = " + byteval);
-		currNodep = addrNode.getAddr();
-		out("2:pop currNodep = " + currNodep);
-		//
-		page = store.getPage(currNodep);
-		idx = store.getElemIdx(currNodep);
-		node = page.getNode(idx);
-		downp = node.getDownp();
-		page = store.getPage(downp);
-		idx = store.getElemIdx(downp);
-		node = page.getNode(idx);
-		kwtyp = node.getKeywordTyp(); 
-		if (kwtyp != KeywordTyp.ZPAREN) {
-			return 0;  // may always happen
-		}
-		store.popByte();
-		addrNode = store.popNode();
-		if (addrNode == null) {
-			out("3rd popNode = null");
-			return getNegErrCode(TokenTyp.ERRSTKUNDFLW);
-		}
-		currNodep = addrNode.getAddr();
-		out("3:pop currNodep = " + currNodep);
-	*/
-		/* addSimpleNode:
-
-		if (kwtyp == KeywordTyp.DO && isScalar) {
-			kwtyp = KeywordTyp.NULL;
-		}
-		if (kwtyp == KeywordTyp.ZPAREN && !store.isNodeStkEmpty()) {
-			return addZparNode(celltyp, downp);
-		}
-		node = new Node(0, downp, 0);
-		if (celltyp == NodeCellTyp.KWD || celltyp == NodeCellTyp.DO) { 
-			kwtyp = KeywordTyp.values[downp];
-		}
-		node.setKeywordTyp(kwtyp);
-		node.setDownCellTyp(celltyp.ordinal());
-		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
-		out("currNodep = " + currNodep + ", idx = " + idx);
-		rightp = store.allocNode(node);
-		out("rightp = " + rightp + ", celltyp = " + celltyp +
-			", kwd = " + node.getKeywordTyp());
-		page.setPtrNode(idx, rightp);
-		isDoBlock = (kwtyp == KeywordTyp.DO);
-		if (isDoBlock) {
-			node.setOpenPar(true);
-			node.setDownp(0);
-			addrNode = new AddrNode(0, rightp);
-			if (!store.pushNode(addrNode)) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		page.setNode(idx, node);
-		store.appendNodep(rightp, lineCount);
-		currNodep = rightp;
-		return currNodep;
-		*/
-	
-	/* doAddParen()
-
-		if (!wasdo) {
-			addrNode = new AddrNode(0, currNodep);
-			if (!store.pushNode(addrNode)) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-			kwtyp = KeywordTyp.ZPAREN;
-			if (!store.pushByte((byte) kwtyp.ordinal())) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-		}
-		else {
-			
-		}
-
-		celltyp = NodeCellTyp.PTR;
-		page = store.getPage(currNodep);
-		idx = store.getElemIdx(currNodep);
-		currNode = page.getNode(idx);
-		kwtyp = currNode.getKeywordTyp();
-		node = new Node(0, 0, 0);
-		node.setKeywordTyp(kwtyp);
-		node.setDownCellTyp(celltyp.ordinal());
-		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
-		out("currNodep = " + currNodep + ", idx = " + idx);
-		rightp = store.allocNode(node);
-		out("rightp = " + rightp + ", celltyp = " + celltyp +
-			", kwd = " + node.getKeywordTyp());
-		isDoBlock = (kwtyp == KeywordTyp.DO);
-		if (isDoBlock) {
-			page.setDataNode(idx, rightp);
-		}
-		else {
-			page.setPtrNode(idx, rightp);
-		}
-		if (!store.pushByte((byte) kwtyp.ordinal())) {
-			return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		page.setNode(idx, node);
-		store.appendNodep(rightp, lineCount);
-		currNodep = rightp;
-		return doMyParen(rightp, false);
-	}
-	*/
-
-	/*
-	private int doMyParen(int rightp, boolean isSemicln) {
-		Node node, startNode;
-		Page page;
-		int downp;
-		int idx;
-		AddrNode addrNode;
-
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
-		if (!isSemicln) {
-			addrNode = new AddrNode(0, rightp);
-			if (!store.pushNode(addrNode)) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-		}
-		startNode = new Node(0, 0, 0);
-		downp = store.allocNode(startNode);
-		node.setOpenPar(true);
-		node.setDownp(downp);
-		page.setNode(idx, node);
-		out("doParen: downp = " + downp);
-		currNodep = downp;
-		startNode.setKeywordTyp(KeywordTyp.ZPAREN);
-		page = store.getPage(currNodep);
-		idx = store.getElemIdx(currNodep);
-		page.setNode(idx, startNode);
-		if (!store.pushByte((byte) KeywordTyp.ZPAREN.ordinal())) {
-			return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-		}
-		return currNodep;
-	}
-	
-	private void popZparen() {
-		int byteval;
-		byteval = store.topByte();
-		if (byteval == KeywordTyp.ZPAREN.ordinal()) {
-			store.popByte();
-		}
-	}
-	
-	/*
-	private int doAddNode(NodeCellTyp celltyp, long val, double dval,
-		String sval)
-	{
-		Node node, currNode;
-		Page page;
-		int downp = 0;
-		int rightp;
-		KeywordTyp kwtyp;
-		AddrNode addrNode;
-		int idx;
-		int rtnval;
-		boolean isDoBlock;
-		boolean isParen = false;
-		boolean isSemicln = false;
-		boolean isScalar = true;
-		boolean isDoWarn;
-
-		switch (celltyp) {
-		case KWD:
-		case DO:
-			downp = (int) val;
-			isScalar = false;
-			break;
-		case INT:
-			downp = (int) val;
-			break;
-		case LONG:
-			downp = store.allocLong(val);
-			break;
-		case DOUBLE:
-			downp = store.allocDouble(dval);
-			break;
-		case STRING:
-		case ID:
-			downp = store.allocString(sval);
-			break;
-		case PAREN:
-			isParen = true;
-			isScalar = false;
-			celltyp = NodeCellTyp.PTR;
-			break;
-		case SEMICLN:
-			isSemicln = true;
-			isParen = true;
-			isScalar = false;
-			celltyp = NodeCellTyp.PTR;
-			break;
-		default:
-			downp = 0;
-		}
-		page = store.getPage(currNodep);
-		idx = store.getElemIdx(currNodep);
-		currNode = page.getNode(idx);
-		kwtyp = currNode.getKeywordTyp();
-		isDoWarn = (!isParen || (isSemicln && (
-			!currNode.isOpenPar() || page.getDataNode(idx) <= 0
-		)));
-		if (kwtyp == KeywordTyp.DO && isDoWarn) {
-			out("Warn: DO not followed by (");
-			currNode.setOpenPar(false);
-			page.setNode(idx, currNode);
-			store.popNode();
-			kwtyp = KeywordTyp.NULL;
-		}
-		if (kwtyp == KeywordTyp.DO && isScalar) {
-			kwtyp = KeywordTyp.NULL;
-		}
-		if (kwtyp != KeywordTyp.ZPAREN) { }
-		else if (store.isNodeStkEmpty()) { }
-		else if (celltyp == NodeCellTyp.KWD && downp < 256) {
-			// prev token = open paren, curr token = kwd
-			kwtyp = KeywordTyp.values[downp];
-			currNode.setKeywordTyp(kwtyp);
-			currNode.setDownCellTyp(celltyp.ordinal());
-			currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
-			page.setNode(idx, currNode);
-			out("List kwtyp = " + kwtyp + ", downp = " + downp);
-			out("currNodep = " + currNodep + ", celltyp = " + celltyp);
-			popZparen();
-			if (!store.pushByte((byte) downp)) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-			return currNodep;
-		}
-		else if (celltyp == NodeCellTyp.ID) {  // (func x y z)
-			kwtyp = KeywordTyp.ZCALL;
-			celltyp = NodeCellTyp.FUNC;
-			currNode.setKeywordTyp(kwtyp);
-			currNode.setDownCellTyp(celltyp.ordinal());
-			currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
-			currNode.setDownp(downp);
-			page.setNode(idx, currNode);
-			out("Func kwtyp = " + kwtyp + ", downp = " + downp);
-			out("currNodep = " + currNodep + ", celltyp = " + celltyp);
-			popZparen();
-			if (!store.pushByte((byte) kwtyp.ordinal())) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-			return currNodep;
-		}
-		else {
-			// bad token after (
-			return getNegErrCode(TokenTyp.ERRPOSTPARTOK);
-			//## (( not handled!
-		}
-		node = new Node(0, downp, 0);
-		if (celltyp == NodeCellTyp.KWD || celltyp == NodeCellTyp.DO) { 
-			kwtyp = KeywordTyp.values[downp];
-		}
-		else if (isSemicln) {
-			rtnval = closeParen(true);
-			if (rtnval < 0) {
-				return rtnval;
-			}
-			page = store.getPage(currNodep);
-			idx = store.getElemIdx(currNodep);
-			kwtyp = KeywordTyp.DO;
-		}
-		node.setKeywordTyp(kwtyp);
-		node.setDownCellTyp(celltyp.ordinal());
-		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
-		out("currNodep = " + currNodep + ", idx = " + idx);
-		rightp = store.allocNode(node);
-		out("rightp = " + rightp + ", celltyp = " + celltyp +
-			", kwd = " + node.getKeywordTyp());
-		isDoBlock = (kwtyp == KeywordTyp.DO);
-		if (!isDoBlock && isParen) {
-			page.setPtrNode(idx, rightp);
-			if (!store.pushByte((byte) kwtyp.ordinal())) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-		}
-		else if (!isDoBlock) {
-			page.setPtrNode(idx, rightp);
-		}
-		else if (isParen && !isSemicln) {
-			page.setDataNode(idx, rightp);
-			if (!store.pushByte((byte) KeywordTyp.DO.ordinal())) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-		}
-		else {  // isDoBlock && (!isParen || isSemicln)
-			page.setPtrNode(idx, rightp);
-			node.setOpenPar(true);
-			node.setDownp(0);
-			addrNode = new AddrNode(0, rightp);
-			if (!store.pushNode(addrNode)) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-			if (isParen && !store.pushByte((byte) KeywordTyp.DO.ordinal())) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		page.setNode(idx, node);
-		currNodep = rightp;
-		if (!isParen) {
-			return currNodep;
-		}
-		return doParen(rightp, isSemicln);
-	}
-	
-	private int doParen(int rightp, boolean isSemicln) {
-		Node node, startNode;
-		Page page;
-		int downp = 0;
-		int idx;
-		AddrNode addrNode;
-
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
-		if (!isSemicln) {
-			addrNode = new AddrNode(0, rightp);
-			if (!store.pushNode(addrNode)) {
-				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-			}
-		}
-		startNode = new Node(0, 0, 0);
-		downp = store.allocNode(startNode);
-		node.setOpenPar(true);
-		node.setDownp(downp);
-		page.setNode(idx, node);
-		out("doParen: downp = " + downp);
-		currNodep = downp;
-		startNode.setKeywordTyp(KeywordTyp.ZPAREN);
-		page = store.getPage(currNodep);
-		idx = store.getElemIdx(currNodep);
-		page.setNode(idx, startNode);
-		if (!store.pushByte((byte) KeywordTyp.ZPAREN.ordinal())) {
-			return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
-		}
-		return currNodep;
-	}
-	*/
-	
 	public int getNegErrCode(TokenTyp toktyp) {
 		return -toktyp.ordinal();
 	}
@@ -1744,6 +1377,7 @@ public class ScanSrc implements IConst {
 		}
 		msg = getTokErrStr(toktyp);
 		outbuf = TABSTR + "ERR" + sp + toktyp + sp + msg + colStr;
+		out("");
 		outDetl(outbuf);
 		return outbuf;
 	}
@@ -2072,6 +1706,8 @@ public class ScanSrc implements IConst {
 			return "Semicolon encountered unexpectedly";
 		case ERRBADDO:
 			return "Internal error: expecting DO on stack";
+		case ERRBADZPAREN:
+			return "Internal error: expecting ZPAREN/ZSTMT on stack";
 		default:
 			return "";
 		}
