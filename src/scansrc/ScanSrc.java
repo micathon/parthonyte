@@ -1042,6 +1042,7 @@ public class ScanSrc implements IConst {
 			// push do node
 			out("addSimp: isDoBlk");
 			wasdo = true;
+			wassemicln = true;
 			node.setOpenPar(true);
 			node.setDownp(0);
 			addrNode = new AddrNode(0, rightp);
@@ -1080,6 +1081,7 @@ public class ScanSrc implements IConst {
 		if (!wasdo) {
 			kwtyp = KeywordTyp.ZPAREN;
 			currNode.setRightp(rightp);
+			out("addZpar: wasdo = N, currNodep = " + currNodep);
 		}
 		else {
 			wasdo = false;
@@ -1145,6 +1147,8 @@ public class ScanSrc implements IConst {
 			currNode.setDownCellTyp(celltyp.ordinal());
 			currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
 			page.setNode(idx, currNode);
+			out("Const kwtyp = " + kwtyp + ", downp = " + downp);
+			out("rightp = " + rightp + ", celltyp = " + celltyp);
 			if (!nullCellTyp) {
 				// insert node of numeric constant or string literal
 				node = currNode;
@@ -1160,8 +1164,6 @@ public class ScanSrc implements IConst {
 				currNode.setDownp(downp);
 				page.setNode(idx, currNode);
 			}
-			out("Const kwtyp = " + kwtyp + ", downp = " + downp);
-			out("rightp = " + rightp + ", celltyp = " + celltyp);
 			currNodep = rightp;
 			return currNodep;
 		}
@@ -1198,16 +1200,12 @@ public class ScanSrc implements IConst {
 		boolean isZparen;
 
 		if (isTuple) { }
-		else if (wassemicln) {
+		else if (isTopKwtyp(KeywordTyp.DO)) { 
 			// pop do
 			byteval = store.popByte();
 			addrNode = store.popNode();
 			if (addrNode == null) {
 				return getNegErrCode(TokenTyp.ERRSTKUNDFLW);
-			}
-			kwtyp = KeywordTyp.values[byteval];
-			if (kwtyp != KeywordTyp.DO) {
-				return getNegErrCode(TokenTyp.ERRBADDO);
 			}
 			currNodep = addrNode.getAddr();
 			out("popZparStmt: isDoBlk, currNodep = " + currNodep);
@@ -1251,7 +1249,6 @@ public class ScanSrc implements IConst {
 		int byteval;
 		KeywordTyp kwtyp;
 		boolean isZstmt;
-		//boolean isZparen;
 
 		byteval = store.popByte();
 		addrNode = store.popNode();
@@ -1260,13 +1257,12 @@ public class ScanSrc implements IConst {
 		}
 		currNodep = addrNode.getAddr();
 		kwtyp = KeywordTyp.values[byteval];
-		out("popZparStmt: kwtyp = " + kwtyp);
+		out("popZStmt: kwtyp = " + kwtyp);
 		isZstmt = (kwtyp == KeywordTyp.ZSTMT); 
-		//isZparen = (kwtyp == KeywordTyp.ZPAREN); 
 		if (!isZstmt) {
 			return getNegErrCode(TokenTyp.ERRBADZPAREN);
 		}
-		out("popZparStmt: currNodep = " + currNodep);
+		out("popZStmt: currNodep = " + currNodep);
 		return 0;
 	}
 		
@@ -1284,18 +1280,13 @@ public class ScanSrc implements IConst {
 	}
 
 	private int doAddSemicolon() {
-		KeywordTyp kwtyp;
-		boolean isZstmt;
-		int byteval;
 		int rtnval;
 
 		if (wassemicln) {
 			return 0;
 		}
-		byteval = store.topByte();
-		kwtyp = KeywordTyp.values[byteval];
-		isZstmt = (kwtyp == KeywordTyp.ZSTMT);
-		if (!isZstmt) { 
+		wasdo = true;
+		if (!isTopKwtyp(KeywordTyp.ZSTMT)) { 
 			return getNegErrCode(TokenTyp.ERRSEMICLN);
 		}
 		rtnval = closeParenRtn(true);
@@ -1323,6 +1314,15 @@ public class ScanSrc implements IConst {
 			wasstmt = false;
 		}
 		return 0;
+	}
+	
+	private boolean isTopKwtyp(KeywordTyp kwtyp) {
+		int byteval;
+		KeywordTyp topktyp;
+		
+		byteval = store.topByte();
+		topktyp = KeywordTyp.values[byteval];
+		return (kwtyp == topktyp);
 	}
 	
 	private boolean isConstCellTyp(NodeCellTyp celltyp) {
