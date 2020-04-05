@@ -15,7 +15,6 @@ public class SynChk {
 	public SynChkExpr synExpr;
 	private ScanSrc scan;
 	private Store store;
-	private boolean isZpar;
 	private static final int ABPHASE = 100;
 
 	public SynChk(ScanSrc scan, Store store) {
@@ -205,10 +204,6 @@ public class SynChk {
 				out("Here is )");
 			}
 			rightp = node.getRightp();
-			if (isZpar) {
-				out("Zparen found");
-				continue;
-			}
 			if (phaseNo < 0) {
 				return -1;
 			}
@@ -224,7 +219,6 @@ public class SynChk {
 		KeywordTyp kwtyp = null;
 		NodeCellTyp celltyp;
 		boolean first = true;
-		boolean isZparen;
 		int currPhaseNo = phaseNo;
 		int rightq;
 		int initp = rightp;
@@ -247,19 +241,14 @@ public class SynChk {
 						" encountered unexpectedly");
 					return -1;
 				}
-				isZparen = (kwtyp == KeywordTyp.ZPAREN);
+				//isZparen = (kwtyp == KeywordTyp.ZPAREN);
 				rightq = rightp;
 				rightp = node.getRightp();
-				if (rightp <= 0 && !isZparen) {
+				//if (rightp <= 0 && !isZparen) {
+				if (rightp <= 0) {
 					oerr(rightq, "Null pointer encountered unexpectedly " +
 						"after " + kwtyp);
 					rightq = -1;
-				}
-				else if (rightp <= 0) {
-					rightp = rightq;  // isZparen is true
-				}
-				else {
-					isZparen = false;
 				}
 				// rightp > 0 inside following switch
 				switch (currPhaseNo) {
@@ -292,9 +281,6 @@ public class SynChk {
 						rightq = -1;
 					}
 				}
-				if (isZparen) {
-					rightp = node.getRightp();
-				}
 				if (rightq > 0) {
 					rightp = rightq;
 				}
@@ -308,7 +294,6 @@ public class SynChk {
 			rightp = node.getRightp();
 			first = false;
 		}
-		isZpar = (kwtyp == KeywordTyp.ZPAREN);
 		return currPhaseNo;
 	}
 	
@@ -332,8 +317,6 @@ public class SynChk {
 			return 4;
 		case ABDEFUN:
 			return ABPHASE;
-		case ZPAREN:
-			return 9999;
 		default:
 			return -1;
 		}
@@ -1795,9 +1778,7 @@ public class SynChk {
 			idx = store.getElemIdx(downp);
 			subNode = page.getNode(idx);
 			kwtyp = subNode.getKeywordTyp();
-			if (kwtyp == KeywordTyp.ZPAREN) {
-				break;
-			}
+			//if (kwtyp == KeywordTyp.ZPAREN) {break;}
 			phaseNo = getPhaseNo(kwtyp);
 			switch (phaseNo) {
 			case 3:
@@ -1880,9 +1861,7 @@ public class SynChk {
 			idx = store.getElemIdx(downp);
 			subNode = page.getNode(idx);
 			kwtyp = subNode.getKeywordTyp();
-			if (kwtyp == KeywordTyp.ZPAREN) {
-				break;
-			}
+			//if (kwtyp == KeywordTyp.ZPAREN) {break;}
 			downp = subNode.getRightp();
 			if (downp == 0) {
 				oerr(rightp, "Error in scool def: " + kwtyp +
