@@ -540,21 +540,24 @@ public class ScanSrc implements IConst {
 		BifTyp cftyp = BifTyp.NULL;
 		boolean isKeyword = true;
 		boolean isBif;
+		boolean startsWithZed;
 		int kwidx;
 		String intok = token;
 		int rtnCode = 0;
 		TokenTyp toktyp = TokenTyp.IDENTIFIER;
 		
 		token = token.toUpperCase();
-		if (token.charAt(0) == 'Z') {   // zparen, zstmt, zcall: internal use
-			isKeyword = false;
-		}
+		startsWithZed = (token.charAt(0) == 'Z');    // zparen, zstmt, zcall: internal use
 		try {
 			kwtyp = KeywordTyp.valueOf(token);
 		} catch (IllegalArgumentException exc) {
 			isKeyword = false;
 		}
-		if (isKeyword) {
+		if (isKeyword && startsWithZed) { 
+			toktyp = TokenTyp.ERRZKEYWD;
+			rtnCode = getNegErrCode(toktyp);
+		}
+		else if (isKeyword ) {
 			rtnCode = putKwd(token, kwtyp);
 			toktyp = TokenTyp.KEYWORD;
 		}
@@ -1708,6 +1711,8 @@ public class ScanSrc implements IConst {
 			return "Internal error: expecting DO on stack";
 		case ERRBADZPAREN:
 			return "Internal error: expecting ZPAREN/ZSTMT on stack";
+		case ERRZKEYWD:
+			return "Z-keyword encountered: internal use only";
 		default:
 			return "";
 		}
