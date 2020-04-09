@@ -15,7 +15,6 @@ public class SynChkStmt {
 	private Store store;
 	private SynChk synChk;
 	private SynChkExpr synExpr;
-	private boolean isZpar;
 	
 	public SynChkStmt(SynChk synChk, ScanSrc scan, Store store) {
 		this.synChk = synChk;
@@ -40,49 +39,24 @@ public class SynChkStmt {
 		int idx;
 		Node node;
 		int downp;
-		KeywordTyp kwtyp;
-		NodeCellTyp celltyp;
-		int savep;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
-		savep = node.getRightp();
-		if (savep <= 0) {
-			savep = 0;
-		}
-		if (!node.isOpenPar()) {  // never lands here
-			oerr(rightp, "Do block error (in chkDo): body lacks parentheses");
-			return -1;
-		}
-		rightp = node.getDownp();
-		if (rightp <= 0) {
-			return savep;  // OK
-		}
 		while (rightp > 0) {
 			page = store.getPage(rightp);
 			idx = store.getElemIdx(rightp);
 			node = page.getNode(idx);
-			kwtyp = node.getKeywordTyp();
-			celltyp = node.getDownCellTyp();
-			out("rightp = " + rightp + ", idx = " + idx + 
-				", kwd = " + kwtyp + ", celtyp = " + celltyp);
 			if (!node.isOpenPar()) {  // may never happen
-				oerr(rightp, "Do block error (in chkDo): body lacks semicolon(s)");
+				oerr(rightp, "Do block error (in chkDo): isOpenPar failure");
 				return -1;
 			}
 			out("Here is (");
 			downp = node.getDownp();
-			if (!doStmt(downp)) {
+			if ((downp <= 0) || !doStmt(downp)) {
 				return -1;
 			}
 			out("Here is )");
-			if (isZpar) {
-				out("Zparen found");
-			}
 			rightp = node.getRightp();
 		}
-		return savep; // OK
+		return 0; // OK
 	}
 	
 	private boolean doStmt(int rightp) {
@@ -132,9 +106,6 @@ public class SynChkStmt {
 		case XORSET:
 		case ORSET:
 			return doSetOpStmt(rightp, kwtyp);
-		case ZPAREN:
-			isZpar = true;
-			return true;
 		default:
 			oerr(rightp, "Invalid keyword: " + kwtyp.toString() +
 				" encountered at beginning of statement");

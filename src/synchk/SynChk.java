@@ -63,13 +63,13 @@ public class SynChk {
 			celltyp = node.getDownCellTyp();
 			out("rightp = " + rightp + ", idx = " + idx + 
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
-			if (node.isOpenPar()) {
+			if (kwtyp == KeywordTyp.DO) {
 				out("Here is open par!");
 				listCount++;
 				downp = node.getDownp();
 				out("root downp = " + downp + ", rightp = " +
 					node.getRightp());
-				count = doListCounts(downp);
+				count = doListCounts(downp, true);
 				tokenCount += count & 0xFFFF;
 				listCount += count >>> 16;
 				out("Here is close par!");
@@ -80,7 +80,7 @@ public class SynChk {
 		return tokenCount + (listCount << 16);
 	}
 
-	private int doListCounts(int rightp) {
+	private int doListCounts(int rightp, boolean isTopLevel) {
 		int tokenCount = 0;
 		int listCount = 0;
 		int count;
@@ -99,12 +99,12 @@ public class SynChk {
 			celltyp = node.getDownCellTyp();
 			out("rightp = " + rightp + ", idx = " + idx + 
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
-			if (node.isOpenPar()) {
+			if (isTopLevel && node.isOpenPar()) {
 				out("Here is (");
 				listCount++;
 				downp = node.getDownp();
 				out("doLstCts: recurse, downp = " + downp);
-				count = doListCounts(downp);
+				count = doListCounts(downp, false);
 				tokenCount += count & 0xFFFF;
 				listCount += count >>> 16;
 				out("Here is )");
@@ -153,7 +153,7 @@ public class SynChk {
 			celltyp = node.getDownCellTyp();
 			out("rightp = " + rightp + ", idx = " + idx + 
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
-			if (node.isOpenPar()) {
+			if (isDo) {
 				doBlkCount++;
 				if (doBlkCount > 1) {
 					return false;
@@ -162,7 +162,12 @@ public class SynChk {
 				downp = node.getDownp();
 				out("root downp = " + downp + ", rightp = " +
 					node.getRightp());
-				count = doStmtCounts(downp);
+				if (downp > 0) {
+					count = doStmtCounts(downp);
+				}
+				else {
+					return false;
+				}
 				if (count < 0) {
 					return false;
 				}
@@ -194,6 +199,9 @@ public class SynChk {
 			celltyp = node.getDownCellTyp();
 			out("rightp = " + rightp + ", idx = " + idx + 
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
+			if (kwtyp != KeywordTyp.ZSTMT) {
+				return -1;
+			}
 			if (node.isOpenPar()) {
 				out("Here is (");
 				downp = node.getDownp();
@@ -202,6 +210,9 @@ public class SynChk {
 					return -1;
 				}
 				out("Here is )");
+			}
+			else {
+				return -1;
 			}
 			rightp = node.getRightp();
 			if (phaseNo < 0) {
@@ -241,10 +252,8 @@ public class SynChk {
 						" encountered unexpectedly");
 					return -1;
 				}
-				//isZparen = (kwtyp == KeywordTyp.ZPAREN);
 				rightq = rightp;
 				rightp = node.getRightp();
-				//if (rightp <= 0 && !isZparen) {
 				if (rightp <= 0) {
 					oerr(rightq, "Null pointer encountered unexpectedly " +
 						"after " + kwtyp);
@@ -288,9 +297,9 @@ public class SynChk {
 					return -1;
 				}
 			}
-			if (node.isOpenPar()) {
+			/* if (node.isOpenPar()) {
 				out("Here is ()");
-			}
+			} */
 			rightp = node.getRightp();
 			first = false;
 		}
@@ -1055,12 +1064,30 @@ public class SynChk {
 			out("doBlock (): fail 1.5");
 			return -1;
 		}
+		rightp = node.getDownp();
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
 		if (!node.isOpenPar()) {  // never lands here
 			oerr(rightp, "Do block error: body lacks parentheses");
 			out("doBlock (): fail 2");
 			return -1;
 		}
-		if (synStmt.chkDo(rightp) < 0) {
+		rightq = rightp;
+		rightp = node.getDownp();
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.TUPLE) { }
+		else if (rightp <= 0) {
+			return 0;
+		}
+		else {
+			return -1;
+		}
+		if (synStmt.chkDo(rightq) < 0) {
 			return -1;
 		}
 		return 0;
@@ -1733,7 +1760,6 @@ public class SynChk {
 		Node node, subNode;
 		KeywordTyp kwtyp;
 		int downp, downq;
-		int rightq = 0;
 		int phaseNo;
 		boolean abfound;
 		
@@ -1751,7 +1777,7 @@ public class SynChk {
 			out("doDefBlock (): fail 1");
 			return -1;
 		}
-		if (!node.isOpenPar()) {
+		/* if (!node.isOpenPar()) {
 			oerr(rightp, "Class def DO block missing body");
 			out("doDefBlock (): fail 1.5");
 			return -1;
@@ -1762,7 +1788,7 @@ public class SynChk {
 			oerr(rightq, "Class def DO block body followed by invalid text");
 			out("doDefBlock (): fail 2");
 			return -1;
-		}
+		} */
 		rightp = node.getDownp();
 		while (rightp > 0) {
 			page = store.getPage(rightp);
@@ -1778,7 +1804,6 @@ public class SynChk {
 			idx = store.getElemIdx(downp);
 			subNode = page.getNode(idx);
 			kwtyp = subNode.getKeywordTyp();
-			//if (kwtyp == KeywordTyp.ZPAREN) {break;}
 			phaseNo = getPhaseNo(kwtyp);
 			switch (phaseNo) {
 			case 3:
@@ -1835,7 +1860,7 @@ public class SynChk {
 			out("doScoolBlock (): fail 1");
 			return -1;
 		}
-		if (!node.isOpenPar()) {
+		/* if (!node.isOpenPar()) {
 			oerr(rightp, "Error in scool do block: parentheses not found");
 			out("doScoolBlock (): fail 1.5");
 			return -1;
@@ -1845,7 +1870,7 @@ public class SynChk {
 			oerr(rightp, "Error in scool do block: invalid trailing text found");
 			out("doScoolBlock (): fail 2");
 			return -1;
-		}
+		} */
 		rightp = node.getDownp();
 		while (rightp > 0) {
 			page = store.getPage(rightp);
@@ -1861,7 +1886,6 @@ public class SynChk {
 			idx = store.getElemIdx(downp);
 			subNode = page.getNode(idx);
 			kwtyp = subNode.getKeywordTyp();
-			//if (kwtyp == KeywordTyp.ZPAREN) {break;}
 			downp = subNode.getRightp();
 			if (downp == 0) {
 				oerr(rightp, "Error in scool def: " + kwtyp +
