@@ -1081,17 +1081,23 @@ public class ScanSrc implements IConst {
 		store.appendNodep(currNodep, lineCount);
 		node = new Node(0, 0, 0);
 		rightp = store.allocNode(node);
-		if (!wasdo) {
+		if (!isTopKwtyp(KeywordTyp.DO)) {
 			kwtyp = KeywordTyp.ZPAREN;
 			currNode.setRightp(rightp);
-			out("addZpar: wasdo = N, currNodep = " + currNodep);
+			out("addZpar: not DO, currNodep = " + currNodep);
 		}
 		else {
-			wasdo = false;
 			kwtyp = KeywordTyp.ZSTMT;
-			currNode.setDownp(rightp);
-			out("addZpar: setDownp(p), p = " + rightp);
+			if (wasdo) {
+				currNode.setDownp(rightp);
+				out("addZpar: setDownp(p), p = " + rightp);
+			}
+			else {
+				currNode.setRightp(rightp);
+				out("addZpar: setRightp(p), p = " + rightp);
+			}
 			out("addZpar: currNodep = " + currNodep);
+			wasdo = false;
 		}
 		page.setNode(idx, currNode);
 		// push zparen or zstmt keyword and pointer to new node
@@ -1288,7 +1294,7 @@ public class ScanSrc implements IConst {
 		if (wassemicln) {
 			return 0;
 		}
-		wasdo = true;
+		//wasdo = true;
 		if (!isTopKwtyp(KeywordTyp.ZSTMT)) { 
 			return getNegErrCode(TokenTyp.ERRSEMICLN);
 		}
