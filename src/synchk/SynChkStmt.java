@@ -117,6 +117,7 @@ public class SynChkStmt {
 		Page page;
 		int idx;
 		Node node;
+		boolean isValid;
 
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
@@ -125,7 +126,11 @@ public class SynChkStmt {
 		if (rightp <= 0) {
 			return true;
 		}
-		return synExpr.doExpr(rightp);
+		isValid = synExpr.doExpr(rightp);
+		if (!isValid) {
+			oerr(rightp, "Error found in if stmt. expression");
+		}
+		return isValid;
 	}
 	
 	private boolean doSetOpStmt(int rightp, KeywordTyp kwtyp) {

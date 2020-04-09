@@ -70,6 +70,11 @@ public class SynChkExpr {
 				return false;
 			}
 		}
+		if (kwtyp != KeywordTyp.ZPAREN) {
+			oerr(rightp, "Internal expression error: expecting ZPAREN, " +
+				kwtyp + " found");
+			return false;
+		}
 		rightq = rightp;
 		rightp = node.getDownp();
 		if (rightp <= 0) {
@@ -86,14 +91,44 @@ public class SynChkExpr {
 		out("Expression kwd = " + kwtyp);
 		out("Expression celltyp = " + celltyp);
 		switch (kwtyp) {
-		case MINUS:
-		case NOTBITZ:
 		case NOT:
+		case NOTBITZ:
 			return doUnaryOp(rightp);
+		case MINUS:
+			return doMinusOp(rightp);
+		case QUEST:
+			return doQuestOp(rightp);
+		case MPY:
+		case ADD:
+		case STRDO:
+		case STRCAT:
+		case AND:
+		case OR:
+		case XOR:
+		case ANDBITZ:
+		case ORBITZ:
+		case XORBITZ:
+			return doMultiOp(rightp);
+		case DIV:
+		case IDIV:
+		case MOD:
+		case SHL:
+		case SHR:
+		case SHRU:
+		case GE:
+		case LE:
+		case GT:
+		case LT:
+		case EQ:
+		case NE:
+		case IS:
+		case IN:
+			return doBinaryOp(rightp);
 		case TUPLE:
 			return doTuple(rightp);
 		case ZPAREN:
-			oerr(rightp, "Error: ZPAREN encountered in expression");
+		case ZSTMT:
+			oerr(rightp, "Error: ZPAREN/ZSTMT encountered in expression");
 			return false;
 		default:
 			oerr(rightp, "Invalid keyword: " + kwtyp +
@@ -140,12 +175,131 @@ public class SynChkExpr {
 		return true;
 	}
 	
+	public int getExprCount(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		int count = 0;
+		boolean isValid = true;
+		
+		while (rightp > 0) {
+			count++;
+			if (!doExpr(rightp)) {
+				isValid = false;
+			}
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			rightp = node.getRightp();
+		}
+		if (!isValid) {
+			return -1;
+		}
+		return count;
+	}
+	
 	private boolean doUnaryOp(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		int count;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		count = getExprCount(rightp);
+		if (count < 0) { 
+			oerr(rightp, "Unary operator " + kwtyp +
+				" has invalid argument(s)");
+			return false;
+		}
+		if (count != 1) {
+			oerr(rightp, "Unary operator " + kwtyp + 
+				" has wrong no. of operands");
+			return false;
+		}
 		return true;
 	}
 	
-	private boolean doTuple(int rightp) {
-		out("TUPLE keyword encountered at beginning of expression");
+	private boolean doMinusOp(int rightp) {
+		int count;
+		
+		count = getExprCount(rightp);
+		if (count < 0) { 
+			oerr(rightp, "MINUS operator has invalid argument(s)");
+			return false;
+		}
+		if ((count != 1) && (count != 2)) {
+			oerr(rightp, "MINUS operator has wrong no. of operands");
+			return false;
+		}
+		return true;
+	}
+	
+	private boolean doQuestOp(int rightp) {
+		int count;
+		
+		count = getExprCount(rightp);
+		if (count < 0) { 
+			oerr(rightp, "QUEST operator has invalid argument(s)");
+			return false;
+		}
+		if (count != 3) {
+			oerr(rightp, "QUEST operator has wrong no. of operands");
+			return false;
+		}
+		return true;
+	}
+	
+	private boolean doMultiOp(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		int count;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		count = getExprCount(rightp);
+		if (count < 0) { 
+			oerr(rightp, "Multi operator " + kwtyp +
+				" has invalid argument(s)");
+			return false;
+		}
+		if (count < 2) {
+			oerr(rightp, "Multi operator " + kwtyp + 
+				" has wrong no. of operands");
+			return false;
+		}
+		return true;
+	}
+	
+	private boolean doBinaryOp(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		int count;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		count = getExprCount(rightp);
+		if (count < 0) { 
+			oerr(rightp, "Binary operator " + kwtyp +
+				" has invalid argument(s)");
+			return false;
+		}
+		if (count != 2) {
+			oerr(rightp, "Binary operator " + kwtyp + 
+				" has wrong no. of operands");
+			return false;
+		}
 		return true;
 	}
 /*	
@@ -172,6 +326,18 @@ public class SynChkExpr {
 	private boolean dox(int rightp) {
 		return true;
 	}
-*/
+	
+	private boolean dox(int rightp) {
+		return true;
+	}
+	
+	private boolean dox(int rightp) {
+		return true;
+	}
+*/	
+	private boolean doTuple(int rightp) {
+		out("TUPLE keyword encountered at beginning of expression");
+		return true;
+	}
 	
 }
