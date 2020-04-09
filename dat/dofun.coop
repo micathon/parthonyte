@@ -1,0 +1,54 @@
+do (
+defun (p)
+  (var x y)
+  do (
+  set a 10;
+  set Z 15;
+  hello;  # func call
+  #true;
+  if ();
+  if (1007);
+  if ("Dave");
+  set b 20;;;
+  set c 30;
+  set d 40;
+);
+defun (q)
+  do (
+);
+defun (r)
+  do (
+  ;
+);
+defun (rx)
+  do (
+  ;
+  set k0 808;
+);
+defun (n)
+  do (
+  set k 333;
+);
+defun (w)
+  do (
+  set j 295;
+);
+defun (v)
+  do (
+  set h 95
+);
+defun (s)
+  do (
+  ;;
+);
+defun (t)
+  do (
+  set e 70;;
+);
+defun (u)
+  do (
+  #set f 80;
+  set g 75
+);
+)
+
