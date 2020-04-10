@@ -124,8 +124,10 @@ public class SynChkExpr {
 		case IS:
 		case IN:
 			return doBinaryOp(rightp);
+		case JIST:
 		case TUPLE:
-			return doTuple(rightp);
+		case QUOTE:
+			return doListOp(rightp);
 		case ZPAREN:
 		case ZSTMT:
 			oerr(rightp, "Error: ZPAREN/ZSTMT encountered in expression");
@@ -203,13 +205,15 @@ public class SynChkExpr {
 		int idx;
 		Node node;
 		KeywordTyp kwtyp;
+		int rightq;
 		int count;
 		
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
 		kwtyp = node.getKeywordTyp();
-		count = getExprCount(rightp);
+		rightq = node.getRightp();
+		count = getExprCount(rightq);
 		if (count < 0) { 
 			oerr(rightp, "Unary operator " + kwtyp +
 				" has invalid argument(s)");
@@ -224,9 +228,17 @@ public class SynChkExpr {
 	}
 	
 	private boolean doMinusOp(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		int rightq;
 		int count;
 		
-		count = getExprCount(rightp);
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightq = node.getRightp();
+		count = getExprCount(rightq);
 		if (count < 0) { 
 			oerr(rightp, "MINUS operator has invalid argument(s)");
 			return false;
@@ -239,9 +251,17 @@ public class SynChkExpr {
 	}
 	
 	private boolean doQuestOp(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		int rightq;
 		int count;
 		
-		count = getExprCount(rightp);
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightq = node.getRightp();
+		count = getExprCount(rightq);
 		if (count < 0) { 
 			oerr(rightp, "QUEST operator has invalid argument(s)");
 			return false;
@@ -258,13 +278,15 @@ public class SynChkExpr {
 		int idx;
 		Node node;
 		KeywordTyp kwtyp;
+		int rightq;
 		int count;
 		
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
 		kwtyp = node.getKeywordTyp();
-		count = getExprCount(rightp);
+		rightq = node.getRightp();
+		count = getExprCount(rightq);
 		if (count < 0) { 
 			oerr(rightp, "Multi operator " + kwtyp +
 				" has invalid argument(s)");
@@ -283,13 +305,15 @@ public class SynChkExpr {
 		int idx;
 		Node node;
 		KeywordTyp kwtyp;
+		int rightq;
 		int count;
 		
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
 		kwtyp = node.getKeywordTyp();
-		count = getExprCount(rightp);
+		rightq = node.getRightp();
+		count = getExprCount(rightq);
 		if (count < 0) { 
 			oerr(rightp, "Binary operator " + kwtyp +
 				" has invalid argument(s)");
@@ -302,6 +326,29 @@ public class SynChkExpr {
 		}
 		return true;
 	}
+
+	private boolean doListOp(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		int rightq;
+		int count;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		rightq = node.getRightp();
+		count = getExprCount(rightq);
+		if (count < 0) { 
+			oerr(rightp, "List operator " + kwtyp +
+				" has invalid argument(s)");
+			return false;
+		}
+		return true;
+	}
+	
 /*	
 	private boolean dox(int rightp) {
 		return true;
@@ -330,14 +377,6 @@ public class SynChkExpr {
 	private boolean dox(int rightp) {
 		return true;
 	}
-	
-	private boolean dox(int rightp) {
-		return true;
-	}
 */	
-	private boolean doTuple(int rightp) {
-		out("TUPLE keyword encountered at beginning of expression");
-		return true;
-	}
 	
 }
