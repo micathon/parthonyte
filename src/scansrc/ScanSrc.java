@@ -1117,6 +1117,7 @@ public class ScanSrc implements IConst {
 		idx = store.getElemIdx(rightp);
 		currNode = new Node(0, 0, 0);  // insert 2nd node containing token after (
 		rightp = store.allocNode(currNode);
+		store.appendNodep(rightp, lineCount);
 		node.setDownp(rightp);
 		page.setNode(idx, node);
 		page = store.getPage(rightp);
@@ -1164,6 +1165,7 @@ public class ScanSrc implements IConst {
 				currNode = new Node(0, 0, 0);
 				rightp = store.allocNode(currNode);
 				node.setRightp(rightp);
+				page.setNode(idx, node);
 				page = store.getPage(rightp);
 				idx = store.getElemIdx(rightp);
 				kwtyp = KeywordTyp.NULL;
@@ -1341,6 +1343,7 @@ public class ScanSrc implements IConst {
 		case LONG:
 		case DOUBLE:
 		case STRING:
+			out("isConst-celltyp = " + celltyp);
 			return true;
 		default:
 			return false;
