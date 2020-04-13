@@ -1074,6 +1074,7 @@ public class ScanSrc implements IConst {
 		int rightp;
 		int ctyp;
 		boolean nullCellTyp;
+		String varName;
 
 		page = store.getPage(currNodep);
 		idx = store.getElemIdx(currNodep);
@@ -1135,6 +1136,10 @@ public class ScanSrc implements IConst {
 			return currNodep;
 		}
 		if (celltyp == NodeCellTyp.ID) {  // (func x y z)
+			varName = store.getVarName(downp);
+			if (isZcropName(varName)) {  // temporary
+				return genZcropCall(varName, downp, rightp);
+			}
 			kwtyp = KeywordTyp.ZCALL;
 			celltyp = NodeCellTyp.FUNC;
 			currNode.setKeywordTyp(kwtyp);
@@ -1180,6 +1185,15 @@ public class ScanSrc implements IConst {
 		}
 		// note: (( is an error
 		return getNegErrCode(TokenTyp.ERRPOSTPARTOK);
+	}
+	
+	private int genZcropCall(String varName, int downp, int rightp) {
+		currNodep = rightp;
+		return currNodep;
+	}
+	
+	public boolean isZcropName(String name) {
+		return false;
 	}
 	
 	private int doAddZtuple() {
