@@ -91,6 +91,10 @@ public class SynChkExpr {
 			return doQuoteOp(rightp);
 		case DICT:
 			return doDictOp(rightp);
+		case VENUM:
+			return doVenumOp(rightp);
+		case ZCROP:  // temporary
+			return doZcrop(rightp);
 		case ZPAREN:
 		case ZSTMT:
 			oerr(rightp, "Error: ZPAREN/ZSTMT encountered in expression");
@@ -456,15 +460,84 @@ public class SynChkExpr {
 		}
 		return true;
 	}
+
+	private boolean doVenumOp(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		int savep = rightp;
+		boolean isValid = true;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "VENUM expr has no arg(s)");
+			return false;
+		}
+		isValid = (synChk.chkEnumStmt(rightp, true) > 0);
+		return isValid;
+	}
+	
+	private boolean doZcrop(int rightp) {
+		// (zcrop expr b n): b = bits, n = depth
+		Page page;
+		int idx;
+		Node node;
+		int savep = rightp;
+		int downp;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "ZCROP operator has no arguments");
+			return false;
+		}
+		if (!doExpr(rightp)) {
+			oerr(savep, "ZCROP operator has invalid expression argument");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "ZCROP operator has no numeric arguments");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		downp = node.getDownp();
+		if (downp < 0) {
+			oerr(savep, "ZCROP operator has negative bit-string argument");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "ZCROP operator has no depth argument");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		downp = node.getDownp();
+		if (downp < 0) {
+			oerr(savep, "ZCROP operator has negative depth");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp > 0) {
+			oerr(savep, "ZCROP operator has too many arguments");
+			return false;
+		}
+		return true;
+	}
+	
 /*	
-	private boolean dox(int rightp) {
-		return true;
-	}
-	
-	private boolean dox(int rightp) {
-		return true;
-	}
-	
 	private boolean dox(int rightp) {
 		return true;
 	}

@@ -1288,7 +1288,7 @@ public class SynChk {
 			return chkScoolStmt(rightp);
 		case ENUM:
 		case IENUM:
-			return chkEnumStmt(rightp);
+			return chkEnumStmt(rightp, false);
 		default:
 			break;
 		}
@@ -1555,7 +1555,7 @@ public class SynChk {
 		return isValid;
 	}
 			
-	private int chkEnumStmt(int rightp) {
+	public int chkEnumStmt(int rightp, boolean isExpr) {
 		Page page;
 		int idx;
 		Node node, subNode;
@@ -1584,7 +1584,7 @@ public class SynChk {
 			node = page.getNode(idx);
 			subNode = store.getSubNode(node);
 			if (subNode != null) {
-				etyp = getEnumPair(rightp);
+				etyp = getEnumPair(rightp, isExpr);
 			}
 			else {
 				etyp = getEnumTyp(node);
@@ -1602,10 +1602,11 @@ public class SynChk {
 			}
 			rightp = node.getRightp();
 		}
-		if (count == 0) {
+		if ((count == 0) && !isExpr) {
 			oerr(rightq, "Error in enum def: no id/val/pairs found");
 			return -1;
 		}
+		out("chkEnumStmt: count = " + count);
 		return savep;
 	}
 	
@@ -1626,7 +1627,7 @@ public class SynChk {
 		}
 	}
 	
-	private int getEnumPair(int rightp) {
+	private int getEnumPair(int rightp, boolean isExpr) {
 		Page page;
 		int idx;
 		Node node, parNode;
@@ -1678,7 +1679,7 @@ public class SynChk {
 			return -1;
 		}
 		out("getEnumPair() = " + enumTyp);
-		if (enumTyp == 0) {
+		if ((enumTyp == 0) && !isExpr) {
 			oerr(rightq, "Invalid enum pair: expecting constants, identifiers found");
 			out("getEnumPair (): fail 2");
 			return -1;
