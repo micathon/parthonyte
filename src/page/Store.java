@@ -333,6 +333,15 @@ public class Store implements IConst {
 		return node;
 	}
 
+	public String getVarName(int downp) {
+		Page page;
+		int idx;
+
+		page = getPage(downp);
+		idx = getElemIdx(downp);
+		return page.getString(idx);
+	}
+
 }
 
 class PageTab implements IConst {
@@ -393,7 +402,7 @@ class PageTab implements IConst {
 	public void setPage(int idx, Page page) {
 		pageTab[idx] = page;
 	}
-
+	
 	private ArrayList<AddrNode> initStkLst(int len) {
 		ArrayList<AddrNode> list = new ArrayList<AddrNode>(); 
 		AddrNode node;
