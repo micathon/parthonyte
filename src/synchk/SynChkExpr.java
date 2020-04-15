@@ -2,6 +2,7 @@ package synchk;
 
 import iconst.KeywordTyp;
 import iconst.NodeCellTyp;
+import iconst.BifTyp;
 import page.Node;
 import page.Page;
 import page.Store;
@@ -40,6 +41,8 @@ public class SynChkExpr {
 		int idx;
 		Node node;
 		KeywordTyp kwtyp;
+		BifTyp biftyp;
+		String varName;
 
 		rightp = doParenExpr(rightp, true);
 		switch (rightp) {
@@ -49,6 +52,11 @@ public class SynChkExpr {
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
+		varName = store.getVarName(rightp);
+		biftyp = scan.getBifTyp(varName);
+		if (biftyp != BifTyp.NULL) {
+			return doBifTyp(biftyp, rightp);
+		}
 		kwtyp = node.getKeywordTyp();
 		switch (kwtyp) {
 		case NOT:
@@ -93,8 +101,8 @@ public class SynChkExpr {
 			return doDictOp(rightp);
 		case VENUM:
 			return doVenumOp(rightp);
-		case ZCROP:  // temporary
-			return doZcrop(rightp);
+		//case ZCROP:  // temporary
+		//	return doZcrop(rightp);
 		case ZPAREN:
 		case ZSTMT:
 			oerr(rightp, "Error: ZPAREN/ZSTMT encountered in expression");
@@ -480,63 +488,6 @@ public class SynChkExpr {
 		return isValid;
 	}
 	
-	private boolean doZcrop(int rightp) {
-		// (zcrop expr b n): b = bits, n = depth
-		Page page;
-		int idx;
-		Node node;
-		int savep = rightp;
-		int downp;
-		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
-		rightp = node.getRightp();
-		if (rightp <= 0) {
-			oerr(savep, "ZCROP operator has no arguments");
-			return false;
-		}
-		if (!doExpr(rightp)) {
-			oerr(savep, "ZCROP operator has invalid expression argument");
-			return false;
-		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
-		rightp = node.getRightp();
-		if (rightp <= 0) {
-			oerr(savep, "ZCROP operator has no numeric arguments");
-			return false;
-		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
-		downp = node.getDownp();
-		if (downp < 0) {
-			oerr(savep, "ZCROP operator has negative bit-string argument");
-			return false;
-		}
-		rightp = node.getRightp();
-		if (rightp <= 0) {
-			oerr(savep, "ZCROP operator has no depth argument");
-			return false;
-		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
-		downp = node.getDownp();
-		if (downp < 0) {
-			oerr(savep, "ZCROP operator has negative depth");
-			return false;
-		}
-		rightp = node.getRightp();
-		if (rightp > 0) {
-			oerr(savep, "ZCROP operator has too many arguments");
-			return false;
-		}
-		return true;
-	}
-	
 /*	
 	private boolean dox(int rightp) {
 		return true;
@@ -554,5 +505,71 @@ public class SynChkExpr {
 		return true;
 	}
 */	
+	
+	private boolean doBifTyp(BifTyp biftyp, int rightp) {
+		switch (biftyp) {
+		case CRPATH:
+			return doCrPath(rightp);
+		default:
+			return false;
+		}
+	}
+	
+	private boolean doCrPath(int rightp) {
+		// (crpath expr b n): b = bits, n = depth
+		Page page;
+		int idx;
+		Node node;
+		int savep = rightp;
+		int downp;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "CRPATH function has no arguments");
+			return false;
+		}
+		if (!doExpr(rightp)) {
+			oerr(savep, "CRPATH function has invalid expression argument");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "CRPATH function has no numeric arguments");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		downp = node.getDownp();
+		if (downp < 0) {
+			oerr(savep, "CRPATH function has negative bit-string argument");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "CRPATH function has no depth argument");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		downp = node.getDownp();
+		if (downp < 0) {
+			oerr(savep, "CRPATH function has negative depth");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp > 0) {
+			oerr(savep, "CRPATH function has too many arguments");
+			return false;
+		}
+		return true;
+	}
 	
 }
