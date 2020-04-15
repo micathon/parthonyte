@@ -58,6 +58,7 @@ public class ScanSrc implements IConst {
 	private boolean wasparen;
 	private boolean wassemicln;
 	private boolean wasstmt;
+	private boolean wasfor;
 	private int fatalRtnCode = 0;
 	
 	public ScanSrc(Store store) {
@@ -78,6 +79,7 @@ public class ScanSrc implements IConst {
 		wasparen = false;
 		wassemicln = false;
 		wasstmt = true;
+		wasfor = false;
 		this.store = store;
 		rootNode = new Node(0, KeywordTyp.NULL.ordinal(), 0);
 		rootNode.setKeywordTyp(KeywordTyp.NULL);
@@ -237,6 +239,13 @@ public class ScanSrc implements IConst {
 			}
 			rtnval = 0;
 			if (ch == OPENPARCH) {
+				if (wasfor) {
+					inWhiteSp = false;
+					doToken("do");
+					if (fatalRtnCode < 0) {
+						return false;
+					}
+				}
 				rtnval = putPar(1);
 				incTokCount(TokenTyp.OPENPAR);
 				outStructTok(ch);
@@ -312,6 +321,7 @@ public class ScanSrc implements IConst {
 		default:
 			return;
 		}
+		wasfor = (token == "for");
 		outSumm(token);
 		incTokCount(toktyp);
 		out("doToken: " + token);
@@ -537,9 +547,8 @@ public class ScanSrc implements IConst {
 	
 	private TokenTyp getTokLowerCase(String token) {
 		KeywordTyp kwtyp = KeywordTyp.NULL;
-		BifTyp cftyp = BifTyp.NULL;
+		BifTyp cftyp;
 		boolean isKeyword = true;
-		boolean isBif;
 		boolean startsWithZed;
 		int kwidx;
 		String intok = token;
@@ -557,18 +566,13 @@ public class ScanSrc implements IConst {
 			toktyp = TokenTyp.ERRZKEYWD;
 			rtnCode = getNegErrCode(toktyp);
 		}
-		else if (isKeyword ) {
+		else if (isKeyword) {
 			rtnCode = putKwd(token, kwtyp);
 			toktyp = TokenTyp.KEYWORD;
 		}
 		else {
-			isBif = true;
-			try {
-				cftyp = BifTyp.valueOf(token);  // cftyp != zparen
-			} catch (IllegalArgumentException exc) {
-				isBif = false;
-			}
-			if (isBif) {
+			cftyp = getBifTyp(token);
+			if (cftyp != BifTyp.NULL) {
 				putFun(token, cftyp);
 				kwidx = cftyp.ordinal() | (BIFBYTNO << 8);
 				rtnCode = addNode(NodeCellTyp.KWD, kwidx, 0.0, "");
@@ -582,6 +586,16 @@ public class ScanSrc implements IConst {
 			putRtnCodeErr(rtnCode);
 		}
 		return toktyp;
+	}
+	
+	public BifTyp getBifTyp(String token) {
+		BifTyp cftyp;
+		try {
+			cftyp = BifTyp.valueOf(token); 
+		} catch (IllegalArgumentException exc) {
+			cftyp = BifTyp.NULL;
+		}
+		return cftyp;
 	}
 	
 	private boolean isIdentifierOk(String token) {
@@ -1137,8 +1151,8 @@ public class ScanSrc implements IConst {
 		}
 		if (celltyp == NodeCellTyp.ID) {  // (func x y z)
 			varName = store.getVarName(downp);
-			if (isZcropName(varName)) {  // temporary
-				return genZcropCall(varName, downp, rightp);
+			if (isCrPathName(varName)) {  // temporary
+				return genCrPathCall(varName, downp, rightp);
 			}
 			kwtyp = KeywordTyp.ZCALL;
 			celltyp = NodeCellTyp.FUNC;
@@ -1187,12 +1201,12 @@ public class ScanSrc implements IConst {
 		return getNegErrCode(TokenTyp.ERRPOSTPARTOK);
 	}
 	
-	private int genZcropCall(String varName, int downp, int rightp) {
+	private int genCrPathCall(String varName, int downp, int rightp) {
 		currNodep = rightp;
 		return currNodep;
 	}
 	
-	public boolean isZcropName(String name) {
+	public boolean isCrPathName(String name) {
 		return false;
 	}
 	
