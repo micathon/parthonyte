@@ -342,6 +342,15 @@ public class Store implements IConst {
 		return page.getString(idx);
 	}
 
+	public void setVarName(int downp, String s) {
+		Page page;
+		int idx;
+
+		page = getPage(downp);
+		idx = getElemIdx(downp);
+		page.setString(idx, s);
+	}
+
 }
 
 class PageTab implements IConst {
