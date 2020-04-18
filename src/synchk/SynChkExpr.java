@@ -41,8 +41,9 @@ public class SynChkExpr {
 		int idx;
 		Node node;
 		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
 		BifTyp biftyp;
-		String varName;
+		int downp;
 
 		rightp = doParenExpr(rightp, true);
 		switch (rightp) {
@@ -52,11 +53,7 @@ public class SynChkExpr {
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
-		varName = store.getVarName(rightp);
-		biftyp = scan.getBifTyp(varName);
-		if (biftyp != BifTyp.NULL) {
-			return doBifTyp(biftyp, rightp);
-		}
+		celltyp = node.getDownCellTyp();
 		kwtyp = node.getKeywordTyp();
 		switch (kwtyp) {
 		case NOT:
@@ -101,8 +98,24 @@ public class SynChkExpr {
 			return doDictOp(rightp);
 		case VENUM:
 			return doVenumOp(rightp);
-		//case ZCROP:  // temporary
-		//	return doZcrop(rightp);
+		case ZCALL:
+			return doListOp(rightp);  // temporary: need to handle arg-list...
+		case NULL:
+			if (celltyp == NodeCellTyp.ID) {
+				oerr(rightp, "Error in parentheses: null keyword & identifier node");
+				return false;
+			}
+			if (celltyp != NodeCellTyp.KWD) {
+				oerr(rightp, "Error in parentheses: null keyword, node cell-type not KWD");
+				return false;
+			}
+			downp = node.getDownp();
+			biftyp = scan.getInt2Bif(downp);
+			if (biftyp != BifTyp.NULL) {
+				return doBifTyp(biftyp, rightp);
+			}
+			oerr(rightp, "Internal error: null keyword & null built-in func. node");
+			return false;
 		case ZPAREN:
 		case ZSTMT:
 			oerr(rightp, "Error: ZPAREN/ZSTMT encountered in expression");
@@ -510,13 +523,41 @@ public class SynChkExpr {
 		switch (biftyp) {
 		case CRPATH:
 			return doCrPath(rightp);
+		case CAR:
+		case CDR:
+			return doUnaryBif(biftyp, rightp);
 		default:
 			return false;
 		}
 	}
 	
+	private boolean doUnaryBif(BifTyp biftyp, int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		int rightq;
+		int count;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightq = node.getRightp();
+		count = getExprCount(rightq);
+		if (count < 0) { 
+			oerr(rightp, "Unary built-in function " + biftyp +
+				" has invalid argument(s)");
+			return false;
+		}
+		if (count != 1) {
+			oerr(rightp, "Unary built-in function " + biftyp + 
+				" has wrong no. of arguments");
+			return false;
+		}
+		return true;
+	}
+	
 	private boolean doCrPath(int rightp) {
-		// (crpath expr b n): b = bits, n = depth
+		// (crpath n b expr): n = depth, b = bits
 		Page page;
 		int idx;
 		Node node;
@@ -531,31 +572,6 @@ public class SynChkExpr {
 			oerr(savep, "CRPATH function has no arguments");
 			return false;
 		}
-		if (!doExpr(rightp)) {
-			oerr(savep, "CRPATH function has invalid expression argument");
-			return false;
-		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
-		rightp = node.getRightp();
-		if (rightp <= 0) {
-			oerr(savep, "CRPATH function has no numeric arguments");
-			return false;
-		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
-		downp = node.getDownp();
-		if (downp < 0) {
-			oerr(savep, "CRPATH function has negative bit-string argument");
-			return false;
-		}
-		rightp = node.getRightp();
-		if (rightp <= 0) {
-			oerr(savep, "CRPATH function has no depth argument");
-			return false;
-		}
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
@@ -564,6 +580,31 @@ public class SynChkExpr {
 			oerr(savep, "CRPATH function has negative depth");
 			return false;
 		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "CRPATH function has no bit-string argument");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		downp = node.getDownp();
+		if (downp < 0) {
+			oerr(savep, "CRPATH function has negative bit-string");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "CRPATH function has no expression argument");
+			return false;
+		}
+		if (!doExpr(rightp)) {
+			oerr(savep, "CRPATH function has invalid expression argument");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
 		rightp = node.getRightp();
 		if (rightp > 0) {
 			oerr(savep, "CRPATH function has too many arguments");
