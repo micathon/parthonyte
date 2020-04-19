@@ -1226,113 +1226,6 @@ public class ScanSrc implements IConst {
 		return getNegErrCode(TokenTyp.ERRPOSTPARTOK);
 	}
 	
-	private int genCrPathCall(String varName, int downp, int rightp) {
-		Node node;
-		Node prevNode;
-		Page page;
-		int idx;
-		KeywordTyp kwtyp;
-		NodeCellTyp celltyp;
-		BifTyp biftyp;
-		int kwidx;
-		int crPathLen;
-		int crPathVal;
-
-		crPathLen = varName.length() - 2;
-		crPathVal = getCrPathVal(varName);
-		store.setVarName(downp, varName);
-		out("genCrPathCall: len = " + crPathLen + ", val = " + crPathVal);
-		
-		// (crpath
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
-		biftyp = BifTyp.CRPATH;
-		kwidx = biftyp.ordinal() | (BIFBYTNO << 8);
-		kwtyp = KeywordTyp.NULL;
-		celltyp = NodeCellTyp.KWD;
-		node.setKeywordTyp(kwtyp);
-		node.setDownCellTyp(celltyp.ordinal());
-		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
-		node.setDownp(kwidx);
-		prevNode = node;
-
-		// (crpath -> len
-		node = new Node(0, 0, 0);
-		rightp = store.allocNode(node);
-		prevNode.setRightp(rightp);
-		page.setNode(idx, prevNode);
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		kwtyp = KeywordTyp.NULL;
-		celltyp = NodeCellTyp.INT;
-		node.setDownCellTyp(celltyp.ordinal());
-		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
-		node.setDownp(crPathLen);
-		prevNode = node;
-
-		// (crpath, len -> val
-		node = new Node(0, 0, 0);
-		rightp = store.allocNode(node);
-		prevNode.setRightp(rightp);
-		page.setNode(idx, prevNode);
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		kwtyp = KeywordTyp.NULL;
-		celltyp = NodeCellTyp.INT;
-		node.setDownCellTyp(celltyp.ordinal());
-		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
-		node.setDownp(crPathVal);
-		page.setNode(idx, node);
-		currNodep = rightp;
-		return currNodep;
-	}
-	
-	public boolean isCrPathName(String name) {
-		int i, len;
-		char c;
-		
-		len = name.length();
-		if (len < 4) {
-			return false;
-		}
-		if (name.charAt(0) != 'c') {
-			return false;
-		}
-		if (name.charAt(len - 1) != 'r') {
-			return false;
-		}
-		for (i = 1; i < len - 1; i++) {
-			c = name.charAt(i);
-			if ((c != 'a') && (c != 'd')) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	public int getCrPathVal(String name) {
-		int i, k, n;
-		char c;
-		int sum = 0;
-		
-		n = name.length() - 1;
-		for (i = 1; i < n; i++) {
-			c = name.charAt(i);
-			if (c == 'a') {
-				k = 1;
-			}
-			else if (c == 'd') {
-				k = 0;
-			}
-			else {
-				return 0;  // error condition ignored by calling func
-			}
-			sum = (2 * sum) + k;
-		}
-		return sum;
-	}
-	
 	private int doAddZtuple() {
 		// "do (" [;]... + )
 		// or:
@@ -1499,6 +1392,113 @@ public class ScanSrc implements IConst {
 		default:
 			return false;
 		}
+	}
+	
+	private int genCrPathCall(String varName, int downp, int rightp) {
+		Node node;
+		Node prevNode;
+		Page page;
+		int idx;
+		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
+		BifTyp biftyp;
+		int kwidx;
+		int crPathLen;
+		int crPathVal;
+
+		crPathLen = varName.length() - 2;
+		crPathVal = getCrPathVal(varName);
+		//store.setVarName(downp, varName);
+		out("genCrPathCall: len = " + crPathLen + ", val = " + crPathVal);
+		
+		// (crpath
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		biftyp = BifTyp.CRPATH;
+		kwidx = biftyp.ordinal() | (BIFBYTNO << 8);
+		kwtyp = KeywordTyp.NULL;
+		celltyp = NodeCellTyp.KWD;
+		node.setKeywordTyp(kwtyp);
+		node.setDownCellTyp(celltyp.ordinal());
+		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+		node.setDownp(kwidx);
+		prevNode = node;
+
+		// (crpath -> len
+		node = new Node(0, 0, 0);
+		rightp = store.allocNode(node);
+		prevNode.setRightp(rightp);
+		page.setNode(idx, prevNode);
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		kwtyp = KeywordTyp.NULL;
+		celltyp = NodeCellTyp.INT;
+		node.setDownCellTyp(celltyp.ordinal());
+		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+		node.setDownp(crPathLen);
+		prevNode = node;
+
+		// (crpath, len -> val
+		node = new Node(0, 0, 0);
+		rightp = store.allocNode(node);
+		prevNode.setRightp(rightp);
+		page.setNode(idx, prevNode);
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		kwtyp = KeywordTyp.NULL;
+		celltyp = NodeCellTyp.INT;
+		node.setDownCellTyp(celltyp.ordinal());
+		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+		node.setDownp(crPathVal);
+		page.setNode(idx, node);
+		currNodep = rightp;
+		return currNodep;
+	}
+	
+	public boolean isCrPathName(String name) {
+		int i, len;
+		char c;
+		
+		len = name.length();
+		if (len < 4) {
+			return false;
+		}
+		if (name.charAt(0) != 'c') {
+			return false;
+		}
+		if (name.charAt(len - 1) != 'r') {
+			return false;
+		}
+		for (i = 1; i < len - 1; i++) {
+			c = name.charAt(i);
+			if ((c != 'a') && (c != 'd')) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public int getCrPathVal(String name) {
+		int i, k, n;
+		char c;
+		int sum = 0;
+		
+		n = name.length() - 1;
+		for (i = 1; i < n; i++) {
+			c = name.charAt(i);
+			if (c == 'a') {
+				k = 1;
+			}
+			else if (c == 'd') {
+				k = 0;
+			}
+			else {
+				return 0;  // error condition ignored by calling func
+			}
+			sum = (2 * sum) + k;
+		}
+		return sum;
 	}
 	
 	public int getNegErrCode(TokenTyp toktyp) {
