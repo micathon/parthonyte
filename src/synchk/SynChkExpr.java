@@ -99,7 +99,7 @@ public class SynChkExpr {
 		case VENUM:
 			return doVenumOp(rightp);
 		case ZCALL:
-			return doListOp(rightp);  // temporary: need to handle arg-list...
+			return doZcallOp(rightp);  // temporary: need to handle arg-list...
 		case NULL:
 			if (celltyp == NodeCellTyp.ID) {
 				oerr(rightp, "Error in parentheses: null keyword & identifier node");
@@ -229,6 +229,7 @@ public class SynChkExpr {
 	}
 	
 	private boolean doIntConst(int rightp) {
+		out("doIntConst: rightp = " + rightp);
 		return true;
 	}
 	
@@ -480,6 +481,97 @@ public class SynChkExpr {
 			return false;
 		}
 		return true;
+	}
+
+	private boolean doZcallOp(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		int savep = rightp;
+		String msg;
+		boolean found = false;
+		boolean isValidExpr = true;
+		boolean isValidKwdArg;
+		
+		while (true) {
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				break;
+			}
+			msg = doKeywordArg(rightp);
+			isValidKwdArg = (msg == "");
+			out("doKwdArg : " + msg);
+			if (!isValidKwdArg) {
+				isValidExpr = doExpr(rightp);
+			}
+			if (!isValidExpr && !found) {
+				oerr(savep, "Invalid expression found in function call");
+				return false;
+			}
+			if (!isValidExpr) {
+				oerr(savep, "Error in keyword arg.: " + msg);
+				return false;
+			}
+			if (!isValidKwdArg && found) {
+				oerr(savep, "Error in function call: keyword arg. followed by normal arg.");
+				return false;
+			}
+			if (isValidKwdArg) {
+				found = true;
+			}
+		} 
+		return true;
+	}
+	
+	private String doKeywordArg(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
+
+		out("doKeywordArg top: rightp = " + rightp);
+		rightp = doParenExpr(rightp, true);
+		if (rightp <= 0) {
+			return "invalid or not found parenthesized expr.";
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.SET) {
+			return "missing SET keyword";
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return "no args. found after SET";
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		celltyp = node.getDownCellTyp();
+		if (celltyp != NodeCellTyp.ID) {
+			return "missing identifier";
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return "missing expression value";
+		}
+		if (!doExpr(rightp)) {
+			return "invalid expression value";
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp > 0) {
+			return "expression value followed by invalid text";
+		}
+		out("doKeywordArg OK");
+		return "";
 	}
 
 	private boolean doVenumOp(int rightp) {
