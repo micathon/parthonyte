@@ -105,7 +105,7 @@ public class SynChkStmt {
 		case ANDSET:
 		case XORSET:
 		case ORSET:
-			return doSetOpStmt(rightp, kwtyp);
+			return doSetOpStmt(rightp);
 		default:
 			oerr(rightp, "Invalid keyword: " + kwtyp.toString() +
 				" encountered at beginning of statement");
@@ -127,18 +127,154 @@ public class SynChkStmt {
 			return true;
 		}
 		isValid = synExpr.doExpr(rightp);
+		//isValid = synExpr.doTargetExpr(rightp);
 		if (!isValid) {
 			oerr(rightp, "Error found in if stmt. expression");
 		}
 		return isValid;
 	}
 	
-	private boolean doSetOpStmt(int rightp, KeywordTyp kwtyp) {
+	private boolean doSetOpStmt(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		String msg = "Error in asst. stmt.: ";
+		int savep = rightp;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "no args.");
+			return false;
+		}
+		if (!synExpr.doTargetExpr(rightp)) {
+			oerr(savep, msg + "invalid target expr.");
+			return false;
+		}
+		return doSetStmtTail(rightp, savep, msg);
+	}
+	
+	private boolean doSetStmtTail(int rightp, int savep, String msg) {
+		Page page;
+		int idx;
+		Node node;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "missing result expr.");
+			return false;
+		}
+		if (!synExpr.doExpr(rightp)) {
+			oerr(savep, msg + "invalid result expr.");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp > 0) {
+			oerr(savep, msg + "too many args.");
+			return false;
+		}
 		return true;
 	}
 	
 	private boolean doSetStmt(int rightp) {
-		return true;
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
+		String msg = "Error in SET stmt.: ";
+		int savep = rightp;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "no args.");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		celltyp = node.getDownCellTyp();
+		if (celltyp == NodeCellTyp.ID) {
+			return doSetOpStmt(savep);
+		}
+		rightp = synExpr.parenExprRtn(rightp, node); 
+		if (rightp <= 0) {
+			oerr(savep, msg + "invalid parenthetical arg.");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp == KeywordTyp.TUPLE) {
+			return doSetTuple(savep);
+		}
+		return doSetOpStmt(savep);
+	}
+	
+	private boolean doSetTuple(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		String msg = "Error in tuple asst. stmt.: ";
+		int savep = rightp;
+		int rightq;
+		int count = 0;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "no args.");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightq = rightp;
+		rightp = synExpr.parenExprRtn(rightp, node); 
+		if (rightp <= 0) {
+			oerr(savep, msg + "no tuple arg. in parentheses");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.TUPLE) {
+			oerr(savep, msg + "expecting TUPLE keyword, " + kwtyp + " found");
+			return false;
+		}
+		rightp = node.getRightp();
+		while (rightp > 0) {
+			count++;
+			if (!synExpr.doTargetExpr(rightp)) {
+				oerr(savep, msg + "invalid target expr.");
+				return false;
+			}
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			rightp = node.getRightp();
+		}
+		if (count == 0) {
+			oerr(savep, msg + "no target exprs.");
+			return false;
+		}
+		return doSetStmtTail(rightq, savep, msg);
 	}
 	
 	private boolean doWhileStmt(int rightp) {

@@ -189,7 +189,7 @@ public class SynChkExpr {
 		return parenExprRtn(rightp, node);
 	}
 		
-	private int parenExprRtn(int rightp, Node node) {
+	public int parenExprRtn(int rightp, Node node) {
 		Page page;
 		int idx;
 		int rightq;
