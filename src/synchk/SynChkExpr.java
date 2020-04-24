@@ -98,6 +98,12 @@ public class SynChkExpr {
 			return doDictOp(rightp);
 		case VENUM:
 			return doVenumOp(rightp);
+		case LAMBDA:
+			return true;  // not yet implemented
+		case CAST:
+			return doCastOp(rightp);
+		case SLICE:
+			return doSliceOp(rightp);
 		case DOT:
 			return doDotOp(rightp, false);
 		case ZCALL:
@@ -254,6 +260,49 @@ public class SynChkExpr {
 		return true;
 	}
 	
+	public boolean doLiteralExpr(int rightp, boolean isIdentifier) {
+		Page page;
+		int idx;
+		Node node;
+		NodeCellTyp celltyp;
+		boolean isValid;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		celltyp = node.getDownCellTyp();
+		if (node.isOpenPar()) {
+			oerr(rightp, "Error: literal expected, parenthesis found");
+			return false;
+		}
+		switch (celltyp) {
+		case ID: 
+			isValid = isIdentifier && doIdentifier(rightp);
+			break;
+		case INT:
+		case LONG:
+			isValid = doIntConst(rightp);
+			break;
+		case DOUBLE: 
+			isValid = doFloatConst(rightp);
+			break;
+		case STRING: 
+			isValid = doStrLit(rightp);
+			break;
+		case NULL: 
+			oerr(rightp, "Error: literal expected, NULL found");
+			return false;
+		default:
+			oerr(rightp, "Error: cell type: " + celltyp +
+				" encountered, expecting literal");
+			return false;
+		}
+		if (!isValid) {
+			oerr(rightp, "Error parsing literal");
+		}
+		return isValid;
+	}
+		
 	public int getExprCount(int rightp) {
 		Page page;
 		int idx;
@@ -496,11 +545,111 @@ public class SynChkExpr {
 		return true;
 	}
 	
+	public boolean doTargetExpr(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		NodeCellTyp celltyp;
+		String msg = "Error in target expr.: ";
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		celltyp = node.getDownCellTyp();
+		if (celltyp == NodeCellTyp.ID) {
+			return true;
+		}
+		rightp = parenExprRtn(rightp, node);
+		if (rightp <= 0) {
+			oerr(rightp, msg + "invalid parenthesized arg. or non-identifier");
+			return false;
+		}
+		if (!doSliceOp(rightp) && !doDotOp(rightp, true)) {
+			oerr(rightp, msg + "neither identifier, dot, or slice targets found");
+			return false;
+		}
+		return true;
+	}
+
+	private boolean doSliceOp(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		int savep = rightp;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.SLICE) {
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "Error in SLICE expr.: no args.");
+			return false;
+		}
+		if (!doExpr(rightp)) {
+			oerr(savep, "Error in list-obj. arg. of SLICE expr.");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "Error in SLICE expr.: no idx. args.");
+			return false;
+		}
+		if (!doExpr(rightp)) {
+			oerr(savep, "Error in idx. arg. of SLICE expr.");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return true;
+		}
+		if (!isKwdMatch(rightp, KeywordTyp.ALL) && !doExpr(rightp)) {
+			oerr(savep, "Error in 2nd idx. arg. of SLICE expr.");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp > 0) {
+			oerr(savep, "Error in SLICE expr.: too many args.");
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean isKwdMatch(int rightp, KeywordTyp kwtyp) {
+		Page page;
+		int idx;
+		Node node;
+		NodeCellTyp celltyp;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		celltyp = node.getDownCellTyp();
+		if (celltyp != NodeCellTyp.KWD) {
+			return false;
+		}
+		return (kwtyp == node.getKeywordTyp());
+	}
+	
 	private boolean doDotOp(int rightp, boolean isEndName) {
 		Page page;
 		int idx;
 		Node node;
 		NodeCellTyp celltyp;
+		KeywordTyp kwtyp;
 		int savep = rightp;
 		int rightq;
 		String msg = "Error in DOT expr.: ";
@@ -510,6 +659,10 @@ public class SynChkExpr {
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.DOT) {
+			return false;
+		}
 		rightp = node.getRightp();
 		while (rightp > 0) {
 			count++;
@@ -718,23 +871,48 @@ public class SynChkExpr {
 		return isValid;
 	}
 	
-/*	
-	private boolean dox(int rightp) {
+	private boolean doCastOp(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		int savep = rightp;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "CAST expr. has no args.");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		if (!doLiteralExpr(rightp, true)) {
+			oerr(savep, "CAST expr. has invalid literal");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "CAST expr. has no expr. arg.");
+			return false;
+		}
+		out("doCastOp: 1st rightp = " + rightp);
+		if (!doExpr(rightp)) {
+			oerr(savep, "CAST expr. has invalid expr. arg.");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		out("doCastOp: 2nd rightp = " + rightp);
+		if (rightp > 0) {
+			oerr(savep, "CAST expr. has too many args.");
+			return false;
+		}
 		return true;
 	}
-	
-	private boolean dox(int rightp) {
-		return true;
-	}
-	
-	private boolean dox(int rightp) {
-		return true;
-	}
-	
-	private boolean dox(int rightp) {
-		return true;
-	}
-*/	
 	
 	private boolean doBifTyp(BifTyp biftyp, int rightp) {
 		switch (biftyp) {
@@ -743,9 +921,37 @@ public class SynChkExpr {
 		case CAR:
 		case CDR:
 			return doUnaryBif(biftyp, rightp);
+		case RPLACA:
+		case RPLACD:
+			return doBinaryBif(biftyp, rightp);
 		default:
 			return false;
 		}
+	}
+	
+	private boolean doBinaryBif(BifTyp biftyp, int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		int rightq;
+		int count;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightq = node.getRightp();
+		count = getExprCount(rightq);
+		if (count < 0) { 
+			oerr(rightp, "Binary built-in function " + biftyp +
+				" has invalid argument(s)");
+			return false;
+		}
+		if (count != 2) {
+			oerr(rightp, "Binary built-in function " + biftyp + 
+				" has wrong no. of arguments");
+			return false;
+		}
+		return true;
 	}
 	
 	private boolean doUnaryBif(BifTyp biftyp, int rightp) {
