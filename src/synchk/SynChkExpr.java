@@ -98,8 +98,12 @@ public class SynChkExpr {
 			return doDictOp(rightp);
 		case VENUM:
 			return doVenumOp(rightp);
+		case DOT:
+			return doDotOp(rightp, false);
 		case ZCALL:
-			return doZcallOp(rightp);  // temporary: need to handle arg-list...
+			return doZcallOp(rightp);
+		case CALL:
+			return doCallOp(rightp);
 		case NULL:
 			if (celltyp == NodeCellTyp.ID) {
 				oerr(rightp, "Error in parentheses: null keyword & identifier node");
@@ -134,7 +138,6 @@ public class SynChkExpr {
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 		boolean isValid;
-		int rightq;
 
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
@@ -177,8 +180,18 @@ public class SynChkExpr {
 			}
 			return -1;
 		}
+		return parenExprRtn(rightp, node);
+	}
+		
+	private int parenExprRtn(int rightp, Node node) {
+		Page page;
+		int idx;
+		int rightq;
+		KeywordTyp kwtyp = node.getKeywordTyp();
+		
 		if (!node.isOpenPar()) {
-			oerr(rightp, "Error in parenthesized expression: isOpenPar failure");
+			oerr(rightp, "Error: unexpected token while scanning for " +
+				"parenthesized expression");
 			return -1;
 		}
 		if (kwtyp != KeywordTyp.ZPAREN) {
@@ -482,7 +495,110 @@ public class SynChkExpr {
 		}
 		return true;
 	}
+	
+	private boolean doDotOp(int rightp, boolean isEndName) {
+		Page page;
+		int idx;
+		Node node;
+		NodeCellTyp celltyp;
+		int savep = rightp;
+		int rightq;
+		String msg = "Error in DOT expr.: ";
+		boolean isCurrIdent = false;
+		int count = 0;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		while (rightp > 0) {
+			count++;
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			celltyp = node.getDownCellTyp();
+			if (celltyp == NodeCellTyp.ID) {
+				isCurrIdent = true;
+			}
+			else {
+				isCurrIdent = false;
+				rightq = parenExprRtn(rightp, node);
+				if (rightq <= 0) {
+					oerr(savep, msg + "invalid parenthesized arg. or non-identifier");
+					return false;
+				}
+				if (!doZcallOp(rightq)) {
+					oerr(savep, msg + "invalid function call");
+					return false;
+				}
+			}
+			rightp = node.getRightp();
+		}
+		if (count < 2) {
+			oerr(savep, msg + "less than 2 args. encountered");
+			return false;
+		}
+		if (isEndName && !isCurrIdent) {
+			oerr(savep, "Error in target expr.: " +
+				"final arg. of DOT operator must be an identifier");
+			return false;
+		}
+		return true;
+	}
 
+	private boolean doCallOp(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		int savep = rightp;
+		String msg;
+		boolean first = true;
+		boolean found = false;
+		boolean isValidExpr = true;
+		boolean isValidKwdArg;
+		
+		while (true) {
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				break;
+			}
+			if (first) {
+				if (!doExpr(rightp)) {
+					oerr(savep, "Error in expr. arg of CALL expr.");
+					return false;
+				}
+				page = store.getPage(rightp);
+				idx = store.getElemIdx(rightp);
+				node = page.getNode(idx);
+				rightp = node.getRightp();
+				if (rightp <= 0) {
+					return true;
+				}
+			}
+			first = false;
+			msg = doKeywordArg(rightp);
+			isValidKwdArg = (msg == "");
+			out("doKwdArg : " + msg);
+			if (!isValidKwdArg) {
+				isValidExpr = doExpr(rightp);
+			}
+			if (!chkZcallFlags(savep, msg, isValidExpr, isValidKwdArg, found)) {
+				return false;
+			}
+			if (isValidKwdArg) {
+				found = true;
+			}
+		}
+		if (first) {
+			oerr(savep, "Error in CALL expr.: no args.");
+			return false;
+		}
+		return true;
+	}
+	
 	private boolean doZcallOp(int rightp) {
 		Page page;
 		int idx;
@@ -507,22 +623,31 @@ public class SynChkExpr {
 			if (!isValidKwdArg) {
 				isValidExpr = doExpr(rightp);
 			}
-			if (!isValidExpr && !found) {
-				oerr(savep, "Invalid expression found in function call");
-				return false;
-			}
-			if (!isValidExpr) {
-				oerr(savep, "Error in keyword arg.: " + msg);
-				return false;
-			}
-			if (!isValidKwdArg && found) {
-				oerr(savep, "Error in function call: keyword arg. followed by normal arg.");
+			if (!chkZcallFlags(savep, msg, isValidExpr, isValidKwdArg, found)) {
 				return false;
 			}
 			if (isValidKwdArg) {
 				found = true;
 			}
 		} 
+		return true;
+	}
+	
+	private boolean chkZcallFlags(int savep, String msg, 
+		boolean isValidExpr, boolean isValidKwdArg, boolean found) 
+	{
+		if (!isValidExpr && !found) {
+			oerr(savep, "Invalid expression found in function call");
+			return false;
+		}
+		if (!isValidExpr) {
+			oerr(savep, "Error in keyword arg.: " + msg);
+			return false;
+		}
+		if (!isValidKwdArg && found) {
+			oerr(savep, "Error in function call: keyword arg. followed by normal arg.");
+			return false;
+		}
 		return true;
 	}
 	
