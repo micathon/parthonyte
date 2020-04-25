@@ -13,7 +13,7 @@ public enum KeywordTyp {
 	ANDSET, XORSET, ORSET, QUEST, MINUS, NOTBITZ, NOT,
 	DIV, IDIV, MOD, MPY, ADD, 
 	GE, LE, GT, LT, EQ, NE, SHL, SHR, SHRU, 
-	ANDBITZ, XORBITZ, ORBITZ, AND, XOR, OR, 
+	ANDBITZ, XORBITZ, ORBITZ, AND, XOR, OR, INCINT, DECINT,
 	STRDO, STRCAT, STAR, DBLSTAR;
 	
 	public static final KeywordTyp values[] = values();
