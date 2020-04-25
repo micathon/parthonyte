@@ -76,6 +76,9 @@ public class SynChkStmt {
 		out("Statement kwd = " + kwtyp);
 		switch (kwtyp) {
 		case SET: return doSetStmt(rightp);
+		case INCINT:
+		case DECINT:
+			return doIncDecStmt(rightp);
 		case IF: return doIfStmt(rightp);
 		case WHILE: return doWhileStmt(rightp);
 		case FOR: return doForStmt(rightp);
@@ -275,6 +278,38 @@ public class SynChkStmt {
 			return false;
 		}
 		return doSetStmtTail(rightq, savep, msg);
+	}
+	
+	private boolean doIncDecStmt(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		NodeCellTyp celltyp;
+		String msg = "Error in INC/DEC stmt.: ";
+		int savep = rightp;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "no args.");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		celltyp = node.getDownCellTyp();
+		if (celltyp != NodeCellTyp.ID) {
+			oerr(savep, msg + "no identifier found");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp > 0) {
+			oerr(savep, msg + "too many args.");
+			return false;
+		}
+		return true;
 	}
 	
 	private boolean doWhileStmt(int rightp) {
