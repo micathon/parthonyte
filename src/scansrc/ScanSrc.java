@@ -1635,6 +1635,8 @@ public class ScanSrc implements IConst {
 		case AND: return "&&";
 		case XOR: return "^^";
 		case OR: return "||";
+		case INCINT: return "++";
+		case DECINT: return "--";
 		case STRDO: return "%";
 		case STRCAT: return "+";
 		case STAR: return "*";
@@ -1693,10 +1695,16 @@ public class ScanSrc implements IConst {
 			if (ch2 == '=') {
 				return KeywordTyp.ADDSET;
 			}
+			if (ch2 == '+') {
+				return KeywordTyp.INCINT;
+			}
 			break;
 		case '-': 
 			if (ch2 == '=') {
 				return KeywordTyp.MINUSSET;
+			}
+			if (ch2 == '-') {
+				return KeywordTyp.DECINT;
 			}
 			break;
 		case '*': 
