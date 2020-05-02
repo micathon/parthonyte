@@ -135,6 +135,7 @@ public class SynChkStmt {
 			else if (rightp == 0) {
 				return true;
 			}
+			savep = rightp;
 			page = store.getPage(rightp);
 			idx = store.getElemIdx(rightp);
 			node = page.getNode(idx);
@@ -328,6 +329,77 @@ public class SynChkStmt {
 	}
 	
 	private boolean doWhileStmt(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		String msg = "Error in while stmt.: ";
+		int savep = rightp;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "no body");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.DO) {
+			if (!synExpr.doExpr(rightp)) {
+				oerr(rightp, msg + "invalid expression");
+				return false;
+			}
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				oerr(savep, msg + "no do-block");
+				return false;
+			}
+			rightp = synChk.chkDoBlock(rightp);
+			if (rightp < 0) {
+				oerr(savep, "Error in while stmt.");
+				return false;
+			}
+			return true;
+		}
+		rightp = synChk.chkStmtDoBlock(rightp);
+		if (rightp < 0) {
+			oerr(savep, "Error in while stmt.");
+			return false;
+		}
+		if (rightp == 0) {
+			oerr(savep, msg + "expecting UNTIL, invalid text found");
+			return false;
+		}
+		savep = rightp;
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.UNTIL) {
+			oerr(savep, msg + "expecting UNTIL, " + kwtyp + " found");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "missing expression");
+			return false;
+		}
+		if (!synExpr.doExpr(rightp)) {
+			oerr(savep, msg + "invalid expression after UNTIL");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp > 0) {
+			oerr(savep, msg + "invalid text after expression");
+			return false;
+		}
 		return true;
 	}
 	

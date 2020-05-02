@@ -1061,7 +1061,7 @@ public class SynChk {
 		return 0; // OK
 	}
 	
-	private int chkDoBlock(int rightp) {
+	public int chkDoBlock(int rightp) {
 		return chkDoBlockRtn(rightp, true);
 	}
 		
