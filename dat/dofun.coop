@@ -1,4 +1,43 @@
 do (
+defun (n)
+  do (
+  set x -1;
+  if (eq y 0) do (
+    set z pi;
+  )
+  elif (ne y x) do (
+    set z 577;
+  )
+  elif (ne y (+ x 1)) do (
+    set z 2577;
+  )
+  else do (
+    set z (mpy pi 2);
+  );
+  #set (tuple a t) (mpy x 94);
+  #if (cast unisys (: a b c));
+  #if (rplacd a 3);
+  #if myvar;
+  #if (: a b c);
+  #if (slice d e all);
+  #if (call (mpy x 1.618) s t);
+  #if (: p (f)(g c (set a b)) count);
+  #if (f x (minus y z)(set a 17)(set b (add 44 yes)));
+  #if (cadar (+ 3 9));
+  #if (car q57);
+  #if (dict (: 0 a)(: 1 b));
+  #if (venum e a b (: x y) c);
+  #if (venum);
+);
+{
+defun (rx)
+  do (
+  if (minus 0);
+  if (add 2 (minus 7 x));
+  if (quest 4 c 9);
+  if (95 b 27);
+  if (not a2);
+);
 defun (p)
   (var x y)
   do (
@@ -19,15 +58,6 @@ defun (q)
 defun (r)
   do (
   ;
-);
-defun (rx)
-  do (
-  ;
-  set k0 808;
-);
-defun (n)
-  do (
-  set k 333;
 );
 defun (w)
   do (
@@ -50,5 +80,6 @@ defun (u)
   #set f 80;
   set g 75
 );
+}
 )
 
