@@ -34,32 +34,7 @@ public class SynChkStmt {
 		synChk.oerr(nodep, msg);
 	}
 	
-	public int chkDo(int rightp) {
-		Page page;
-		int idx;
-		Node node;
-		int downp;
-
-		while (rightp > 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
-			if (!node.isOpenPar()) {  // may never happen
-				oerr(rightp, "Do block error (in chkDo): isOpenPar failure");
-				return -1;
-			}
-			out("Here is (");
-			downp = node.getDownp();
-			if ((downp <= 0) || !doStmt(downp)) {
-				return -1;
-			}
-			out("Here is )");
-			rightp = node.getRightp();
-		}
-		return 0; // OK
-	}
-	
-	private boolean doStmt(int rightp) {
+	public boolean doStmt(int rightp) {
 		Page page;
 		int idx;
 		Node node;
@@ -120,21 +95,61 @@ public class SynChkStmt {
 		Page page;
 		int idx;
 		Node node;
-		boolean isValid;
+		KeywordTyp kwtyp;
+		String msg = "Error in if stmt.: ";
+		boolean isElse = false;
+		int savep = rightp;
 
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		node = page.getNode(idx);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			return true;
+			oerr(savep, msg + "no body");
+			return false;
 		}
-		isValid = synExpr.doExpr(rightp);
-		//isValid = synExpr.doTargetExpr(rightp);
-		if (!isValid) {
-			oerr(rightp, "Error found in if stmt. expression");
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		while (rightp > 0) {
+			if (isElse) { }
+			else if (!synExpr.doExpr(rightp)) {
+				oerr(rightp, msg + "invalid expression");
+				return false;
+			}
+			else {
+				page = store.getPage(rightp);
+				idx = store.getElemIdx(rightp);
+				node = page.getNode(idx);
+				rightp = node.getRightp();
+			}
+			if (rightp <= 0) {
+				oerr(savep, msg + "no do-block");
+				return false;
+			}
+			rightp = synChk.chkStmtDoBlock(rightp);
+			if (rightp < 0) {
+				oerr(savep, "Error in if stmt.");
+				return false;
+			}
+			else if (rightp == 0) {
+				return true;
+			}
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp == KeywordTyp.ELSE) {
+				isElse = true;
+			}
+			else if (kwtyp != KeywordTyp.ELIF) {
+				oerr(savep, msg + "invalid keyword " + kwtyp + " found");
+				return false;
+			}
+			rightp = node.getRightp();
 		}
-		return isValid;
+		oerr(savep, msg + "dangling ELSE or ELIF");
+		return false;
 	}
 	
 	private boolean doSetOpStmt(int rightp) {

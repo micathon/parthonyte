@@ -1036,12 +1036,46 @@ public class SynChk {
 		return true;
 	}
 	
+	public int chkDo(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		int downp;
+
+		while (rightp > 0) {
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			if (!node.isOpenPar()) {  // may never happen
+				oerr(rightp, "Do block error (in chkDo): isOpenPar failure");
+				return -1;
+			}
+			out("Here is (");
+			downp = node.getDownp();
+			if ((downp <= 0) || !synStmt.doStmt(downp)) {
+				return -1;
+			}
+			out("Here is )");
+			rightp = node.getRightp();
+		}
+		return 0; // OK
+	}
+	
 	private int chkDoBlock(int rightp) {
+		return chkDoBlockRtn(rightp, true);
+	}
+		
+	public int chkStmtDoBlock(int rightp) {
+		return chkDoBlockRtn(rightp, false);
+	}
+		
+	private int chkDoBlockRtn(int rightp, boolean isFinal) {
 		Page page;
 		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		int rightq = 0;
+		int rtnval = 0;
 		
 		if (rightp <= 0) {
 			oerr(0, "Internal error: do-block handler was passed zero address");
@@ -1053,16 +1087,20 @@ public class SynChk {
 		node = page.getNode(idx);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
-			oerr(rightp, "Internal error: do-block handler called, no DO keyword");
+			oerr(rightp, "Error: do-block handler called, no DO keyword");
 			out("doBlock (): fail 1");
 			return -1;
 		}
 		rightq = node.getRightp();
-		if (rightq > 0) {
+		if (rightq <= 0) { }
+		else if (isFinal) {
 			oerr(rightp, "Unexpected/invalid text encountered after " +
-				"do-block/keyword of defun stmt.");
+				"do-block containing stmts.");
 			out("doBlock (): fail 1.5");
 			return -1;
+		}
+		else {
+			rtnval = rightq;
 		}
 		rightp = node.getDownp();
 		page = store.getPage(rightp);
@@ -1082,15 +1120,15 @@ public class SynChk {
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.TUPLE) { }
 		else if (rightp <= 0) {
-			return 0;
+			return rtnval;  // 0, isFinal
 		}
 		else {
+			return -1;  // only naked tuple allowed
+		}
+		if (chkDo(rightq) < 0) {
 			return -1;
 		}
-		if (synStmt.chkDo(rightq) < 0) {
-			return -1;
-		}
-		return 0;
+		return rtnval;  // 0, isFinal
 	}
 	
 	private int chkDefunStmt(int rightp) {
