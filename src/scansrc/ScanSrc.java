@@ -321,7 +321,7 @@ public class ScanSrc implements IConst {
 		default:
 			return;
 		}
-		wasfor = (token == "for");
+		wasfor = (token.equals("for"));
 		outSumm(token);
 		incTokCount(toktyp);
 		out("doToken: " + token);
@@ -674,6 +674,7 @@ public class ScanSrc implements IConst {
 		int rtnCode;
 
 		if (kwtyp == KeywordTyp.NULL) {
+			out("kwtyp is null!");  //##
 			putTokErr(TokenTyp.ERROP, token);
 			return TokenTyp.ERROP;
 		}
