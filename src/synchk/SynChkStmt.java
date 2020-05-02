@@ -63,6 +63,7 @@ public class SynChkStmt {
 		case ECHO: return doEchoStmt(rightp);
 		case CALL: return doCallStmt(rightp);
 		case ZCALL: return doCallFunStmt(rightp);
+		case QUEST: return doBoolStmt(rightp);
 		case DOT: return doDotStmt(rightp);
 		case RAISE: return doRaiseStmt(rightp);
 		case CONTINUE: return doContinueStmt(rightp);
@@ -87,6 +88,48 @@ public class SynChkStmt {
 		default:
 			oerr(rightp, "Invalid keyword: " + kwtyp.toString() +
 				" encountered at beginning of statement");
+			return false;
+		}
+	}
+	
+	public boolean doLoopStmt(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		celltyp = node.getDownCellTyp();
+		out("rightp = " + rightp + ", idx = " + idx + 
+				", kwd = " + kwtyp + ", celtyp = " + celltyp);
+		out("Loop Statement kwd = " + kwtyp);
+		switch (kwtyp) {
+		case SET: return doSetStmt(rightp);
+		case INCINT:
+		case DECINT:
+			return doIncDecStmt(rightp);
+		case QUEST: return doBoolStmt(rightp);
+		case ADDSET:
+		case MINUSSET:
+		case MPYSET:
+		case DIVSET:
+		case IDIVSET:
+		case MODSET:
+		case SHLSET:
+		case SHRSET:
+		case SHRUSET:
+		case ANDBSET:
+		case XORBSET:
+		case ORBSET:
+		case ANDSET:
+		case XORSET:
+		case ORSET:
+			return doSetOpStmt(rightp);
+		default:
 			return false;
 		}
 	}
@@ -404,6 +447,171 @@ public class SynChkStmt {
 	}
 	
 	private boolean doForStmt(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
+		String msg = "Error in for stmt.: ";
+		int savep = rightp;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "no body");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		celltyp = node.getDownCellTyp();
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.DO) {
+			if (celltyp != NodeCellTyp.ID) {
+				oerr(rightp, msg + "identifier not found");
+				return false;
+			}
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				oerr(savep, msg + "dangling single identifier");
+				return false;
+			}
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			celltyp = node.getDownCellTyp();
+			kwtyp = node.getKeywordTyp();
+			if (celltyp == NodeCellTyp.ID) {
+				rightp = node.getRightp();
+				page = store.getPage(rightp);
+				idx = store.getElemIdx(rightp);
+				node = page.getNode(idx);
+				kwtyp = node.getKeywordTyp();
+			}
+			if (kwtyp != KeywordTyp.IN) {
+				oerr(savep, msg + "expecting IN, but " + kwtyp + " found");
+				return false;
+			}
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				oerr(savep, msg + "dangling IN keyword");
+				return false;
+			}
+			if (!synExpr.doExpr(rightp)) {
+				oerr(savep, msg + "invalid expression after IN");
+				return false;
+			}
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				oerr(savep, msg + "missing do-block");
+				return false;
+			}
+		}
+		else {
+			rightp = chkLoopDo(rightp);
+			if (rightp <= 0) {
+				oerr(savep, "Error in for stmt. header");
+				return false;
+			}
+		}
+		rightp = synChk.chkDoBlock(rightp);
+		if (rightp < 0) {
+			oerr(savep, "Error in for stmt.");
+			return false;
+		}
+		return true;
+	}
+	
+	private int chkLoopDo(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		int i;
+		int downp;
+		int rightq;
+		int rtnval = -1;
+		
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightq = node.getRightp();
+		if (rightq > 0) { 
+			rtnval = rightq;
+		}
+		rightp = node.getDownp();
+		if (rightp <= 0) {
+			return -1;  // never
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		if (!node.isOpenPar()) {  // never lands here
+			return -1;
+		}
+		rightq = node.getDownp();
+		if (rightq <= 0) {
+			return -1;  // never
+		}
+		page = store.getPage(rightq);
+		idx = store.getElemIdx(rightq);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp == KeywordTyp.TUPLE) { 
+			return -1; 
+		}
+		for (i = 0; i < 3; i++) {
+			if (rightp <= 0) {
+				return -1;
+			}
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			if (!node.isOpenPar()) {  // may never happen
+				return -1;
+			}
+			downp = node.getDownp();
+			if ((downp <= 0) || !doLoopStmt(downp)) {
+				return -1;
+			}
+			rightp = node.getRightp();
+		}
+		if (rightp > 0) {
+			return -1;
+		}
+		return rtnval;
+	}
+	
+	private boolean doBoolStmt(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		int savep = rightp;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return true;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		if (!synExpr.doExpr(rightp)) {
+			oerr(savep, "Invalid BOOL expression");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp > 0) {
+			oerr(savep, "Invalid text after BOOL expression");
+			return false;
+		}
 		return true;
 	}
 	
