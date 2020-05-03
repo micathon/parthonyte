@@ -724,7 +724,150 @@ public class SynChkStmt {
 	}
 	
 	private boolean doTryStmt(int rightp) {
-		return true;
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
+		String errmsg = "Error in try stmt.";
+		String msg = errmsg + ": ";
+		boolean isExcept = false;
+		boolean isElse;
+		int savep = rightp;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "no body");
+			return false;
+		}
+		rightp = synChk.chkStmtDoBlock(rightp);
+		if (rightp < 0) {
+			oerr(savep, errmsg);
+			return false;
+		}
+		else if (rightp == 0) {
+			oerr(savep, msg + "no except clauses or eotry block");
+			return false;
+		}
+		while (true) {
+			savep = rightp;
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			kwtyp = node.getKeywordTyp();
+			if ((kwtyp == KeywordTyp.ELSE) || (kwtyp == KeywordTyp.EOTRY)) {
+				break;
+			}
+			if (kwtyp != KeywordTyp.EXCEPT) {
+				oerr(savep, msg + "expecting EXCEPT, but " + kwtyp + " found");
+				return false;
+			}
+			isExcept = true;
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				oerr(savep, msg + "dangling EXCEPT");
+				return false;
+			}
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			celltyp = node.getDownCellTyp();
+			if (celltyp != NodeCellTyp.ID) {
+				oerr(savep, msg + "expecting identifier, but " + celltyp + " found");
+				return false;
+			}
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				oerr(savep, msg + "dangling identifier");
+				return false;
+			}
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp == KeywordTyp.AS) {
+				rightp = node.getRightp();
+				if (rightp <= 0) {
+					oerr(savep, msg + "dangling AS");
+					return false;
+				}
+				page = store.getPage(rightp);
+				idx = store.getElemIdx(rightp);
+				node = page.getNode(idx);
+				celltyp = node.getDownCellTyp();
+				if (celltyp != NodeCellTyp.ID) {
+					oerr(savep, msg + "expecting identifier after AS, but " + 
+						celltyp + " found");
+					return false;
+				}
+				rightp = node.getRightp();
+				if (rightp <= 0) {
+					oerr(savep, msg + "except clause missing do-block");
+					return false;
+				}
+			}
+			rightp = synChk.chkStmtDoBlock(rightp);
+			if (rightp < 0) {
+				oerr(savep, errmsg);
+				return false;
+			}
+			else if (rightp == 0) {
+				return true;
+			}
+		}
+		isElse = (kwtyp == KeywordTyp.ELSE);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "dangling " + kwtyp);
+			return false;
+		}
+		if (!isExcept && isElse) {
+			oerr(savep, msg + "unexpected ELSE block w/o any except clauses");
+			return false;
+		}
+		savep = rightp;
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = synChk.chkStmtDoBlock(rightp);
+		if (rightp < 0) {
+			oerr(savep, errmsg);
+			return false;
+		}
+		else if (rightp == 0) {
+			return true;
+		}
+		if (!isElse) {
+			oerr(savep, msg + "invalid text after EOTRY block");
+			return false;
+		}
+		savep = rightp;
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.EOTRY) {
+			oerr(savep, msg + "expecting EOTRY, but " + kwtyp + " found");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "dangling EOTRY after ELSE block");
+			return false;
+		}
+		rightp = synChk.chkStmtDoBlock(rightp);
+		if (rightp < 0) {
+			oerr(savep, errmsg);
+			return false;
+		}
+		else if (rightp == 0) {
+			return true;
+		}
+		oerr(savep, msg + "invalid text after ELSE/EOTRY block");
+		return false;
 	}
 	
 	private boolean doDelStmt(int rightp) {

@@ -520,6 +520,9 @@ public class SynChkExpr {
 		if (kwtyp != KeywordTyp.TUPLE) {
 			return -1;
 		}
+		if (!doListOp(rightp)) {
+			return -1;
+		}
 		if (rtnval < 0) {
 			return 0;
 		}
