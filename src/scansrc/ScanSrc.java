@@ -22,6 +22,7 @@ public class ScanSrc implements IConst {
 	private Store store;
 	private int currNodep, rootNodep;
 	private int lineCount;
+	private int colCount;
 	private int tokTypLen, tokCatgLen;
 	private TokenTyp allTokTyps[];
 	private int errTokCounts[];
@@ -59,6 +60,9 @@ public class ScanSrc implements IConst {
 	private boolean wassemicln;
 	private boolean wasstmt;
 	private boolean wasfor;
+	private boolean isClean;
+	private int dirtyLine;
+	private int dirtyCol;
 	private int fatalRtnCode = 0;
 	
 	public ScanSrc(Store store) {
@@ -80,6 +84,9 @@ public class ScanSrc implements IConst {
 		wassemicln = false;
 		wasstmt = true;
 		wasfor = false;
+		isClean = true;
+		dirtyLine = -1;
+		dirtyCol = -1;
 		this.store = store;
 		rootNode = new Node(0, KeywordTyp.NULL.ordinal(), 0);
 		rootNode.setKeywordTyp(KeywordTyp.NULL);
@@ -106,6 +113,7 @@ public class ScanSrc implements IConst {
 		boolean isAtEnd;
 		
 		lineCount++;
+		colCount = 0;
 		inWhiteSp = true;
 		t = inbuf;
 		inbuf = inbuf.trim();
@@ -131,6 +139,7 @@ public class ScanSrc implements IConst {
 			wasWhiteSp = getInWhiteSp(ch);
 			isAtEnd = (i >= inbuf.length() - 1);
 			colIdx++;
+			colCount = colIdx;
 			//oldch = ch;
 			ch = inbuf.charAt(i);
 			// non-functional '}' recommended to always be escaped with '\',
@@ -455,10 +464,16 @@ public class ScanSrc implements IConst {
 		if (tokensFound) {
 			outSumm("");
 		}
-		if (synchk.isValidSrc()) {
+		if (isClean && synchk.isValidSrc()) {
 			out("Src file is valid.");
 		}
 		else {
+			if (!isClean) {
+				out("Error detected during initial scan:");
+				out("Line no. = " + dirtyLine);
+				out("Column no. = " + dirtyCol);
+				out("");
+			}
 			out("Src file is invalid!");
 		}
 	}
@@ -1533,6 +1548,11 @@ public class ScanSrc implements IConst {
 		String colStr = "";
 		char sp = ' ';
 
+		if (isClean) {
+			isClean = false;
+			dirtyLine = lineCount;
+			dirtyCol = colCount;
+		}
 		if (colIdx > 0) {
 			colStr = " at col. " + colIdx;
 		}
