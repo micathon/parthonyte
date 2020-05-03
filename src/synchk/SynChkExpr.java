@@ -492,6 +492,40 @@ public class SynChkExpr {
 		return true;
 	}
 	
+	public int chkTuple(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		int rtnval;
+
+		if (rightp <= 0) {
+			return -1;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		if (!node.isOpenPar()) {
+			return -1;
+		}
+		rtnval = node.getRightp();
+		rightp = node.getDownp();
+		if (rightp <= 0) {
+			return -1;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.TUPLE) {
+			return -1;
+		}
+		if (rtnval < 0) {
+			return 0;
+		}
+		return rtnval;
+	}
+	
 	private boolean doDictOp(int rightp) {
 		Page page;
 		int idx;

@@ -58,6 +58,7 @@ public class SynChkStmt {
 		case WHILE: return doWhileStmt(rightp);
 		case FOR: return doForStmt(rightp);
 		case TRY: return doTryStmt(rightp);
+		case SWITCH: return doSwitchStmt(rightp);
 		case DEL: return doDelStmt(rightp);
 		case PRINT: return doPrintStmt(rightp);
 		case ECHO: return doEchoStmt(rightp);
@@ -610,6 +611,113 @@ public class SynChkStmt {
 		rightp = node.getRightp();
 		if (rightp > 0) {
 			oerr(savep, "Invalid text after BOOL expression");
+			return false;
+		}
+		return true;
+	}
+	
+	private boolean doSwitchStmt(int rightp) {
+		Page page;
+		int idx;
+		Node node;
+		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
+		NodeCellTyp ctyp = NodeCellTyp.NULL;
+		String msg = "Error in switch stmt.: ";
+		int rightq;
+		int savep = rightp;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "no body");
+			return false;
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		if (!synExpr.doExpr(rightp)) {
+			oerr(savep, msg + "invalid switch expression");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "dangling switch expression");
+			return false;
+		}
+		while (true) {
+			savep = rightp;
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp == KeywordTyp.ELSE) {
+				break;
+			}
+			if (kwtyp != KeywordTyp.CASE) {
+				oerr(rightp, msg + "expecting CASE, but " + kwtyp + " found");
+				return false;
+			}
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				oerr(savep, msg + "dangling CASE");
+				return false;
+			}
+			rightq = synExpr.chkTuple(rightp);
+			if (rightq < 0) {
+				page = store.getPage(rightp);
+				idx = store.getElemIdx(rightp);
+				node = page.getNode(idx);
+				celltyp = node.getDownCellTyp();
+				switch (celltyp) {
+				case ID:
+				case INT:
+				case STRING:
+					if (ctyp == NodeCellTyp.NULL) {
+						ctyp = celltyp;
+					}
+					else if (celltyp != ctyp) {
+						oerr(rightp, msg + "expecting case " + ctyp +
+								" but " + celltyp + " found");
+						return false;
+					}
+					break;
+				default:
+					oerr(rightp, msg + "invalid case = " + celltyp);
+					return false;
+				}
+				rightp = node.getRightp();
+			}
+			else if (rightq == 0) {
+				oerr(savep, msg + "dangling TUPLE");
+				return false;
+			}
+			else {
+				rightp = rightq;
+			}
+			if (rightp <= 0) {
+				oerr(savep, msg + "case DO not found");
+				return false;
+			}
+			rightp = synChk.chkStmtDoBlock(rightp);
+			if (rightp < 0) {
+				oerr(savep, "Error in switch stmt.");
+				return false;
+			}
+			else if (rightp == 0) {
+				return true;
+			}
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, msg + "dangling ELSE");
+			return false;
+		}
+		rightp = synChk.chkDoBlock(rightp);
+		if (rightp < 0) {
+			oerr(savep, "Error in ELSE block");
 			return false;
 		}
 		return true;
