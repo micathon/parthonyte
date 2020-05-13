@@ -571,7 +571,7 @@ public class ScanSrc implements IConst {
 		TokenTyp toktyp = TokenTyp.IDENTIFIER;
 		
 		token = token.toUpperCase();
-		startsWithZed = (token.charAt(0) == 'Z');    // zparen, zstmt, zcall: internal use
+		startsWithZed = (token.charAt(0) == 'Z'); // znull,zparen,zstmt,zcall: internal use
 		try {
 			kwtyp = KeywordTyp.valueOf(token);
 		} catch (IllegalArgumentException exc) {
@@ -1025,7 +1025,7 @@ public class ScanSrc implements IConst {
 		String sval)
 	{
 		// Handle non-structural tokens, not parentheses or semicolons
-		Node node, currNode;
+		Node node;
 		Page page;
 		int downp = 0;
 		int rightp;
@@ -1069,8 +1069,9 @@ public class ScanSrc implements IConst {
 		}
 		page = store.getPage(currNodep);
 		idx = store.getElemIdx(currNodep);
-		currNode = page.getNode(idx);
-		kwtyp = currNode.getKeywordTyp();
+		//currNode = page.getNode(idx);
+		//kwtyp = currNode.getKeywordTyp();
+		kwtyp = KeywordTyp.ZNULL;
 		node = new Node(0, downp, 0);  // node of new token
 		if (celltyp == NodeCellTyp.KWD && downp < 256) { 
 			kwtyp = KeywordTyp.values[downp];
@@ -1114,7 +1115,7 @@ public class ScanSrc implements IConst {
 		KeywordTyp kwtyp;
 		AddrNode addrNode;
 		int rightp;
-		int ctyp;
+		NodeCellTyp ctyp;
 		boolean nullCellTyp;
 		String varName;
 
@@ -1152,9 +1153,9 @@ public class ScanSrc implements IConst {
 			return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
 		}
 		node.setKeywordTyp(kwtyp);
-		ctyp = NodeCellTyp.PTR.ordinal();
-		node.setDownCellTyp(ctyp);
-		node.setRightCellTyp(ctyp);
+		ctyp = NodeCellTyp.PTR;
+		node.setDownCellTyp(ctyp.ordinal());
+		node.setRightCellTyp(ctyp.ordinal());
 		node.setOpenPar(true);
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
@@ -1212,9 +1213,9 @@ public class ScanSrc implements IConst {
 			// handle () or (123 ...) or ("hello" ...)
 			// insert tuple keyword node
 			kwtyp = KeywordTyp.TUPLE;
-			celltyp = NodeCellTyp.KWD;
+			ctyp = NodeCellTyp.KWD;
 			currNode.setKeywordTyp(kwtyp);
-			currNode.setDownCellTyp(celltyp.ordinal());
+			currNode.setDownCellTyp(ctyp.ordinal());
 			currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
 			page.setNode(idx, currNode);
 			out("Const kwtyp = " + kwtyp + ", downp = " + downp);
@@ -1228,7 +1229,7 @@ public class ScanSrc implements IConst {
 				page.setNode(idx, node);
 				page = store.getPage(rightp);
 				idx = store.getElemIdx(rightp);
-				kwtyp = KeywordTyp.NULL;
+				kwtyp = KeywordTyp.ZNULL;
 				currNode.setKeywordTyp(kwtyp);
 				currNode.setDownCellTyp(celltyp.ordinal());
 				currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
