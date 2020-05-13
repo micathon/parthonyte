@@ -4,7 +4,6 @@ import iconst.KeywordTyp;
 import iconst.NodeCellTyp;
 import iconst.BifTyp;
 import page.Node;
-import page.Page;
 import page.Store;
 import scansrc.ScanSrc;
 import synchk.SynChk;
@@ -37,8 +36,6 @@ public class SynChkExpr {
 	}
 	
 	public boolean doExpr(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
@@ -50,9 +47,7 @@ public class SynChkExpr {
 		case 0: return true;
 		case -1: return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		kwtyp = node.getKeywordTyp();
 		switch (kwtyp) {
@@ -138,19 +133,15 @@ public class SynChkExpr {
 	}
 	
 	private int doParenExpr(int rightp, boolean isTopLevel) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 		boolean isValid;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		celltyp = node.getDownCellTyp();
-		out("rightp = " + rightp + ", idx = " + idx + 
+		out("rightp = " + rightp + 
 				", kwd = " + kwtyp + ", celtyp = " + celltyp +
 				", top level = " + isTopLevel);
 		out("Expression kwd = " + kwtyp);
@@ -190,8 +181,6 @@ public class SynChkExpr {
 	}
 		
 	public int parenExprRtn(int rightp, Node node) {
-		Page page;
-		int idx;
 		int rightq;
 		KeywordTyp kwtyp = node.getKeywordTyp();
 		
@@ -211,25 +200,18 @@ public class SynChkExpr {
 			oerr(rightq, "Error in parenthesized expression: null pointer");
 			return -1;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
-		out("rightp = " + rightp + ", idx = " + idx + 
-				", kwd = " + kwtyp);
+		out("rightp = " + rightp + ", kwd = " + kwtyp);
 		out("Paren Expr kwd = " + kwtyp);
 		return rightp;
 	}
 	
 	private boolean doKwdConst(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		switch (kwtyp) {
 		case TRUE:
@@ -261,15 +243,11 @@ public class SynChkExpr {
 	}
 	
 	public boolean doLiteralExpr(int rightp, boolean isIdentifier) {
-		Page page;
-		int idx;
 		Node node;
 		NodeCellTyp celltyp;
 		boolean isValid;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (node.isOpenPar()) {
 			oerr(rightp, "Error: literal expected, parenthesis found");
@@ -304,8 +282,6 @@ public class SynChkExpr {
 	}
 		
 	public int getExprCount(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		int count = 0;
 		boolean isValid = true;
@@ -315,9 +291,7 @@ public class SynChkExpr {
 			if (!doExpr(rightp)) {
 				isValid = false;
 			}
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
 		if (!isValid) {
@@ -327,16 +301,12 @@ public class SynChkExpr {
 	}
 	
 	private boolean doUnaryOp(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		int rightq;
 		int count;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
@@ -354,15 +324,11 @@ public class SynChkExpr {
 	}
 	
 	private boolean doMinusOp(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		int rightq;
 		int count;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightq = node.getRightp();
 		out("MinusOp: rightp, q = " + rightp + ", " + rightq);
 		count = getExprCount(rightq);
@@ -378,15 +344,11 @@ public class SynChkExpr {
 	}
 	
 	private boolean doQuestOp(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		int rightq;
 		int count;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
 		if (count < 0) { 
@@ -401,16 +363,12 @@ public class SynChkExpr {
 	}
 	
 	private boolean doMultiOp(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		int rightq;
 		int count;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
@@ -428,16 +386,12 @@ public class SynChkExpr {
 	}
 	
 	private boolean doBinaryOp(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		int rightq;
 		int count;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
@@ -463,16 +417,12 @@ public class SynChkExpr {
 	}
 
 	private boolean doListOpRtn(int rightp, boolean isZero) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		int rightq;
 		int count;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
@@ -493,8 +443,6 @@ public class SynChkExpr {
 	}
 	
 	public int chkTuple(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		int rtnval;
@@ -502,9 +450,7 @@ public class SynChkExpr {
 		if (rightp <= 0) {
 			return -1;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		if (!node.isOpenPar()) {
 			return -1;
 		}
@@ -513,9 +459,7 @@ public class SynChkExpr {
 		if (rightp <= 0) {
 			return -1;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.TUPLE) {
 			return -1;
@@ -530,16 +474,12 @@ public class SynChkExpr {
 	}
 	
 	private boolean doDictOp(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		int savep = rightp;
 		boolean isValid = true;
 		
 		while (true) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			rightp = node.getRightp();
 			if (rightp <= 0) {
 				break;
@@ -555,8 +495,6 @@ public class SynChkExpr {
 	}
 
 	private boolean doDictPair(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 
@@ -565,9 +503,7 @@ public class SynChkExpr {
 		if (rightp <= 0) {
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DOT) {
 			oerr(rightp, "Error in dict. pair: expecting DOT, " +
@@ -583,15 +519,11 @@ public class SynChkExpr {
 	}
 	
 	public boolean doTargetExpr(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		NodeCellTyp celltyp;
 		String msg = "Error in target expr.: ";
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (celltyp == NodeCellTyp.ID) {
 			return true;
@@ -609,15 +541,11 @@ public class SynChkExpr {
 	}
 
 	private boolean doSliceOp(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		int savep = rightp;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.SLICE) {
 			return false;
@@ -631,9 +559,7 @@ public class SynChkExpr {
 			oerr(savep, "Error in list-obj. arg. of SLICE expr.");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, "Error in SLICE expr.: no idx. args.");
@@ -643,9 +569,7 @@ public class SynChkExpr {
 			oerr(savep, "Error in idx. arg. of SLICE expr.");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			return true;
@@ -654,9 +578,7 @@ public class SynChkExpr {
 			oerr(savep, "Error in 2nd idx. arg. of SLICE expr.");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp > 0) {
 			oerr(savep, "Error in SLICE expr.: too many args.");
@@ -666,14 +588,10 @@ public class SynChkExpr {
 	}
 	
 	public boolean isKwdMatch(int rightp, KeywordTyp kwtyp) {
-		Page page;
-		int idx;
 		Node node;
 		NodeCellTyp celltyp;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (celltyp != NodeCellTyp.KWD) {
 			return false;
@@ -682,8 +600,6 @@ public class SynChkExpr {
 	}
 	
 	private boolean doDotOp(int rightp, boolean isEndName) {
-		Page page;
-		int idx;
 		Node node;
 		NodeCellTyp celltyp;
 		KeywordTyp kwtyp;
@@ -693,9 +609,7 @@ public class SynChkExpr {
 		boolean isCurrIdent = false;
 		int count = 0;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DOT) {
 			return false;
@@ -703,9 +617,7 @@ public class SynChkExpr {
 		rightp = node.getRightp();
 		while (rightp > 0) {
 			count++;
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			celltyp = node.getDownCellTyp();
 			if (celltyp == NodeCellTyp.ID) {
 				isCurrIdent = true;
@@ -737,8 +649,6 @@ public class SynChkExpr {
 	}
 
 	private boolean doCallOp(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		int savep = rightp;
 		String msg;
@@ -748,9 +658,7 @@ public class SynChkExpr {
 		boolean isValidKwdArg;
 		
 		while (true) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			rightp = node.getRightp();
 			if (rightp <= 0) {
 				break;
@@ -760,9 +668,7 @@ public class SynChkExpr {
 					oerr(savep, "Error in expr. arg of CALL expr.");
 					return false;
 				}
-				page = store.getPage(rightp);
-				idx = store.getElemIdx(rightp);
-				node = page.getNode(idx);
+				node = store.getNode(rightp);
 				rightp = node.getRightp();
 				if (rightp <= 0) {
 					return true;
@@ -790,8 +696,6 @@ public class SynChkExpr {
 	}
 	
 	private boolean doZcallOp(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		int savep = rightp;
 		String msg;
@@ -800,9 +704,7 @@ public class SynChkExpr {
 		boolean isValidKwdArg;
 		
 		while (true) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			rightp = node.getRightp();
 			if (rightp <= 0) {
 				break;
@@ -842,8 +744,6 @@ public class SynChkExpr {
 	}
 	
 	private String doKeywordArg(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
@@ -853,9 +753,7 @@ public class SynChkExpr {
 		if (rightp <= 0) {
 			return "invalid or not found parenthesized expr.";
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.SET) {
 			return "missing SET keyword";
@@ -864,9 +762,7 @@ public class SynChkExpr {
 		if (rightp <= 0) {
 			return "no args. found after SET";
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (celltyp != NodeCellTyp.ID) {
 			return "missing identifier";
@@ -878,9 +774,7 @@ public class SynChkExpr {
 		if (!doExpr(rightp)) {
 			return "invalid expression value";
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp > 0) {
 			return "expression value followed by invalid text";
@@ -890,15 +784,11 @@ public class SynChkExpr {
 	}
 
 	private boolean doVenumOp(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		int savep = rightp;
 		boolean isValid = true;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, "VENUM expr has no arg(s)");
@@ -909,22 +799,16 @@ public class SynChkExpr {
 	}
 	
 	private boolean doCastOp(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		int savep = rightp;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, "CAST expr. has no args.");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		if (!doLiteralExpr(rightp, true)) {
 			oerr(savep, "CAST expr. has invalid literal");
 			return false;
@@ -939,9 +823,7 @@ public class SynChkExpr {
 			oerr(savep, "CAST expr. has invalid expr. arg.");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		out("doCastOp: 2nd rightp = " + rightp);
 		if (rightp > 0) {
@@ -967,15 +849,11 @@ public class SynChkExpr {
 	}
 	
 	private boolean doBinaryBif(BifTyp biftyp, int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		int rightq;
 		int count;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
 		if (count < 0) { 
@@ -992,15 +870,11 @@ public class SynChkExpr {
 	}
 	
 	private boolean doUnaryBif(BifTyp biftyp, int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		int rightq;
 		int count;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
 		if (count < 0) { 
@@ -1018,23 +892,17 @@ public class SynChkExpr {
 	
 	private boolean doCrPath(int rightp) {
 		// (crpath n b expr): n = depth, b = bits
-		Page page;
-		int idx;
 		Node node;
 		int savep = rightp;
 		int downp;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, "CRPATH function has no arguments");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		downp = node.getDownp();
 		if (downp < 0) {
 			oerr(savep, "CRPATH function has negative depth");
@@ -1045,9 +913,7 @@ public class SynChkExpr {
 			oerr(savep, "CRPATH function has no bit-string argument");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		downp = node.getDownp();
 		if (downp < 0) {
 			oerr(savep, "CRPATH function has negative bit-string");
@@ -1062,9 +928,7 @@ public class SynChkExpr {
 			oerr(savep, "CRPATH function has invalid expression argument");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp > 0) {
 			oerr(savep, "CRPATH function has too many arguments");

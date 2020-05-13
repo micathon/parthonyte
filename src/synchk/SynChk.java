@@ -49,19 +49,15 @@ public class SynChk {
 		int count;
 		int rightp, downp;
 		Node node;
-		Page page;
-		int idx;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 
 		rightp = scan.getRootNodep();
 		while (rightp != 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			celltyp = node.getDownCellTyp();
-			out("rightp = " + rightp + ", idx = " + idx + 
+			out("rightp = " + rightp +
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
 			if (kwtyp == KeywordTyp.DO) {
 				out("Here is open par!");
@@ -84,20 +80,16 @@ public class SynChk {
 		int tokenCount = 0;
 		int listCount = 0;
 		int count;
-		Page page;
-		int idx;
 		Node node;
 		int downp;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 
 		while (rightp != 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			celltyp = node.getDownCellTyp();
-			out("rightp = " + rightp + ", idx = " + idx + 
+			out("rightp = " + rightp + 
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
 			if (isTopLevel && node.isOpenPar()) {
 				out("Here is (");
@@ -120,8 +112,6 @@ public class SynChk {
 		int count;
 		int rightp, downp;
 		Node node;
-		Page page;
-		int idx;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 		boolean isNone;
@@ -135,9 +125,7 @@ public class SynChk {
 			return false;
 		}
 		while (rightp != 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			isNone = (kwtyp == KeywordTyp.NULL);
 			isDo = (kwtyp == KeywordTyp.DO);
@@ -151,7 +139,7 @@ public class SynChk {
 				return false;
 			}
 			celltyp = node.getDownCellTyp();
-			out("rightp = " + rightp + ", idx = " + idx + 
+			out("rightp = " + rightp + 
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
 			if (isDo) {
 				doBlkCount++;
@@ -183,8 +171,6 @@ public class SynChk {
 
 	private int doStmtCounts(int rightp) {
 		int stmtCount = 0;
-		Page page;
-		int idx;
 		Node node;
 		int downp;
 		KeywordTyp kwtyp;
@@ -192,12 +178,10 @@ public class SynChk {
 		int phaseNo = 0;
 
 		while (rightp != 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			celltyp = node.getDownCellTyp();
-			out("rightp = " + rightp + ", idx = " + idx + 
+			out("rightp = " + rightp +  
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
 			if (kwtyp != KeywordTyp.ZSTMT) {
 				return -1;
@@ -224,8 +208,6 @@ public class SynChk {
 	}
 	
 	private int doStmt(int rightp, int phaseNo) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp = null;
 		NodeCellTyp celltyp;
@@ -236,12 +218,10 @@ public class SynChk {
 		String phaseDesc;
 
 		while (rightp > 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			celltyp = node.getDownCellTyp();
-			out("rightp = " + rightp + ", idx = " + idx + 
+			out("rightp = " + rightp +  
 					", kwd = " + kwtyp + ", celtyp = " + celltyp);
 			if (first) {
 				out("Statement kwd = " + kwtyp);
@@ -297,9 +277,6 @@ public class SynChk {
 					return -1;
 				}
 			}
-			/* if (node.isOpenPar()) {
-				out("Here is ()");
-			} */
 			rightp = node.getRightp();
 			first = false;
 		}
@@ -349,8 +326,6 @@ public class SynChk {
 	}
 	
 	private int chkImportKwd(int rightp, boolean hasColonCase) {
-		Page page;
-		int idx;
 		Node node, subNode;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
@@ -361,9 +336,7 @@ public class SynChk {
 		while (rightp > 0) {
 			modCount++;
 			out("modCount = " + modCount);
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			celltyp = node.getDownCellTyp();
 			if (celltyp == NodeCellTyp.ID) {
@@ -379,9 +352,7 @@ public class SynChk {
 			}
 			else {
 				currp = node.getDownp();
-				page = store.getPage(currp);
-				idx = store.getElemIdx(currp);
-				subNode = page.getNode(idx);
+				subNode = store.getNode(currp);
 				kwtyp = subNode.getKeywordTyp();
 				if (kwtyp != KeywordTyp.AS) {
 					oerr(currp, "Keyword 'import', expecting 'as', but was " +
@@ -395,9 +366,7 @@ public class SynChk {
 						"not followed by module names");
 					return 0;
 				}
-				page = store.getPage(currp);
-				idx = store.getElemIdx(currp);
-				subNode = page.getNode(idx);
+				subNode = store.getNode(currp);
 				celltyp = subNode.getDownCellTyp();
 				if (celltyp == NodeCellTyp.ID) { }
 				else if (hasColonCase && celltyp == NodeCellTyp.PTR && 
@@ -413,9 +382,7 @@ public class SynChk {
 						"followed by invalid text");
 					return 0;
 				}
-				page = store.getPage(currp);
-				idx = store.getElemIdx(currp);
-				subNode = page.getNode(idx);
+				subNode = store.getNode(currp);
 				celltyp = subNode.getDownCellTyp();
 				if (celltyp != NodeCellTyp.ID) {
 					oerr(ascurrp, "Keyword 'import', then 'as' clause found, " +
@@ -446,8 +413,6 @@ public class SynChk {
 	}
 	
 	private boolean isColonListRtn(Node node, boolean verbose) {
-		Page page;
-		int idx;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 		int rightp;
@@ -458,9 +423,7 @@ public class SynChk {
 		if (rightp <= 0) {
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp == KeywordTyp.DOT) { }
 		else if (verbose) {
@@ -475,9 +438,7 @@ public class SynChk {
 		rightp = node.getRightp();
 		while (rightp > 0) {
 			count++;
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			celltyp = node.getDownCellTyp();
 			if (celltyp == NodeCellTyp.ID) { }
 			else if (verbose) {
@@ -502,8 +463,6 @@ public class SynChk {
 	}
 	
 	private boolean isRelModList(Node node) {
-		Page page;
-		int idx;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 		int rightp, rightq;
@@ -517,9 +476,7 @@ public class SynChk {
 		if (rightp <= 0) {
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DOT) {
 			oerr(rightp, "Keyword 'from' needs dot operator");
@@ -531,9 +488,7 @@ public class SynChk {
 			oerr(rightq, "Keyword 'from', dot operator, followed by null pointer");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (celltyp == NodeCellTyp.INT) {
 			count++;
@@ -541,9 +496,7 @@ public class SynChk {
 		}
 		while (rightp > 0) {
 			count++;
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			celltyp = node.getDownCellTyp();
 			if (celltyp != NodeCellTyp.ID) {
 				oerr(rightp, "Keyword 'from', dot operator, " +
@@ -561,8 +514,6 @@ public class SynChk {
 	}
 	
 	private int chkFromKwd(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
@@ -573,9 +524,7 @@ public class SynChk {
 			return -1;
 		}
 		rightq = rightp;
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (celltyp == NodeCellTyp.ID) {
 			rightp = node.getRightp();
@@ -592,9 +541,7 @@ public class SynChk {
 			return -1;
 		}
 		rightq = rightp;
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.IMPORT) {
 			oerr(rightp, "Keyword: 'from' missing 'import' clause");
@@ -606,9 +553,7 @@ public class SynChk {
 				"encountered w/o list of modules");
 			return -1;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp == KeywordTyp.ALL) { 
 			rightp = node.getRightp();
@@ -631,8 +576,6 @@ public class SynChk {
 	}
 	
 	private int chkGlbDefStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node, parNode;
 		KeywordTyp kwtyp;
 		int savep = rightp;
@@ -641,9 +584,7 @@ public class SynChk {
 		int oldPhaseNo = 0;
 
 		while (rightp > 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			parNode = page.getNode(idx);
+			parNode = store.getNode(rightp);
 			node = store.getSubNode(parNode);
 			if (node != null) {
 				kwtyp = node.getKeywordTyp();
@@ -731,16 +672,12 @@ public class SynChk {
 	}
 	
 	private int chkVarList(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		NodeCellTyp celltyp;
 		int count = 0;
 		
 		while (rightp > 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			celltyp = node.getDownCellTyp();
 			if (celltyp != NodeCellTyp.FUNC &&
 				celltyp != NodeCellTyp.ID)
@@ -756,17 +693,13 @@ public class SynChk {
 	}
 	
 	private int chkDotCall(int rightp) {
-		Page page;
-		int idx;
 		Node node, subNode;
 		NodeCellTyp celltyp;
 		int subRightp;
 		int count = 0;
 		
 		while (rightp > 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			subNode = store.getSubNode(node);
 			if (subNode != null) {
 				subRightp = node.getDownp();
@@ -802,8 +735,6 @@ public class SynChk {
 	}
 	
 	private boolean chkParmList(int rightp) {
-		Page page;
-		int idx;
 		Node node, parNode;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
@@ -814,9 +745,7 @@ public class SynChk {
 		
 		while (rightp > 0) {
 			count++;
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			parNode = page.getNode(idx);
+			parNode = store.getNode(rightp);
 			node = store.getSubNode(parNode);
 			celltyp = parNode.getDownCellTyp();
 			if (node != null) {
@@ -873,14 +802,10 @@ public class SynChk {
 	}
 	
 	private boolean chkStarParm(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		NodeCellTyp celltyp;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (celltyp != NodeCellTyp.ID) {
 			return false;
@@ -901,14 +826,10 @@ public class SynChk {
 	}
 
 	private boolean chkDefParmRtn(int rightp, boolean isConstPair) {
-		Page page;
-		int idx;
 		Node node;
 		NodeCellTyp celltyp, inCellTyp;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (isConstPair) {
 			inCellTyp = NodeCellTyp.FUNC;
@@ -934,8 +855,6 @@ public class SynChk {
 	}
 	
 	private boolean isConstExpr(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		NodeCellTyp celltyp;
 		KeywordTyp kwtyp;
@@ -943,9 +862,7 @@ public class SynChk {
 		if (rightp <= 0) {
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp > 0) {
 			return false;
@@ -974,8 +891,6 @@ public class SynChk {
 	}
 	
 	private boolean chkDecorList(int rightp) {
-		Page page;
-		int idx;
 		Node node, parNode;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
@@ -985,9 +900,7 @@ public class SynChk {
 		
 		while (rightp > 0) {
 			count++;
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			parNode = page.getNode(idx);
+			parNode = store.getNode(rightp);
 			node = store.getSubNode(parNode);
 			celltyp = parNode.getDownCellTyp();
 			if (node != null) {
@@ -1037,15 +950,11 @@ public class SynChk {
 	}
 	
 	public int chkDo(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		int downp;
 
 		while (rightp > 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			if (!node.isOpenPar()) {  // may never happen
 				oerr(rightp, "Do block error (in chkDo): isOpenPar failure");
 				return -1;
@@ -1070,8 +979,6 @@ public class SynChk {
 	}
 		
 	private int chkDoBlockRtn(int rightp, boolean isFinal) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		int rightq = 0;
@@ -1082,9 +989,7 @@ public class SynChk {
 			out("doBlock (): fail 0");
 			return -1;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
 			oerr(rightp, "Error: do-block handler called, no DO keyword");
@@ -1103,9 +1008,7 @@ public class SynChk {
 			rtnval = rightq;
 		}
 		rightp = node.getDownp();
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		if (!node.isOpenPar()) {  // never lands here
 			oerr(rightp, "Do block error: body lacks parentheses");
 			out("doBlock (): fail 2");
@@ -1113,9 +1016,7 @@ public class SynChk {
 		}
 		rightq = rightp;
 		rightp = node.getDownp();
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.TUPLE) { }
@@ -1132,8 +1033,6 @@ public class SynChk {
 	}
 	
 	private int chkDefunStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node, parNode;
 		KeywordTyp kwtyp;
 		int savep = rightp;
@@ -1143,9 +1042,7 @@ public class SynChk {
 		boolean isParms = false;
 
 		while (rightp > 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			parNode = page.getNode(idx);
+			parNode = store.getNode(rightp);
 			node = store.getSubNode(parNode);
 			if (node != null) {
 				kwtyp = node.getKeywordTyp();
@@ -1231,8 +1128,6 @@ public class SynChk {
 	}
 	
 	private int chkAbDefunStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node, parNode;
 		KeywordTyp kwtyp;
 		int savep = rightp;
@@ -1243,9 +1138,7 @@ public class SynChk {
 
 		out("chkAbDefunStmt() - top");
 		while (rightp > 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			parNode = page.getNode(idx);
+			parNode = store.getNode(rightp);
 			node = store.getSubNode(parNode);
 			if (node != null) {
 				kwtyp = node.getKeywordTyp();
@@ -1308,8 +1201,6 @@ public class SynChk {
 	}
 	
 	private int chkClassStmt(int rightp, KeywordTyp kwtyp) {
-		Page page;
-		int idx;
 		Node node, parNode;
 		int savep = rightp;
 		int rightq = 0;
@@ -1332,9 +1223,7 @@ public class SynChk {
 		}
 		while (rightp > 0) {
 			rightq = rightp;
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			parNode = page.getNode(idx);
+			parNode = store.getNode(rightp);
 			curkwtyp = parNode.getKeywordTyp();
 			node = store.getSubNode(parNode);
 			if (node != null) {
@@ -1455,8 +1344,6 @@ public class SynChk {
 	}
 	
 	private int chkScoolStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		Node parNode;
 		int savep = rightp;
@@ -1468,9 +1355,7 @@ public class SynChk {
 
 		while (rightp > 0) {
 			rightq = rightp;
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			parNode = page.getNode(idx);
+			parNode = store.getNode(rightp);
 			node = store.getSubNode(parNode);
 			if (node != null) {
 				kwtyp = node.getKeywordTyp();
@@ -1556,8 +1441,6 @@ public class SynChk {
 	}
 	
 	private boolean isValidConstList(int rightp, int rightq) {
-		Page page;
-		int idx;
 		Node node, subnode;
 		int downp;
 		int count = 0;
@@ -1565,9 +1448,7 @@ public class SynChk {
 		
 		while (rightp > 0) {
 			count++;
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			subnode = store.getSubNode(node);
 			downp = node.getDownp();
 			if (subnode == null || !isValidConstPair(downp)) {
@@ -1594,8 +1475,6 @@ public class SynChk {
 	}
 			
 	public int chkEnumStmt(int rightp, boolean isExpr) {
-		Page page;
-		int idx;
 		Node node, subNode;
 		int savep = rightp;
 		int rightq;
@@ -1607,9 +1486,7 @@ public class SynChk {
 			return -1;
 		}
 		rightq = rightp;
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		if (node.getDownCellTyp() != NodeCellTyp.ID) {
 			oerr(rightp, "Error in enum def: missing enum name");
 			return -1;
@@ -1617,9 +1494,7 @@ public class SynChk {
 		rightp = node.getRightp();
 		while (rightp > 0) {
 			count++;
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			subNode = store.getSubNode(node);
 			if (subNode != null) {
 				etyp = getEnumPair(rightp, isExpr);
@@ -1666,8 +1541,6 @@ public class SynChk {
 	}
 	
 	private int getEnumPair(int rightp, boolean isExpr) {
-		Page page;
-		int idx;
 		Node node, parNode;
 		int rightq = 0;
 		int enumTyp, etyp;
@@ -1675,9 +1548,7 @@ public class SynChk {
 		if (rightp <= 0) {
 			return -1;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		parNode = page.getNode(idx);
+		parNode = store.getNode(rightp);
 		node = store.getSubNode(parNode);
 		if (node.getKeywordTyp() != KeywordTyp.DOT) {
 			oerr(rightp, "Invalid enum pair: missing DOT operator");
@@ -1690,9 +1561,7 @@ public class SynChk {
 			out("getEnumPair (): fail 0");
 			return -1;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		enumTyp = getEnumTyp(node);
 		rightq = rightp;
 		rightp = node.getRightp();
@@ -1701,9 +1570,7 @@ public class SynChk {
 			out("getEnumPair (): fail 0.5");
 			return -1;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		etyp = getEnumTyp(node);
 		rightp = node.getRightp();
 		if (rightp > 0) {
@@ -1748,8 +1615,6 @@ public class SynChk {
 	}
 	
 	private boolean isValidDoesList(int rightp, int rightq) {
-		Page page;
-		int idx;
 		Node node, subNode;
 		KeywordTyp kwtyp;
 		int subRightp;
@@ -1757,9 +1622,7 @@ public class SynChk {
 		boolean isValid;
 
 		while (rightp > 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			subNode = store.getSubNode(node);
 			if (node.getDownCellTyp() == NodeCellTyp.ID) {} 
 			else if (subNode == null) {
@@ -1794,8 +1657,6 @@ public class SynChk {
 	}
 	
 	private int chkDoDefBlock(int rightp, boolean isAbCls) {
-		Page page;
-		int idx;
 		Node node, subNode;
 		KeywordTyp kwtyp;
 		int downp, downq;
@@ -1806,9 +1667,7 @@ public class SynChk {
 			out("doDefBlock (): fail 0");
 			return -1;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
 			oerr(rightp, "Error in class def DO block, instead of DO, " +
@@ -1816,32 +1675,16 @@ public class SynChk {
 			out("doDefBlock (): fail 1");
 			return -1;
 		}
-		/* if (!node.isOpenPar()) {
-			oerr(rightp, "Class def DO block missing body");
-			out("doDefBlock (): fail 1.5");
-			return -1;
-		}
-		rightq = rightp;
-		rightp = node.getRightp();
-		if (rightp > 0) {
-			oerr(rightq, "Class def DO block body followed by invalid text");
-			out("doDefBlock (): fail 2");
-			return -1;
-		} */
 		rightp = node.getDownp();
 		while (rightp > 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			if (!node.isOpenPar()) {
 				oerr(rightp, "Class def DO block system error: isOpenPar failure");
 				out("doDefBlock (): fail 5");
 				return -1;
 			}
 			downp = node.getDownp();
-			page = store.getPage(downp);
-			idx = store.getElemIdx(downp);
-			subNode = page.getNode(idx);
+			subNode = store.getNode(downp);
 			kwtyp = subNode.getKeywordTyp();
 			phaseNo = getPhaseNo(kwtyp);
 			switch (phaseNo) {
@@ -1880,8 +1723,6 @@ public class SynChk {
 	}
 	
 	private int chkScoolDoBlock(int rightp) {
-		Page page;
-		int idx;
 		Node node, subNode;
 		KeywordTyp kwtyp;
 		int downp, downq;
@@ -1890,40 +1731,23 @@ public class SynChk {
 			out("doScoolBlock (): fail 0");
 			return -1;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
 			oerr(rightp, "System error in scool do block: missing DO keyword");
 			out("doScoolBlock (): fail 1");
 			return -1;
 		}
-		/* if (!node.isOpenPar()) {
-			oerr(rightp, "Error in scool do block: parentheses not found");
-			out("doScoolBlock (): fail 1.5");
-			return -1;
-		}
-		rightp = node.getRightp();
-		if (rightp > 0) {
-			oerr(rightp, "Error in scool do block: invalid trailing text found");
-			out("doScoolBlock (): fail 2");
-			return -1;
-		} */
 		rightp = node.getDownp();
 		while (rightp > 0) {
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			if (!node.isOpenPar()) {
 				oerr(rightp, "System error in scool do block: isOpenPar failure");
 				out("doScoolBlock (): fail 3");
 				return -1;
 			}
 			downp = node.getDownp();
-			page = store.getPage(downp);
-			idx = store.getElemIdx(downp);
-			subNode = page.getNode(idx);
+			subNode = store.getNode(downp);
 			kwtyp = subNode.getKeywordTyp();
 			downp = subNode.getRightp();
 			if (downp == 0) {

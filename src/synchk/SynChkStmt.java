@@ -3,7 +3,6 @@ package synchk;
 import iconst.KeywordTyp;
 import iconst.NodeCellTyp;
 import page.Node;
-import page.Page;
 import page.Store;
 import scansrc.ScanSrc;
 import synchk.SynChk;
@@ -35,18 +34,14 @@ public class SynChkStmt {
 	}
 	
 	public boolean doStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		celltyp = node.getDownCellTyp();
-		out("rightp = " + rightp + ", idx = " + idx + 
+		out("rightp = " + rightp +  
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
 		out("Statement kwd = " + kwtyp);
 		switch (kwtyp) {
@@ -94,18 +89,14 @@ public class SynChkStmt {
 	}
 	
 	public boolean doLoopStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		celltyp = node.getDownCellTyp();
-		out("rightp = " + rightp + ", idx = " + idx + 
+		out("rightp = " + rightp +  
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
 		out("Loop Statement kwd = " + kwtyp);
 		switch (kwtyp) {
@@ -136,25 +127,19 @@ public class SynChkStmt {
 	}
 	
 	private boolean doIfStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		String msg = "Error in if stmt.: ";
 		boolean isElse = false;
 		int savep = rightp;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, msg + "no body");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		while (rightp > 0) {
 			if (isElse) { }
 			else if (!synExpr.doExpr(rightp)) {
@@ -162,9 +147,7 @@ public class SynChkStmt {
 				return false;
 			}
 			else {
-				page = store.getPage(rightp);
-				idx = store.getElemIdx(rightp);
-				node = page.getNode(idx);
+				node = store.getNode(rightp);
 				rightp = node.getRightp();
 			}
 			if (rightp <= 0) {
@@ -180,9 +163,7 @@ public class SynChkStmt {
 				return true;
 			}
 			savep = rightp;
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp == KeywordTyp.ELSE) {
 				isElse = true;
@@ -198,15 +179,11 @@ public class SynChkStmt {
 	}
 	
 	private boolean doSetOpStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		String msg = "Error in asst. stmt.: ";
 		int savep = rightp;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, msg + "no args.");
@@ -220,13 +197,9 @@ public class SynChkStmt {
 	}
 	
 	private boolean doSetStmtTail(int rightp, int savep, String msg) {
-		Page page;
-		int idx;
 		Node node;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, msg + "missing result expr.");
@@ -236,9 +209,7 @@ public class SynChkStmt {
 			oerr(savep, msg + "invalid result expr.");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp > 0) {
 			oerr(savep, msg + "too many args.");
@@ -248,25 +219,19 @@ public class SynChkStmt {
 	}
 	
 	private boolean doSetStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 		String msg = "Error in SET stmt.: ";
 		int savep = rightp;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, msg + "no args.");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (celltyp == NodeCellTyp.ID) {
 			return doSetOpStmt(savep);
@@ -276,9 +241,7 @@ public class SynChkStmt {
 			oerr(savep, msg + "invalid parenthetical arg.");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp == KeywordTyp.TUPLE) {
 			return doSetTuple(savep);
@@ -287,8 +250,6 @@ public class SynChkStmt {
 	}
 	
 	private boolean doSetTuple(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		String msg = "Error in tuple asst. stmt.: ";
@@ -296,26 +257,20 @@ public class SynChkStmt {
 		int rightq;
 		int count = 0;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, msg + "no args.");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightq = rightp;
 		rightp = synExpr.parenExprRtn(rightp, node); 
 		if (rightp <= 0) {
 			oerr(savep, msg + "no tuple arg. in parentheses");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.TUPLE) {
 			oerr(savep, msg + "expecting TUPLE keyword, " + kwtyp + " found");
@@ -328,9 +283,7 @@ public class SynChkStmt {
 				oerr(savep, msg + "invalid target expr.");
 				return false;
 			}
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
 		if (count == 0) {
@@ -341,24 +294,18 @@ public class SynChkStmt {
 	}
 	
 	private boolean doIncDecStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		NodeCellTyp celltyp;
 		String msg = "Error in INC/DEC stmt.: ";
 		int savep = rightp;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, msg + "no args.");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (celltyp != NodeCellTyp.ID) {
 			oerr(savep, msg + "no identifier found");
@@ -373,24 +320,18 @@ public class SynChkStmt {
 	}
 	
 	private boolean doWhileStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		String msg = "Error in while stmt.: ";
 		int savep = rightp;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, msg + "no body");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
 			if (!synExpr.doExpr(rightp)) {
@@ -419,9 +360,7 @@ public class SynChkStmt {
 			return false;
 		}
 		savep = rightp;
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.UNTIL) {
 			oerr(savep, msg + "expecting UNTIL, " + kwtyp + " found");
@@ -436,9 +375,7 @@ public class SynChkStmt {
 			oerr(savep, msg + "invalid expression after UNTIL");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp > 0) {
 			oerr(savep, msg + "invalid text after expression");
@@ -448,25 +385,19 @@ public class SynChkStmt {
 	}
 	
 	private boolean doForStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 		String msg = "Error in for stmt.: ";
 		int savep = rightp;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, msg + "no body");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
@@ -479,16 +410,12 @@ public class SynChkStmt {
 				oerr(savep, msg + "dangling single identifier");
 				return false;
 			}
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			celltyp = node.getDownCellTyp();
 			kwtyp = node.getKeywordTyp();
 			if (celltyp == NodeCellTyp.ID) {
 				rightp = node.getRightp();
-				page = store.getPage(rightp);
-				idx = store.getElemIdx(rightp);
-				node = page.getNode(idx);
+				node = store.getNode(rightp);
 				kwtyp = node.getKeywordTyp();
 			}
 			if (kwtyp != KeywordTyp.IN) {
@@ -504,9 +431,7 @@ public class SynChkStmt {
 				oerr(savep, msg + "invalid expression after IN");
 				return false;
 			}
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			rightp = node.getRightp();
 			if (rightp <= 0) {
 				oerr(savep, msg + "missing do-block");
@@ -529,8 +454,6 @@ public class SynChkStmt {
 	}
 	
 	private int chkLoopDo(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		int i;
@@ -538,9 +461,7 @@ public class SynChkStmt {
 		int rightq;
 		int rtnval = -1;
 		
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightq = node.getRightp();
 		if (rightq > 0) { 
 			rtnval = rightq;
@@ -549,9 +470,7 @@ public class SynChkStmt {
 		if (rightp <= 0) {
 			return -1;  // never
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		if (!node.isOpenPar()) {  // never lands here
 			return -1;
 		}
@@ -559,9 +478,7 @@ public class SynChkStmt {
 		if (rightq <= 0) {
 			return -1;  // never
 		}
-		page = store.getPage(rightq);
-		idx = store.getElemIdx(rightq);
-		node = page.getNode(idx);
+		node = store.getNode(rightq);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp == KeywordTyp.TUPLE) { 
 			return -1; 
@@ -570,9 +487,7 @@ public class SynChkStmt {
 			if (rightp <= 0) {
 				return -1;
 			}
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			if (!node.isOpenPar()) {  // may never happen
 				return -1;
 			}
@@ -589,21 +504,15 @@ public class SynChkStmt {
 	}
 	
 	private boolean doBoolStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		int savep = rightp;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			return true;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		if (!synExpr.doExpr(rightp)) {
 			oerr(savep, "Invalid BOOL expression");
 			return false;
@@ -617,8 +526,6 @@ public class SynChkStmt {
 	}
 	
 	private boolean doSwitchStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
@@ -627,17 +534,13 @@ public class SynChkStmt {
 		int rightq;
 		int savep = rightp;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, msg + "no body");
 			return false;
 		}
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		if (!synExpr.doExpr(rightp)) {
 			oerr(savep, msg + "invalid switch expression");
 			return false;
@@ -649,9 +552,7 @@ public class SynChkStmt {
 		}
 		while (true) {
 			savep = rightp;
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp == KeywordTyp.ELSE) {
 				break;
@@ -667,9 +568,7 @@ public class SynChkStmt {
 			}
 			rightq = synExpr.chkTuple(rightp);
 			if (rightq < 0) {
-				page = store.getPage(rightp);
-				idx = store.getElemIdx(rightp);
-				node = page.getNode(idx);
+				node = store.getNode(rightp);
 				celltyp = node.getDownCellTyp();
 				switch (celltyp) {
 				case ID:
@@ -724,8 +623,6 @@ public class SynChkStmt {
 	}
 	
 	private boolean doTryStmt(int rightp) {
-		Page page;
-		int idx;
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
@@ -735,9 +632,7 @@ public class SynChkStmt {
 		boolean isElse;
 		int savep = rightp;
 
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerr(savep, msg + "no body");
@@ -754,9 +649,7 @@ public class SynChkStmt {
 		}
 		while (true) {
 			savep = rightp;
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if ((kwtyp == KeywordTyp.ELSE) || (kwtyp == KeywordTyp.EOTRY)) {
 				break;
@@ -771,9 +664,7 @@ public class SynChkStmt {
 				oerr(savep, msg + "dangling EXCEPT");
 				return false;
 			}
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			celltyp = node.getDownCellTyp();
 			if (celltyp != NodeCellTyp.ID) {
 				oerr(savep, msg + "expecting identifier, but " + celltyp + " found");
@@ -784,9 +675,7 @@ public class SynChkStmt {
 				oerr(savep, msg + "dangling identifier");
 				return false;
 			}
-			page = store.getPage(rightp);
-			idx = store.getElemIdx(rightp);
-			node = page.getNode(idx);
+			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp == KeywordTyp.AS) {
 				rightp = node.getRightp();
@@ -794,9 +683,7 @@ public class SynChkStmt {
 					oerr(savep, msg + "dangling AS");
 					return false;
 				}
-				page = store.getPage(rightp);
-				idx = store.getElemIdx(rightp);
-				node = page.getNode(idx);
+				node = store.getNode(rightp);
 				celltyp = node.getDownCellTyp();
 				if (celltyp != NodeCellTyp.ID) {
 					oerr(savep, msg + "expecting identifier after AS, but " + 
@@ -829,9 +716,7 @@ public class SynChkStmt {
 			return false;
 		}
 		savep = rightp;
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		rightp = synChk.chkStmtDoBlock(rightp);
 		if (rightp < 0) {
 			oerr(savep, errmsg);
@@ -845,9 +730,7 @@ public class SynChkStmt {
 			return false;
 		}
 		savep = rightp;
-		page = store.getPage(rightp);
-		idx = store.getElemIdx(rightp);
-		node = page.getNode(idx);
+		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.EOTRY) {
 			oerr(savep, msg + "expecting EOTRY, but " + kwtyp + " found");
