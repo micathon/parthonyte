@@ -1,11 +1,49 @@
 do (
 defun (n)
   do (
-  set x -1;
-  if (eq y 0) do (
-    set z pi;
+  try do (
+    set x 1;
+  ) 
+  except a755 as fred do (
+    set x (minus 5 6);
+  ) 
+  except a do (
+    set y 2;
+  )  
+  except b as sally do (
+    set z 25;
   )
-  elif (ne y x) do (
+  else do (
+    set w 3;
+  )
+  eotry do (
+    set v 4;
+  );  
+
+  set x (15 25 35);
+
+  switch (mpy y 0)
+  case "hi" do (
+    set x 0;
+  )
+  case (3 5 7) do (
+    set x -1;
+  )
+  else do (
+    set x 47;
+  );
+
+  for (set i 0; ? (lt i n); ++ i) do (
+    set y 500;
+  );
+  for a in (eq p q) do (
+    set y 88;
+  );
+  set x -1;
+  while do (
+    set z 577;
+  ) until (eq p q);
+  if (ne y x) do (
     set z 577;
   )
   elif (ne y (+ x 1)) do (
@@ -14,72 +52,6 @@ defun (n)
   else do (
     set z (mpy pi 2);
   );
-  #set (tuple a t) (mpy x 94);
-  #if (cast unisys (: a b c));
-  #if (rplacd a 3);
-  #if myvar;
-  #if (: a b c);
-  #if (slice d e all);
-  #if (call (mpy x 1.618) s t);
-  #if (: p (f)(g c (set a b)) count);
-  #if (f x (minus y z)(set a 17)(set b (add 44 yes)));
-  #if (cadar (+ 3 9));
-  #if (car q57);
-  #if (dict (: 0 a)(: 1 b));
-  #if (venum e a b (: x y) c);
-  #if (venum);
 );
-{
-defun (rx)
-  do (
-  if (minus 0);
-  if (add 2 (minus 7 x));
-  if (quest 4 c 9);
-  if (95 b 27);
-  if (not a2);
-);
-defun (p)
-  (var x y)
-  do (
-  set a 10;
-  set Z 15;
-  hello;  # func call
-  #true;
-  if ();
-  if (1007);
-  if ("Dave");
-  set b 20;;;
-  set c 30;
-  set d 40;
-);
-defun (q)
-  do (
-);
-defun (r)
-  do (
-  ;
-);
-defun (w)
-  do (
-  set j 295;
-);
-defun (v)
-  do (
-  set h 95
-);
-defun (s)
-  do (
-  ;;
-);
-defun (t)
-  do (
-  set e 70;;
-);
-defun (u)
-  do (
-  #set f 80;
-  set g 75
-);
-}
 )
 

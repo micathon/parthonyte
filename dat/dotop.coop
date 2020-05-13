@@ -6,9 +6,8 @@ from rm2 import m3 (as m1 m2) m480 (as n777 m99);
 gdefun
   (var y z x23)
   (ivar a b78)
-  #(scool)
   do (
-  #set x y; 
+  set x y; 
 );
 defun (f x y (set c 3) (= b "xyz")(= a 3.1416)(* d)(** e))
   (var u v)
@@ -19,10 +18,14 @@ defun (f x y (set c 3) (= b "xyz")(= a 3.1416)(* d)(** e))
 idefun (g)
   (var h1 h2 h3)
   do (
-  if flag do (
-    set q r;
+  set q r;
+);
+defun (h)
+  (var d e)
+  do (
+  if true do (
+    set s t;
   );
-  set a z;
 );
 defun (minimal) do ();
 abclass A do (
@@ -39,20 +42,26 @@ class C (: m B) (does p (: a u) q) (var m n) (ivar i j k) do (
   );
   #abdefun (a);
 );
-iclass D E (does g) do (defun (f) do (););
-abclass H do (defun (j) do (););
+iclass D E (does g) do (
+  defun (f) do ();
+);
+abclass H do (
+  defun (j) do ();
+);
 scool S (does w z) (const (p 1984)) do (
   defimp (f x) do (
     set n 72;
+    minusset n 99;
   );
   abdefun (a); 
   defimp (f y) do (
-    set r 73;
   );
 );
-iscool T (does S) do ();
+iscool T (does S) do (
+  abdefun (axy); 
+);
 enum e a b c;
 enum h 2 (: 4 6) 8;
 ienum f x y;
-);
+)
 
