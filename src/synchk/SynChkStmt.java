@@ -56,6 +56,7 @@ public class SynChkStmt {
 		case SWITCH: return doSwitchStmt(rightp);
 		case DEL: return doDelStmt(rightp);
 		case PRINT: return doPrintStmt(rightp);
+		case PRINTLN: return doPrintlnStmt(rightp);
 		case ECHO: return doEchoStmt(rightp);
 		case CALL: return doCallStmt(rightp);
 		case ZCALL: return doCallFunStmt(rightp);
@@ -754,15 +755,22 @@ public class SynChkStmt {
 	}
 	
 	private boolean doDelStmt(int rightp) {
-		return true;
+		boolean rtnval = synExpr.doUnaryOp(rightp);
+		return rtnval;
 	}
 	
+	private boolean doPrintlnStmt(int rightp) {
+		boolean rtnval = synExpr.doListOpRtn(rightp, true, "stmt.");
+		return rtnval;
+	}
+
 	private boolean doPrintStmt(int rightp) {
-		return true;
+		boolean rtnval = synExpr.doListOpRtn(rightp, false, "stmt.");
+		return rtnval;
 	}
-	
+
 	private boolean doEchoStmt(int rightp) {
-		return true;
+		return doPrintStmt(rightp);
 	}
 	
 	private boolean doCallStmt(int rightp) {
@@ -780,19 +788,62 @@ public class SynChkStmt {
 		return rtnval;
 	}
 	
-	private boolean doRaiseStmt(int rightp) {
-		return true;
-	}
-	
 	private boolean doContinueStmt(int rightp) {
-		return true;
+		boolean rtnval = synExpr.doZeroOp(rightp);
+		return rtnval;
 	}
 	
 	private boolean doBreakStmt(int rightp) {
-		return true;
+		boolean rtnval = synExpr.doZeroOp(rightp);
+		return rtnval;
 	}
 	
 	private boolean doReturnStmt(int rightp) {
+		boolean rtnval = synExpr.doOptArgOp(rightp);
+		return rtnval;
+	}
+	
+	private boolean doRaiseStmt(int rightp) {
+		Node node;
+		KeywordTyp kwtyp;
+		int savep = rightp;
+		
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return true;  // raise;
+		}
+		if (!synExpr.doExpr(rightp)) {
+			oerr(savep, "Raise stmt. followed by invalid expr.");
+			return false;
+		}
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return true;  // raise <expr>;
+		}
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.FROM) {
+			oerr(savep, "Expecting FROM in raise stmt., " + kwtyp + " found");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "Dangling FROM in raise stmt.");
+			return false;
+		}
+		if (!synExpr.doExpr(rightp)) {
+			oerr(savep, "Raise stmt. followed by invalid 2nd expr.");
+			return false;
+		}
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		if (rightp > 0) {
+			oerr(savep, "Raise stmt. followed by invalid text");
+			return false;
+		}
 		return true;
 	}
 	

@@ -300,7 +300,7 @@ public class SynChkExpr {
 		return count;
 	}
 	
-	private boolean doUnaryOp(int rightp) {
+	public boolean doUnaryOp(int rightp) {
 		Node node;
 		KeywordTyp kwtyp;
 		int rightq;
@@ -318,6 +318,44 @@ public class SynChkExpr {
 		if (count != 1) {
 			oerr(rightp, "Unary operator " + kwtyp + 
 				" has wrong no. of operands");
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean doOptArgOp(int rightp) {
+		Node node;
+		KeywordTyp kwtyp;
+		int rightq;
+		int count;
+		
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		rightq = node.getRightp();
+		count = getExprCount(rightq);
+		if (count < 0) { 
+			oerr(rightp, "Operator (having optional arg.) " + kwtyp +
+				" has invalid argument(s)");
+			return false;
+		}
+		if (count > 1) {
+			oerr(rightp, "Operator (having optional arg.) " + kwtyp + 
+				" has more than one operand");
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean doZeroOp(int rightp) {
+		Node node;
+		KeywordTyp kwtyp;
+		int rightq;
+		
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		rightq = node.getRightp();
+		if (rightq > 0) { 
+			oerr(rightp, "Keyword " + kwtyp + " followed by invalid text");
 			return false;
 		}
 		return true;
@@ -409,14 +447,14 @@ public class SynChkExpr {
 	}
 
 	private boolean doListOp(int rightp) {
-		return doListOpRtn(rightp, true);
+		return doListOpRtn(rightp, true, "operator");
 	}
 
 	private boolean doQuoteOp(int rightp) {
-		return doListOpRtn(rightp, false);
+		return doListOpRtn(rightp, false, "operator");
 	}
 
-	private boolean doListOpRtn(int rightp, boolean isZero) {
+	public boolean doListOpRtn(int rightp, boolean isZero, String opstmt) {
 		Node node;
 		KeywordTyp kwtyp;
 		int rightq;
@@ -427,16 +465,14 @@ public class SynChkExpr {
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
 		if (count < 0) { 
-			oerr(rightp, "List operator " + kwtyp +
-				" has invalid argument(s)");
+			oerr(rightp, "List " + opstmt + " " + kwtyp + " has invalid argument(s)");
 			return false;
 		}
 		if (isZero) {
 			return true;
 		}
 		if (count == 0) {
-			oerr(rightp, "List operator " + kwtyp +
-				" has no arguments");
+			oerr(rightp, "List " + opstmt + " " + kwtyp + " has no arguments");
 			return false;
 		}
 		return true;
@@ -621,10 +657,6 @@ public class SynChkExpr {
 			celltyp = node.getDownCellTyp();
 			if (celltyp == NodeCellTyp.ID) {
 				isCurrIdent = true;
-			}
-			else if (count == 1) {
-				oerr(savep, msg + "expecting identifier after DOT, invalid text found");
-				return false;
 			}
 			else {
 				isCurrIdent = false;
