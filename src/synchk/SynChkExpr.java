@@ -100,7 +100,7 @@ public class SynChkExpr {
 		case SLICE:
 			return doSliceOp(rightp);
 		case DOT:
-			return doDotOp(rightp, false);
+			return doDotOp(rightp, false, true);
 		case ZCALL:
 			return doZcallOp(rightp);
 		case CALL:
@@ -533,7 +533,7 @@ public class SynChkExpr {
 			oerr(rightp, msg + "invalid parenthesized arg. or non-identifier");
 			return false;
 		}
-		if (!doSliceOp(rightp) && !doDotOp(rightp, true)) {
+		if (!doSliceOp(rightp) && !doDotOp(rightp, true, false)) {
 			oerr(rightp, msg + "neither identifier, dot, or slice targets found");
 			return false;
 		}
@@ -599,7 +599,7 @@ public class SynChkExpr {
 		return (kwtyp == node.getKeywordTyp());
 	}
 	
-	private boolean doDotOp(int rightp, boolean isEndName) {
+	public boolean doDotOp(int rightp, boolean isEndName, boolean isAnyEnd) {
 		Node node;
 		NodeCellTyp celltyp;
 		KeywordTyp kwtyp;
@@ -622,6 +622,10 @@ public class SynChkExpr {
 			if (celltyp == NodeCellTyp.ID) {
 				isCurrIdent = true;
 			}
+			else if (count == 1) {
+				oerr(savep, msg + "expecting identifier after DOT, invalid text found");
+				return false;
+			}
 			else {
 				isCurrIdent = false;
 				rightq = parenExprRtn(rightp, node);
@@ -640,15 +644,21 @@ public class SynChkExpr {
 			oerr(savep, msg + "less than 2 args. encountered");
 			return false;
 		}
-		if (isEndName && !isCurrIdent) {
+		if (isAnyEnd) { }
+		else if (isEndName && !isCurrIdent) {
 			oerr(savep, "Error in target expr.: " +
 				"final arg. of DOT operator must be an identifier");
+			return false;
+		}
+		else if (!isEndName && isCurrIdent) {
+			oerr(savep, "Error in DOT stmt.: " +
+				"final arg. of DOT operator must be a function call");
 			return false;
 		}
 		return true;
 	}
 
-	private boolean doCallOp(int rightp) {
+	public boolean doCallOp(int rightp) {
 		Node node;
 		int savep = rightp;
 		String msg;
@@ -695,16 +705,29 @@ public class SynChkExpr {
 		return true;
 	}
 	
-	private boolean doZcallOp(int rightp) {
+	public boolean doZcallOp(int rightp) {
 		Node node;
+		NodeCellTyp celltyp;
 		int savep = rightp;
 		String msg;
+		boolean first = true;
 		boolean found = false;
 		boolean isValidExpr = true;
 		boolean isValidKwdArg;
 		
 		while (true) {
 			node = store.getNode(rightp);
+			if (first) {
+				celltyp = node.getDownCellTyp();
+				if ((celltyp != NodeCellTyp.FUNC) && 
+					(celltyp != NodeCellTyp.ID)) 
+				{
+					oerr(savep, "Expecting identifier in function call, " +
+						"invalid text found");
+					return false;
+				}
+			}
+			first = false;
 			rightp = node.getRightp();
 			if (rightp <= 0) {
 				break;

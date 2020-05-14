@@ -766,15 +766,18 @@ public class SynChkStmt {
 	}
 	
 	private boolean doCallStmt(int rightp) {
-		return true;
+		boolean rtnval = synExpr.doCallOp(rightp);
+		return rtnval;
 	}
 	
 	private boolean doCallFunStmt(int rightp) {
-		return true;
+		boolean rtnval = synExpr.doZcallOp(rightp);
+		return rtnval;
 	}
 	
 	private boolean doDotStmt(int rightp) {
-		return true;
+		boolean rtnval = synExpr.doDotOp(rightp, false, false);
+		return rtnval;
 	}
 	
 	private boolean doRaiseStmt(int rightp) {
