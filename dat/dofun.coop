@@ -1,6 +1,16 @@
 do (
 defun (n)
   do (
+  f y (set x 2);
+  f x y (set u 4)(set v 9);
+  call a (b (set n 3));
+  call (div two 0) x y (set w 60);
+  : g (x);
+  : g x (p y 70 (= a 1)) y z (q w 95 (= b 2));
+  h;
+  call e;
+  : m (p x);
+
   try do (
     set x 1;
   ) 
