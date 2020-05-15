@@ -94,7 +94,7 @@ public class SynChkExpr {
 		case VENUM:
 			return doVenumOp(rightp);
 		case LAMBDA:
-			return true;  // not yet implemented
+			return doLambdaOp(rightp);
 		case CAST:
 			return doCastOp(rightp);
 		case SLICE:
@@ -851,6 +851,75 @@ public class SynChkExpr {
 		}
 		isValid = (synChk.chkEnumStmt(rightp, true) > 0);
 		return isValid;
+	}
+	
+	private boolean doLambdaOp(int rightp) {
+		Node node;
+		Node subNode;
+		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
+		boolean first = true;
+		boolean isTuple = false;
+		int savep = rightp;
+		int rightq;
+		
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "LAMBDA expr. has no args.");
+			return false;
+		}
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.ZPAREN) {
+			oerr(savep, "LAMBDA expr. has no id list");
+			return false;
+		}
+		rightq = node.getDownp();
+		while (rightq > 0) {
+			if (isTuple) {
+				oerr(savep, "LAMBDA expr. has non-empty TUPLE expr. " +
+					"instead of id list");
+				return false;
+			}
+			subNode = store.getNode(rightq);
+			kwtyp = subNode.getKeywordTyp();
+			celltyp = subNode.getDownCellTyp();
+			if (first && (kwtyp == KeywordTyp.TUPLE)) {
+				isTuple = true;
+			}
+			else if ((celltyp != NodeCellTyp.FUNC) && (celltyp != NodeCellTyp.ID)) {
+				oerr(savep, "LAMBDA expr. has invalid id list");
+				return false;
+			}
+			first = false;
+			rightq = subNode.getRightp();
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerr(savep, "LAMBDA expr. has no expr. arg. or DO block");
+			return false;
+		}
+		node = store.getNode(rightp);
+		rightq = node.getRightp();
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp == KeywordTyp.DO) { }
+		else if (!doExpr(rightp)) {
+			oerr(savep, "LAMBDA expr. has invalid expr. arg.");
+			return false;
+		}
+		else if (rightq > 0) {
+			oerr(savep, "LAMBDA expr. has invalid text after expr. arg.");
+			return false;
+		}
+		else {
+			return true;
+		}
+		if (synChk.chkDoBlock(rightp) < 0) {
+			oerr(savep, "Error in LAMBDA expr. DO block");
+			return false;
+		}
+		return true;
 	}
 	
 	private boolean doCastOp(int rightp) {
