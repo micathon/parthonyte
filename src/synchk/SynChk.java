@@ -44,18 +44,18 @@ public class SynChk {
 		int lineno;
 		String preLineNoStr;
 		
+		lineno = store.lookupLineNo(nodep);
 		if (!isUnitTestFail) { }
 		else if (brkval == 0.0) {
 			isBrkZeroFail = true;
 		}
-		else if (isFloatEq(brkval, currbrk)) {
+		else if (isFloatEq(brkval, currbrk) && (lineno > 0)) {
 			isBrkFound = true;
 			return;
 		}
 		else {
 			return;
 		}
-		lineno = store.lookupLineNo(nodep);
 		if (lineno > 0) {
 			preLineNoStr = "Line " + lineno + " - ";
 			msg = preLineNoStr + msg;
@@ -68,6 +68,7 @@ public class SynChk {
 		isBrkFound = false;
 		isBrkZeroFail = false;
 		isUnitTestFail = false;
+		brkval = 0.0;
 		unitTestIdx = 0;
 	}
 	
@@ -78,6 +79,7 @@ public class SynChk {
 		isBrkFound = false;
 		isBrkZeroFail = false;
 		isUnitTestFail = isUnitTestFail || isBrkZeroFail || !isBrkFound;
+		brkval = 0.0;
 		++unitTestIdx;
 		scan.omsg("Break " + unitTestIdx);
 		scan.omsg("");
@@ -402,7 +404,7 @@ public class SynChk {
 		double eps = 0.0000001;
 		boolean rtnval;
 		
-		rtnval = Math.abs(x - y) < eps;
+		rtnval = (Math.abs(x - y) < eps);
 		return rtnval;
 	}
 	
