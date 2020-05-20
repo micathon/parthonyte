@@ -15,6 +15,12 @@ public class SynChk {
 	public SynChkExpr synExpr;
 	private ScanSrc scan;
 	private Store store;
+	public boolean isUnitTest; 
+	public boolean isUnitTestFail; 
+	public boolean isBrkZeroFail;  
+	public boolean isBrkFound;     
+	public int unitTestIdx;    
+	public double brkval;
 	private static final int ABPHASE = 100;
 
 	public SynChk(ScanSrc scan, Store store) {
@@ -31,9 +37,24 @@ public class SynChk {
 	}
 	
 	public void oerr(int nodep, String msg) {
+		oerrd(nodep, msg, 0.0);
+	}
+	
+	public void oerrd(int nodep, String msg, double currbrk) {
 		int lineno;
 		String preLineNoStr;
 		
+		if (!isUnitTestFail) { }
+		else if (brkval == 0.0) {
+			isBrkZeroFail = true;
+		}
+		else if (isFloatEq(brkval, currbrk)) {
+			isBrkFound = true;
+			return;
+		}
+		else {
+			return;
+		}
 		lineno = store.lookupLineNo(nodep);
 		if (lineno > 0) {
 			preLineNoStr = "Line " + lineno + " - ";
@@ -41,6 +62,35 @@ public class SynChk {
 		}
 		scan.omsg("Syntax Error:");
 		scan.omsg(msg);
+	}
+	
+	public void initUnitTestFlags() {
+		isBrkFound = false;
+		isBrkZeroFail = false;
+		isUnitTestFail = false;
+		unitTestIdx = 0;
+	}
+	
+	public void endBlkUnitTest() {
+		if (!isBrkFound && (brkval != 0.0)) {
+			scan.omsg("Break not found: " + brkval);
+		}
+		isBrkFound = false;
+		isBrkZeroFail = false;
+		isUnitTestFail = isUnitTestFail || isBrkZeroFail || !isBrkFound;
+		++unitTestIdx;
+		scan.omsg("Break " + unitTestIdx);
+		scan.omsg("");
+	}
+	
+	public void showUnitTestVal() {
+		if (isUnitTestFail) {
+			scan.omsg("Unit test failed!");
+		}
+		else {
+			scan.omsg("Unit test passed OK");
+		}
+		scan.omsg("");
 	}
 	
 	public int getNodeCount() {
@@ -120,6 +170,7 @@ public class SynChk {
 		int doBlkCount = 0;
 
 		out("Top of isValidSrc");
+		brkval = 0.0;
 		rightp = scan.getRootNodep();
 		if (rightp == 0) {
 			return false;
@@ -227,7 +278,7 @@ public class SynChk {
 				out("Statement kwd = " + kwtyp);
 				currPhaseNo = getPhaseNo(kwtyp);
 				phaseDesc = getPhaseDesc(currPhaseNo);
-				if (currPhaseNo < phaseNo) {
+				if ((currPhaseNo < phaseNo) && (currPhaseNo != 0)) {
 					oerr(rightp, "Top-level " + phaseDesc + 
 						" encountered unexpectedly");
 					return -1;
@@ -241,6 +292,13 @@ public class SynChk {
 				}
 				// rightp > 0 inside following switch
 				switch (currPhaseNo) {
+				case 0:
+					if (!isUnitTest) {
+						oerr(initp, kwtyp + " operator (unit test) is invalid");
+						return -1;
+					}
+					brkval = getMethBrkPair(rightp);
+					break;
 				case 1:
 					rightq = chkImportStmt(rightp, kwtyp);
 					if (rightq == -1) {
@@ -285,6 +343,8 @@ public class SynChk {
 	
 	private int getPhaseNo(KeywordTyp kwtyp) {
 		switch (kwtyp) {
+		case QUEST:
+			return 0;
 		case IMPORT:
 		case FROM:
 			return 1;
@@ -316,6 +376,34 @@ public class SynChk {
 		case 4: return "class definition(s)";
 		default: return "post-class definitions phase";
 		}
+	}
+	
+	private double getMethBrkPair(int rightp) {
+		Page page;
+		int idx;
+		int downp;
+		Node node;
+		NodeCellTyp celltyp;
+		double rtnval = 0.0;
+
+		node = store.getNode(rightp);
+		celltyp = node.getDownCellTyp();
+		if (celltyp != NodeCellTyp.DOUBLE) {
+			return rtnval;
+		}
+		downp = node.getDownp();
+		page = store.getPage(downp);
+		idx = store.getElemIdx(downp);
+		rtnval = page.getDouble(idx);
+		return rtnval;
+	}
+	
+	private boolean isFloatEq(double x, double y) {
+		double eps = 0.0000001;
+		boolean rtnval;
+		
+		rtnval = Math.abs(x - y) < eps;
+		return rtnval;
 	}
 	
 	private int chkImportStmt(int rightp, KeywordTyp kwtyp) {
