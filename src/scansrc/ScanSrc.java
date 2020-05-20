@@ -19,6 +19,7 @@ public class ScanSrc implements IConst {
 	private SynChk synchk;
 	private static final boolean isDetail = false;
 	private static final boolean isVerbose = true;
+	private static final boolean isSilent = false;
 	private Store store;
 	private int currNodep, rootNodep;
 	private int lineCount;
@@ -31,6 +32,7 @@ public class ScanSrc implements IConst {
 	private static final int SYSBYTNO = 2;
 	private static final String TABSTR = "     "; // 5 blanks
 	private static final String ERRSYMBUF = "[]'`,@";
+	private static final String UNITENDBUF = "@";
 	private static final char CMTLINECH = '#';
 	private static final char OPENBRACECH = '{';
 	private static final char CLOSEBRACECH = '}';
@@ -126,7 +128,12 @@ public class ScanSrc implements IConst {
 			printDetl(tabstr);
 			outDetl(inBufSqr);
 		}
-		if (inbuf.length() > 0) {
+		if (inbuf.length() == 0) { }
+		else if (inbuf.equals(UNITENDBUF) && !inCmtBlk) {
+			synchk.endBlkUnitTest();
+			return true;
+		}
+		else {
 			printCmd("");
 			outCmd(outbuf);
 		}
@@ -410,7 +417,9 @@ public class ScanSrc implements IConst {
 	}
 	
 	public void omsg(String msg) {
-		System.out.println(msg);
+		if (!isSilent) {
+			System.out.println(msg);
+		}
 	}
 	
 	private String padLineNo(int lineNo) {
