@@ -41,7 +41,7 @@ public class InitMain implements IConst {
 		store = new Store();
 	}
 	
-	public void runInit(String fileName) {
+	public void runInit(String fileName, boolean isUnitTest) {
 		BufferedReader br = new BufferedReader(new
 			InputStreamReader(System.in));
 		String inbuf;
@@ -54,6 +54,10 @@ public class InitMain implements IConst {
 			scanSrc = new ScanSrc(store);
 			synchk = new SynChk(scanSrc, store);
 			scanSrc.setSynChk(synchk);
+			synchk.isUnitTest = isUnitTest;
+			if (isUnitTest) {
+				synchk.initUnitTestFlags();
+			}
 			try {
 				fbr = new BufferedReader(new FileReader(fileName));
 				while ((inbuf = fbr.readLine()) != null) {
@@ -66,6 +70,9 @@ public class InitMain implements IConst {
 					scanSrc.putErr(TokenTyp.ERRINCMTEOF);
 				}
 				scanSrc.scanSummary(fatalErr);
+				if (isUnitTest) {
+					synchk.showUnitTestVal();
+				}
 			} catch (IOException exc) {
 				System.out.println("I/O Error: " + exc);
 			}
