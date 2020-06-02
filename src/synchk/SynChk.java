@@ -36,6 +36,10 @@ public class SynChk {
 		scan.out(msg);
 	}
 	
+	public void oprn(String msg) {
+		scan.omsg(msg);
+	}
+	
 	public void oerr(int nodep, String msg) {
 		oerrd(nodep, msg, 0.0);
 	}
@@ -45,11 +49,13 @@ public class SynChk {
 		String preLineNoStr;
 		
 		lineno = store.lookupLineNo(nodep);
-		if (!isUnitTestFail) { }
+		oprn("oerrd: lineno = " + lineno);
+		if (!isUnitTest) { }
 		else if (brkval == 0.0) {
 			isBrkZeroFail = true;
 		}
 		else if (isFloatEq(brkval, currbrk) && (lineno > 0)) {
+			oprn("oerrd: brkval found = " + brkval);
 			isBrkFound = true;
 			return;
 		}
@@ -76,9 +82,12 @@ public class SynChk {
 		if (!isBrkFound && (brkval != 0.0)) {
 			scan.omsg("Break not found: " + brkval);
 		}
+		else {
+			isBrkFound = true;
+		}
+		isUnitTestFail = isUnitTestFail || isBrkZeroFail || !isBrkFound;
 		isBrkFound = false;
 		isBrkZeroFail = false;
-		isUnitTestFail = isUnitTestFail || isBrkZeroFail || !isBrkFound;
 		brkval = 0.0;
 		++unitTestIdx;
 		scan.omsg("Break " + unitTestIdx);

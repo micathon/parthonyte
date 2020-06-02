@@ -35,6 +35,10 @@ public class SynChkExpr {
 		synChk.oerr(nodep, msg);
 	}
 	
+	private void oerrd(int nodep, String msg, double bval) {
+		synChk.oerrd(nodep, msg, bval);
+	}
+	
 	public boolean doExpr(int rightp) {
 		Node node;
 		KeywordTyp kwtyp;
@@ -375,7 +379,8 @@ public class SynChkExpr {
 			return false;
 		}
 		if ((count != 1) && (count != 2)) {
-			oerr(rightp, "MINUS operator has wrong no. of operands");
+			oerrd(rightp, "MINUS operator has wrong no. of operands",
+				360.2);
 			return false;
 		}
 		return true;
@@ -416,8 +421,8 @@ public class SynChkExpr {
 			return false;
 		}
 		if (count < 2) {
-			oerr(rightp, "Multi operator " + kwtyp + 
-				" has wrong no. of operands");
+			oerrd(rightp, "Multi operator " + kwtyp + 
+				" has wrong no. of operands", 380.2);
 			return false;
 		}
 		return true;
