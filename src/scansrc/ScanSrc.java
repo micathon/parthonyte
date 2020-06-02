@@ -18,7 +18,7 @@ public class ScanSrc implements IConst {
 
 	private SynChk synchk;
 	private static final boolean isDetail = false;
-	private static final boolean isVerbose = true;
+	private static final boolean isVerbose = false;
 	private static final boolean isSilent = false;
 	private Store store;
 	private int currNodep, rootNodep;
@@ -68,8 +68,14 @@ public class ScanSrc implements IConst {
 	private int fatalRtnCode = 0;
 	
 	public ScanSrc(Store store) {
-		Node rootNode;
+		this.store = store;
 		lineCount = 0;
+		initScan();
+	}
+	
+	public void initScan() {	
+		Node rootNode;
+
 		allTokTyps = TokenTyp.values();
 		tokTypLen = allTokTyps.length;
 		errTokCounts = new int[tokTypLen];
@@ -89,7 +95,6 @@ public class ScanSrc implements IConst {
 		isClean = true;
 		dirtyLine = -1;
 		dirtyCol = -1;
-		this.store = store;
 		rootNode = new Node(0, KeywordTyp.NULL.ordinal(), 0);
 		rootNode.setKeywordTyp(KeywordTyp.NULL);
 		rootNode.setDownCellTyp(NodeCellTyp.KWD.ordinal());
@@ -101,7 +106,6 @@ public class ScanSrc implements IConst {
 	public boolean scanCodeBuf(String inbuf) {
 		char sp = ' ';
 		char ch = sp;
-		//char oldch = sp;
 		String t, outbuf;
 		String errstr = ERRSYMBUF;
 		String token = "";
@@ -130,7 +134,10 @@ public class ScanSrc implements IConst {
 		}
 		if (inbuf.length() == 0) { }
 		else if (inbuf.equals(UNITENDBUF) && !inCmtBlk) {
+			omsg("calling endBlkUnitTest...");
+			scanSummSynChk(false, false);
 			synchk.endBlkUnitTest();
+			initScan();
 			return true;
 		}
 		else {
@@ -147,7 +154,6 @@ public class ScanSrc implements IConst {
 			isAtEnd = (i >= inbuf.length() - 1);
 			colIdx++;
 			colCount = colIdx;
-			//oldch = ch;
 			ch = inbuf.charAt(i);
 			// non-functional '}' recommended to always be escaped with '\',
 			//   in string lit or line comment,
@@ -395,6 +401,7 @@ public class ScanSrc implements IConst {
 		outSdRtn(isDetail, true, msg);
 	}
 	
+	@SuppressWarnings("unused")
 	private void outSummDetl(boolean show, boolean cr, String msg) {
 		if (show && isVerbose) {
 			outSdRtn(show, cr, msg);
@@ -473,17 +480,24 @@ public class ScanSrc implements IConst {
 		if (tokensFound) {
 			outSumm("");
 		}
-		if (isClean && synchk.isValidSrc()) {
-			out("Src file is valid.");
+		scanSummSynChk(fatalErr, true);
+	}
+	
+	public void scanSummSynChk(boolean fatalErr, boolean suppressFatal) {
+		if (!suppressFatal && fatalErr) {
+			out("Fatal error encountered!");
+		}
+		if (!fatalErr && isClean && synchk.isValidSrc()) {
+			omsg("Src file is valid.");
 		}
 		else {
 			if (!isClean) {
-				out("Error detected during initial scan:");
-				out("Line no. = " + dirtyLine);
-				out("Column no. = " + dirtyCol);
-				out("");
+				omsg("Error detected during initial scan:");
+				omsg("Line no. = " + dirtyLine);
+				omsg("Column no. = " + dirtyCol);
+				omsg("");
 			}
-			out("Src file is invalid!");
+			omsg("Src file is invalid!");
 		}
 	}
 	
