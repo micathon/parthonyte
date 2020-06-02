@@ -1,0 +1,24 @@
+do (
+? 360.2;
+defun (p)
+  do (
+  set x (minus y 4 9);
+);
+)
+@
+do (
+? 380.2;
+defun (q)
+  do (
+  set w (add z);
+);
+)
+@
+do (
+defun (q)
+  do (
+  set w (add z 75);
+);
+)
+@
+
