@@ -69,9 +69,11 @@ public class InitMain implements IConst {
 				if (scanSrc.inCmtBlk) {
 					scanSrc.putErr(TokenTyp.ERRINCMTEOF);
 				}
-				scanSrc.scanSummary(fatalErr);
 				if (isUnitTest) {
 					synchk.showUnitTestVal();
+				}
+				else {
+					scanSrc.scanSummary(fatalErr);
 				}
 			} catch (IOException exc) {
 				System.out.println("I/O Error: " + exc);
