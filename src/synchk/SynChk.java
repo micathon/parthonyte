@@ -49,7 +49,7 @@ public class SynChk {
 		String preLineNoStr;
 		
 		lineno = store.lookupLineNo(nodep);
-		oprn("oerrd: lineno = " + lineno);
+		//oprn("oerrd: lineno = " + lineno);
 		if (!isUnitTest) { }
 		else if (brkval == 0.0) {
 			isBrkZeroFail = true;
@@ -94,7 +94,7 @@ public class SynChk {
 		scan.omsg("");
 	}
 	
-	public void showUnitTestVal() {
+	public boolean showUnitTestVal() {
 		if (isUnitTestFail) {
 			scan.omsg("Unit test failed!");
 		}
@@ -102,6 +102,7 @@ public class SynChk {
 			scan.omsg("Unit test passed OK");
 		}
 		scan.omsg("");
+		return isUnitTestFail;
 	}
 	
 	public int getNodeCount() {
