@@ -134,8 +134,9 @@ public class ScanSrc implements IConst {
 		}
 		if (inbuf.length() == 0) { }
 		else if (inbuf.equals(UNITENDBUF) && !inCmtBlk) {
-			omsg("calling endBlkUnitTest...");
+			omsg("scanning pre: endBlkUnitTest...");
 			scanSummSynChk(false, false);
+			omsg("calling endBlkUnitTest...");
 			synchk.endBlkUnitTest();
 			initScan();
 			return true;
