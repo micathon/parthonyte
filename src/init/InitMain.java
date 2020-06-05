@@ -26,8 +26,7 @@ import java.util.Map.Entry;
 
 // 1. Calls Lexical Scanner (if given file name w/o ext)
 // 2. Builds program tree:
-//    - working, not yet fully tested
-// 3. *Syntax checker
+// 3. Syntax checker
 // 4. *Code execution
 
 // * not yet implemented
@@ -36,48 +35,22 @@ public class InitMain implements IConst {
 	
 	public Store store;
 	private int pageIdx = 0;
+	private static final boolean isSilent = false;
 
 	public InitMain() {
 		store = new Store();
 	}
 	
-	public void runInit(String fileName, boolean isUnitTest) {
+	public void runInit(String fileName, boolean isUnitTest, boolean isMain) {
 		BufferedReader br = new BufferedReader(new
 			InputStreamReader(System.in));
 		String inbuf;
-		BufferedReader fbr;
-		ScanSrc scanSrc;
-		SynChk synchk;
-		boolean fatalErr = false;
-
-		if (fileName.length() > 0) {
-			scanSrc = new ScanSrc(store);
-			synchk = new SynChk(scanSrc, store);
-			scanSrc.setSynChk(synchk);
-			synchk.isUnitTest = isUnitTest;
-			if (isUnitTest) {
-				synchk.initUnitTestFlags();
-			}
-			try {
-				fbr = new BufferedReader(new FileReader(fileName));
-				while ((inbuf = fbr.readLine()) != null) {
-					if (!scanSrc.scanCodeBuf(inbuf)) {
-						fatalErr = true;
-						break;
-					}
-				}
-				if (scanSrc.inCmtBlk) {
-					scanSrc.putErr(TokenTyp.ERRINCMTEOF);
-				}
-				if (isUnitTest) {
-					synchk.showUnitTestVal();
-				}
-				else {
-					scanSrc.scanSummary(fatalErr);
-				}
-			} catch (IOException exc) {
-				System.out.println("I/O Error: " + exc);
-			}
+		
+		if (isMain) {
+			doMasterFile(fileName);
+		}
+		else if (fileName.length() > 0) {
+			doSrcFile(fileName, isUnitTest, isMain);
 		}
 		else {
 			System.out.println("Type h for help");
@@ -100,6 +73,84 @@ public class InitMain implements IConst {
 			}
 			System.out.println("\nbye");
 		}
+	}
+	
+	private void doMasterFile(String mainFileName) {
+		String fileName;
+		BufferedReader fbr;
+		boolean isFail;
+		boolean isGlbFail = false;
+		
+		try {
+			fbr = new BufferedReader(new FileReader(mainFileName));
+			while ((fileName = fbr.readLine()) != null) {
+				fileName = fileName.trim();
+				if (fileName.equals("")) {
+					continue;
+				}
+				omsg("Unit Test: " + fileName);
+				fileName = "../dat/test/" + fileName + ".test";
+				isFail = doSrcFile(fileName, true, true);
+				isGlbFail = isGlbFail || isFail;
+			}
+			showUnitTestVal(isGlbFail);
+		} catch (IOException exc) {
+			System.out.println("I/O Error: " + exc);
+		}
+	}
+	
+	private boolean doSrcFile(String fileName, boolean isUnitTest, boolean isMain) {
+		String inbuf;
+		BufferedReader fbr;
+		ScanSrc scanSrc;
+		SynChk synchk;
+		boolean fatalErr = false;
+		boolean rtnval = true;
+
+		scanSrc = new ScanSrc(store);
+		synchk = new SynChk(scanSrc, store);
+		scanSrc.setSynChk(synchk);
+		synchk.isUnitTest = isUnitTest;
+		if (isUnitTest) {
+			synchk.initUnitTestFlags();
+		}
+		try {
+			fbr = new BufferedReader(new FileReader(fileName));
+			while ((inbuf = fbr.readLine()) != null) {
+				if (!scanSrc.scanCodeBuf(inbuf)) {
+					fatalErr = true;
+					break;
+				}
+			}
+			if (scanSrc.inCmtBlk) {
+				scanSrc.putErr(TokenTyp.ERRINCMTEOF);
+			}
+			if (isUnitTest) {
+				rtnval = synchk.showUnitTestVal();
+			}
+			else {
+				scanSrc.scanSummary(fatalErr);
+			}
+		} catch (IOException exc) {
+			System.out.println("I/O Error: " + exc);
+		}
+		return rtnval;
+	}
+	
+	private void omsg(String msg) {
+		if (!isSilent) {
+			System.out.println(msg);
+		}
+	}
+	
+	private void showUnitTestVal(boolean isFail) {
+		if (isFail) {
+			omsg("Main unit test failed!");
+		}
+		else {
+			omsg("Main unit test passed OK");
+		}
+		omsg("");
 	}
 	
 	private boolean doCmd(String inbuf) {
