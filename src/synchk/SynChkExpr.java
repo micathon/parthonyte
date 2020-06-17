@@ -31,6 +31,7 @@ public class SynChkExpr {
 		scan.out(msg);
 	}
 	
+	@SuppressWarnings("unused")
 	private void oerr(int nodep, String msg) {
 		synChk.oerr(nodep, msg);
 	}
@@ -111,11 +112,13 @@ public class SynChkExpr {
 			return doCallOp(rightp);
 		case NULL:
 			if (celltyp == NodeCellTyp.ID) {
-				oerr(rightp, "Error in parentheses: null keyword & identifier node");
+				oerrd(rightp, "Error in parentheses: null keyword & identifier node",
+					10.1);
 				return false;
 			}
 			if (celltyp != NodeCellTyp.KWD) {
-				oerr(rightp, "Error in parentheses: null keyword, node cell-type not KWD");
+				oerrd(rightp, "Error in parentheses: null keyword, node cell-type not KWD",
+					10.2);
 				return false;
 			}
 			downp = node.getDownp();
@@ -123,15 +126,17 @@ public class SynChkExpr {
 			if (biftyp != BifTyp.NULL) {
 				return doBifTyp(biftyp, rightp);
 			}
-			oerr(rightp, "Internal error: null keyword & null built-in func. node");
+			oerrd(rightp, "Internal error: null keyword & null built-in func. node",
+				10.3);
 			return false;
 		case ZPAREN:
 		case ZSTMT:
-			oerr(rightp, "Error: ZPAREN/ZSTMT encountered in expression");
+			oerrd(rightp, "Error: ZPAREN/ZSTMT encountered in expression",
+				10.4);
 			return false;
 		default:
-			oerr(rightp, "Invalid keyword: " + kwtyp +
-				" encountered at beginning of expression");
+			oerrd(rightp, "Invalid keyword: " + kwtyp +
+				" encountered at beginning of expression", 10.5);
 			return false;
 		}
 	}
@@ -169,11 +174,12 @@ public class SynChkExpr {
 				isValid = doStrLit(rightp);
 				break;
 			case NULL: 
-				oerr(rightp, "Invalid token encountered in expression");
+				oerrd(rightp, "Invalid token encountered in expression",
+					20.1);
 				return -1;
 			default:
-				oerr(rightp, "Invalid cell type: " + celltyp.toString() +
-					" encountered in expression");
+				oerrd(rightp, "Invalid cell type: " + celltyp.toString() +
+					" encountered in expression", 20.2);
 				return -1;
 			}
 			if (isValid) {
@@ -189,19 +195,20 @@ public class SynChkExpr {
 		KeywordTyp kwtyp = node.getKeywordTyp();
 		
 		if (!node.isOpenPar()) {
-			oerr(rightp, "Error: unexpected token while scanning for " +
-				"parenthesized expression");
+			oerrd(rightp, "Error: unexpected token while scanning for " +
+				"parenthesized expression", 30.1);
 			return -1;
 		}
 		if (kwtyp != KeywordTyp.ZPAREN) {
-			oerr(rightp, "Internal expression error: expecting ZPAREN, " +
-				kwtyp + " found");
+			oerrd(rightp, "Internal expression error: expecting ZPAREN, " +
+				kwtyp + " found", 30.2);
 			return -1;
 		}
 		rightq = rightp;
 		rightp = node.getDownp();
 		if (rightp <= 0) {
-			oerr(rightq, "Error in parenthesized expression: null pointer");
+			oerrd(rightq, "Error in parenthesized expression: null pointer",
+				30.3);
 			return -1;
 		}
 		node = store.getNode(rightp);
@@ -223,8 +230,8 @@ public class SynChkExpr {
 		case NULL:
 			return true;
 		default:
-			oerr(rightp, "Invalid keyword: " + kwtyp +
-				" encountered in middle of expression");
+			oerrd(rightp, "Invalid keyword: " + kwtyp +
+				" encountered in middle of expression", 40.1);
 			return false;
 		}
 	}
@@ -254,7 +261,8 @@ public class SynChkExpr {
 		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (node.isOpenPar()) {
-			oerr(rightp, "Error: literal expected, parenthesis found");
+			oerrd(rightp, "Error: literal expected, parenthesis found",
+				80.1);
 			return false;
 		}
 		switch (celltyp) {
@@ -272,15 +280,16 @@ public class SynChkExpr {
 			isValid = doStrLit(rightp);
 			break;
 		case NULL: 
-			oerr(rightp, "Error: literal expected, NULL found");
+			oerrd(rightp, "Error: literal expected, NULL found",
+				80.2);
 			return false;
 		default:
-			oerr(rightp, "Error: cell type: " + celltyp +
-				" encountered, expecting literal");
+			oerrd(rightp, "Error: cell type: " + celltyp +
+				" encountered, expecting literal", 80.3);
 			return false;
 		}
 		if (!isValid) {
-			oerr(rightp, "Error parsing literal");
+			oerrd(rightp, "Error parsing literal", 80.4);
 		}
 		return isValid;
 	}
@@ -315,13 +324,13 @@ public class SynChkExpr {
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
 		if (count < 0) { 
-			oerr(rightp, "Unary operator " + kwtyp +
-				" has invalid argument(s)");
+			oerrd(rightp, "Unary operator " + kwtyp +
+				" has invalid argument(s)", 100.1);
 			return false;
 		}
 		if (count != 1) {
-			oerr(rightp, "Unary operator " + kwtyp + 
-				" has wrong no. of operands");
+			oerrd(rightp, "Unary operator " + kwtyp + 
+				" has wrong no. of operands", 100.2);
 			return false;
 		}
 		return true;
@@ -338,13 +347,13 @@ public class SynChkExpr {
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
 		if (count < 0) { 
-			oerr(rightp, "Operator (having optional arg.) " + kwtyp +
-				" has invalid argument(s)");
+			oerrd(rightp, "Operator (having optional arg.) " + kwtyp +
+				" has invalid argument(s)", 110.1);
 			return false;
 		}
 		if (count > 1) {
-			oerr(rightp, "Operator (having optional arg.) " + kwtyp + 
-				" has more than one operand");
+			oerrd(rightp, "Operator (having optional arg.) " + kwtyp + 
+				" has more than one operand", 110.2);
 			return false;
 		}
 		return true;
@@ -359,7 +368,8 @@ public class SynChkExpr {
 		kwtyp = node.getKeywordTyp();
 		rightq = node.getRightp();
 		if (rightq > 0) { 
-			oerr(rightp, "Keyword " + kwtyp + " followed by invalid text");
+			oerrd(rightp, "Keyword " + kwtyp + " followed by invalid text",
+				120.1);
 			return false;
 		}
 		return true;
@@ -375,12 +385,13 @@ public class SynChkExpr {
 		out("MinusOp: rightp, q = " + rightp + ", " + rightq);
 		count = getExprCount(rightq);
 		if (count < 0) { 
-			oerr(rightp, "MINUS operator has invalid argument(s)");
+			oerrd(rightp, "MINUS operator has invalid argument(s)",
+				130.1);
 			return false;
 		}
 		if ((count != 1) && (count != 2)) {
 			oerrd(rightp, "MINUS operator has wrong no. of operands",
-				360.2);
+				130.2);
 			return false;
 		}
 		return true;
@@ -395,11 +406,13 @@ public class SynChkExpr {
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
 		if (count < 0) { 
-			oerr(rightp, "QUEST operator has invalid argument(s)");
+			oerrd(rightp, "QUEST operator has invalid argument(s)",
+				140.1);
 			return false;
 		}
 		if (count != 3) {
-			oerr(rightp, "QUEST operator has wrong no. of operands");
+			oerrd(rightp, "QUEST operator has wrong no. of operands",
+				140.2);
 			return false;
 		}
 		return true;
@@ -416,13 +429,13 @@ public class SynChkExpr {
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
 		if (count < 0) { 
-			oerr(rightp, "Multi operator " + kwtyp +
-				" has invalid argument(s)");
+			oerrd(rightp, "Multi operator " + kwtyp +
+				" has invalid argument(s)", 150.1);
 			return false;
 		}
 		if (count < 2) {
 			oerrd(rightp, "Multi operator " + kwtyp + 
-				" has wrong no. of operands", 380.2);
+				" has wrong no. of operands", 150.2);
 			return false;
 		}
 		return true;
@@ -439,13 +452,13 @@ public class SynChkExpr {
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
 		if (count < 0) { 
-			oerr(rightp, "Binary operator " + kwtyp +
-				" has invalid argument(s)");
+			oerrd(rightp, "Binary operator " + kwtyp +
+				" has invalid argument(s)", 160.1);
 			return false;
 		}
 		if (count != 2) {
-			oerr(rightp, "Binary operator " + kwtyp + 
-				" has wrong no. of operands");
+			oerrd(rightp, "Binary operator " + kwtyp + 
+				" has wrong no. of operands", 160.2);
 			return false;
 		}
 		return true;
@@ -470,14 +483,16 @@ public class SynChkExpr {
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
 		if (count < 0) { 
-			oerr(rightp, "List " + opstmt + " " + kwtyp + " has invalid argument(s)");
+			oerrd(rightp, "List " + opstmt + " " + kwtyp + " has invalid argument(s)",
+				180.1);
 			return false;
 		}
 		if (isZero) {
 			return true;
 		}
 		if (count == 0) {
-			oerr(rightp, "List " + opstmt + " " + kwtyp + " has no arguments");
+			oerrd(rightp, "List " + opstmt + " " + kwtyp + " has no arguments",
+				180.2);
 			return false;
 		}
 		return true;
@@ -530,7 +545,7 @@ public class SynChkExpr {
 			}
 		} 
 		if (!isValid) {
-			oerr(savep, "Invalid dict. expression");
+			oerrd(savep, "Invalid dict. expression", 200.1);
 		}
 		return isValid;
 	}
@@ -547,13 +562,14 @@ public class SynChkExpr {
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DOT) {
-			oerr(rightp, "Error in dict. pair: expecting DOT, " +
-				kwtyp + " found");
+			oerrd(rightp, "Error in dict. pair: expecting DOT, " +
+				kwtyp + " found", 210.1);
 			return false;
 		}
 		rightp = node.getRightp();
 		if (getExprCount(rightp) != 2) {
-			oerr(rightp, "Error in dict. pair: expression count not = 2");
+			oerrd(rightp, "Error in dict. pair: expression count not = 2",
+				210.2);
 			return false;
 		}
 		return true;
@@ -571,11 +587,13 @@ public class SynChkExpr {
 		}
 		rightp = parenExprRtn(rightp, node);
 		if (rightp <= 0) {
-			oerr(rightp, msg + "invalid parenthesized arg. or non-identifier");
+			oerrd(rightp, msg + "invalid parenthesized arg. or non-identifier",
+				220.1);
 			return false;
 		}
 		if (!doSliceOp(rightp) && !doDotOp(rightp, true, false)) {
-			oerr(rightp, msg + "neither identifier, dot, or slice targets found");
+			oerrd(rightp, msg + "neither identifier, dot, or slice targets found",
+				220.2);
 			return false;
 		}
 		return true;
@@ -593,21 +611,25 @@ public class SynChkExpr {
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, "Error in SLICE expr.: no args.");
+			oerrd(savep, "Error in SLICE expr.: no args.",
+				230.1);
 			return false;
 		}
 		if (!doExpr(rightp)) {
-			oerr(savep, "Error in list-obj. arg. of SLICE expr.");
+			oerrd(savep, "Error in list-obj. arg. of SLICE expr.",
+				230.2);
 			return false;
 		}
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, "Error in SLICE expr.: no idx. args.");
+			oerrd(savep, "Error in SLICE expr.: no idx. args.",
+				230.3);
 			return false;
 		}
 		if (!doExpr(rightp)) {
-			oerr(savep, "Error in idx. arg. of SLICE expr.");
+			oerrd(savep, "Error in idx. arg. of SLICE expr.",
+				230.4);
 			return false;
 		}
 		node = store.getNode(rightp);
@@ -616,13 +638,15 @@ public class SynChkExpr {
 			return true;
 		}
 		if (!isKwdMatch(rightp, KeywordTyp.ALL) && !doExpr(rightp)) {
-			oerr(savep, "Error in 2nd idx. arg. of SLICE expr.");
+			oerrd(savep, "Error in 2nd idx. arg. of SLICE expr.",
+				230.5);
 			return false;
 		}
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp > 0) {
-			oerr(savep, "Error in SLICE expr.: too many args.");
+			oerrd(savep, "Error in SLICE expr.: too many args.",
+				230.6);
 			return false;
 		}
 		return true;
@@ -667,29 +691,30 @@ public class SynChkExpr {
 				isCurrIdent = false;
 				rightq = parenExprRtn(rightp, node);
 				if (rightq <= 0) {
-					oerr(savep, msg + "invalid parenthesized arg. or non-identifier");
+					oerrd(savep, msg + "invalid parenthesized arg. or non-identifier",
+						250.1);
 					return false;
 				}
 				if (!doZcallOp(rightq)) {
-					oerr(savep, msg + "invalid function call");
+					oerrd(savep, msg + "invalid function call", 250.2);
 					return false;
 				}
 			}
 			rightp = node.getRightp();
 		}
 		if (count < 2) {
-			oerr(savep, msg + "less than 2 args. encountered");
+			oerrd(savep, msg + "less than 2 args. encountered", 250.3);
 			return false;
 		}
 		if (isAnyEnd) { }
 		else if (isEndName && !isCurrIdent) {
-			oerr(savep, "Error in target expr.: " +
-				"final arg. of DOT operator must be an identifier");
+			oerrd(savep, "Error in target expr.: " +
+				"final arg. of DOT operator must be an identifier", 250.4);
 			return false;
 		}
 		else if (!isEndName && isCurrIdent) {
-			oerr(savep, "Error in DOT stmt.: " +
-				"final arg. of DOT operator must be a function call");
+			oerrd(savep, "Error in DOT stmt.: " +
+				"final arg. of DOT operator must be a function call", 250.5);
 			return false;
 		}
 		return true;
@@ -712,7 +737,8 @@ public class SynChkExpr {
 			}
 			if (first) {
 				if (!doExpr(rightp)) {
-					oerr(savep, "Error in expr. arg of CALL expr.");
+					oerrd(savep, "Error in expr. arg of CALL expr.",
+						260.1);
 					return false;
 				}
 				node = store.getNode(rightp);
@@ -736,7 +762,7 @@ public class SynChkExpr {
 			}
 		}
 		if (first) {
-			oerr(savep, "Error in CALL expr.: no args.");
+			oerrd(savep, "Error in CALL expr.: no args.", 260.2);
 			return false;
 		}
 		return true;
@@ -759,8 +785,8 @@ public class SynChkExpr {
 				if ((celltyp != NodeCellTyp.FUNC) && 
 					(celltyp != NodeCellTyp.ID)) 
 				{
-					oerr(savep, "Expecting identifier in function call, " +
-						"invalid text found");
+					oerrd(savep, "Expecting identifier in function call, " +
+						"invalid text found", 270.1);
 					return false;
 				}
 			}
@@ -789,15 +815,18 @@ public class SynChkExpr {
 		boolean isValidExpr, boolean isValidKwdArg, boolean found) 
 	{
 		if (!isValidExpr && !found) {
-			oerr(savep, "Invalid expression found in function call");
+			oerrd(savep, "Invalid expression found in function call",
+				280.1);
 			return false;
 		}
 		if (!isValidExpr) {
-			oerr(savep, "Error in keyword arg.: " + msg);
+			oerrd(savep, "Error in keyword arg.: " + msg,
+				280.2);
 			return false;
 		}
 		if (!isValidKwdArg && found) {
-			oerr(savep, "Error in function call: keyword arg. followed by normal arg.");
+			oerrd(savep, "Error in function call: keyword arg. followed by normal arg.",
+				280.3);
 			return false;
 		}
 		return true;
@@ -851,7 +880,7 @@ public class SynChkExpr {
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, "VENUM expr has no arg(s)");
+			oerrd(savep, "VENUM expr has no arg(s)", 300.1);
 			return false;
 		}
 		isValid = (synChk.chkEnumStmt(rightp, true) > 0);
@@ -871,20 +900,20 @@ public class SynChkExpr {
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, "LAMBDA expr. has no args.");
+			oerrd(savep, "LAMBDA expr. has no args.", 310.1);
 			return false;
 		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.ZPAREN) {
-			oerr(savep, "LAMBDA expr. has no id list");
+			oerrd(savep, "LAMBDA expr. has no id list", 310.2);
 			return false;
 		}
 		rightq = node.getDownp();
 		while (rightq > 0) {
 			if (isTuple) {
-				oerr(savep, "LAMBDA expr. has non-empty TUPLE expr. " +
-					"instead of id list");
+				oerrd(savep, "LAMBDA expr. has non-empty TUPLE expr. " +
+					"instead of id list", 310.3);
 				return false;
 			}
 			subNode = store.getNode(rightq);
@@ -894,7 +923,8 @@ public class SynChkExpr {
 				isTuple = true;
 			}
 			else if ((celltyp != NodeCellTyp.FUNC) && (celltyp != NodeCellTyp.ID)) {
-				oerr(savep, "LAMBDA expr. has invalid id list");
+				oerrd(savep, "LAMBDA expr. has invalid id list",
+					310.4);
 				return false;
 			}
 			first = false;
@@ -902,7 +932,8 @@ public class SynChkExpr {
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, "LAMBDA expr. has no expr. arg. or DO block");
+			oerrd(savep, "LAMBDA expr. has no expr. arg. or DO block",
+				310.5);
 			return false;
 		}
 		node = store.getNode(rightp);
@@ -910,18 +941,19 @@ public class SynChkExpr {
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp == KeywordTyp.DO) { }
 		else if (!doExpr(rightp)) {
-			oerr(savep, "LAMBDA expr. has invalid expr. arg.");
+			oerrd(savep, "LAMBDA expr. has invalid expr. arg.", 310.6);
 			return false;
 		}
 		else if (rightq > 0) {
-			oerr(savep, "LAMBDA expr. has invalid text after expr. arg.");
+			oerrd(savep, "LAMBDA expr. has invalid text after expr. arg.",
+				310.7);
 			return false;
 		}
 		else {
 			return true;
 		}
 		if (synChk.chkDoBlock(rightp) < 0) {
-			oerr(savep, "Error in LAMBDA expr. DO block");
+			oerrd(savep, "Error in LAMBDA expr. DO block", 310.8);
 			return false;
 		}
 		return true;
@@ -934,29 +966,29 @@ public class SynChkExpr {
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, "CAST expr. has no args.");
+			oerrd(savep, "CAST expr. has no args.", 320.1);
 			return false;
 		}
 		node = store.getNode(rightp);
 		if (!doLiteralExpr(rightp, true)) {
-			oerr(savep, "CAST expr. has invalid literal");
+			oerrd(savep, "CAST expr. has invalid literal", 320.2);
 			return false;
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, "CAST expr. has no expr. arg.");
+			oerrd(savep, "CAST expr. has no expr. arg.", 320.3);
 			return false;
 		}
 		out("doCastOp: 1st rightp = " + rightp);
 		if (!doExpr(rightp)) {
-			oerr(savep, "CAST expr. has invalid expr. arg.");
+			oerrd(savep, "CAST expr. has invalid expr. arg.", 320.4);
 			return false;
 		}
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		out("doCastOp: 2nd rightp = " + rightp);
 		if (rightp > 0) {
-			oerr(savep, "CAST expr. has too many args.");
+			oerrd(savep, "CAST expr. has too many args.", 320.5);
 			return false;
 		}
 		return true;
@@ -986,13 +1018,13 @@ public class SynChkExpr {
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
 		if (count < 0) { 
-			oerr(rightp, "Binary built-in function " + biftyp +
-				" has invalid argument(s)");
+			oerrd(rightp, "Binary built-in function " + biftyp +
+				" has invalid argument(s)", 340.1);
 			return false;
 		}
 		if (count != 2) {
-			oerr(rightp, "Binary built-in function " + biftyp + 
-				" has wrong no. of arguments");
+			oerrd(rightp, "Binary built-in function " + biftyp + 
+				" has wrong no. of arguments", 340.2);
 			return false;
 		}
 		return true;
@@ -1007,13 +1039,13 @@ public class SynChkExpr {
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
 		if (count < 0) { 
-			oerr(rightp, "Unary built-in function " + biftyp +
-				" has invalid argument(s)");
+			oerrd(rightp, "Unary built-in function " + biftyp +
+				" has invalid argument(s)", 350.1);
 			return false;
 		}
 		if (count != 1) {
-			oerr(rightp, "Unary built-in function " + biftyp + 
-				" has wrong no. of arguments");
+			oerrd(rightp, "Unary built-in function " + biftyp + 
+				" has wrong no. of arguments", 350.2);
 			return false;
 		}
 		return true;
@@ -1028,39 +1060,44 @@ public class SynChkExpr {
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, "CRPATH function has no arguments");
+			oerrd(savep, "CRPATH function has no arguments", 360.1);
 			return false;
 		}
 		node = store.getNode(rightp);
 		downp = node.getDownp();
 		if (downp < 0) {
-			oerr(savep, "CRPATH function has negative depth");
+			oerrd(savep, "CRPATH function has negative depth", 360.2);
 			return false;
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, "CRPATH function has no bit-string argument");
+			oerrd(savep, "CRPATH function has no bit-string argument",
+				360.3);
 			return false;
 		}
 		node = store.getNode(rightp);
 		downp = node.getDownp();
 		if (downp < 0) {
-			oerr(savep, "CRPATH function has negative bit-string");
+			oerrd(savep, "CRPATH function has negative bit-string",
+				360.4);
 			return false;
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, "CRPATH function has no expression argument");
+			oerrd(savep, "CRPATH function has no expression argument",
+				360.5);
 			return false;
 		}
 		if (!doExpr(rightp)) {
-			oerr(savep, "CRPATH function has invalid expression argument");
+			oerrd(savep, "CRPATH function has invalid expression argument",
+				360.6);
 			return false;
 		}
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp > 0) {
-			oerr(savep, "CRPATH function has too many arguments");
+			oerrd(savep, "CRPATH function has too many arguments",
+				360.7);
 			return false;
 		}
 		return true;
