@@ -1,5 +1,5 @@
 do (
-? 360.2;
+? 130.2;
 defun (p)
   do (
   set x (minus y 4 9);
@@ -7,7 +7,7 @@ defun (p)
 )
 @
 do (
-? 380.2;
+? 150.2;
 defun (q)
   do (
   set w (add z);
