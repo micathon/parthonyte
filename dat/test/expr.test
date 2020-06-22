@@ -1,0 +1,168 @@
+do (
+? 40.1;
+defun (p)
+  do (
+  ? else;
+);
+)
+@
+do (
+? 80.3;
+defun (p)
+  do (
+  ? (cast true b);
+);
+)
+@
+do (
+? 100.1;
+defun (p)
+  do (
+  ? (not if);
+);
+)
+@
+do (
+? 100.2;
+defun (p)
+  do (
+  ? (not a b);
+);
+)
+@
+do (
+? 110.1;
+defun (p)
+  do (
+  return if;
+);
+)
+@
+do (
+? 110.2;
+defun (p)
+  do (
+  return a b;
+);
+)
+@
+do (
+? 120.1;
+defun (p)
+  do (
+  continue a;
+);
+)
+@
+do (
+? 130.1;
+defun (p)
+  do (
+  set x (minus y (add 0));
+);
+)
+@
+do (
+? 130.2;
+defun (p)
+  do (
+  set x (minus y 4 9);
+);
+)
+@
+do (
+? 140.1;
+defun (p)
+  do (
+  ? (? y z (add 0));
+);
+)
+@
+do (
+? 140.2;
+defun (p)
+  do (
+  ? (? y z);
+);
+)
+@
+do (
+defun (p)
+  do (
+  ? (? x y z);
+);
+)
+@
+do (
+? 150.1;
+defun (q)
+  do (
+  ? (add z (mpy 1));
+);
+)
+@
+do (
+? 150.2;
+defun (q)
+  do (
+  ? (add z);
+);
+)
+@
+do (
+? 160.1;
+defun (q)
+  do (
+  ? (eq z (mpy 1));
+);
+)
+@
+do (
+? 160.2;
+defun (q)
+  do (
+  ? (eq z);
+);
+)
+@
+do (
+? 180.1;
+defun (q)
+  do (
+  ? (quote (mpy 1));
+);
+)
+@
+do (
+? 180.2;
+defun (q)
+  do (
+  ? (quote);
+);
+)
+@
+do (
+? 200.1;
+defun (q)
+  do (
+  ? (dict if);
+);
+)
+@
+do (
+? 210.1;
+defun (q)
+  do (
+  ? (dict (mpy 1));
+);
+)
+@
+do (
+? 210.2;
+defun (q)
+  do (
+  ? (dict (: a b c));
+);
+)
+@
+
