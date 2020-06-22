@@ -55,11 +55,12 @@ public class SynChk {
 			isBrkZeroFail = true;
 		}
 		else if (isFloatEq(brkval, currbrk) && (lineno > 0)) {
-			oprn("oerrd: brkval found = " + brkval);
+			oprn("oerrd: brkval found = " + brkval + " | " + msg);
 			isBrkFound = true;
 			return;
 		}
 		else {
+			//oprn("oerrd: brkval tried = " + brkval + " | " + msg);
 			return;
 		}
 		if (lineno > 0) {
