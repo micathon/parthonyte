@@ -165,4 +165,108 @@ defun (q)
 );
 )
 @
+do (
+? 30.1;
+defun (q)
+  do (
+  set true x;
+);
+)
+@
+do (
+? 220.2;
+defun (q)
+  do (
+  set (add a b) x;
+);
+)
+@
+do (
+? 230.2;
+defun (q)
+  do (
+  ? (slice (add x));
+);
+)
+@
+do (
+? 230.3;
+defun (q)
+  do (
+  ? (slice (add x y));
+);
+)
+@
+do (
+? 230.4;
+defun (q)
+  do (
+  ? (slice z (add x));
+);
+)
+@
+do (
+? 230.5;
+defun (q)
+  do (
+  ? (slice y z (add x));
+);
+)
+@
+do (
+? 230.6;
+defun (q)
+  do (
+  ? (slice y z (add x 4) w);
+);
+)
+@
+do (
+? 250.1;
+defun (q)
+  do (
+  ? (: 24);
+);
+)
+@
+do (
+? 250.2;
+defun (q)
+  do (
+  ? (: (24));
+);
+)
+@
+do (
+? 250.3;
+defun (q)
+  do (
+  ? (: a);
+);
+)
+@
+do (
+? 250.4;
+defun (q)
+  do (
+  set (: a (f)) 7;
+);
+)
+@
+do (
+# ? 250.5;
+defun (q)
+  do (
+  # : a (f x) (b);  # uncomment: null pointer exc.
+);
+)
+@
+do (
+# ? 260.1;
+defun (q)
+  do (
+  set x y;
+);
+)
+@
 
