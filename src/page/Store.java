@@ -75,6 +75,15 @@ public class Store implements IConst {
 		return (getBookIdx(addr) == 0);
 	}
 	
+	public Node getNode(int addr) {
+		Page page;
+		int idx;
+		
+		page = getPage(addr);
+		idx = getElemIdx(addr);
+		return page.getNode(idx);
+	}
+	
 	public int allocInt(int val) {
 		return allocVal(1, val, 0.0);
 	}
@@ -521,21 +530,30 @@ class PageTab implements IConst {
 	@SuppressWarnings("unchecked")
 	public boolean appendNodep(int nodep, int lineno) {
 		ArrayList<Integer> list;
+		//boolean isbug = (nodep == 16523); // fixed!
 
+		//out(isbug, "nodeLstIdx = " + nodeLstIdx);
 		if (nodeLstIdx < NODESTKLEN) { 
 			list = (ArrayList<Integer>) nodelstpg.getList(nodeMastIdx);
+			//out(isbug, "nodeMastIdx = " + nodeMastIdx);
 		}
 		else if (nodeMastIdx < INTPGLEN - 1) {
 			list = (ArrayList<Integer>) nodelstpg.getList(++nodeMastIdx);
+			//out(isbug, "++nodeMastIdx = " + nodeMastIdx);
 			if (list == null) {
 				list = initNodepLst(NODESTKLEN);
+				nodelstpg.setList(nodeMastIdx, list);
+				//out(isbug, "list is null");
 			}
 			nodeLstIdx = 0;
 		}
 		else {
 			return false;
 		}
+		//out(isbug, "Bug!"); 
+		//out(isbug, "Null list? " + (list == null));
 		list.set(nodeLstIdx++, nodep);
+		//out(isbug, "Bug again!"); 
 		list.set(nodeLstIdx++, lineno);
 		return true;
 	}
@@ -694,4 +712,11 @@ class PageTab implements IConst {
 		return true;
 	}
 
+	@SuppressWarnings("unused")
+	private void out(boolean flag, String msg) {
+		if (flag) {
+			System.out.println(msg);
+		}
+	}
+	
 }
