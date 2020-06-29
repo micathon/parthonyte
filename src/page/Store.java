@@ -515,6 +515,7 @@ class PageTab implements IConst {
 			list = (ArrayList<AddrNode>) nodepg.getList(++nodeStkLstIdx);
 			if (list == null) {
 				list = initStkLst(NODESTKLEN);
+				nodepg.setList(nodeStkLstIdx, list);
 			}
 			nodeStkIdx = 0;
 		}
@@ -530,30 +531,22 @@ class PageTab implements IConst {
 	@SuppressWarnings("unchecked")
 	public boolean appendNodep(int nodep, int lineno) {
 		ArrayList<Integer> list;
-		//boolean isbug = (nodep == 16523); // fixed!
 
-		//out(isbug, "nodeLstIdx = " + nodeLstIdx);
 		if (nodeLstIdx < NODESTKLEN) { 
 			list = (ArrayList<Integer>) nodelstpg.getList(nodeMastIdx);
-			//out(isbug, "nodeMastIdx = " + nodeMastIdx);
 		}
 		else if (nodeMastIdx < INTPGLEN - 1) {
 			list = (ArrayList<Integer>) nodelstpg.getList(++nodeMastIdx);
-			//out(isbug, "++nodeMastIdx = " + nodeMastIdx);
 			if (list == null) {
 				list = initNodepLst(NODESTKLEN);
 				nodelstpg.setList(nodeMastIdx, list);
-				//out(isbug, "list is null");
 			}
 			nodeLstIdx = 0;
 		}
 		else {
 			return false;
 		}
-		//out(isbug, "Bug!"); 
-		//out(isbug, "Null list? " + (list == null));
 		list.set(nodeLstIdx++, nodep);
-		//out(isbug, "Bug again!"); 
 		list.set(nodeLstIdx++, lineno);
 		return true;
 	}
@@ -642,6 +635,7 @@ class PageTab implements IConst {
 			list = (ArrayList<AddrNode>) nodepg.getList(++nodeStkLstIdx);
 			if (list == null) {
 				list = initStkLst(NODESTKLEN);
+				nodepg.setList(nodeStkLstIdx, list);
 			}
 			nodeStkIdx = 0;
 		}
@@ -702,6 +696,7 @@ class PageTab implements IConst {
 			page = pageTab[++opStkPgIdx];
 			if (page == null) {
 				page = new Page(PageTyp.BYTE);
+				pageTab[opStkPgIdx] = page;
 			}
 			opStkIdx = 0;
 			page.setByte(opStkIdx++, byteval);
