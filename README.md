@@ -1,7 +1,7 @@
 # Cooperscript
 * Python-like scripting language, has Lisp/Java/Pascal qualities
 * Sister language called Coopertags is like HTML, also used for config files
-* Cooperscript is easier to learn than most practical languages
+* Cooperscript is easier to learn than most of the popular languages, but somewhat less practical
 * Used to build Android apps for the [Cooperscript](http://treenimation.net/cooperscript/) software hub
 # Info for contributors
 * For detailed info, see [Contributing](CONTRIBUTING.md) file, also if desired check out [Code of Conduct](CODE_OF_CONDUCT.md)
