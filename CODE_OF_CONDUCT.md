@@ -1,5 +1,5 @@
 # Code of Conduct
-* This code of conduct applies to both project contributors and the Psyvaspace end-users
+* This code of conduct applies to both project contributors and end-users
 * Treat other users with respect
 * No bullying
 * No hate speech: 
