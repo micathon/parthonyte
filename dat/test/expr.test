@@ -1,4 +1,12 @@
 do (
+? 10.5;
+defun (p)
+  do (
+  ? (else);
+);
+)
+@
+do (
 ? 40.1;
 defun (p)
   do (
