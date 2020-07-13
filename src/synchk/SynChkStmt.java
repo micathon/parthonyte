@@ -29,8 +29,17 @@ public class SynChkStmt {
 		scan.out(msg);
 	}
 	
+	@SuppressWarnings("unused")
+	private void omsg(String msg) {
+		scan.omsg(msg);
+	}
+	
 	private void oerr(int nodep, String msg) {
 		synChk.oerr(nodep, msg);
+	}
+	
+	private void oerrd(int nodep, String msg, double bval) {
+		synChk.oerrd(nodep, msg, bval, 2);
 	}
 	
 	public boolean doStmt(int rightp) {
@@ -83,8 +92,8 @@ public class SynChkStmt {
 		case ORSET:
 			return doSetOpStmt(rightp);
 		default:
-			oerr(rightp, "Invalid keyword: " + kwtyp.toString() +
-				" encountered at beginning of statement");
+			oerrd(rightp, "Invalid keyword: " + kwtyp.toString() +
+				" encountered at beginning of statement", 10.1);
 			return false;
 		}
 	}
@@ -137,14 +146,14 @@ public class SynChkStmt {
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "no body");
+			oerrd(savep, msg + "no body", 30.1);
 			return false;
 		}
 		node = store.getNode(rightp);
 		while (rightp > 0) {
 			if (isElse) { }
 			else if (!synExpr.doExpr(rightp)) {
-				oerr(rightp, msg + "invalid expression");
+				oerrd(savep, msg + "invalid expression", 30.2);
 				return false;
 			}
 			else {
@@ -152,12 +161,12 @@ public class SynChkStmt {
 				rightp = node.getRightp();
 			}
 			if (rightp <= 0) {
-				oerr(savep, msg + "no do-block");
+				oerrd(savep, msg + "no do-block", 30.3);
 				return false;
 			}
 			rightp = synChk.chkStmtDoBlock(rightp);
 			if (rightp < 0) {
-				oerr(savep, "Error in if stmt.");
+				oerrd(savep, "Error in if stmt.", 30.4);
 				return false;
 			}
 			else if (rightp == 0) {
@@ -170,12 +179,13 @@ public class SynChkStmt {
 				isElse = true;
 			}
 			else if (kwtyp != KeywordTyp.ELIF) {
-				oerr(savep, msg + "invalid keyword " + kwtyp + " found");
+				oerrd(savep, msg + "invalid keyword " + kwtyp + " found",
+					30.5);
 				return false;
 			}
 			rightp = node.getRightp();
 		}
-		oerr(savep, msg + "dangling ELSE or ELIF");
+		oerrd(savep, msg + "dangling ELSE or ELIF", 30.6);
 		return false;
 	}
 	

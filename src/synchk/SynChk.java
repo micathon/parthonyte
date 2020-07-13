@@ -21,6 +21,7 @@ public class SynChk {
 	public boolean isBrkFound;     
 	public int unitTestIdx;    
 	public double brkval;
+	public int moduleval;
 	private static final int ABPHASE = 100;
 
 	public SynChk(ScanSrc scan, Store store) {
@@ -41,10 +42,10 @@ public class SynChk {
 	}
 	
 	public void oerr(int nodep, String msg) {
-		oerrd(nodep, msg, 0.0);
+		oerrd(nodep, msg, 0.0, 2);
 	}
 	
-	public void oerrd(int nodep, String msg, double currbrk) {
+	public void oerrd(int nodep, String msg, double currbrk, int modno) {
 		int lineno;
 		String preLineNoStr;
 		
@@ -54,7 +55,9 @@ public class SynChk {
 		else if (brkval == 0.0) {
 			isBrkZeroFail = true;
 		}
-		else if (isFloatEq(brkval, currbrk) && (lineno > 0)) {
+		else if (isFloatEq(brkval, currbrk) && (lineno > 0) && 
+			(modno == moduleval)) 
+		{
 			oprn("oerrd: brkval found = " + brkval + " | " + msg);
 			isBrkFound = true;
 			return;
@@ -279,6 +282,7 @@ public class SynChk {
 		int currPhaseNo = phaseNo;
 		int rightq;
 		int initp = rightp;
+		double currbrk;
 		String phaseDesc;
 
 		while (rightp > 0) {
@@ -310,7 +314,14 @@ public class SynChk {
 						oerr(initp, kwtyp + " operator (unit test) is invalid");
 						return -1;
 					}
-					brkval = getMethBrkPair(rightp);
+					currbrk = getMethBrkPair(rightp);
+					if (currbrk > 0) {
+						brkval = currbrk;
+					}
+					else {
+						moduleval = -(int)currbrk;
+						//oprn("doStmt: currbrk = " + currbrk + ", moduleval = "+moduleval);
+					}
 					break;
 				case 1:
 					rightq = chkImportStmt(rightp, kwtyp);

@@ -32,12 +32,17 @@ public class SynChkExpr {
 	}
 	
 	@SuppressWarnings("unused")
+	private void omsg(String msg) {
+		scan.omsg(msg);
+	}
+	
+	@SuppressWarnings("unused")
 	private void oerr(int nodep, String msg) {
 		synChk.oerr(nodep, msg);
 	}
 	
 	private void oerrd(int nodep, String msg, double bval) {
-		synChk.oerrd(nodep, msg, bval);
+		synChk.oerrd(nodep, msg, bval, 1);
 	}
 	
 	public boolean doExpr(int rightp) {
@@ -49,12 +54,16 @@ public class SynChkExpr {
 
 		rightp = doParenExpr(rightp, true);
 		switch (rightp) {
-		case 0: return true;
-		case -1: return false;
+		case 0: 
+			//omsg("doExpr: rightp = 0");
+			return true;
+		case -1: 
+			return false;
 		}
 		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		kwtyp = node.getKeywordTyp();
+		//omsg("doExpr: kwtyp = "+kwtyp);
 		switch (kwtyp) {
 		case NOT:
 		case NOTBITZ:
@@ -183,6 +192,7 @@ public class SynChkExpr {
 				return -1;
 			}
 			if (isValid) {
+				//omsg("doParenExpr: return = 0");
 				return 0;
 			}
 			return -1;
@@ -428,6 +438,7 @@ public class SynChkExpr {
 		kwtyp = node.getKeywordTyp();
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
+		//omsg("doMultiOp: count = "+count);
 		if (count < 0) { 
 			oerrd(rightp, "Multi operator " + kwtyp +
 				" has invalid argument(s)", 150.1);
