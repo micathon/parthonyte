@@ -1,0 +1,66 @@
+do (
+? -2.0;
+? 10.1;
+defun (p)
+  do (
+  else;
+);
+)
+@
+do (
+? 30.1;
+defun (p)
+  do (
+  if;
+);
+)
+@
+do (
+? 30.2;
+defun (p)
+  do (
+  if (add x);
+);
+)
+@
+do (
+? 30.3;
+defun (p)
+  do (
+  if (add x 0);
+);
+)
+@
+do (
+? 30.4;
+defun (p)
+  do (
+  if (eq x 0) do (
+    ? (add x);
+  );
+);
+)
+@
+do (
+? 30.5;
+defun (p)
+  do (
+  if (eq x 0) do (
+    set x 0;
+  )
+  if;
+);
+)
+@
+do (
+? 30.6;
+defun (p)
+  do (
+  if (eq x 0) do (
+    set x 0;
+  )
+  else;
+);
+)
+@
+
