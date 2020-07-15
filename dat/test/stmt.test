@@ -63,4 +63,99 @@ defun (p)
 );
 )
 @
+do (
+? 40.1;
+defun (p)
+  do (
+  addset;
+);
+)
+@
+do (
+? 40.2;
+defun (p)
+  do (
+  addset (add x y);
+);
+)
+@
+do (
+? 50.1;
+defun (p)
+  do (
+  addset x;
+);
+)
+@
+do (
+? 50.2;
+defun (p)
+  do (
+  addset x (add y);
+);
+)
+@
+do (
+? 50.3;
+defun (p)
+  do (
+  addset x (add y z) w;
+);
+)
+@
+do (
+? 60.1;
+defun (p)
+  do (
+  set;
+);
+)
+@
+do (
+? 70.4;
+defun (p)
+  do (
+  set (tuple 501);
+);
+)
+@
+do (
+? 70.5;
+defun (p)
+  do (
+  set (tuple);
+);
+)
+@
+do (
+defun (p)
+  do (
+  set (tuple a (: b c)) 99;
+);
+)
+@
+do (
+? 80.1;
+defun (p)
+  do (
+  incint;
+);
+)
+@
+do (
+? 80.2;
+defun (p)
+  do (
+  ++ 18;
+);
+)
+@
+do (
+? 80.3;
+defun (p)
+  do (
+  -- x y;
+);
+)
+@
 
