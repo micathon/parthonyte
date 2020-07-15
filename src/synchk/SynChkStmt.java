@@ -194,14 +194,15 @@ public class SynChkStmt {
 		String msg = "Error in asst. stmt.: ";
 		int savep = rightp;
 		
+		//omsg("doSetOpStmt: rightp = "+rightp);
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "no args.");
+			oerrd(savep, msg + "no args.", 40.1);
 			return false;
 		}
 		if (!synExpr.doTargetExpr(rightp)) {
-			oerr(savep, msg + "invalid target expr.");
+			oerrd(savep, msg + "invalid target expr.", 40.2);
 			return false;
 		}
 		return doSetStmtTail(rightp, savep, msg);
@@ -213,17 +214,17 @@ public class SynChkStmt {
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "missing result expr.");
+			oerrd(savep, msg + "missing result expr.", 50.1);
 			return false;
 		}
 		if (!synExpr.doExpr(rightp)) {
-			oerr(savep, msg + "invalid result expr.");
+			oerrd(savep, msg + "invalid result expr.", 50.2);
 			return false;
 		}
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp > 0) {
-			oerr(savep, msg + "too many args.");
+			oerrd(savep, msg + "too many args.", 50.3);
 			return false;
 		}
 		return true;
@@ -239,7 +240,7 @@ public class SynChkStmt {
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "no args.");
+			oerrd(savep, msg + "no args.", 60.1);
 			return false;
 		}
 		node = store.getNode(rightp);
@@ -249,7 +250,7 @@ public class SynChkStmt {
 		}
 		rightp = synExpr.parenExprRtn(rightp, node); 
 		if (rightp <= 0) {
-			oerr(savep, msg + "invalid parenthetical arg.");
+			oerrd(savep, msg + "invalid parenthetical arg.", 60.2);
 			return false;
 		}
 		node = store.getNode(rightp);
@@ -271,34 +272,35 @@ public class SynChkStmt {
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "no args.");
+			oerrd(savep, msg + "no args.", 70.1);
 			return false;
 		}
 		node = store.getNode(rightp);
 		rightq = rightp;
 		rightp = synExpr.parenExprRtn(rightp, node); 
 		if (rightp <= 0) {
-			oerr(savep, msg + "no tuple arg. in parentheses");
+			oerrd(savep, msg + "no tuple arg. in parentheses", 70.2);
 			return false;
 		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.TUPLE) {
-			oerr(savep, msg + "expecting TUPLE keyword, " + kwtyp + " found");
+			oerrd(savep, msg + "expecting TUPLE keyword, " + kwtyp + " found",
+				70.3);
 			return false;
 		}
 		rightp = node.getRightp();
 		while (rightp > 0) {
 			count++;
 			if (!synExpr.doTargetExpr(rightp)) {
-				oerr(savep, msg + "invalid target expr.");
+				oerrd(savep, msg + "invalid target expr.", 70.4);
 				return false;
 			}
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
 		if (count == 0) {
-			oerr(savep, msg + "no target exprs.");
+			oerrd(savep, msg + "no target exprs.", 70.5);
 			return false;
 		}
 		return doSetStmtTail(rightq, savep, msg);
@@ -310,21 +312,22 @@ public class SynChkStmt {
 		String msg = "Error in INC/DEC stmt.: ";
 		int savep = rightp;
 		
+		//omsg("doIncDecStmt: rightp = "+rightp);
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "no args.");
+			oerrd(savep, msg + "no args.", 80.1);
 			return false;
 		}
 		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (celltyp != NodeCellTyp.ID) {
-			oerr(savep, msg + "no identifier found");
+			oerrd(savep, msg + "no identifier found", 80.2);
 			return false;
 		}
 		rightp = node.getRightp();
 		if (rightp > 0) {
-			oerr(savep, msg + "too many args.");
+			oerrd(savep, msg + "too many args.", 80.3);
 			return false;
 		}
 		return true;

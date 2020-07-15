@@ -423,7 +423,7 @@ public class SynChk {
 	}
 	
 	private boolean isFloatEq(double x, double y) {
-		double eps = 0.0000001;
+		double eps = 0.000001;
 		boolean rtnval;
 		
 		rtnval = (Math.abs(x - y) < eps);
