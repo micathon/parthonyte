@@ -342,57 +342,59 @@ public class SynChkStmt {
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "no body");
+			oerrd(savep, msg + "no body", 90.1);
 			return false;
 		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
 			if (!synExpr.doExpr(rightp)) {
-				oerr(rightp, msg + "invalid expression");
+				oerrd(savep, msg + "invalid expression", 90.2);
 				return false;
 			}
 			rightp = node.getRightp();
 			if (rightp <= 0) {
-				oerr(savep, msg + "no do-block");
+				oerrd(savep, msg + "no do-block", 90.3);
 				return false;
 			}
 			rightp = synChk.chkDoBlock(rightp);
 			if (rightp < 0) {
-				oerr(savep, "Error in while stmt.");
+				oerrd(savep, "Error in while stmt.", 90.4);
 				return false;
 			}
 			return true;
 		}
 		rightp = synChk.chkStmtDoBlock(rightp);
 		if (rightp < 0) {
-			oerr(savep, "Error in while stmt.");
+			oerrd(savep, "Error in while stmt.", 90.45);
 			return false;
 		}
 		if (rightp == 0) {
-			oerr(savep, msg + "expecting UNTIL, invalid text found");
+			oerrd(savep, msg + "expecting UNTIL, invalid text found",
+				90.5);
 			return false;
 		}
 		savep = rightp;
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.UNTIL) {
-			oerr(savep, msg + "expecting UNTIL, " + kwtyp + " found");
+			oerrd(savep, msg + "expecting UNTIL, " + kwtyp + " found",
+				90.6);
 			return false;
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "missing expression");
+			oerrd(savep, msg + "missing expression", 90.7);
 			return false;
 		}
 		if (!synExpr.doExpr(rightp)) {
-			oerr(savep, msg + "invalid expression after UNTIL");
+			oerrd(savep, msg + "invalid expression after UNTIL", 90.8);
 			return false;
 		}
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp > 0) {
-			oerr(savep, msg + "invalid text after expression");
+			oerrd(savep, msg + "invalid text after expression", 90.9);
 			return false;
 		}
 		return true;
@@ -405,10 +407,11 @@ public class SynChkStmt {
 		String msg = "Error in for stmt.: ";
 		int savep = rightp;
 
+		//omsg("doForStmt: savep = " + savep);
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "no body");
+			oerrd(savep, msg + "no body", 100.1);
 			return false;
 		}
 		node = store.getNode(rightp);
@@ -416,12 +419,12 @@ public class SynChkStmt {
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
 			if (celltyp != NodeCellTyp.ID) {
-				oerr(rightp, msg + "identifier not found");
+				oerrd(rightp, msg + "identifier not found", 100.2);
 				return false;
 			}
 			rightp = node.getRightp();
 			if (rightp <= 0) {
-				oerr(savep, msg + "dangling single identifier");
+				oerrd(savep, msg + "dangling single identifier", 100.3);
 				return false;
 			}
 			node = store.getNode(rightp);
@@ -433,35 +436,46 @@ public class SynChkStmt {
 				kwtyp = node.getKeywordTyp();
 			}
 			if (kwtyp != KeywordTyp.IN) {
-				oerr(savep, msg + "expecting IN, but " + kwtyp + " found");
+				oerrd(savep, msg + "expecting IN, but " + kwtyp + " found", 
+					100.4);
 				return false;
 			}
 			rightp = node.getRightp();
 			if (rightp <= 0) {
-				oerr(savep, msg + "dangling IN keyword");
+				oerrd(savep, msg + "dangling IN keyword", 100.5);
 				return false;
 			}
 			if (!synExpr.doExpr(rightp)) {
-				oerr(savep, msg + "invalid expression after IN");
+				oerrd(savep, msg + "invalid expression after IN", 100.6);
 				return false;
 			}
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 			if (rightp <= 0) {
-				oerr(savep, msg + "missing do-block");
+				oerrd(savep, msg + "missing do-block", 100.7);
 				return false;
 			}
 		}
 		else {
 			rightp = chkLoopDo(rightp);
-			if (rightp <= 0) {
-				oerr(savep, "Error in for stmt. header");
+			if (rightp > 0) { }
+			else if (rightp == -2) {
+				oerrd(savep, msg + "invalid stmt. in header", 100.85);
+				return false;
+			}
+			else if (rightp == -99) {
+				oerrd(savep, msg + "header with 3 stmts. is dangling", 
+					100.87);
+				return false;
+			}
+			else {
+				oerrd(savep, msg + "general error in header", 100.8);
 				return false;
 			}
 		}
 		rightp = synChk.chkDoBlock(rightp);
 		if (rightp < 0) {
-			oerr(savep, "Error in for stmt.");
+			oerrd(savep, "Error in do-block of for stmt.", 100.9);
 			return false;
 		}
 		return true;
@@ -473,7 +487,7 @@ public class SynChkStmt {
 		int i;
 		int downp;
 		int rightq;
-		int rtnval = -1;
+		int rtnval = -99;
 		
 		node = store.getNode(rightp);
 		rightq = node.getRightp();
@@ -497,6 +511,7 @@ public class SynChkStmt {
 		if (kwtyp == KeywordTyp.TUPLE) { 
 			return -1; 
 		}
+		// header has 3 loop control stmts.
 		for (i = 0; i < 3; i++) {
 			if (rightp <= 0) {
 				return -1;
@@ -506,8 +521,11 @@ public class SynChkStmt {
 				return -1;
 			}
 			downp = node.getDownp();
-			if ((downp <= 0) || !doLoopStmt(downp)) {
+			if (downp <= 0) {
 				return -1;
+			}
+			if (!doLoopStmt(downp)) {
+				return -2;  // invalid loop control stmt. found
 			}
 			rightp = node.getRightp();
 		}
