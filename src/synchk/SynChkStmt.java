@@ -34,6 +34,7 @@ public class SynChkStmt {
 		scan.omsg(msg);
 	}
 	
+	@SuppressWarnings("unused")
 	private void oerr(int nodep, String msg) {
 		synChk.oerr(nodep, msg);
 	}
@@ -64,7 +65,7 @@ public class SynChkStmt {
 		case TRY: return doTryStmt(rightp);
 		case SWITCH: return doSwitchStmt(rightp);
 		case DEL: return doDelStmt(rightp);
-		case PRINT: return doPrintStmt(rightp);
+		case PRINT: return doPrintStmt(rightp, false);
 		case PRINTLN: return doPrintlnStmt(rightp);
 		case ECHO: return doEchoStmt(rightp);
 		case CALL: return doCallStmt(rightp);
@@ -542,16 +543,17 @@ public class SynChkStmt {
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
+			//oerrd(savep, "Missing BOOL expression", 120.1);
 			return true;
 		}
 		node = store.getNode(rightp);
 		if (!synExpr.doExpr(rightp)) {
-			oerr(savep, "Invalid BOOL expression");
+			oerrd(savep, "Invalid BOOL expression", 120.2);
 			return false;
 		}
 		rightp = node.getRightp();
 		if (rightp > 0) {
-			oerr(savep, "Invalid text after BOOL expression");
+			oerrd(savep, "Invalid text after BOOL expression", 120.3);
 			return false;
 		}
 		return true;
@@ -569,17 +571,17 @@ public class SynChkStmt {
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "no body");
+			oerrd(savep, msg + "no body", 130.05);
 			return false;
 		}
 		node = store.getNode(rightp);
 		if (!synExpr.doExpr(rightp)) {
-			oerr(savep, msg + "invalid switch expression");
+			oerrd(savep, msg + "invalid switch expression", 130.1);
 			return false;
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "dangling switch expression");
+			oerrd(savep, msg + "dangling switch expression", 130.15);
 			return false;
 		}
 		while (true) {
@@ -590,12 +592,13 @@ public class SynChkStmt {
 				break;
 			}
 			if (kwtyp != KeywordTyp.CASE) {
-				oerr(rightp, msg + "expecting CASE, but " + kwtyp + " found");
+				oerrd(rightp, msg + "expecting CASE, but " + kwtyp + " found",
+					130.2);
 				return false;
 			}
 			rightp = node.getRightp();
 			if (rightp <= 0) {
-				oerr(savep, msg + "dangling CASE");
+				oerrd(savep, msg + "dangling CASE", 130.25);
 				return false;
 			}
 			rightq = synExpr.chkTuple(rightp);
@@ -610,31 +613,31 @@ public class SynChkStmt {
 						ctyp = celltyp;
 					}
 					else if (celltyp != ctyp) {
-						oerr(rightp, msg + "expecting case " + ctyp +
-								" but " + celltyp + " found");
+						oerrd(rightp, msg + "expecting case " + ctyp +
+								" but " + celltyp + " found", 130.3);
 						return false;
 					}
 					break;
 				default:
-					oerr(rightp, msg + "invalid case = " + celltyp);
+					oerrd(rightp, msg + "invalid case = " + celltyp, 130.35);
 					return false;
 				}
 				rightp = node.getRightp();
 			}
 			else if (rightq == 0) {
-				oerr(savep, msg + "dangling TUPLE");
+				oerrd(savep, msg + "dangling TUPLE", 130.4);
 				return false;
 			}
 			else {
 				rightp = rightq;
 			}
 			if (rightp <= 0) {
-				oerr(savep, msg + "case DO not found");
+				oerrd(savep, msg + "case DO not found", 130.45);
 				return false;
 			}
 			rightp = synChk.chkStmtDoBlock(rightp);
 			if (rightp < 0) {
-				oerr(savep, "Error in switch stmt.");
+				oerrd(savep, "Error in switch stmt.", 130.5);
 				return false;
 			}
 			else if (rightp == 0) {
@@ -643,12 +646,12 @@ public class SynChkStmt {
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "dangling ELSE");
+			oerrd(savep, msg + "dangling ELSE", 130.6);
 			return false;
 		}
 		rightp = synChk.chkDoBlock(rightp);
 		if (rightp < 0) {
-			oerr(savep, "Error in ELSE block");
+			oerrd(savep, "Error in ELSE block", 130.7);
 			return false;
 		}
 		return true;
@@ -664,19 +667,21 @@ public class SynChkStmt {
 		boolean isElse;
 		int savep = rightp;
 
+		//omsg("doTryStmt: top");
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "no body");
+			oerrd(savep, msg + "no body", 140.0);
 			return false;
 		}
 		rightp = synChk.chkStmtDoBlock(rightp);
 		if (rightp < 0) {
-			oerr(savep, errmsg);
+			oerrd(savep, errmsg, 140.05);
 			return false;
 		}
 		else if (rightp == 0) {
-			oerr(savep, msg + "no except clauses or eotry block");
+			oerrd(savep, msg + "no except clauses or eotry block", 
+				140.1);
 			return false;
 		}
 		while (true) {
@@ -687,50 +692,54 @@ public class SynChkStmt {
 				break;
 			}
 			if (kwtyp != KeywordTyp.EXCEPT) {
-				oerr(savep, msg + "expecting EXCEPT, but " + kwtyp + " found");
+				oerrd(savep, msg + "expecting EXCEPT, but " + kwtyp + " found",
+					140.2);
 				return false;
 			}
 			isExcept = true;
 			rightp = node.getRightp();
 			if (rightp <= 0) {
-				oerr(savep, msg + "dangling EXCEPT");
+				oerrd(savep, msg + "dangling EXCEPT", 140.25);
 				return false;
 			}
 			node = store.getNode(rightp);
 			celltyp = node.getDownCellTyp();
 			if (celltyp != NodeCellTyp.ID) {
-				oerr(savep, msg + "expecting identifier, but " + celltyp + " found");
+				oerrd(savep, msg + "expecting identifier, but " + 
+					celltyp + " found", 140.3);
 				return false;
 			}
 			rightp = node.getRightp();
 			if (rightp <= 0) {
-				oerr(savep, msg + "dangling identifier");
+				oerrd(savep, msg + "dangling identifier", 140.35);
 				return false;
 			}
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp == KeywordTyp.AS) {
+				//omsg("doTryStmt: AS found");
 				rightp = node.getRightp();
 				if (rightp <= 0) {
-					oerr(savep, msg + "dangling AS");
+					oerrd(savep, msg + "dangling AS", 140.4);
 					return false;
 				}
 				node = store.getNode(rightp);
 				celltyp = node.getDownCellTyp();
 				if (celltyp != NodeCellTyp.ID) {
-					oerr(savep, msg + "expecting identifier after AS, but " + 
-						celltyp + " found");
+					oerrd(savep, msg + "expecting identifier after AS, but " + 
+						celltyp + " found", 140.45);
 					return false;
 				}
 				rightp = node.getRightp();
 				if (rightp <= 0) {
-					oerr(savep, msg + "except clause missing do-block");
+					oerrd(savep, msg + "except clause missing do-block", 
+						140.5);
 					return false;
 				}
 			}
 			rightp = synChk.chkStmtDoBlock(rightp);
 			if (rightp < 0) {
-				oerr(savep, errmsg);
+				oerrd(savep, errmsg, 140.55);
 				return false;
 			}
 			else if (rightp == 0) {
@@ -740,48 +749,51 @@ public class SynChkStmt {
 		isElse = (kwtyp == KeywordTyp.ELSE);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "dangling " + kwtyp);
+			oerrd(savep, msg + "dangling " + kwtyp, 140.6);
 			return false;
 		}
+		//omsg("doTryStmt: isElse = " + isElse + ", isExcept = " + isExcept);
 		if (!isExcept && isElse) {
-			oerr(savep, msg + "unexpected ELSE block w/o any except clauses");
+			oerrd(savep, msg + "unexpected ELSE block w/o any except clauses",
+				140.65);
 			return false;
 		}
 		savep = rightp;
 		node = store.getNode(rightp);
 		rightp = synChk.chkStmtDoBlock(rightp);
 		if (rightp < 0) {
-			oerr(savep, errmsg);
+			oerrd(savep, msg + "invalid mid do-block", 140.7);
 			return false;
 		}
 		else if (rightp == 0) {
 			return true;
 		}
 		if (!isElse) {
-			oerr(savep, msg + "invalid text after EOTRY block");
+			oerrd(savep, msg + "invalid text after EOTRY block", 140.75);
 			return false;
 		}
 		savep = rightp;
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.EOTRY) {
-			oerr(savep, msg + "expecting EOTRY, but " + kwtyp + " found");
+			oerrd(savep, msg + "expecting EOTRY, but " + kwtyp + " found",
+				140.8);
 			return false;
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, msg + "dangling EOTRY after ELSE block");
+			oerrd(savep, msg + "dangling EOTRY after ELSE block", 140.85);
 			return false;
 		}
 		rightp = synChk.chkStmtDoBlock(rightp);
 		if (rightp < 0) {
-			oerr(savep, errmsg);
+			oerrd(savep, msg + "invalid final do-block", 140.9);
 			return false;
 		}
 		else if (rightp == 0) {
 			return true;
 		}
-		oerr(savep, msg + "invalid text after ELSE/EOTRY block");
+		oerrd(savep, msg + "invalid text after ELSE/EOTRY block", 140.95);
 		return false;
 	}
 	
@@ -791,17 +803,44 @@ public class SynChkStmt {
 	}
 	
 	private boolean doPrintlnStmt(int rightp) {
-		boolean rtnval = synExpr.doListOpRtn(rightp, true, "stmt.");
-		return rtnval;
+		int errcode = synExpr.doListOpRtn(rightp, true, "stmt.");
+		
+		switch (errcode) {
+		case -1:
+			oerrd(rightp, "Error in println stmt.: " +
+				"has invalid argument(s)", 160.1);
+			return false;
+		}
+		return true;
 	}
 
-	private boolean doPrintStmt(int rightp) {
-		boolean rtnval = synExpr.doListOpRtn(rightp, false, "stmt.");
-		return rtnval;
+	private boolean doPrintStmt(int rightp, boolean isEcho) {
+		String keyword;
+		String msg;
+		int errcode = synExpr.doListOpRtn(rightp, false, "stmt.");
+		
+		if (isEcho) {
+			keyword = "echo";
+		}
+		else {
+			keyword = "print";
+		}
+		msg = "Error in " + keyword + " stmt.: ";
+		switch (errcode) {
+		case -1:
+			oerrd(rightp, msg +
+				"has invalid argument(s)", 170.1);
+			return false;
+		case -2:
+			oerrd(rightp, msg +
+				"has no arguments", 170.2);
+			return false;
+		}
+		return true;
 	}
 
 	private boolean doEchoStmt(int rightp) {
-		return doPrintStmt(rightp);
+		return doPrintStmt(rightp, true);
 	}
 	
 	private boolean doCallStmt(int rightp) {
@@ -830,8 +869,19 @@ public class SynChkStmt {
 	}
 	
 	private boolean doReturnStmt(int rightp) {
-		boolean rtnval = synExpr.doOptArgOp(rightp);
-		return rtnval;
+		int errcode = synExpr.doOptArgOp(rightp);
+		
+		switch (errcode) {
+		case -1:
+			oerrd(rightp, "Error in return stmt.: " +
+				"has invalid argument", 200.1);
+			return false;
+		case -2:
+			oerrd(rightp, "Error in return stmt.: " +
+				"has more than one argument", 200.2);
+			return false;
+		}
+		return true;
 	}
 	
 	private boolean doRaiseStmt(int rightp) {
@@ -846,7 +896,7 @@ public class SynChkStmt {
 			return true;  // raise;
 		}
 		if (!synExpr.doExpr(rightp)) {
-			oerr(savep, "Raise stmt. followed by invalid expr.");
+			oerrd(savep, "Raise stmt. followed by invalid expr.", 210.1);
 			return false;
 		}
 		node = store.getNode(rightp);
@@ -857,22 +907,23 @@ public class SynChkStmt {
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.FROM) {
-			oerr(savep, "Expecting FROM in raise stmt., " + kwtyp + " found");
+			oerrd(savep, "Expecting FROM in raise stmt., " + kwtyp + " found",
+				210.2);
 			return false;
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(savep, "Dangling FROM in raise stmt.");
+			oerrd(savep, "Dangling FROM in raise stmt.", 210.3);
 			return false;
 		}
 		if (!synExpr.doExpr(rightp)) {
-			oerr(savep, "Raise stmt. followed by invalid 2nd expr.");
+			oerrd(savep, "Raise stmt. followed by invalid 2nd expr.", 210.4);
 			return false;
 		}
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp > 0) {
-			oerr(savep, "Raise stmt. followed by invalid text");
+			oerrd(savep, "Raise stmt. followed by invalid text", 210.5);
 			return false;
 		}
 		return true;

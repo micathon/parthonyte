@@ -346,7 +346,7 @@ public class SynChkExpr {
 		return true;
 	}
 	
-	public boolean doOptArgOp(int rightp) {
+	public int doOptArgOp(int rightp) {
 		Node node;
 		KeywordTyp kwtyp;
 		int rightq;
@@ -358,15 +358,15 @@ public class SynChkExpr {
 		count = getExprCount(rightq);
 		if (count < 0) { 
 			oerrd(rightp, "Operator (having optional arg.) " + kwtyp +
-				" has invalid argument(s)", 110.1);
-			return false;
+				" has invalid operand", 110.1);
+			return -1;
 		}
 		if (count > 1) {
 			oerrd(rightp, "Operator (having optional arg.) " + kwtyp + 
 				" has more than one operand", 110.2);
-			return false;
+			return -2;
 		}
-		return true;
+		return 0;
 	}
 	
 	public boolean doZeroOp(int rightp) {
@@ -476,14 +476,18 @@ public class SynChkExpr {
 	}
 
 	private boolean doListOp(int rightp) {
-		return doListOpRtn(rightp, true, "operator");
+		boolean isOK;
+		isOK = (doListOpRtn(rightp, true, "operator") >= 0);
+		return isOK;
 	}
 
 	private boolean doQuoteOp(int rightp) {
-		return doListOpRtn(rightp, false, "operator");
+		boolean isOK;
+		isOK = (doListOpRtn(rightp, false, "operator") >= 0);
+		return isOK;
 	}
 
-	public boolean doListOpRtn(int rightp, boolean isZero, String opstmt) {
+	public int doListOpRtn(int rightp, boolean isZero, String opstmt) {
 		Node node;
 		KeywordTyp kwtyp;
 		int rightq;
@@ -496,17 +500,17 @@ public class SynChkExpr {
 		if (count < 0) { 
 			oerrd(rightp, "List " + opstmt + " " + kwtyp + " has invalid argument(s)",
 				180.1);
-			return false;
+			return -1;
 		}
 		if (isZero) {
-			return true;
+			return 0;
 		}
 		if (count == 0) {
 			oerrd(rightp, "List " + opstmt + " " + kwtyp + " has no arguments",
 				180.2);
-			return false;
+			return -2;
 		}
-		return true;
+		return 0;
 	}
 	
 	public int chkTuple(int rightp) {

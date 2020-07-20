@@ -42,7 +42,7 @@ public class SynChk {
 	}
 	
 	public void oerr(int nodep, String msg) {
-		oerrd(nodep, msg, 0.0, 2);
+		oerrd(nodep, msg, 0.0, 3);
 	}
 	
 	public void oerrd(int nodep, String msg, double currbrk, int modno) {
