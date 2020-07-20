@@ -555,11 +555,18 @@ class PageTab implements IConst {
 	public int lookupLineNo(int matchp) {
 		ArrayList<Integer> list;
 		int mastIdx, idx;
+		int maxLstIdx;
 		int nodep, lineno;
 		
 		for (mastIdx = 0; mastIdx <= nodeMastIdx; mastIdx++) {
-			list = (ArrayList<Integer>) nodelstpg.getList(nodeMastIdx);
-			for (idx = 0; idx <= nodeLstIdx; idx += 2) {
+			list = (ArrayList<Integer>) nodelstpg.getList(mastIdx);
+			if (mastIdx < nodeMastIdx) {
+				maxLstIdx = NODESTKLEN;
+			}
+			else {
+				maxLstIdx = nodeLstIdx;
+			}
+			for (idx = 0; idx < maxLstIdx; idx += 2) {
 				nodep = list.get(idx);
 				lineno = list.get(idx + 1);
 				if (matchp == nodep) {
