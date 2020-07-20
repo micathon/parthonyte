@@ -158,4 +158,200 @@ defun (p)
 );
 )
 @
+do (
+? 90.1;
+defun (p)
+  do (
+  while;
+);
+)
+@
+do (
+? 90.2;
+defun (p)
+  do (
+  while (add x);
+);
+)
+@
+do (
+? 90.3;
+defun (p)
+  do (
+  while (add x y);
+);
+)
+@
+do (
+? 90.4;
+defun (p)
+  do (
+  while true do (
+    set x;
+  );
+);
+)
+@
+do (
+? 90.45;
+defun (p)
+  do (
+  while do (
+    set x;
+  );
+);
+)
+@
+do (
+? 90.5;
+defun (p)
+  do (
+  while do (
+    set x 0;
+  );
+);
+)
+@
+do (
+? 90.6;
+defun (p)
+  do (
+  while do (
+    set x 0;
+  )
+  set;
+);
+)
+@
+do (
+? 90.7;
+defun (p)
+  do (
+  while do (
+    set x 0;
+  ) until;
+);
+)
+@
+do (
+? 90.8;
+defun (p)
+  do (
+  while do (
+    set x 0;
+  ) until (add x);
+);
+)
+@
+do (
+? 90.9;
+defun (p)
+  do (
+  while do (
+    set x 0;
+  ) until (add x y) z;
+);
+)
+@
+do (
+? 100.1;
+defun (p)
+  do (
+  for;
+);
+)
+@
+do (
+? 100.2;
+defun (p)
+  do (
+  for set;
+);
+)
+@
+do (
+? 100.3;
+defun (p)
+  do (
+  for s;
+);
+)
+@
+do (
+? 100.4;
+defun (p)
+  do (
+  for i set;
+);
+)
+@
+do (
+? 100.5;
+defun (p)
+  do (
+  for i in;
+);
+)
+@
+do (
+? 100.6;
+defun (p)
+  do (
+  for i in (add x);
+);
+)
+@
+do (
+? 100.7;
+defun (p)
+  do (
+  for i in (add x y);
+);
+)
+@
+do (
+defun (p)
+  do (
+  for (= i 1; ? (<= i n); ++ i) do (
+    += sum i;
+  );
+);
+)
+@
+do (
+? 100.85;
+defun (p)
+  do (
+  for (= i 1; ? (<= i n); set x) do (
+    += sum i;
+  );
+);
+)
+@
+do (
+? 100.87;
+defun (p)
+  do (
+  for (= i 1; ? (<= i n); ++ i);
+);
+)
+@
+do (
+? 100.8;
+defun (p)
+  do (
+  for (= i 1; ? (<= i n); );
+);
+)
+@
+do (
+? 100.9;
+defun (p)
+  do (
+  for (= i 1; ? (<= i n); ++ i) do (
+    += sum;
+  );
+);
+)
+@
 
