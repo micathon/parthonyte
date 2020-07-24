@@ -461,8 +461,8 @@ public class SynChk {
 				out("celltyp = ID");
 			}
 			else if (celltyp != NodeCellTyp.PTR) {
-				oerr(rightp, "Keyword 'import' followed by invalid text: " +
-					kwtyp.toString());
+				oerrd(rightp, "Keyword 'import' followed by invalid text: " +
+					kwtyp.toString(), 40.1);
 				return 0;
 			}
 			else if (hasColonCase && isColonListQuiet(node)) {
@@ -473,44 +473,43 @@ public class SynChk {
 				subNode = store.getNode(currp);
 				kwtyp = subNode.getKeywordTyp();
 				if (kwtyp != KeywordTyp.AS) {
-					oerr(currp, "Keyword 'import', expecting 'as', but was " +
-						"followed by invalid text: " + kwtyp.toString());
+					oerrd(currp, "Keyword 'import', expecting 'as', but was " +
+						"followed by invalid text: " + kwtyp.toString(), 40.2);
 					return 0;
 				}
 				ascurrp = currp;
 				currp = subNode.getRightp();
 				if (currp <= 0) {
-					oerr(ascurrp, "Keyword 'import', then 'as' found, " +
-						"not followed by module names");
+					oerrd(ascurrp, "Keyword 'import', then 'as' found, " +
+						"not followed by module names", 40.3);
 					return 0;
 				}
 				subNode = store.getNode(currp);
 				celltyp = subNode.getDownCellTyp();
 				if (celltyp == NodeCellTyp.ID) { }
-				else if (hasColonCase && celltyp == NodeCellTyp.PTR && 
-					isColonList(subNode)) { } 
-				else {
-					oerr(ascurrp, "Keyword 'import', then 'as' found, " +
-						"followed by invalid text");
+				else if (!(hasColonCase && celltyp == NodeCellTyp.PTR)) { }
+				else if (!isColonList(subNode)) { 
+					//oerrd(ascurrp, "Keyword 'import', then 'as' found, " +
+					//	"followed by invalid text", 40.4);
 					return 0;
 				}
 				currp = subNode.getRightp();
 				if (currp <= 0) {
-					oerr(ascurrp, "Keyword 'import', then 'as' clause found, " +
-						"followed by invalid text");
+					oerrd(ascurrp, "Keyword 'import', then 'as' clause found, " +
+						"followed by invalid text", 40.5);
 					return 0;
 				}
 				subNode = store.getNode(currp);
 				celltyp = subNode.getDownCellTyp();
 				if (celltyp != NodeCellTyp.ID) {
-					oerr(ascurrp, "Keyword 'import', then 'as' clause found, " +
-						"not followed by identifier");
+					oerrd(ascurrp, "Keyword 'import', then 'as' clause found, " +
+						"not followed by identifier", 40.6);
 					return 0;
 				}
 				currp = subNode.getRightp();
 				if (currp > 0) {
-					oerr(ascurrp, "Keyword 'import', then 'as' clause found, " +
-						"then identifier found, followed by invalid text");
+					oerrd(ascurrp, "Keyword 'import', then 'as' clause found, " +
+						"then identifier found, followed by invalid text", 40.7);
 					return 0;
 				}
 			}
@@ -545,8 +544,8 @@ public class SynChk {
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp == KeywordTyp.DOT) { }
 		else if (verbose) {
-			oerr(rightp, "Expecting colon operator, instead found: " +
-				kwtyp.toString());
+			oerrd(rightp, "Expecting colon operator, instead found: " +
+				kwtyp.toString(), 50.1);
 			return false;
 		}
 		else {
@@ -560,8 +559,8 @@ public class SynChk {
 			celltyp = node.getDownCellTyp();
 			if (celltyp == NodeCellTyp.ID) { }
 			else if (verbose) {
-				oerr(rightp, "Expecting identifier after colon operator, " +
-					"invalid text found");
+				oerrd(rightp, "Expecting identifier after colon operator, " +
+					"invalid text found", 50.2);
 				return false;
 			}
 			else {
@@ -575,8 +574,8 @@ public class SynChk {
 		if (!verbose) {
 			return false;
 		}
-		oerr(colonp, "Expecting multiple identifiers after colon operator, " +
-				"less than 2 found");
+		oerrd(colonp, "Expecting multiple identifiers after colon operator, " +
+				"less than 2 found", 50.3);
 		return false;
 	}
 	
