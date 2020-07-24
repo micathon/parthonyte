@@ -42,10 +42,14 @@ public class SynChk {
 	}
 	
 	public void oerr(int nodep, String msg) {
-		oerrd(nodep, msg, 0.0, 3);
+		oerrmod(nodep, msg, 0.0, 3);
 	}
 	
-	public void oerrd(int nodep, String msg, double currbrk, int modno) {
+	public void oerrd(int nodep, String msg, double currbrk) {
+		oerrmod(nodep, msg, currbrk, 3);
+	}
+	
+	public void oerrmod(int nodep, String msg, double currbrk, int modno) {
 		int lineno;
 		String preLineNoStr;
 		
@@ -296,22 +300,23 @@ public class SynChk {
 				currPhaseNo = getPhaseNo(kwtyp);
 				phaseDesc = getPhaseDesc(currPhaseNo);
 				if ((currPhaseNo < phaseNo) && (currPhaseNo != 0)) {
-					oerr(rightp, "Top-level " + phaseDesc + 
-						" encountered unexpectedly");
+					oerrd(rightp, "Top-level " + phaseDesc + 
+						" encountered unexpectedly", 10.1);
 					return -1;
 				}
 				rightq = rightp;
 				rightp = node.getRightp();
 				if (rightp <= 0) {
-					oerr(rightq, "Null pointer encountered unexpectedly " +
-						"after " + kwtyp);
+					oerrd(rightq, "Null pointer encountered unexpectedly " +
+						"after " + kwtyp, 10.2);
 					rightq = -1;
 				}
 				// rightp > 0 inside following switch
 				switch (currPhaseNo) {
 				case 0:
 					if (!isUnitTest) {
-						oerr(initp, kwtyp + " operator (unit test) is invalid");
+						oerrd(initp, kwtyp + " operator (unit test) is invalid",
+							10.3);
 						return -1;
 					}
 					currbrk = getMethBrkPair(rightp);
@@ -326,13 +331,14 @@ public class SynChk {
 				case 1:
 					rightq = chkImportStmt(rightp, kwtyp);
 					if (rightq == -1) {
-						oerr(initp, "Keyword 'import' followed by " +
-							"no module names or invalid text");
+						oerrd(initp, "Keyword 'import' followed by " +
+							"no module names or invalid text", 10.4);
 					}
 					break;
 				case 2:
 					if (currPhaseNo == phaseNo) {
-						oerr(rightp, "Multiple gdefun statements encountered");
+						oerrd(rightp, "Multiple gdefun statements encountered",
+							10.5);
 						rightq = 0;
 					}
 					else {
@@ -347,8 +353,8 @@ public class SynChk {
 					break;
 				default:
 					if (currPhaseNo <= ABPHASE) {
-						oerr(rightq, "Keyword 'abdefun' encountered at " +
-							"top level unexpectedly");
+						oerrd(rightq, "Keyword 'abdefun' encountered at " +
+							"top level unexpectedly", 10.6);
 						rightq = -1;
 					}
 				}

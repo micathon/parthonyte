@@ -40,7 +40,7 @@ public class SynChkStmt {
 	}
 	
 	private void oerrd(int nodep, String msg, double bval) {
-		synChk.oerrd(nodep, msg, bval, 2);
+		synChk.oerrmod(nodep, msg, bval, 2);
 	}
 	
 	public boolean doStmt(int rightp) {

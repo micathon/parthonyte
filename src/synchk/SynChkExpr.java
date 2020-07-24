@@ -42,7 +42,7 @@ public class SynChkExpr {
 	}
 	
 	private void oerrd(int nodep, String msg, double bval) {
-		synChk.oerrd(nodep, msg, bval, 1);
+		synChk.oerrmod(nodep, msg, bval, 1);
 	}
 	
 	public boolean doExpr(int rightp) {
