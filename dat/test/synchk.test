@@ -1,0 +1,34 @@
+do (
+? -3.0;
+import m;
+)
+@
+do (
+? 10.1;
+gdefun do (
+  set x 88;
+);
+import m;
+)
+@
+do (
+? 10.4;
+import;
+)
+@
+do (
+? 10.5;
+gdefun do (
+  set x 88;
+);
+gdefun do (
+  set y 8008;
+);
+)
+@
+do (
+? 10.6;
+abdefun (a x);
+)
+@
+
