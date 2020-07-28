@@ -1149,6 +1149,7 @@ public class ScanSrc implements IConst {
 		store.appendNodep(currNodep, lineCount);
 		node = new Node(0, 0, 0);
 		rightp = store.allocNode(node);
+		store.appendNodep(rightp, lineCount);
 		if (!isTopKwtyp(KeywordTyp.DO)) {
 			kwtyp = KeywordTyp.ZPAREN;
 			currNode.setRightp(rightp);
