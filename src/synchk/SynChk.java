@@ -331,7 +331,7 @@ public class SynChk {
 				case 1:
 					rightq = chkImportStmt(rightp, kwtyp);
 					if (rightq == -1) {
-						oerrd(initp, "Keyword 'import' followed by " +
+						oerrd(initp, "Keyword " + kwtyp + " followed by " +
 							"no module names or invalid text", 10.4);
 					}
 					break;
@@ -596,13 +596,14 @@ public class SynChk {
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DOT) {
-			oerr(rightp, "Keyword 'from' needs dot operator");
+			oerrd(rightp, "Keyword 'from' needs dot operator", 60.1);
 			return false;
 		}
 		rightq = rightp;
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(rightq, "Keyword 'from', dot operator, followed by null pointer");
+			oerrd(rightq, "Keyword 'from', dot operator, followed by null pointer",
+				60.2);
 			return false;
 		}
 		node = store.getNode(rightp);
@@ -616,15 +617,15 @@ public class SynChk {
 			node = store.getNode(rightp);
 			celltyp = node.getDownCellTyp();
 			if (celltyp != NodeCellTyp.ID) {
-				oerr(rightp, "Keyword 'from', dot operator, " +
-					"expecting list of identifiers");
+				oerrd(rightp, "Keyword 'from', dot operator, " +
+					"expecting list of identifiers", 60.3);
 				return false;
 			}
 			rightq = rightp;
 			rightp = node.getRightp();
 		}
 		if (count <= 0) {
-			oerr(rightq, "Keyword 'from', dot operator, no arguments found");
+			oerrd(rightq, "Keyword 'from', dot operator, no arguments found", 60.4);
 			return false;
 		}
 		return true;
@@ -650,24 +651,24 @@ public class SynChk {
 			rightp = node.getRightp();
 		}
 		else {
-			oerr(rightq, "Keyword 'from' followed by incorrect text");
+			oerrd(rightq, "Keyword 'from' followed by incorrect text", 70.1);
 			return -1;
 		}
 		if (rightp <= 0) {
-			oerr(rightq, "Keyword 'from' followed by null pointer");
+			oerrd(rightq, "Keyword 'from' followed by null pointer", 70.2);
 			return -1;
 		}
 		rightq = rightp;
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.IMPORT) {
-			oerr(rightp, "Keyword: 'from' missing 'import' clause");
+			oerrd(rightp, "Keyword: 'from' missing 'import' clause", 70.3);
 			return -1;
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(rightq, "Keyword 'import' in 'from' statement " +
-				"encountered w/o list of modules");
+			oerrd(rightq, "Keyword 'import' in 'from' statement " +
+				"encountered w/o list of modules", 70.4);
 			return -1;
 		}
 		node = store.getNode(rightp);
@@ -675,8 +676,8 @@ public class SynChk {
 		if (kwtyp == KeywordTyp.ALL) { 
 			rightp = node.getRightp();
 			if (rightp > 0) {
-				oerr(rightp, "Keyword 'all' in 'from' statement followed by " +
-					"unexpected text");
+				oerrd(rightp, "Keyword 'all' in 'from' statement followed by " +
+					"unexpected text", 70.5);
 				return -1;
 			}
 			else {
@@ -686,8 +687,8 @@ public class SynChk {
 		rightq = rightp;
 		savep = chkImportKwd(rightp, false);
 		if (savep <= 0) {
-			oerr(rightq, "Keyword 'import' in 'from' statement " +
-				"followed by incorrect text");
+			oerrd(rightq, "Keyword 'import' in 'from' statement " +
+				"followed by incorrect text", 70.6);
 		}
 		return savep;
 	}
@@ -712,13 +713,14 @@ public class SynChk {
 			}
 			else {
 				kwtyp = parNode.getKeywordTyp();
-				oerr(rightp, "Invalid keyword: " + kwtyp + " found in gdefun stmt.");
+				oerrd(rightp, "Invalid keyword: " + kwtyp + " found in gdefun stmt.",
+					80.1);
 				return -1;
 			}
 			phaseNo = getGdefunPhase(kwtyp);
 			if (phaseNo <= oldPhaseNo) {
-				oerr(rightp, "Error in gdefun stmt.: keyword " + kwtyp +
-					" encountered unexpectedly");
+				oerrd(savep, "Error in gdefun stmt.: keyword " + kwtyp +
+					" encountered unexpectedly", 80.2);
 				return -1;
 			}
 			switch (phaseNo) {
@@ -727,12 +729,13 @@ public class SynChk {
 				rightq = rightp;
 				rightp = node.getRightp();
 				if (chkVarList(rightp) < 0) {
-					oerr(rightq, "Error in gdefun stmt.: invalid var list");
+					oerrd(savep, "Error in gdefun stmt.: invalid var list", 80.3);
 					return -1;
 				}
 				break;
 			default:
-				oerr(rightp, "Invalid keyword: (" + kwtyp + "...) found in gdefun stmt.");
+				oerrd(rightp, "Invalid keyword: (" + kwtyp + "...) found in gdefun stmt.",
+					80.4);
 				return -1;
 			}
 			oldPhaseNo = phaseNo;
@@ -742,6 +745,7 @@ public class SynChk {
 		out("gdefun: chk DO");
 		rightp = chkDoBlock(rightq);
 		if (rightp != 0) {
+			oerrd(savep, "Error in gdefun stmt. DO block", 80.5);
 			return -1;
 		}
 		return savep;
@@ -786,6 +790,174 @@ public class SynChk {
 		default:
 			return -1;
 		}
+	}
+	
+	private int chkDefunStmt(int rightp) {
+		Node node, parNode;
+		KeywordTyp kwtyp;
+		int savep = rightp;
+		int rightq = 0;
+		int phaseNo = 0;
+		int oldPhaseNo = 0;
+		boolean isParms = false;
+
+		while (rightp > 0) {
+			parNode = store.getNode(rightp);
+			node = store.getSubNode(parNode);
+			if (node != null) {
+				kwtyp = node.getKeywordTyp();
+			}
+			else if (parNode.getKeywordTyp() == KeywordTyp.DO) {
+				rightq = rightp;
+				break;
+			}
+			else {
+				oerr(rightp, "Invalid text encountered in defun stmt. header");
+				out("chkDefunStmt (): fail 0");
+				return -1;
+			}
+			rightp = node.getRightp();
+			phaseNo = getDefunPhase(kwtyp);
+			if (phaseNo < 0) {
+				oerr(rightp, "Invalid keyword " + kwtyp.toString() + 
+					" encountered in defun stmt.");
+				out("chkDefunStmt (): fail 0.5");
+				return -1;
+			}
+			if (phaseNo <= oldPhaseNo) {
+				oerr(rightp, "Defun statement header error: " +
+					kwtyp.toString() + " encountered unexpectedly");
+				out("chkDefunStmt (): fail 1");
+				return -1;
+			}
+			if (phaseNo > 1 && !isParms) {
+				oerr(rightp, "Defun statement header error: " +
+					"missing function name/parameters");
+				out("chkDefunStmt (): fail 2");
+				return -1;
+			}
+			switch (phaseNo) {
+			case 1:
+				if (!chkParmList(rightp)) {
+					oerr(rightp, "Error in parm list of defun stmt.");
+					out("chkDefunStmt (): fail 3");
+					return -1;
+				}
+				isParms = true;
+				break;
+			case 2:
+			case 3:
+				if (chkVarList(rightp) < 0) {
+					oerr(rightp, "Error in var list of defun stmt.: " +
+						"invalid text found when processing identifier list");
+					out("chkDefunStmt (): fail 4");
+					return -1;
+				}
+				break;
+			case 4:
+				if (!chkDecorList(rightp)) {
+					oerr(rightp, "Error in decor list of defun stmt.");
+					out("chkDefunStmt (): fail 5");
+					return -1;
+				}
+				break;
+			default:
+				oerr(rightp, "Invalid keyword encountered in " +
+					"defun stmt. header");
+				out("chkDefunStmt (): fail 6");
+				return -1;
+			}
+			oldPhaseNo = phaseNo;
+			rightq = rightp;
+			rightp = parNode.getRightp();
+		}
+		if (!isParms) {
+			oerr(rightq, "Defun statement header error: " +
+				"missing function name/parameters, post-loop");
+			out("chkDefunStmt (): fail 7");
+			return -1;
+		}
+		out("defun: chk DO");
+		rightp = chkDoBlock(rightq);
+		if (rightp < 0) {
+			oerr(rightq, "Error in do-block of defun stmt.");
+			out("chkDefunStmt (): fail 8");
+			return -1;
+		}
+		return savep;
+	}
+	
+	private int chkAbDefunStmt(int rightp) {
+		Node node, parNode;
+		KeywordTyp kwtyp;
+		int savep = rightp;
+		int rightq = 0;
+		int phaseNo = 0;
+		int oldPhaseNo = 0;
+		boolean isParms = false;
+
+		out("chkAbDefunStmt() - top");
+		while (rightp > 0) {
+			parNode = store.getNode(rightp);
+			node = store.getSubNode(parNode);
+			if (node != null) {
+				kwtyp = node.getKeywordTyp();
+			}
+			else if (parNode.getKeywordTyp() == KeywordTyp.DO) {
+				oerr(rightp, "Error: DO keyword found in abdefun stmt.");
+				break;
+			}
+			else {
+				oerr(rightp, "Invalid text encountered in abdefun stmt. header");
+				return -1;
+			}
+			rightq = rightp;
+			rightp = node.getRightp();
+			phaseNo = getDefunPhase(kwtyp);
+			if (phaseNo < 0) {
+				oerr(rightp, "Invalid keyword " + kwtyp + 
+					" encountered in abdefun stmt.");
+				return -1;
+			}
+			if (phaseNo <= oldPhaseNo) {
+				oerr(rightp, "Abdefun statement header error: " +
+					kwtyp + " encountered unexpectedly");
+				return -1;
+			}
+			switch (phaseNo) {
+			case 1:
+				if (!chkParmList(rightp)) {
+					return -1;
+				}
+				isParms = true;
+				break;
+			case 2:
+			case 3:
+				oerr(rightp, "Error: abdefun stmt. invalid phase = " + kwtyp);
+				return -1;
+			case 4:
+				if (!chkDecorList(rightp)) {
+					return -1;
+				}
+				break;
+			default:
+				oerr(rightp, "Error: abdefun stmt. unknown phase = " + kwtyp);
+				return -1;
+			}
+			oldPhaseNo = phaseNo;
+			rightp = parNode.getRightp();
+		}
+		if (!isParms) {
+			oerr(rightq, "Abdefun statement header error: " +
+				"missing function name/parameters, post-loop");
+			return -1;
+		}
+		out("abdefun: end loop");
+		if (rightp > 0) {
+			//oerr(rightp, "Error: DO keyword #2 found in abdefun stmt.");
+			return -1;
+		}
+		return savep;
 	}
 	
 	private int chkVarList(int rightp) {
@@ -1147,174 +1319,6 @@ public class SynChk {
 			return -1;
 		}
 		return rtnval;  // 0, isFinal
-	}
-	
-	private int chkDefunStmt(int rightp) {
-		Node node, parNode;
-		KeywordTyp kwtyp;
-		int savep = rightp;
-		int rightq = 0;
-		int phaseNo = 0;
-		int oldPhaseNo = 0;
-		boolean isParms = false;
-
-		while (rightp > 0) {
-			parNode = store.getNode(rightp);
-			node = store.getSubNode(parNode);
-			if (node != null) {
-				kwtyp = node.getKeywordTyp();
-			}
-			else if (parNode.getKeywordTyp() == KeywordTyp.DO) {
-				rightq = rightp;
-				break;
-			}
-			else {
-				oerr(rightp, "Invalid text encountered in defun stmt. header");
-				out("chkDefunStmt (): fail 0");
-				return -1;
-			}
-			rightp = node.getRightp();
-			phaseNo = getDefunPhase(kwtyp);
-			if (phaseNo < 0) {
-				oerr(rightp, "Invalid keyword " + kwtyp.toString() + 
-					" encountered in defun stmt.");
-				out("chkDefunStmt (): fail 0.5");
-				return -1;
-			}
-			if (phaseNo <= oldPhaseNo) {
-				oerr(rightp, "Defun statement header error: " +
-					kwtyp.toString() + " encountered unexpectedly");
-				out("chkDefunStmt (): fail 1");
-				return -1;
-			}
-			if (phaseNo > 1 && !isParms) {
-				oerr(rightp, "Defun statement header error: " +
-					"missing function name/parameters");
-				out("chkDefunStmt (): fail 2");
-				return -1;
-			}
-			switch (phaseNo) {
-			case 1:
-				if (!chkParmList(rightp)) {
-					oerr(rightp, "Error in parm list of defun stmt.");
-					out("chkDefunStmt (): fail 3");
-					return -1;
-				}
-				isParms = true;
-				break;
-			case 2:
-			case 3:
-				if (chkVarList(rightp) < 0) {
-					oerr(rightp, "Error in var list of defun stmt.: " +
-						"invalid text found when processing identifier list");
-					out("chkDefunStmt (): fail 4");
-					return -1;
-				}
-				break;
-			case 4:
-				if (!chkDecorList(rightp)) {
-					oerr(rightp, "Error in decor list of defun stmt.");
-					out("chkDefunStmt (): fail 5");
-					return -1;
-				}
-				break;
-			default:
-				oerr(rightp, "Invalid keyword encountered in " +
-					"defun stmt. header");
-				out("chkDefunStmt (): fail 6");
-				return -1;
-			}
-			oldPhaseNo = phaseNo;
-			rightq = rightp;
-			rightp = parNode.getRightp();
-		}
-		if (!isParms) {
-			oerr(rightq, "Defun statement header error: " +
-				"missing function name/parameters, post-loop");
-			out("chkDefunStmt (): fail 7");
-			return -1;
-		}
-		out("defun: chk DO");
-		rightp = chkDoBlock(rightq);
-		if (rightp < 0) {
-			oerr(rightq, "Error in do-block of defun stmt.");
-			out("chkDefunStmt (): fail 8");
-			return -1;
-		}
-		return savep;
-	}
-	
-	private int chkAbDefunStmt(int rightp) {
-		Node node, parNode;
-		KeywordTyp kwtyp;
-		int savep = rightp;
-		int rightq = 0;
-		int phaseNo = 0;
-		int oldPhaseNo = 0;
-		boolean isParms = false;
-
-		out("chkAbDefunStmt() - top");
-		while (rightp > 0) {
-			parNode = store.getNode(rightp);
-			node = store.getSubNode(parNode);
-			if (node != null) {
-				kwtyp = node.getKeywordTyp();
-			}
-			else if (parNode.getKeywordTyp() == KeywordTyp.DO) {
-				oerr(rightp, "Error: DO keyword found in abdefun stmt.");
-				break;
-			}
-			else {
-				oerr(rightp, "Invalid text encountered in abdefun stmt. header");
-				return -1;
-			}
-			rightq = rightp;
-			rightp = node.getRightp();
-			phaseNo = getDefunPhase(kwtyp);
-			if (phaseNo < 0) {
-				oerr(rightp, "Invalid keyword " + kwtyp + 
-					" encountered in abdefun stmt.");
-				return -1;
-			}
-			if (phaseNo <= oldPhaseNo) {
-				oerr(rightp, "Abdefun statement header error: " +
-					kwtyp + " encountered unexpectedly");
-				return -1;
-			}
-			switch (phaseNo) {
-			case 1:
-				if (!chkParmList(rightp)) {
-					return -1;
-				}
-				isParms = true;
-				break;
-			case 2:
-			case 3:
-				oerr(rightp, "Error: abdefun stmt. invalid phase = " + kwtyp);
-				return -1;
-			case 4:
-				if (!chkDecorList(rightp)) {
-					return -1;
-				}
-				break;
-			default:
-				oerr(rightp, "Error: abdefun stmt. unknown phase = " + kwtyp);
-				return -1;
-			}
-			oldPhaseNo = phaseNo;
-			rightp = parNode.getRightp();
-		}
-		if (!isParms) {
-			oerr(rightq, "Abdefun statement header error: " +
-				"missing function name/parameters, post-loop");
-			return -1;
-		}
-		out("abdefun: end loop");
-		if (rightp > 0) {
-			//oerr(rightp, "Error: DO keyword #2 found in abdefun stmt.");
-			return -1;
-		}
-		return savep;
 	}
 	
 	private int chkClassStmt(int rightp, KeywordTyp kwtyp) {
