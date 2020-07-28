@@ -76,4 +76,80 @@ do (
 import (as (: x));
 )
 @
+do (
+? 60.1;
+from (x);
+)
+@
+do (
+? 60.2;
+from (:);
+)
+@
+do (
+? 60.3;
+from (: if);
+)
+@
+do (
+? 70.1;
+from if;
+)
+@
+do (
+? 70.2;
+from x;
+)
+@
+do (
+? 10.4;
+from;
+)
+@
+do (
+? 70.3;
+from x y;
+)
+@
+do (
+? 70.4;
+from x import;
+)
+@
+do (
+? 70.5;
+from x import all y;
+)
+@
+do (
+? 70.6;
+from x import 29;
+)
+@
+do (
+from x import y;
+)
+@
+do (
+? 80.1;
+gdefun if;
+)
+@
+do (
+? 80.2;
+gdefun (ivar x)(var y);
+)
+@
+do (
+? 80.3;
+gdefun (var if);
+)
+@
+do (
+? 80.5;
+gdefun (var x)(ivar) do (
+  set z;
+);
+)
+@
 
