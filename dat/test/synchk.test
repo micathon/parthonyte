@@ -152,4 +152,56 @@ gdefun (var x)(ivar) do (
 );
 )
 @
+do (
+? 100.1;
+defun x;
+)
+@
+do (
+? 100.2;
+defun (if);
+)
+@
+do (
+? 100.3;
+defun (f)(gvar x)(var y);
+)
+@
+do (
+? 100.4;
+defun (var x);
+)
+@
+do (
+? 100.5;
+defun (f set);
+)
+@
+do (
+? 100.6;
+defun (f)(var set);
+)
+@
+do (
+? 100.65;
+defun (f)(decor set);
+)
+@
+do (
+? 100.7;
+defun do;
+)
+@
+do (
+? 100.8;
+defun (f) do (
+  add;
+);
+)
+@
+do (
+? 100.8;
+defun (f) do;
+)
+@
 
