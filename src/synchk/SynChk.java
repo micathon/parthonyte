@@ -812,34 +812,35 @@ public class SynChk {
 				break;
 			}
 			else {
-				oerr(rightp, "Invalid text encountered in defun stmt. header");
+				oerrd(rightp, "Invalid text encountered in defun stmt. header",
+					100.1);
 				out("chkDefunStmt (): fail 0");
 				return -1;
 			}
 			rightp = node.getRightp();
 			phaseNo = getDefunPhase(kwtyp);
 			if (phaseNo < 0) {
-				oerr(rightp, "Invalid keyword " + kwtyp.toString() + 
-					" encountered in defun stmt.");
+				oerrd(savep, "Invalid keyword " + kwtyp.toString() + 
+					" encountered in defun stmt.", 100.2);
 				out("chkDefunStmt (): fail 0.5");
 				return -1;
 			}
 			if (phaseNo <= oldPhaseNo) {
-				oerr(rightp, "Defun statement header error: " +
-					kwtyp.toString() + " encountered unexpectedly");
+				oerrd(savep, "Defun statement header error: " +
+					kwtyp.toString() + " encountered unexpectedly", 100.3);
 				out("chkDefunStmt (): fail 1");
 				return -1;
 			}
 			if (phaseNo > 1 && !isParms) {
-				oerr(rightp, "Defun statement header error: " +
-					"missing function name/parameters");
+				oerrd(savep, "Defun statement header error: " +
+					"missing function name/parameters", 100.4);
 				out("chkDefunStmt (): fail 2");
 				return -1;
 			}
 			switch (phaseNo) {
 			case 1:
 				if (!chkParmList(rightp)) {
-					oerr(rightp, "Error in parm list of defun stmt.");
+					oerrd(savep, "Error in parm list of defun stmt.", 100.5);
 					out("chkDefunStmt (): fail 3");
 					return -1;
 				}
@@ -848,22 +849,22 @@ public class SynChk {
 			case 2:
 			case 3:
 				if (chkVarList(rightp) < 0) {
-					oerr(rightp, "Error in var list of defun stmt.: " +
-						"invalid text found when processing identifier list");
+					oerrd(savep, "Error in var list of defun stmt.: " +
+						"invalid text found when processing identifier list", 100.6);
 					out("chkDefunStmt (): fail 4");
 					return -1;
 				}
 				break;
 			case 4:
 				if (!chkDecorList(rightp)) {
-					oerr(rightp, "Error in decor list of defun stmt.");
+					oerrd(savep, "Error in decor list of defun stmt.", 100.65);
 					out("chkDefunStmt (): fail 5");
 					return -1;
 				}
 				break;
 			default:
-				oerr(rightp, "Invalid keyword encountered in " +
-					"defun stmt. header");
+				oerrd(savep, "Invalid keyword encountered in " +
+					"defun stmt. header", 100.68);
 				out("chkDefunStmt (): fail 6");
 				return -1;
 			}
@@ -872,15 +873,15 @@ public class SynChk {
 			rightp = parNode.getRightp();
 		}
 		if (!isParms) {
-			oerr(rightq, "Defun statement header error: " +
-				"missing function name/parameters, post-loop");
+			oerrd(rightq, "Defun statement header error: " +
+				"missing function name/parameters, post-loop", 100.7);
 			out("chkDefunStmt (): fail 7");
 			return -1;
 		}
 		out("defun: chk DO");
 		rightp = chkDoBlock(rightq);
 		if (rightp < 0) {
-			oerr(rightq, "Error in do-block of defun stmt.");
+			oerrd(rightq, "Error in do-block of defun stmt.", 100.8);
 			out("chkDefunStmt (): fail 8");
 			return -1;
 		}
@@ -904,11 +905,12 @@ public class SynChk {
 				kwtyp = node.getKeywordTyp();
 			}
 			else if (parNode.getKeywordTyp() == KeywordTyp.DO) {
-				oerr(rightp, "Error: DO keyword found in abdefun stmt.");
+				oerrd(rightp, "Error: DO keyword found in abdefun stmt.", 110.1);
 				break;
 			}
 			else {
-				oerr(rightp, "Invalid text encountered in abdefun stmt. header");
+				oerrd(rightp, "Invalid text encountered in abdefun stmt. header",
+					110.2);
 				return -1;
 			}
 			rightq = rightp;
@@ -1270,6 +1272,7 @@ public class SynChk {
 	private int chkDoBlockRtn(int rightp, boolean isFinal) {
 		Node node;
 		KeywordTyp kwtyp;
+		int savep = rightp;
 		int rightq = 0;
 		int rtnval = 0;
 		
@@ -1297,6 +1300,10 @@ public class SynChk {
 			rtnval = rightq;
 		}
 		rightp = node.getDownp();
+		if (rightp <= 0) {
+			oerr(savep, "Do block mising body");
+			return -1;
+		}
 		node = store.getNode(rightp);
 		if (!node.isOpenPar()) {  // never lands here
 			oerr(rightp, "Do block error: body lacks parentheses");
