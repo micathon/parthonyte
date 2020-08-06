@@ -204,4 +204,74 @@ do (
 defun (f) do;
 )
 @
+do (
+? 120.1;
+defun (f)(decor set);
+)
+@
+do (
+? 120.2;
+defun (f)(decor (x));
+)
+@
+do (
+? 120.3;
+defun (f)(decor (: x));
+)
+@
+do (
+? 120.4;
+defun (f)(decor (set));
+)
+@
+do (
+? 140.4;
+defun (f)(decor (: set));
+)
+@
+do (
+? 140.1;
+defun (f)(decor (: x (set)));
+)
+@
+do (
+? 140.2;
+defun (f)(decor (: x (f) y));
+)
+@
+do (
+? 140.3;
+defun (f)(decor (: (f)));
+)
+@
+do (
+? 150.1;
+defun (f set);
+)
+@
+do (
+? 150.2;
+defun (f (if));
+)
+@
+do (
+? 150.3;
+defun (f (set x 0) y);
+)
+@
+do (
+? 150.4;
+defun (f x (* if));
+)
+@
+do (
+? 170.1;
+defun (f x (set 0));
+)
+@
+do (
+? 170.2;
+defun (f x (set y z));
+)
+@
 
