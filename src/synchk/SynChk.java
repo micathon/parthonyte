@@ -906,6 +906,7 @@ public class SynChk {
 			}
 			else if (parNode.getKeywordTyp() == KeywordTyp.DO) {
 				oerrd(rightp, "Error: DO keyword found in abdefun stmt.", 110.1);
+				// not yet unit tested
 				break;
 			}
 			else {
@@ -962,6 +963,66 @@ public class SynChk {
 		return savep;
 	}
 	
+	private boolean chkDecorList(int rightp) {
+		Node node, parNode;
+		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
+		int savep = rightp;
+		int subRightp;
+		int count = 0;
+		int n;
+		
+		while (rightp > 0) {
+			count++;
+			parNode = store.getNode(rightp);
+			node = store.getSubNode(parNode);
+			celltyp = parNode.getDownCellTyp();
+			if (node != null) {
+				kwtyp = node.getKeywordTyp();
+				subRightp = node.getRightp();
+			}
+			else if (celltyp != NodeCellTyp.ID) {
+				oerrd(rightp, "Keyword or constant encountered in decor list, " +
+					"identifier expected", 120.1);
+				return false;
+			}
+			else {
+				kwtyp = KeywordTyp.NULL;
+				subRightp = 0;
+			}
+			switch (kwtyp) {
+			case NULL:
+				break;
+			case ZCALL:
+				subRightp = parNode.getDownp();
+				if (chkVarList(subRightp) < 2) {
+					oerrd(rightp, "Decor error: " +
+						"under 2 identifiers encountered in list", 120.2);
+					return false;
+				}
+				break;
+			case DOT:
+				n = chkDotCall(subRightp);
+				if (n >= 2) {
+					break;
+				}
+				if (n >= 0) {
+					oerrd(rightp, "Decor error: " +
+						"under 2 identifiers encountered in dot-list", 120.3);
+					// more error messages in chkDotCall
+				}
+				return false;
+			default:
+				oerrd(savep, "Invalid keyword: " + kwtyp.toString() +
+					" encountered in decor list", 120.4);
+				return false;
+			}
+			rightp = parNode.getRightp();
+			out("decor # " + count);
+		}
+		return true;
+	}
+	
 	private int chkVarList(int rightp) {
 		Node node;
 		NodeCellTyp celltyp;
@@ -986,6 +1047,7 @@ public class SynChk {
 	private int chkDotCall(int rightp) {
 		Node node, subNode;
 		NodeCellTyp celltyp;
+		int savep = rightp;
 		int subRightp;
 		int count = 0;
 		
@@ -995,26 +1057,26 @@ public class SynChk {
 			if (subNode != null) {
 				subRightp = node.getDownp();
 				if (chkVarList(subRightp) < 1) {
-					oerr(rightp, "Invalid dot-call: terminating identifier list " +
-						"has no identifiers");
+					oerrd(rightp, "Invalid dot-call: terminating identifier list " +
+						"has no identifiers", 140.1);
 					return -1;
 				}
 				rightp = node.getRightp();
 				if (rightp > 0) {
-					oerr(rightp, "Invalid dot-call: terminating identifier list " +
-						"followed by unexpected text");
+					oerrd(rightp, "Invalid dot-call: terminating identifier list " +
+						"followed by unexpected text", 140.2);
 					return -1;
 				}
 				if (count < 1) {
-					oerr(rightp, "Invalid dot-call: terminating identifier list " +
-						"not preceded by identifier(s)");
+					oerrd(savep, "Invalid dot-call: terminating identifier list " +
+						"not preceded by identifier(s)", 140.3);
 					return -1;
 				}
 				return count + 1;
 			}
 			celltyp = node.getDownCellTyp();
 			if (celltyp != NodeCellTyp.ID) {
-				oerr(rightp, "Invalid dot-call: expecting identifier");
+				oerrd(rightp, "Invalid dot-call: expecting identifier", 140.4);
 				out("dotCall: fail 1");
 				return -1;
 			}
@@ -1044,8 +1106,8 @@ public class SynChk {
 				subRightp = node.getRightp();
 			}
 			else if (celltyp != NodeCellTyp.ID) {
-				oerr(rightp, "Keyword or constant encountered, " +
-					"identifier expected");
+				oerrd(rightp, "Keyword or constant encountered in " +
+					"parameter list, identifier expected", 150.1);
 				return false;
 			}
 			else {
@@ -1054,13 +1116,13 @@ public class SynChk {
 			}
 			phaseNo = getParmPhase(kwtyp);
 			if (phaseNo < 0) {
-				oerr(rightp, "Invalid keyword: " + kwtyp.toString() +
-					" encountered in parameter list");
+				oerrd(rightp, "Invalid keyword: " + kwtyp +
+					" encountered in parameter list", 150.2);
 				return false;
 			}
 			if (phaseNo < oldPhaseNo) {
-				oerr(rightp, "Parameter list error: " +
-					kwtyp.toString() + " encountered unexpectedly");
+				oerrd(rightp, "Parameter list error: " + kwtyp +
+					" encountered unexpectedly", 150.3);
 				return false;
 			}
 			switch (phaseNo) {
@@ -1074,14 +1136,14 @@ public class SynChk {
 			case 3:
 			case 4:
 				if (!chkStarParm(subRightp)) {
-					oerr(rightp, "Invalid star-type parameter encountered " +
-						"in parameter list");
+					oerrd(rightp, "Invalid star-type parameter encountered " +
+						"in parameter list", 150.4);
 					return false;
 				}
 				break;
 			default:
 				// dup. cond'n, case already handled after getParmPhase() call
-				oerr(rightp, "Invalid keyword: " + kwtyp.toString() +
+				oerr(rightp, "Invalid keyword: " + kwtyp +
 					" encountered in parameter list");
 				return false;
 			}
@@ -1129,16 +1191,16 @@ public class SynChk {
 			inCellTyp = NodeCellTyp.ID;
 		}
 		if (celltyp != inCellTyp) {
-			oerr(rightp, "Error in default parameter (or const. pair):" +
-				" identifier not found");
+			oerrd(rightp, "Error in default parameter (or const. pair):" +
+				" identifier not found", 170.1);
 			out("chkDefParm (): celltyp = " + celltyp);
 			out("chkDefParm (): fail 0");
 			return false;
 		}
 		rightp = node.getRightp();
 		if (!isConstExpr(rightp)) {
-			oerr(rightp, "Error in default parameter (or const. pair):" +
-				" constant expr. not found");
+			oerrd(rightp, "Error in default parameter (or const. pair):" +
+				" constant expr. not found", 170.2);
 			out("chkDefParm (): fail 1");
 			return false;
 		}
@@ -1179,65 +1241,6 @@ public class SynChk {
 		default:
 			return false;
 		}
-	}
-	
-	private boolean chkDecorList(int rightp) {
-		Node node, parNode;
-		KeywordTyp kwtyp;
-		NodeCellTyp celltyp;
-		int subRightp;
-		int count = 0;
-		int n;
-		
-		while (rightp > 0) {
-			count++;
-			parNode = store.getNode(rightp);
-			node = store.getSubNode(parNode);
-			celltyp = parNode.getDownCellTyp();
-			if (node != null) {
-				kwtyp = node.getKeywordTyp();
-				subRightp = node.getRightp();
-			}
-			else if (celltyp != NodeCellTyp.ID) {
-				oerr(rightp, "Keyword or constant encountered, " +
-					"identifier expected");
-				return false;
-			}
-			else {
-				kwtyp = KeywordTyp.NULL;
-				subRightp = 0;
-			}
-			switch (kwtyp) {
-			case NULL:
-				break;
-			case ZCALL:
-				subRightp = parNode.getDownp();
-				if (chkVarList(subRightp) < 2) {
-					oerr(rightp, "Decor error: " +
-						"under 2 identifiers encountered in list");
-					return false;
-				}
-				break;
-			case DOT:
-				n = chkDotCall(subRightp);
-				if (n >= 2) {
-					break;
-				}
-				if (n >= 0) {
-					oerr(rightp, "Decor error: " +
-						"under 2 identifiers encountered in dot-list");
-					// more error messages in chkDotCall
-				}
-				return false;
-			default:
-				oerr(rightp, "Invalid keyword: " + kwtyp.toString() +
-					" encountered in decor list");
-				return false;
-			}
-			rightp = parNode.getRightp();
-			out("decor # " + count);
-		}
-		return true;
 	}
 	
 	public int chkDo(int rightp) {
