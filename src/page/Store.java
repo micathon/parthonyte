@@ -2,9 +2,6 @@ package page;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import page.Page;
-import page.AddrNode;
-import page.Node;
 import iconst.IConst;
 import iconst.NodeCellTyp;
 import iconst.PageTyp;

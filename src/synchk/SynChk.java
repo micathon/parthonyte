@@ -6,8 +6,6 @@ import page.Node;
 import page.Page;
 import page.Store;
 import scansrc.ScanSrc;
-import synchk.SynChkStmt;
-import synchk.SynChkExpr;
 
 public class SynChk {
 	

@@ -42,10 +42,6 @@ public class InitMain implements IConst {
 	}
 	
 	public void runInit(String fileName, boolean isUnitTest, boolean isMain) {
-		BufferedReader br = new BufferedReader(new
-			InputStreamReader(System.in));
-		String inbuf;
-		
 		if (isMain) {
 			doMasterFile(fileName);
 		}
@@ -53,25 +49,7 @@ public class InitMain implements IConst {
 			doSrcFile(fileName, isUnitTest, isMain);
 		}
 		else {
-			System.out.println("Type h for help");
-			for (;;) {
-				inbuf = "";
-				System.out.print(DEFPROMPT);
-				try {
-					inbuf = br.readLine();
-				}
-				catch (IOException exc) {
-					System.out.println("Error: IOException!");
-				}
-				inbuf = inbuf.trim();
-				if (inbuf.length() == 0) {
-					continue;
-				}
-				if (!doCmd(inbuf)) {
-					break;
-				}
-			}
-			System.out.println("\nbye");
+			doCmdLoop();
 		}
 	}
 	
@@ -151,6 +129,32 @@ public class InitMain implements IConst {
 			omsg("Main unit test passed OK");
 		}
 		omsg("");
+	}
+	
+	private void doCmdLoop() {
+		BufferedReader br = new BufferedReader(new
+			InputStreamReader(System.in));
+		String inbuf;
+			
+		System.out.println("Type h for help");
+		for (;;) {
+			inbuf = "";
+			System.out.print(DEFPROMPT);
+			try {
+				inbuf = br.readLine();
+			}
+			catch (IOException exc) {
+				System.out.println("Error: IOException!");
+			}
+			inbuf = inbuf.trim();
+			if (inbuf.length() == 0) {
+				continue;
+			}
+			if (!doCmd(inbuf)) {
+				break;
+			}
+		}
+		System.out.println("\nbye");
 	}
 	
 	private boolean doCmd(String inbuf) {

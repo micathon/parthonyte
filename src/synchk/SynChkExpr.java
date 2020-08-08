@@ -6,8 +6,6 @@ import iconst.BifTyp;
 import page.Node;
 import page.Store;
 import scansrc.ScanSrc;
-import synchk.SynChk;
-import synchk.SynChkStmt;
 
 public class SynChkExpr {
 
