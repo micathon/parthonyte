@@ -1365,18 +1365,18 @@ public class SynChk {
 				kwtyp = KeywordTyp.NULL;
 			}
 			else {
-				oerr(rightp, "Error in class def, unexpected keyword found: " +
-					curkwtyp);
+				oerrd(rightp, "Error in class def, unexpected keyword found: " +
+					curkwtyp, 240.1);
 				out("chkClassStmt (): fail 0");
 				return -1;
 			}
 			phaseNo = getClassPhase(kwtyp, oldPhaseNo);
 			if (phaseNo < 0) {
-				oerr(rightp, "Malformed class def");
+				oerrd(rightp, "Malformed class def", 240.2);
 				return -1;
 			}
 			if (phaseNo <= oldPhaseNo) {
-				oerr(rightp, "Malformed (mixed up) class def");
+				oerrd(rightp, "Malformed (mixed up) class def", 240.3);
 				out("chkClassStmt (): fail 1");
 				return -1;
 			}
@@ -1401,7 +1401,8 @@ public class SynChk {
 			case 5:
 				rightp = node.getRightp();
 				if (chkVarList(rightp) < 0) {
-					oerr(rightq, "Error in class def: malformed var list");
+					oerrd(rightq, "Error in class def: malformed var list",
+						240.35);
 					out("chkClassStmt (): fail 2");
 					return -1;
 				}
@@ -1413,18 +1414,21 @@ public class SynChk {
 				return -1;
 			}
 			if (!isNameFound && (phaseNo > 1)) {
-				oerr(rightp, "Class definition: Name of class not found");
+				oerrd(rightp, "Class definition: Name of class not found",
+					240.4);
 				out("chkClassStmt (): fail 4");
 				return -1;
 			}
 			if (isDotOK) { }
 			else if (phaseNo == 2) {
 				//out("chkClassStmt (): fail 5");
-				oerr(rightq, "Error in class def: base class has invalid dot list");
+				oerrd(rightq, "Error in class def: " + 
+					"base class has invalid dot list", 240.5);
 				return -1;
 			}
 			else {
-				oerr(rightq, "Error in class def: does list is invalid");
+				oerrd(rightq, "Error in class def: does list is invalid", 
+					240.55);
 				return -1;
 			}
 			oldPhaseNo = phaseNo;
@@ -1432,13 +1436,13 @@ public class SynChk {
 		}
 		out("class: chk DO");
 		if (rightp <= 0) {
-			oerr(rightq, "Missing DO in class def");
+			oerrd(rightq, "Missing DO in class def", 240.6);
 			out("chkClassStmt (): fail 6");
 			return -1;
 		}
 		rightp = chkDoDefBlock(rightp, isAbCls);
 		if (rightp != 0) {
-			oerr(rightq, "Error in DO block in class def");
+			oerrd(rightq, "Error in DO block in class def", 240.7);
 			out("chkClassStmt (): fail 7");
 			return -1;
 		}
