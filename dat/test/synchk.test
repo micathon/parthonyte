@@ -274,4 +274,53 @@ do (
 defun (f x (set y z));
 )
 @
+do (
+? 240.1;
+class C if;
+)
+@
+do (
+? 240.2;
+class C (if);
+)
+@
+do (
+? 240.3;
+class C (var x)(does S);
+)
+@
+do (
+? 240.35;
+class C (var 0);
+)
+@
+do (
+? 240.4;
+class (var x);
+)
+@
+do (
+? 240.5;
+class C (: x 6);
+)
+@
+do (
+? 240.55;
+class C (does x 6);
+)
+@
+do (
+? 240.6;
+class C (var x y);
+)
+@
+do (
+? 240.7;
+class C (: a b)(does S)(var x) do (
+  defun (f x)(var i j) do (
+    set 19;
+  );
+);
+)
+@
 
