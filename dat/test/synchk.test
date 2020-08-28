@@ -323,4 +323,214 @@ class C (: a b)(does S)(var x) do (
 );
 )
 @
+do (
+? 400.1;
+class C (does 2);
+)
+@
+do (
+? 400.2;
+class C (does x (set));
+)
+@
+do (
+? 400.3;
+class C (does x (: y));
+)
+@
+do (
+? 400.4;
+class C (does);
+)
+@
+do (
+? 410.2;
+class C do (
+  set y 8;
+  defun (f x) do (
+    set x;
+  );
+);
+)
+@
+do (
+? 410.3;
+class C do (
+  abdefun (f x);
+);
+)
+@
+do (
+? 410.4;
+class C do (
+  defun (f x) do (
+    set x;
+  );
+);
+)
+@
+do (
+? 110.1;
+abclass C do (
+  abdefun (f x) do;
+);
+)
+@
+do (
+? 110.2;
+abclass C do (
+  abdefun 0;
+);
+)
+@
+do (
+? 110.3;
+abclass C do (
+  abdefun (f x)(set);
+);
+)
+@
+do (
+? 110.4;
+abclass C do (
+  abdefun (decor w)(f x);
+);
+)
+@
+do (
+? 110.5;
+abclass C do (
+  abdefun (f)(var x);
+);
+)
+@
+do (
+? 110.7;
+abclass C do (
+  abdefun (decor w);
+);
+)
+@
+do (
+? 260.1;
+scool C if;
+)
+@
+do (
+? 260.2;
+scool C (if);
+)
+@
+do (
+? 260.25;
+scool C (const (k 0))(does d);
+)
+@
+do (
+? 260.4;
+scool (does d);
+)
+@
+do (
+? 260.5;
+scool C (does d);
+)
+@
+do (
+? 260.6;
+scool C (does d) do (
+  defun (f x y) do (
+    set z 76;
+  );
+);
+)
+@
+do (
+? 420.1;
+scool C (does d) do (
+  defimp;
+);
+)
+@
+do (
+? 420.2;
+scool C (does d) do (
+  set z 76;
+);
+)
+@
+do (
+? 420.3;
+scool C (does d) do (
+  defimp (f x y) do (
+    set z;
+  );
+);
+)
+@
+do (
+? 280.1;
+scool C (const 2);
+)
+@
+do (
+? 280.2;
+scool C (const (k 1 2));
+)
+@
+do (
+? 280.3;
+scool C (const);
+)
+@
+do (
+? 300.1;
+enum 27;
+)
+@
+do (
+? 300.2;
+enum e if;
+)
+@
+do (
+? 300.3;
+enum e x 32;
+)
+@
+do (
+? 300.4;
+enum e;
+)
+@
+do (
+? 320.1;
+enum e (add);
+)
+@
+do (
+? 320.2;
+enum e (:);
+)
+@
+do (
+? 320.3;
+enum e (: x);
+)
+@
+do (
+? 320.4;
+enum e (: x y z);
+)
+@
+do (
+? 320.5;
+enum e (: x 45);
+)
+@
+do (
+? 320.6;
+enum e (: x y);
+)
+@
 

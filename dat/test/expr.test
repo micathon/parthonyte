@@ -407,21 +407,21 @@ defun (q)
 )
 @
 do (
-? 310.8;
+# ? 310.8;
 defun (q)
   do (
   ? (lambda (a b c) do (
-    = x;
+    = x 72;
   ));
 );
 )
 @
 do (
-# ? 310.8;
+? 310.8;
 defun (q)
   do (
   ? (lambda (a b c) do (
-    = x 8;
+    = x;
   ));
 );
 )
