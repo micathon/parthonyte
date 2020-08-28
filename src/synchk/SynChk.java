@@ -904,7 +904,6 @@ public class SynChk {
 			}
 			else if (parNode.getKeywordTyp() == KeywordTyp.DO) {
 				oerrd(rightp, "Error: DO keyword found in abdefun stmt.", 110.1);
-				// not yet unit tested
 				break;
 			}
 			else {
@@ -916,13 +915,13 @@ public class SynChk {
 			rightp = node.getRightp();
 			phaseNo = getDefunPhase(kwtyp);
 			if (phaseNo < 0) {
-				oerr(rightp, "Invalid keyword " + kwtyp + 
-					" encountered in abdefun stmt.");
+				oerrd(rightq, "Invalid keyword " + kwtyp + 
+					" encountered in abdefun stmt.", 110.3);
 				return -1;
 			}
 			if (phaseNo <= oldPhaseNo) {
-				oerr(rightp, "Abdefun statement header error: " +
-					kwtyp + " encountered unexpectedly");
+				oerrd(rightq, "Abdefun statement header error: " +
+					kwtyp + " encountered unexpectedly", 110.4);
 				return -1;
 			}
 			switch (phaseNo) {
@@ -934,7 +933,8 @@ public class SynChk {
 				break;
 			case 2:
 			case 3:
-				oerr(rightp, "Error: abdefun stmt. invalid phase = " + kwtyp);
+				oerrd(rightp, "Error: abdefun stmt. invalid phase = " + 
+					kwtyp, 110.5);
 				return -1;
 			case 4:
 				if (!chkDecorList(rightp)) {
@@ -942,15 +942,16 @@ public class SynChk {
 				}
 				break;
 			default:
-				oerr(rightp, "Error: abdefun stmt. unknown phase = " + kwtyp);
+				oerrd(rightq, "Error: abdefun stmt. unknown phase = " + 
+					kwtyp, 110.6);
 				return -1;
 			}
 			oldPhaseNo = phaseNo;
 			rightp = parNode.getRightp();
 		}
 		if (!isParms) {
-			oerr(rightq, "Abdefun statement header error: " +
-				"missing function name/parameters, post-loop");
+			oerrd(rightq, "Abdefun statement header error: " +
+				"missing function name/parameters, post-loop", 110.7);
 			return -1;
 		}
 		out("abdefun: end loop");
@@ -1500,17 +1501,19 @@ public class SynChk {
 				kwtyp = KeywordTyp.NULL;
 			}
 			else {
-				oerr(rightp, "Error in scool def: unexpected keyword encountered");
+				oerrd(rightp, "Error in scool def: unexpected keyword encountered",
+					260.1);
 				out("chkScoolStmt (): fail 0");
 				return -1;
 			}
 			phaseNo = getScoolPhase(kwtyp, oldPhaseNo);
 			if (phaseNo < 0) {
-				oerr(rightp, "Malformed scool def with invalid keyword: " + kwtyp);
+				oerrd(rightp, "Malformed scool def with invalid keyword: " + 
+					kwtyp, 260.2);
 				return -1;
 			}
 			if (phaseNo <= oldPhaseNo) {
-				oerr(rightp, "Malformed (mixed up) scool def");
+				oerrd(rightp, "Malformed (mixed up) scool def", 260.25);
 				out("chkScoolStmt (): fail 1");
 				return -1;
 			}
@@ -1538,7 +1541,8 @@ public class SynChk {
 				break;
 			}
 			if (!isNameFound && (phaseNo > 1)) {
-				oerr(rightp, "Error in scool def: missing scool name");
+				oerrd(rightp, "Error in scool def: missing scool name",
+					260.4);
 				out("chkScoolStmt (): fail 4");
 				return -1;
 			}
@@ -1547,12 +1551,12 @@ public class SynChk {
 		}
 		out("scool: chk DO");
 		if (rightp <= 0) {
-			oerr(rightq, "Missing DO in scool def");
+			oerrd(rightq, "Missing DO in scool def", 260.5);
 			return -1;
 		}
 		rightp = chkScoolDoBlock(rightp);
 		if (rightp != 0) {
-			oerr(rightq, "Error in DO block in scool def");
+			oerrd(rightq, "Error in DO block in scool def", 260.6);
 			out("chkScoolStmt (): fail 5");
 			return -1;
 		}
@@ -1586,11 +1590,13 @@ public class SynChk {
 			downp = node.getDownp();
 			if (subnode == null || !isValidConstPair(downp)) {
 				if (subnode == null) {
-					oerr(rightp, "Error in const list: missing parens");
+					oerrd(rightp, "Error in const list: missing parens",
+						280.1);
 					out("isValidConstList (): null subnode!");
 				}
 				else {
-					oerr(rightp, "Error in const list: invalid const pair");
+					oerrd(downp, "Error in const list: invalid const pair",
+						280.2);
 				}
 				out("isValidConstList (): count = " + count);
 				out("isValidConstList (): fail 1");
@@ -1601,7 +1607,9 @@ public class SynChk {
 		out("isValidConstList (): bottom");
 		isValid = (count >= 1);
 		if (!isValid) {
-			oerr(rightq, "Error in const list: no const pairs found");
+			//oprn("isValidConstList (): fail 2");
+			oerrd(rightq, "Error in const list: no const pairs found",
+				280.3);
 			out("isValidConstList (): fail 2");
 		}
 		return isValid;
@@ -1621,7 +1629,7 @@ public class SynChk {
 		rightq = rightp;
 		node = store.getNode(rightp);
 		if (node.getDownCellTyp() != NodeCellTyp.ID) {
-			oerr(rightp, "Error in enum def: missing enum name");
+			oerrd(rightp, "Error in enum def: missing enum name", 300.1);
 			return -1;
 		} 
 		rightp = node.getRightp();
@@ -1636,20 +1644,23 @@ public class SynChk {
 				etyp = getEnumTyp(node);
 			}
 			if (etyp < 0) {
-				oerr(rightp, "Error in enum def: invalid enum id/val/pair found");
+				oerrd(rightp, "Error in enum def: invalid enum id/val/pair found",
+					300.2);
 				return -1;
 			}
 			if (enumTyp < 0) {
 				enumTyp = etyp;
 			}
 			else if (etyp != enumTyp) {
-				oerr(rightp, "Error in enum def: mixed id/val/pairs found");
+				oerrd(rightp, "Error in enum def: mixed id/val/pairs found",
+					300.3);
 				return -1;
 			}
 			rightp = node.getRightp();
 		}
 		if ((count == 0) && !isExpr) {
-			oerr(rightq, "Error in enum def: no id/val/pairs found");
+			oerrd(rightq, "Error in enum def: no id/val/pairs found",
+				300.4);
 			return -1;
 		}
 		out("chkEnumStmt: count = " + count);
@@ -1684,13 +1695,15 @@ public class SynChk {
 		parNode = store.getNode(rightp);
 		node = store.getSubNode(parNode);
 		if (node.getKeywordTyp() != KeywordTyp.DOT) {
-			oerr(rightp, "Invalid enum pair: missing DOT operator");
+			oerrd(rightp, "Invalid enum pair: missing DOT operator",
+				320.1);
 			return -1;
 		}
 		rightq = rightp;
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(rightq, "Invalid enum pair: DOT operator has no operands");
+			oerrd(rightq, "Invalid enum pair: DOT operator has no operands",
+				320.2);
 			out("getEnumPair (): fail 0");
 			return -1;
 		}
@@ -1699,7 +1712,8 @@ public class SynChk {
 		rightq = rightp;
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerr(rightq, "Invalid enum pair: DOT operator has only single operand");
+			oerrd(rightq, "Invalid enum pair: DOT operator has only single operand",
+				320.3);
 			out("getEnumPair (): fail 0.5");
 			return -1;
 		}
@@ -1707,18 +1721,21 @@ public class SynChk {
 		etyp = getEnumTyp(node);
 		rightp = node.getRightp();
 		if (rightp > 0) {
-			oerr(rightq, "Invalid enum pair: DOT operator has more than 2 operands");
+			oerrd(rightq, "Invalid enum pair: DOT operator has more than 2 operands",
+				320.4);
 			out("getEnumPair (): fail 1");
 			return -1;
 		}
 		if (etyp != enumTyp) {
-			oerr(rightq, "Invalid enum pair: DOT operator has mixed operands");
+			oerrd(rightq, "Invalid enum pair: DOT operator has mixed operands",
+				320.5);
 			out("getEnumPair (): fail 2");
 			return -1;
 		}
 		out("getEnumPair() = " + enumTyp);
 		if ((enumTyp == 0) && !isExpr) {
-			oerr(rightq, "Invalid enum pair: expecting constants, identifiers found");
+			oerrd(rightq, "Invalid enum pair: expecting constants, identifiers found",
+				320.6);
 			out("getEnumPair (): fail 2");
 			return -1;
 		}
@@ -1759,21 +1776,23 @@ public class SynChk {
 			subNode = store.getSubNode(node);
 			if (node.getDownCellTyp() == NodeCellTyp.ID) {} 
 			else if (subNode == null) {
-				oerr(rightp, "Error in does list: expecting identifier or dot list");
+				oerrd(rightp, "Error in does list: expecting identifier or dot list",
+					400.1);
 				out("isValidDoesList (): fail 0");
 				return false;
 			}
 			else {
 				kwtyp = subNode.getKeywordTyp();
 				if (kwtyp != KeywordTyp.DOT) {
-					oerr(rightp, "Error in does list: expecting dot operator, " +
-						kwtyp + " found");
+					oerrd(rightp, "Error in does list: expecting dot operator, " +
+						kwtyp + " found", 400.2);
 					out("isValidDoesList (): fail 1");
 					return false;
 				}
 				subRightp = subNode.getRightp();
 				if (!isValidDotList(subRightp)) {
-					oerr(rightp, "Error in does list: malformed dot list");
+					oerrd(rightp, "Error in does list: malformed dot list",
+						400.3);
 					out("isValidDoesList (): fail 2");
 					return false;
 				}
@@ -1783,7 +1802,8 @@ public class SynChk {
 		}
 		isValid = (count >= 1);
 		if (!isValid) {
-			oerr(rightq, "Error in does list: no args found (identifiers/dot-lists)");
+			oerrd(rightq, "Error in does list: no args found (identifiers/dot-lists)",
+				400.4);
 			out("isValidDoesList (): fail 3");
 		}
 		return isValid;
@@ -1803,8 +1823,8 @@ public class SynChk {
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
-			oerr(rightp, "Error in class def DO block, instead of DO, " +
-				kwtyp + " encountered");
+			oerrd(rightp, "Error in class def DO block, instead of DO, " +
+				kwtyp + " encountered", 410.1);
 			out("doDefBlock (): fail 1");
 			return -1;
 		}
@@ -1828,7 +1848,7 @@ public class SynChk {
 				abfound = true;
 				break;
 			default:
-				oerr(rightp, "Expecting func def, " + kwtyp + " found");
+				oerrd(downp, "Expecting func def, " + kwtyp + " found", 410.2);
 				out("doDefBlock (): fail 3");
 				return -1;
 			}
@@ -1838,7 +1858,8 @@ public class SynChk {
 				downq = chkAbDefunStmt(downp);
 			}
 			else if (abfound) {
-				oerr(downp, "Error: ABDEFUN found in DO block of class def");
+				oerrd(downp, "Error: ABDEFUN found in DO block of class def", 
+					410.3);
 				out("doDefBlock (): fail 4");
 				return -1;
 			}
@@ -1846,7 +1867,7 @@ public class SynChk {
 				downq = chkDefunStmt(downp);
 			}
 			if (downq <= 0) {
-				oerr(downp, "Error in func def");
+				oerrd(downp, "Error in func def", 410.4);
 				out("doDefBlock (): fail 5");
 				return -1;
 			}
@@ -1884,8 +1905,8 @@ public class SynChk {
 			kwtyp = subNode.getKeywordTyp();
 			downp = subNode.getRightp();
 			if (downp == 0) {
-				oerr(rightp, "Error in scool def: " + kwtyp +
-					" missing open paren");
+				oerrd(rightp, "Error in scool def: " + kwtyp +
+					" missing open paren", 420.1);
 				out("doScoolBlock (): fail 4");
 				return -1;
 			}
@@ -1897,14 +1918,15 @@ public class SynChk {
 				downq = chkDefunStmt(downp);
 				break;
 			default:
-				oerr(downp, "Error in scool def: unexpected keyword " +
-					kwtyp + " found");
+				oerrd(downp, "Error in scool def: unexpected keyword " +
+					kwtyp + " found", 420.2);
 				out("doScoolBlock (): fail 5");
 				return -1;
 			}
 			out("doScoolBlock (): OK - 5");
 			if (downq <= 0) {
-				oerr(downp, "Error in scool def: invalid abdefun/defimp def");
+				oerrd(downp, "Error in scool def: invalid abdefun/defimp def",
+					420.3);
 				out("doScoolBlock (): fail 6");
 				return -1;
 			}

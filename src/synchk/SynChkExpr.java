@@ -910,6 +910,7 @@ public class SynChkExpr {
 		int savep = rightp;
 		int rightq;
 		
+		omsg("doLambdaOp: top");
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
@@ -943,8 +944,10 @@ public class SynChkExpr {
 			first = false;
 			rightq = subNode.getRightp();
 		}
+		omsg("doLambdaOp: post loop rightp = " + rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
+			omsg("doLambdaOp: post loop rightp fail");
 			oerrd(savep, "LAMBDA expr. has no expr. arg. or DO block",
 				310.5);
 			return false;
@@ -965,10 +968,13 @@ public class SynChkExpr {
 		else {
 			return true;
 		}
+		omsg("doLambdaOp: rightp = " + rightp);
 		if (synChk.chkDoBlock(rightp) < 0) {
+			omsg("doLambdaOp: post chkDoBlock fail");
 			oerrd(savep, "Error in LAMBDA expr. DO block", 310.8);
 			return false;
 		}
+		omsg("doLambdaOp: post chkDoBlock");
 		return true;
 	}
 	
