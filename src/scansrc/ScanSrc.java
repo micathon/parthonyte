@@ -1033,7 +1033,8 @@ public class ScanSrc implements IConst {
 		
 		nodep = addSimpleNode(celltyp, val, dval, sval);
 		if (nodep < 0) {
-			out("addNode: < 0");
+			//out("addNode: < 0");
+			omsg("addNode: < 0");  //##
 			return nodep;
 		}
 		page = store.getPage(nodep);
@@ -1057,6 +1058,7 @@ public class ScanSrc implements IConst {
 		AddrNode addrNode;
 		int idx;
 		boolean isDoBlock = false;
+		boolean isBug = false;
 
 		switch (celltyp) {
 		case KWD:
@@ -1091,6 +1093,10 @@ public class ScanSrc implements IConst {
 			wasdo = false;
 			return getNegErrCode(TokenTyp.ERRDOMISSINGBLK);
 		}
+		if (currNodep == 29078) {
+			omsg("addSimpleNode: Err! currNodep = " + currNodep); //##
+			isBug = true;
+		}
 		page = store.getPage(currNodep);
 		idx = store.getElemIdx(currNodep);
 		//currNode = page.getNode(idx);
@@ -1107,6 +1113,9 @@ public class ScanSrc implements IConst {
 		rightp = store.allocNode(node);
 		out("rightp = " + rightp + ", celltyp = " + celltyp +
 			", kwd = " + node.getKeywordTyp());
+		if (isBug) {
+			omsg("addSimpleNode: Err! rightp = " + rightp); //##
+		}
 		page.setPtrNode(idx, rightp);
 		if (isDoBlock) {
 			// push do node
@@ -1306,7 +1315,7 @@ public class ScanSrc implements IConst {
 			}
 			currNodep = addrNode.getAddr();
 			out("popZparStmt: isDoBlk, currNodep = " + currNodep);
-			return 0;
+			return chkAddrValid(currNodep);
 		}
 		// pop zstmt or zparen
 		byteval = store.popByte();
@@ -1323,7 +1332,7 @@ public class ScanSrc implements IConst {
 			return getNegErrCode(TokenTyp.ERRBADZPAREN);
 		}
 		if (isZparen) {
-			return 0;
+			return chkAddrValid(currNodep);
 		}
 		// pop do
 		byteval = store.popByte();
@@ -1337,7 +1346,7 @@ public class ScanSrc implements IConst {
 		}
 		currNodep = addrNode.getAddr();
 		out("popZparStmt: popped do, currNodep = " + currNodep);
-		return 0;
+		return chkAddrValid(currNodep);
 	}
 		
 	private int popZstmt() {
@@ -1360,7 +1369,7 @@ public class ScanSrc implements IConst {
 			return getNegErrCode(TokenTyp.ERRBADZPAREN);
 		}
 		out("popZStmt: currNodep = " + currNodep);
-		return 0;
+		return chkAddrValid(currNodep);
 	}
 		
 	private int closeParenRtn(boolean isSemicln) {
@@ -1374,6 +1383,13 @@ public class ScanSrc implements IConst {
 			return popZstmt();
 		}
 		return popZparStmt(false);
+	}
+	
+	private int chkAddrValid(int addr) {
+		if (addr > 0) {
+			return 0;
+		}
+		return getNegErrCode(TokenTyp.ERRZNEGADDR);
 	}
 
 	private int doAddSemicolon() {
@@ -1922,6 +1938,8 @@ public class ScanSrc implements IConst {
 			return "Invalid non-white space: multiline string literal";
 		case ERRSEMICLN:
 			return "Semicolon encountered unexpectedly";
+		case ERRZNEGADDR:
+			return "Address is zero or negative";
 		case ERRBADDO:
 			return "Internal error: expecting DO on stack";
 		case ERRBADZPAREN:
