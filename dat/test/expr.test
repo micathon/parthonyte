@@ -410,8 +410,8 @@ do (
 # ? 310.8;
 defun (q)
   do (
-  ? (lambda (a b c) do (
-    = x 72;
+  ? (lambda (a) do (
+    return
   ));
 );
 )
