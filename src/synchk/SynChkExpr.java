@@ -948,7 +948,8 @@ public class SynChkExpr {
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			omsg("doLambdaOp: post loop rightp fail");
-			oerrd(savep, "LAMBDA expr. has no expr. arg. or DO block",
+			oerrd(savep, "LAMBDA expr. has no expr. arg. or DO block" +
+				", rightp = " + rightp,  //##
 				310.5);
 			return false;
 		}
