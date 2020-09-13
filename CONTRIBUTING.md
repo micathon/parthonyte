@@ -6,9 +6,9 @@
 # How to run Dymotalk
 * Install the Java SDK
 * `$ cd path/to/bin`
-* `$ java dmtk dotop > out.txt`
+* `$ java dtok dotop > out.txt`
 * text files:
-  * `dat/dotop.dmtk`: sample Dymotalk source code
+  * `dat/dotop.dtok`: sample Dymotalk source code
   * `bin/out.txt`: used for debugging and logging what my code is doing
   * both `dotop` and `out.txt` file names can be any valid Linux file name (or Windows/Mac)
 # Roadmap
