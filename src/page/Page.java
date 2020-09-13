@@ -1,8 +1,8 @@
 package page;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import iconst.IConst;
 import iconst.PageTyp;
 
@@ -179,7 +179,7 @@ public class Page implements IConst {
 	}
 	
 	public int getIntNode(int idx) {
-		return (words[idx] << 16) | words[idx + 1];
+		return (words[idx] << 16) | (words[idx + 1] & 0xFFFF);
 	}
 	
 	public void setIntNode(int idx, int val) {

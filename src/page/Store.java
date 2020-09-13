@@ -42,16 +42,11 @@ public class Store implements IConst {
 		PageTab pgtab;
 		Page page;
 		int pageidx, pgtabidx;
-		int a = addr; //##
 		
 		addr = addr >>> 12;
 		pageidx = addr & 0x3FF;
 		pgtabidx = addr >>> 10;
 		pgtab = getPageTab(pgtabidx);
-		if (pgtab == null) {
-			System.out.println("getPage: addr = " + a + 
-				", pgtabidx = " + pgtabidx);
-		}
 		page = pgtab.getPage(pageidx);
 		return page;
 	}
@@ -80,10 +75,12 @@ public class Store implements IConst {
 	public Node getNode(int addr) {
 		Page page;
 		int idx;
+		Node rtnval;
 		
 		page = getPage(addr);
 		idx = getElemIdx(addr);
-		return page.getNode(idx);
+		rtnval = page.getNode(idx);
+		return rtnval;
 	}
 	
 	public int allocInt(int val) {
@@ -155,7 +152,6 @@ public class Store implements IConst {
 		if (rtnval > 0) {
 			return rtnval;
 		}
-		System.out.println("allocNode fail = " + rtnval); //##
 		return rtnval;
 	}
 	
@@ -163,6 +159,7 @@ public class Store implements IConst {
 		PageTab pgtab;
 		Page page;
 		int idx;
+		int rtnval;
 		
 		for (int i=0; i < INTPGLEN; i++) {
 			pgtab = getPageTab(i);
@@ -182,10 +179,10 @@ public class Store implements IConst {
 				idx = page.allocNode(node);
 				if (idx < 0) { }
 				else if (idx < (1 << 12)) {
-					return getAddr(i, j, idx);
+					rtnval = getAddr(i, j, idx);
+					return rtnval;
 				}
-				else {  //##
-					System.out.println("allocNode fail, idx = " + idx);
+				else {  
 					return -1;
 				}
 			}
@@ -537,10 +534,6 @@ class PageTab implements IConst {
 		}
 		else {
 			return false;
-		}
-		if (addr == 29078) {  //##
-			System.out.println("pushNode: nodeStkIdx = " + nodeStkIdx);
-			System.out.println("pushNode: nodeStkLstIdx = " + nodeStkLstIdx);
 		}
 		addrNode = list.get(nodeStkIdx++);
 		addrNode.setHeader(header);
