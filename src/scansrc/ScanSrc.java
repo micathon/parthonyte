@@ -713,7 +713,7 @@ public class ScanSrc implements IConst {
 		int rtnCode;
 
 		if (kwtyp == KeywordTyp.NULL) {
-			out("kwtyp is null!");  //##
+			out("kwtyp is null!");
 			putTokErr(TokenTyp.ERROP, token);
 			return TokenTyp.ERROP;
 		}
@@ -1033,8 +1033,7 @@ public class ScanSrc implements IConst {
 		
 		nodep = addSimpleNode(celltyp, val, dval, sval);
 		if (nodep < 0) {
-			//out("addNode: < 0");
-			omsg("addNode: < 0");  //##
+			out("addNode: < 0");
 			return nodep;
 		}
 		page = store.getPage(nodep);
@@ -1058,7 +1057,6 @@ public class ScanSrc implements IConst {
 		AddrNode addrNode;
 		int idx;
 		boolean isDoBlock = false;
-		boolean isBug = false;
 
 		switch (celltyp) {
 		case KWD:
@@ -1093,10 +1091,6 @@ public class ScanSrc implements IConst {
 			wasdo = false;
 			return getNegErrCode(TokenTyp.ERRDOMISSINGBLK);
 		}
-		if (currNodep == 29078) {
-			omsg("addSimpleNode: Err! currNodep = " + currNodep); //##
-			isBug = true;
-		}
 		page = store.getPage(currNodep);
 		idx = store.getElemIdx(currNodep);
 		//currNode = page.getNode(idx);
@@ -1113,9 +1107,6 @@ public class ScanSrc implements IConst {
 		rightp = store.allocNode(node);
 		out("rightp = " + rightp + ", celltyp = " + celltyp +
 			", kwd = " + node.getKeywordTyp());
-		if (isBug) {
-			omsg("addSimpleNode: Err! rightp = " + rightp); //##
-		}
 		page.setPtrNode(idx, rightp);
 		if (isDoBlock) {
 			// push do node
