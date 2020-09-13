@@ -411,7 +411,7 @@ do (
 defun (q)
   do (
   ? (lambda (a) do (
-    return
+    return;
   ));
 );
 )
