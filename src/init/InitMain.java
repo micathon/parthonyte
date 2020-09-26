@@ -25,7 +25,7 @@ import java.util.Map.Entry;
 //    Allows testing of alloc/free logic
 
 // 1. Calls Lexical Scanner (if given file name w/o ext)
-// 2. Builds program tree:
+// 2. Builds program tree
 // 3. Syntax checker
 // 4. *Code execution
 
@@ -46,7 +46,7 @@ public class InitMain implements IConst {
 			doMasterFile(fileName);
 		}
 		else if (fileName.length() > 0) {
-			doSrcFile(fileName, isUnitTest, isMain);
+			doSrcFile(fileName, isUnitTest);
 		}
 		else {
 			doCmdLoop();
@@ -68,7 +68,7 @@ public class InitMain implements IConst {
 				}
 				omsg("Unit Test: " + fileName);
 				fileName = "../dat/test/" + fileName + ".test";
-				isFail = doSrcFile(fileName, true, true);
+				isFail = doSrcFile(fileName, true);
 				isGlbFail = isGlbFail || isFail;
 			}
 			showUnitTestVal(isGlbFail);
@@ -77,7 +77,7 @@ public class InitMain implements IConst {
 		}
 	}
 	
-	private boolean doSrcFile(String fileName, boolean isUnitTest, boolean isMain) {
+	private boolean doSrcFile(String fileName, boolean isUnitTest) {
 		String inbuf;
 		BufferedReader fbr;
 		ScanSrc scanSrc;
@@ -95,6 +95,7 @@ public class InitMain implements IConst {
 		try {
 			fbr = new BufferedReader(new FileReader(fileName));
 			while ((inbuf = fbr.readLine()) != null) {
+				// read source file, scan current line of input
 				if (!scanSrc.scanCodeBuf(inbuf)) {
 					fatalErr = true;
 					break;
@@ -163,12 +164,13 @@ public class InitMain implements IConst {
 		
 		inbuf = getRest(inbuf, arg);
 		if (arg.length() != 1) {
+			// all valid commands (with optional args) are single char.
 			return true;
 		}
 		ch = arg.charAt(0);
 		switch (ch) {
 		case 'q': 
-			return quit(inbuf);
+			return quit(inbuf);  // return false on quit
 		case 'h':
 			help(inbuf);
 			break;
@@ -188,19 +190,26 @@ public class InitMain implements IConst {
 		return true;
 	}
 	
+	// parse first arg in buf (up to 1st blank)
+	
 	private String getArg(String buf) {
 		int n = buf.indexOf(' ');
 		if (n < 0) {
+			// returns its input if contains no spaces
 			return buf;
 		}
 		return buf.substring(0, n);
 	}
+	
+	// parse rest of buf, after initial arg substring
 	
 	private String getRest(String buf, String arg) {
 		int n = arg.length();
 		buf = buf.substring(n);
 		return buf.trim();
 	}
+	
+	// keyval (key) of buf = "key, val"
 	
 	private String getKeyVal(String buf) {
 		int n = buf.indexOf(',');
@@ -209,6 +218,8 @@ public class InitMain implements IConst {
 		}
 		return buf.substring(0, n);
 	}
+	
+	// rest (val) of buf = "key, val"
 	
 	private String getRestKeyVal(String buf) {
 		int n = buf.indexOf(',');
@@ -229,6 +240,9 @@ public class InitMain implements IConst {
 		}
 		return n;
 	}
+	
+	// valid quit ("q") command has no args
+	// return false on valid quit command
 	
 	private boolean quit(String buf) {
 		return (buf.length() > 0);
@@ -338,6 +352,9 @@ public class InitMain implements IConst {
 		String save = buf;
 		boolean valid = true;
 		
+		// s i - show i-th item
+		// s i j - show i-th list at j
+		// s i a - show i-th map at a
 		if (buf.length() == 0) {
 			return;
 		}
