@@ -1115,8 +1115,6 @@ public class ScanSrc implements IConst {
 		}
 		page = store.getPage(currNodep);
 		idx = store.getElemIdx(currNodep);
-		//currNode = page.getNode(idx);
-		//kwtyp = currNode.getKeywordTyp();
 		kwtyp = KeywordTyp.ZNULL;
 		node = new Node(0, downp, 0);  // node of new token
 		if (celltyp == NodeCellTyp.KWD && downp < 256) { 
@@ -1240,7 +1238,7 @@ public class ScanSrc implements IConst {
 		if (celltyp == NodeCellTyp.ID) {  // (func x y z)
 			varName = store.getVarName(downp);
 			out("( varname = " + varName);
-			if (isCrPathName(varName)) {  
+			if (isCrPathName(varName)) {  // func = car/cdr/caar/cadr/...
 				return genCrPathCall(varName, downp, rightp);
 			}
 			kwtyp = KeywordTyp.ZCALL;
@@ -1300,7 +1298,7 @@ public class ScanSrc implements IConst {
 		// or:
 		// curr -> zparen, [push zparen]
 		//
-		// Notation: ->: rightp, =>: downp
+		// Arrow Notation: ->: rightp, =>: downp
 		wasstmt = true;
 		rtnval = addZparNode(NodeCellTyp.NULL, 0);
 		if (rtnval < 0) {
@@ -1466,6 +1464,7 @@ public class ScanSrc implements IConst {
 	}
 	
 	private int genCrPathCall(String varName, int downp, int rightp) {
+		// varName = car/cdr/caar/cadr/...
 		Node node;
 		Node prevNode;
 		Page page;
@@ -1528,6 +1527,7 @@ public class ScanSrc implements IConst {
 	}
 	
 	public boolean isCrPathName(String name) {
+		// name = car/cdr/caar/cadr/...
 		int i, len;
 		char c;
 		
@@ -1551,6 +1551,8 @@ public class ScanSrc implements IConst {
 	}
 	
 	public int getCrPathVal(String name) {
+		// name =     adaadadd...
+		// sum bits = 10110100...
 		int i, k, n;
 		char c;
 		int sum = 0;
