@@ -127,18 +127,17 @@ public class ScanSrc implements IConst {
 		outSumm(inBufSqr);
 		lineNoBuf = padLineNo(lineCount);
 		outbuf = lineNoBuf + sp + inBufSqr;
-		if (lineCount == 0) {  // suppress
+		if (lineCount == 0) {  // suppress this if-block
 			outSumm(outbuf);  // make sure padLineNo works
 			printDetl(tabstr);
 			outDetl(inBufSqr);
 		}
 		if (inbuf.length() == 0) { }
 		else if (inbuf.equals(UNITENDBUF) && !inCmtBlk) {
-			//omsg("scanning pre: endBlkUnitTest...");
+			// unit test sentinel char detected
 			scanSummSynChk(false, false);
-			//omsg("calling endBlkUnitTest...");
 			synchk.endBlkUnitTest();
-			initScan();
+			initScan();  // re-initialize for next scan
 			return true;
 		}
 		else {
@@ -172,7 +171,7 @@ public class ScanSrc implements IConst {
 				continue;
 			}
 			else if (!wasBackslash) {
-				putCmt(2);
+				putCmt(2);  // 2nd of 3 chars.: { } #
 				incTokCount(TokenTyp.CMTBLK);
 				inCmtBlk = false;
 				continue;
@@ -183,7 +182,9 @@ public class ScanSrc implements IConst {
 			}
 			// not inCmtBlk
 			if (!inStrLit) { }
-			else if ((ch == '\\') && isAtEnd) {
+			else if ((ch == '\\') && isAtEnd) { 
+				// newline(s) + opt. white space occurs within str. lit.
+				// above white space not included in str. lit.
 				strLitBuf = token;
 				isAllWhiteSp = true;
 				continue;
@@ -202,7 +203,7 @@ public class ScanSrc implements IConst {
 				token += ch;
 				continue;
 			}
-			else {
+			else {  // close quote of string literal
 				token += ch;
 				doTokenRtn(TokenTyp.STRLIT, token);
 				putStr(token);
@@ -215,28 +216,35 @@ public class ScanSrc implements IConst {
 			// not inStrLit
 			inWhiteSp = getInWhiteSp(ch);
 			if (wasWhiteSp && !inWhiteSp) {
-				if (ch == QUOTECH) {
+				if (ch == QUOTECH) {  // start string literal
+					// may be in middle of multi-line str. lit.
 					inStrLit = true;
 					isAllWhiteSp = false;
 					if (strLitBuf.length() == 0) {
-						token = "" + ch;
+						token = "" + ch;  // start of normal str. lit.
 					}
-					else {
+					else {  
+						// ignore preceding newline(s) + white space
+						// previous \<cr> followed by ignored white sp.
+						// previous part of str. lit followed by \<cr>
+						//   now in token
 						token = strLitBuf;
 					}
 					continue;
 				}
 				else if (isAllWhiteSp) {
+					// non-white space not allowed after 
+					//   \<cr> in str. lit.
 					isAllWhiteSp = false;
 					strLitBuf = "";
 					putErr(TokenTyp.ERRMULTISTRLITBADCHAR);
 					incTokCount(TokenTyp.ERRMULTISTRLITBADCHAR);
 				}
-				token = "" + ch;
+				token = "" + ch;  // first char. in token
 				continue;
 			}
 			else if (!inWhiteSp) {
-				token += ch;
+				token += ch;  // middle char. in token
 				continue;
 			}
 			else if (!wasWhiteSp) {
@@ -245,6 +253,7 @@ public class ScanSrc implements IConst {
 				doToken(token);
 				token = "";
 			}
+			// handle various special chars.
 			if (ch == OPENBRACECH) {
 				inCmtBlk = true;
 				inWhiteSp = true;
@@ -252,39 +261,40 @@ public class ScanSrc implements IConst {
 					doToken(token);
 					token = "";
 				}
-				putCmt(1);
+				putCmt(1);  // 1st of 3 chars.: { } #
 				continue;
 			}
 			if (ch == CMTLINECH) {
-				putCmt(3);
+				putCmt(3);  // 3rd of 3 chars.: { } #
 				incTokCount(TokenTyp.CMTLINE);
 				break;
 			}
 			rtnval = 0;
 			if (ch == OPENPARCH) {
-				if (wasfor) {
+				if (wasfor) {  // convert "for (" to "for do ("
 					inWhiteSp = false;
 					doToken("do");
 					if (fatalRtnCode < 0) {
 						return false;
 					}
 				}
-				rtnval = putPar(1);
+				rtnval = putPar(1);  // 1st of 3 chars.: ( ) ;
 				incTokCount(TokenTyp.OPENPAR);
 				outStructTok(ch);
 			}
 			else if (ch == CLOSEPARCH) {
 				//out("ch = ), oldch = [" + oldch + ']');
-				rtnval = putPar(2);
+				rtnval = putPar(2);  // 2nd of 3 chars.: ( ) ;
 				incTokCount(TokenTyp.CLOSEPAR);
 				outStructTok(ch);
 			}
 			else if (ch == SEMICOLONCH) {
-				rtnval = putPar(3);
+				rtnval = putPar(3);  // 3rd of 3 chars.: ( ) ;
 				incTokCount(TokenTyp.SEMICOLON);
 				outStructTok(ch);
 			}
 			else if (errstr.indexOf(ch) >= 0) {
+				// ch is an invalid char.
 				rtnval = 0;
 				putColErr(TokenTyp.ERRSYM, colIdx);
 				incTokCount(TokenTyp.ERRSYM);
@@ -294,6 +304,7 @@ public class ScanSrc implements IConst {
 				putRtnCodeErr(rtnval);
 			}
 		}
+		// end for loop, end of scanning inbuf
 		if (inStrLit) {
 			if (!isAllWhiteSp) {
 				putErr(TokenTyp.ERRCLOSEQUOTE);
@@ -424,7 +435,9 @@ public class ScanSrc implements IConst {
 		}
 	}
 	
-	public void omsg(String msg) {
+	public void omsg(String msg) {  
+		// used for temp. debug output
+		// usually deleted after bug fixed
 		if (!isSilent) {
 			System.out.println(msg);
 		}
@@ -481,6 +494,7 @@ public class ScanSrc implements IConst {
 		if (tokensFound) {
 			outSumm("");
 		}
+		// do syntax checking if OK
 		scanSummSynChk(fatalErr, true);
 	}
 	
@@ -536,6 +550,8 @@ public class ScanSrc implements IConst {
 			(ch == OPENPARCH) || (ch == CLOSEPARCH) || (ch == SEMICOLONCH);
 		return inWhiteSp;
 	}
+	
+	// all lower case letters
 	
 	private boolean isAllLowerCase(String token) {
 		char ch;
@@ -595,7 +611,8 @@ public class ScanSrc implements IConst {
 		TokenTyp toktyp = TokenTyp.IDENTIFIER;
 		
 		token = token.toUpperCase();
-		startsWithZed = (token.charAt(0) == 'Z'); // znull,zparen,zstmt,zcall: internal use
+		startsWithZed = (token.charAt(0) == 'Z'); //...
+		//znull,zparen,zstmt,zcall: internal use
 		try {
 			kwtyp = KeywordTyp.valueOf(token);
 		} catch (IllegalArgumentException exc) {
@@ -610,7 +627,7 @@ public class ScanSrc implements IConst {
 			toktyp = TokenTyp.KEYWORD;
 		}
 		else {
-			cftyp = getBifTyp(token);
+			cftyp = getBifTyp(token);  // built-in func.
 			if (cftyp != BifTyp.NULL) {
 				putFun(token, cftyp);
 				kwidx = cftyp.ordinal() | (BIFBYTNO << 8);
@@ -743,9 +760,10 @@ public class ScanSrc implements IConst {
 		if (ch == '0' && token.length() >= 2 &&
 			s.indexOf(token.charAt(1)) >= 0)
 		{
-			isBox = true;
+			isBox = true;  // non-decimal base
 		}
 		if (!isBox) {
+			// decimal or float
 			if (isValidNumTok(TokenTyp.DECIMAL, token)) {
 				rtnval = putDec(token, isNeg);
 				toktyp = TokenTyp.DECIMAL;
@@ -771,7 +789,7 @@ public class ScanSrc implements IConst {
 		toktyp = TokenTyp.ERRNUM;
 		token = token.toLowerCase();
 		ch = token.charAt(1);
-		token = token.substring(2);
+		token = token.substring(2);  // strip 0x, 0o, 0b
 		switch (ch) {
 		case HEXCH:
 			if (isValidNumTok(TokenTyp.HEXADECIMAL, token)) {
@@ -816,6 +834,7 @@ public class ScanSrc implements IConst {
 			ishex = (ch >= 'A' && ch <= 'F');
 			isoct = (ch >= '0' && ch <= '7');
 			isbin = (ch == '0' || ch == '1');
+			// 123L is long integer
 			islong = (ch == LONGCH && (i == token.length() - 1));
 			switch (toktyp) {
 			case DECIMAL:
@@ -860,6 +879,9 @@ public class ScanSrc implements IConst {
 		}
 		return true;
 	}
+	
+	// "put" funcs. all call addNode
+	// except Fun, Sys: addNode called in calling funcs.
 	
 	private int putKwd(String token, KeywordTyp kwtyp) {
 		String outbuf;
