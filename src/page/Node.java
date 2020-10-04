@@ -37,10 +37,10 @@ public class Node {
 
 	public void setRightp(int rightp) {
 		this.rightp = rightp;
-		if (rightp < 0) {  //##
+		/* if (rightp < 0) {  
 			System.out.println("setRightp: rightp = " + rightp);
 			System.exit(0);
-		}
+		} */
 	}
 	
 	public boolean isOpenPar() {
