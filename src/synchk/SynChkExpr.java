@@ -53,7 +53,6 @@ public class SynChkExpr {
 		rightp = doParenExpr(rightp, true);
 		switch (rightp) {
 		case 0: 
-			//omsg("doExpr: rightp = 0");
 			return true;
 		case -1: 
 			return false;
@@ -61,7 +60,6 @@ public class SynChkExpr {
 		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		kwtyp = node.getKeywordTyp();
-		//omsg("doExpr: kwtyp = "+kwtyp);
 		switch (kwtyp) {
 		case NOT:
 		case NOTBITZ:
@@ -190,7 +188,6 @@ public class SynChkExpr {
 				return -1;
 			}
 			if (isValid) {
-				//omsg("doParenExpr: return = 0");
 				return 0;
 			}
 			return -1;
@@ -436,7 +433,6 @@ public class SynChkExpr {
 		kwtyp = node.getKeywordTyp();
 		rightq = node.getRightp();
 		count = getExprCount(rightq);
-		//omsg("doMultiOp: count = "+count);
 		if (count < 0) { 
 			oerrd(rightp, "Multi operator " + kwtyp +
 				" has invalid argument(s)", 150.1);
@@ -537,7 +533,8 @@ public class SynChkExpr {
 			return -1;
 		}
 		if (rtnval < 0) {
-			return 0;
+			// no node after tuple, a parenthesized list
+			return 0;  
 		}
 		return rtnval;
 	}
@@ -838,7 +835,8 @@ public class SynChkExpr {
 			return false;
 		}
 		if (!isValidKwdArg && found) {
-			oerrd(savep, "Error in function call: keyword arg. followed by normal arg.",
+			oerrd(savep, 
+				"Error in function call: keyword arg. followed by normal arg.",
 				280.3);
 			return false;
 		}

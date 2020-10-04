@@ -98,6 +98,7 @@ public class SynChkStmt {
 	}
 	
 	public boolean doLoopStmt(int rightp) {
+		// one of 3 stmts. in for-loop header
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
@@ -193,7 +194,6 @@ public class SynChkStmt {
 		String msg = "Error in asst. stmt.: ";
 		int savep = rightp;
 		
-		//omsg("doSetOpStmt: rightp = "+rightp);
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
@@ -311,7 +311,6 @@ public class SynChkStmt {
 		String msg = "Error in INC/DEC stmt.: ";
 		int savep = rightp;
 		
-		//omsg("doIncDecStmt: rightp = "+rightp);
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
@@ -406,7 +405,6 @@ public class SynChkStmt {
 		String msg = "Error in for stmt.: ";
 		int savep = rightp;
 
-		//omsg("doForStmt: savep = " + savep);
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
@@ -665,7 +663,6 @@ public class SynChkStmt {
 		boolean isElse;
 		int savep = rightp;
 
-		//omsg("doTryStmt: top");
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
@@ -715,7 +712,6 @@ public class SynChkStmt {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp == KeywordTyp.AS) {
-				//omsg("doTryStmt: AS found");
 				rightp = node.getRightp();
 				if (rightp <= 0) {
 					oerrd(savep, msg + "dangling AS", 140.4);
@@ -750,7 +746,6 @@ public class SynChkStmt {
 			oerrd(savep, msg + "dangling " + kwtyp, 140.6);
 			return false;
 		}
-		//omsg("doTryStmt: isElse = " + isElse + ", isExcept = " + isExcept);
 		if (!isExcept && isElse) {
 			oerrd(savep, msg + "unexpected ELSE block w/o any except clauses",
 				140.65);

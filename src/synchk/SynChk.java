@@ -48,24 +48,35 @@ public class SynChk {
 	}
 	
 	public void oerrmod(int nodep, String msg, double currbrk, int modno) {
+		// display syntax error msg. 
+		// stop further processing of syntax validity
+		// calling method errors out (in a chain of higher level methods)
+		// each of 3 primary .test files contains multiple unit tests
+		// each unit test is a miniature source file followed by sentinel char.
+		// main.test has 3 lines: <SynChk-file-name> w/o ext
+		// see doStmt method for further unit test-related comments
 		int lineno;
 		String preLineNoStr;
 		
 		lineno = store.lookupLineNo(nodep);
-		//oprn("oerrd: lineno = " + lineno);
 		if (!isUnitTest) { }
 		else if (brkval == 0.0) {
+			// unit test unexpectedly fails (errors out)
+			// unit test is supposed to be valid syntax
 			isBrkZeroFail = true;
 		}
 		else if (isFloatEq(brkval, currbrk) && (lineno > 0) && 
 			(modno == moduleval)) 
 		{
+			// unit test success: break condition reproduced
+			// unit test is supposed to be invalid syntax
 			oprn("oerrd: brkval found = " + brkval + " | " + msg);
 			isBrkFound = true;
 			return;
 		}
 		else {
-			//oprn("oerrd: brkval tried = " + brkval + " | " + msg);
+			// error condition but stay silent
+			// this break condition is not being trapped
 			return;
 		}
 		if (lineno > 0) {
@@ -85,10 +96,15 @@ public class SynChk {
 	}
 	
 	public void endBlkUnitTest() {
+		// called at end of unit test upon detection of sentinel char.
+		// 3 main .test files each run multiple unit tests
+		// all 3 SynChk .java files have corresponding .test file
 		if (!isBrkFound && (brkval != 0.0)) {
+			// failure to reproduce desired break condition
 			scan.omsg("Break not found: " + brkval);
 		}
 		else {
+			// unit test success: break condition reproduced
 			isBrkFound = true;
 		}
 		isUnitTestFail = isUnitTestFail || isBrkZeroFail || !isBrkFound;
@@ -112,6 +128,7 @@ public class SynChk {
 	}
 	
 	public int getNodeCount() {
+		// count nodes in source file w/o syntax checking
 		int tokenCount = 0;
 		int listCount = 0;
 		int count;
@@ -176,6 +193,8 @@ public class SynChk {
 	}
 	
 	public boolean isValidSrc() {
+		// check syntax of source file
+		// return true if no syntax errors
 		int stmtCount = 0;
 		int count;
 		int rightp, downp;
@@ -239,6 +258,7 @@ public class SynChk {
 	}
 
 	private int doStmtCounts(int rightp) {
+		// process top-level stmts.
 		int stmtCount = 0;
 		Node node;
 		int downp;
@@ -277,6 +297,10 @@ public class SynChk {
 	}
 	
 	private int doStmt(int rightp, int phaseNo) {
+		// process top-level statement
+		// return phase no. of current stmt.: 0=quest, 1=import,
+		//   gdefun, functions, 4=classes
+		// return -1 on error
 		Node node;
 		KeywordTyp kwtyp = null;
 		NodeCellTyp celltyp;
@@ -294,6 +318,7 @@ public class SynChk {
 			out("rightp = " + rightp +  
 					", kwd = " + kwtyp + ", celtyp = " + celltyp);
 			if (first) {
+				// at keyword token, beginning of top-level stmt.
 				out("Statement kwd = " + kwtyp);
 				currPhaseNo = getPhaseNo(kwtyp);
 				phaseDesc = getPhaseDesc(currPhaseNo);
@@ -313,17 +338,25 @@ public class SynChk {
 				switch (currPhaseNo) {
 				case 0:
 					if (!isUnitTest) {
+						// unexpected '?' encountered at top stmt. level
 						oerrd(initp, kwtyp + " operator (unit test) is invalid",
 							10.3);
 						return -1;
 					}
+					// valid unit test char (?) detected
+					// token after '?' operator contains float id of 
+					//   corresponding oerrd call
+					// many places detecting syntax error include oerrd call
+					// int part of float id same within a given method
 					currbrk = getMethBrkPair(rightp);
 					if (currbrk > 0) {
 						brkval = currbrk;
 					}
 					else {
+						// -ve module no. following '?' encountered,
+						// usually 2nd line of .test file
+						// module no. btwn 1 and 3
 						moduleval = -(int)currbrk;
-						//oprn("doStmt: currbrk = " + currbrk + ", moduleval = "+moduleval);
 					}
 					break;
 				case 1:
@@ -419,6 +452,8 @@ public class SynChk {
 		if (celltyp != NodeCellTyp.DOUBLE) {
 			return rtnval;
 		}
+		// token following '?' of top-level stmt. (in unit test) is a float const.
+		// corresponding oerrd call includes same float const.
 		downp = node.getDownp();
 		page = store.getPage(downp);
 		idx = store.getElemIdx(downp);
@@ -1272,6 +1307,8 @@ public class SynChk {
 	}
 		
 	private int chkDoBlockRtn(int rightp, boolean isFinal) {
+		// isFinal: no same-level tokens after closing paren 
+		// (only another close paren or a semicolon allowed)
 		Node node;
 		KeywordTyp kwtyp;
 		int savep = rightp;
