@@ -21,7 +21,7 @@ public class ScanSrc implements IConst {
 	private static final boolean isVerbose = false;
 	private static final boolean isSilent = false;
 	private Store store;
-	private int currNodep, rootNodep;
+	private int currNodep;
 	private int lineCount;
 	private int colCount;
 	private int tokTypLen, tokCatgLen;
@@ -53,6 +53,7 @@ public class ScanSrc implements IConst {
 		"Punctuation",
 		"Invalid Symbols"
 	};
+	public int rootNodep;
 	public boolean inCmtBlk;
 	private boolean inStrLit;
 	private boolean isAllWhiteSp;
@@ -455,7 +456,7 @@ public class ScanSrc implements IConst {
 		return s;
 	}
 	
-	public void scanSummary(boolean fatalErr) {
+	public boolean scanSummary(boolean fatalErr) {
 		TokenTyp toktyp;
 		int catgIdx = -1;
 		int idx;
@@ -473,7 +474,7 @@ public class ScanSrc implements IConst {
 		outSumm("\nLines read = " + lineCount);
 		outSumm("");
 		if (tokCatgLen == 0) {
-			return;  // not needed, no yellow
+			return false;  // not needed, no yellow
 		}
 		for (int i=0; i < tokTypLen; i++) {
 			if (errTokCounts[i] <= 0) {
@@ -495,25 +496,26 @@ public class ScanSrc implements IConst {
 			outSumm("");
 		}
 		// do syntax checking if OK
-		scanSummSynChk(fatalErr, true);
+		return scanSummSynChk(fatalErr, true);
 	}
 	
-	public void scanSummSynChk(boolean fatalErr, boolean suppressFatal) {
+	public boolean scanSummSynChk(boolean fatalErr, boolean suppressFatal) {
 		if (!suppressFatal && fatalErr) {
 			out("Fatal error encountered!");
+			return false;
 		}
 		if (!fatalErr && isClean && synchk.isValidSrc()) {
 			omsg("Src file is valid.");
+			return true;
 		}
-		else {
-			if (!isClean) {
-				omsg("Error detected during initial scan:");
-				omsg("Line no. = " + dirtyLine);
-				omsg("Column no. = " + dirtyCol);
-				omsg("");
-			}
-			omsg("Src file is invalid!");
+		if (!isClean) {
+			omsg("Error detected during initial scan:");
+			omsg("Line no. = " + dirtyLine);
+			omsg("Column no. = " + dirtyCol);
+			omsg("");
 		}
+		omsg("Src file is invalid!");
+		return false;
 	}
 	
 	public void setSynChk(SynChk synchk) {
