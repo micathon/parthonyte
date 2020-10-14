@@ -9,6 +9,7 @@ import page.AddrNode;
 import page.Node;
 import scansrc.ScanSrc;
 import synchk.SynChk;
+import runtm.RunTime;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -82,11 +83,15 @@ public class InitMain implements IConst {
 		BufferedReader fbr;
 		ScanSrc scanSrc;
 		SynChk synchk;
+		RunTime runtm;
+		int rootNodep;
 		boolean fatalErr = false;
 		boolean rtnval = true;
 
 		scanSrc = new ScanSrc(store);
 		synchk = new SynChk(scanSrc, store);
+		rootNodep = scanSrc.rootNodep;
+		runtm = new RunTime(store, rootNodep);
 		scanSrc.setSynChk(synchk);
 		synchk.isUnitTest = isUnitTest;
 		if (isUnitTest) {
@@ -107,8 +112,8 @@ public class InitMain implements IConst {
 			if (isUnitTest) {
 				rtnval = synchk.showUnitTestVal();
 			}
-			else {
-				scanSrc.scanSummary(fatalErr);
+			else if (scanSrc.scanSummary(fatalErr)) {
+				runtm.run();
 			}
 		} catch (IOException exc) {
 			System.out.println("I/O Error: " + exc);
