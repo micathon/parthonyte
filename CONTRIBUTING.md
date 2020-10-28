@@ -12,7 +12,7 @@
   * `bin/out.txt`: used for debugging and logging what my code is doing
   * both `dotop` and `out.txt` file names can be any valid Linux file name (or Windows/Mac)
 # Roadmap
-* Go to home page of [website](http://jettelware.com), scroll to bottom
+* Go to home page of [website](http://groopjet.org), scroll to bottom
 # Contact Me
 * Please feel free to send me an email, ask me anything, any comments are always welcome
 * Now that the readme, contributing, and code-of-conduct files are up on GitHub, I'm closer to accepting contributions when the time comes. Thanks again for dropping by.
