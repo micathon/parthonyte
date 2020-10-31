@@ -1,18 +1,18 @@
-# Contributing to Jettelspeak
-* Many thanks for your interest in being a Jettelspeak contributor
+# Contributing to Parscolin
+* Many thanks for your interest in being a Parscolin contributor
 * I hope to begin accepting contributions in winter 2021
 * If you wish to write detailed design specs or anything more ambitious, please contact me
 * At this point I don't have much documentation for coders, but feel free to email me with your questions for now
-# How to run Jettelspeak
+# How to run Parscolin
 * Install the Java SDK
 * `$ cd path/to/bin`
-* `$ java jlsp dotop > out.txt`
+* `$ java psco dotop > out.txt`
 * text files:
-  * `dat/dotop.jlsp`: sample Jettelspeak source code
+  * `dat/dotop.psco`: sample Parscolin source code
   * `bin/out.txt`: used for debugging and logging what my code is doing
   * both `dotop` and `out.txt` file names can be any valid Linux file name (or Windows/Mac)
 # Roadmap
-* Go to home page of [website](http://groopjet.org), scroll to bottom
+* Go to home page of [website](http://parscoland.org), scroll to bottom
 # Contact Me
 * Please feel free to send me an email, ask me anything, any comments are always welcome
 * Now that the readme, contributing, and code-of-conduct files are up on GitHub, I'm closer to accepting contributions when the time comes. Thanks again for dropping by.
