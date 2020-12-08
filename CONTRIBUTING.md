@@ -12,6 +12,6 @@
   * `bin/out.txt`: used for debugging and logging what my code is doing
   * both `dotop` and `out.txt` file names can be any valid Linux file name (or Windows/Mac)
 # Roadmap
-* Go to home page of [website](http://parschemy.com), scroll to bottom
+* Go to home page of [website](http://parscoland.org), scroll to bottom
 # Contact Me
 * Please feel free to send me an email, ask me anything, any comments are always welcome
