@@ -402,7 +402,7 @@ public class SynChk {
 		return currPhaseNo;
 	}
 	
-	private int getPhaseNo(KeywordTyp kwtyp) {
+	public int getPhaseNo(KeywordTyp kwtyp) {
 		switch (kwtyp) {
 		case QUEST:
 			return 0;
