@@ -91,7 +91,7 @@ public class InitMain implements IConst {
 		scanSrc = new ScanSrc(store);
 		synchk = new SynChk(scanSrc, store);
 		rootNodep = scanSrc.rootNodep;
-		runtm = new RunTime(store, rootNodep);
+		runtm = new RunTime(store, scanSrc, synchk, rootNodep);
 		scanSrc.setSynChk(synchk);
 		synchk.isUnitTest = isUnitTest;
 		if (isUnitTest) {
