@@ -6,9 +6,9 @@
 # How to run Parvascript
 * Install the Java SDK
 * `$ cd path/to/bin`
-* `$ java jvas dotop > out.txt`
+* `$ java pvas dotop > out.txt`
 * text files:
-  * `dat/dotop.jvas`: sample Parvascript source code
+  * `dat/dotop.pvas`: sample Parvascript source code
   * `bin/out.txt`: used for debugging and logging what my code is doing
   * both `dotop` and `out.txt` file names can be any valid Linux file name (or Windows/Mac)
 # Roadmap
