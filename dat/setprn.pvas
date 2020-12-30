@@ -1,0 +1,10 @@
+do (
+#defun (f)(var a b c) do (
+gdefun (var a b c) do (
+  set a 60;
+  set b 75;
+  set c 144;
+  println a b c;
+);
+)
+
