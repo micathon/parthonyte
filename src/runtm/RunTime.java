@@ -12,6 +12,7 @@ import page.Store;
 import page.Page;
 import scansrc.ScanSrc;
 import synchk.SynChk;
+import java.util.HashMap;
 
 // Code Execution
 
@@ -22,18 +23,23 @@ public class RunTime implements IConst {
 	private SynChk synChk;
 	private static final boolean isSilent = false;
 	private int rootNodep;
+	private HashMap<String, Integer> glbPubVarMap;
 
 	public RunTime(Store store, ScanSrc scanSrc, SynChk synChk,	int rootNodep) {
 		this.store = store;
 		this.scanSrc = scanSrc;
 		this.synChk = synChk;
 		this.rootNodep = rootNodep;
+		glbPubVarMap = new HashMap<String, Integer>();
 	}
 
 	public boolean run() {
 		boolean rtnval;
 		omsg("RunTime.run: rootNodep = " + rootNodep);
 		rtnval = runRoot(rootNodep);
+		if (!rtnval) {
+			omsg("Runtime error detected!");
+		}
 		return rtnval;
 	}
 	
@@ -163,7 +169,40 @@ public class RunTime implements IConst {
 	}
 	
 	private int runGlbDefStmt(int rightp) {
+		Node node;
+		Node firstNode;
+		KeywordTyp kwtyp;
+		NodeCellTyp celltyp;
+		int downp;
+		String varName;
+		int varidx = 0;
+
 		omsg("Keyword gdefun detected.");
+		node = store.getNode(rightp);
+		firstNode = node;
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp == KeywordTyp.ZPAREN) {
+			rightp = node.getDownp();
+			node = store.getNode(rightp);
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp != KeywordTyp.VAR) {
+				return -1;
+			}
+			rightp = node.getRightp();
+			while (rightp > 0) {
+				node = store.getNode(rightp);
+				celltyp = node.getDownCellTyp();
+				if (celltyp != NodeCellTyp.ID) {
+					return -1;
+				}
+				downp = node.getDownp();
+				varName = store.getVarName(downp);
+				glbPubVarMap.put(varName, varidx++);
+				rightp = node.getRightp();
+			}
+			rightp = firstNode.getRightp();
+			omsg("Global public var count = " + varidx);
+		}
 		return rightp;
 	}
 	
