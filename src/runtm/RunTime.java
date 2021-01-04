@@ -24,6 +24,7 @@ public class RunTime implements IConst {
 	private static final boolean isSilent = false;
 	private int rootNodep;
 	private HashMap<String, Integer> glbPubVarMap;
+	private int count;
 
 	public RunTime(Store store, ScanSrc scanSrc, SynChk synChk,	int rootNodep) {
 		this.store = store;
@@ -31,6 +32,7 @@ public class RunTime implements IConst {
 		this.synChk = synChk;
 		this.rootNodep = rootNodep;
 		glbPubVarMap = new HashMap<String, Integer>();
+		count = 0;
 	}
 
 	public boolean run() {
@@ -174,8 +176,11 @@ public class RunTime implements IConst {
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 		int downp;
+		int savep = rightp;
 		String varName;
 		int varidx = 0;
+		int stmtCount = 0;
+		boolean rtnval;
 
 		omsg("Keyword gdefun detected.");
 		node = store.getNode(rightp);
@@ -202,8 +207,105 @@ public class RunTime implements IConst {
 			}
 			rightp = firstNode.getRightp();
 			omsg("Global public var count = " + varidx);
+			node = store.getNode(rightp);
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp == KeywordTyp.ZPAREN) {  // (ivar ...)
+				rightp = node.getRightp();
+				if (rightp <= 0) {
+					return -1;
+				}
+				node = store.getNode(rightp);
+			}
+			kwtyp = node.getKeywordTyp();
 		}
-		return rightp;
+		if (kwtyp != KeywordTyp.DO) {
+			omsg("Missing DO");
+			return -1;
+		}
+		rightp = node.getDownp();
+		while (rightp > 0) {
+			node = store.getNode(rightp);
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp != KeywordTyp.ZSTMT) {
+				return -1;
+			}
+			downp = node.getDownp();
+			rtnval = scanStmt(downp);
+			if (!rtnval) {
+				return -1;
+			}
+			stmtCount++;
+			rightp = node.getRightp();
+		} 
+		omsg("Stmt count = " + stmtCount + ", set count = " + count);
+		return savep;
+	}
+	
+	private boolean scanStmt(int rightp) {
+		Node node;
+		KeywordTyp kwtyp;
+		
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		switch (kwtyp) {
+		case SET: return scanSetStmt(node);
+		case PRINTLN: return scanPrintlnStmt(node);
+		default: return false;
+		}
+	}
+	
+	private boolean scanSetStmt(Node node) {
+		int rightp;
+		boolean rtnval;
+		
+		count++;
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return false;
+		}
+		node = store.getNode(rightp);
+		rtnval = scanLocVar(node);
+		return rtnval;
+	}
+	
+	private boolean scanPrintlnStmt(Node node) {
+		int rightp;
+		boolean rtnval;
+
+		rightp = node.getRightp();
+		while (rightp > 0) {
+			node = store.getNode(rightp);
+			rtnval = scanLocVar(node);
+			if (!rtnval) {
+				return false;
+			}
+			rightp = node.getRightp();
+		}
+		return true;
+	}
+	
+	private boolean scanLocVar(Node node) {
+		int downp;
+		NodeCellTyp celltyp;
+		String varName;
+		Integer value;
+		int varidx;
+		
+		celltyp = node.getDownCellTyp();
+		if (celltyp != NodeCellTyp.ID) {
+			return false;
+		}
+		downp = node.getDownp();
+		varName = store.getVarName(downp);
+		value = glbPubVarMap.get(varName);
+		if (value == null) {
+			return false;
+		}
+		varidx = (int)value;
+		node.setDownCellTyp(NodeCellTyp.LOCVAR.ordinal());
+		node.setDownp(varidx);
+		omsg("LocVar = " + varidx);
+		return true;
 	}
 	
 	private int runDefunStmt(int rightp) {
