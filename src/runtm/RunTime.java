@@ -13,6 +13,7 @@ import page.Page;
 import scansrc.ScanSrc;
 import synchk.SynChk;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 // Code Execution
 
@@ -24,6 +25,7 @@ public class RunTime implements IConst {
 	private static final boolean isSilent = false;
 	private int rootNodep;
 	private HashMap<String, Integer> glbPubVarMap;
+	private ArrayList<Integer> glbPubVarList;
 	private int count;
 
 	public RunTime(Store store, ScanSrc scanSrc, SynChk synChk,	int rootNodep) {
@@ -32,6 +34,7 @@ public class RunTime implements IConst {
 		this.synChk = synChk;
 		this.rootNodep = rootNodep;
 		glbPubVarMap = new HashMap<String, Integer>();
+		glbPubVarList = new ArrayList<Integer>();
 		count = 0;
 	}
 
@@ -275,6 +278,8 @@ public class RunTime implements IConst {
 		String varName;
 		int varidx = 0;
 		int stmtCount = 0;
+		int idx;
+		Page page;
 		boolean rtnval;
 
 		omsg("Keyword gdefun detected.");
@@ -290,7 +295,9 @@ public class RunTime implements IConst {
 			}
 			rightp = node.getRightp();
 			while (rightp > 0) {
-				node = store.getNode(rightp);
+				page = store.getPage(rightp);
+				idx = store.getElemIdx(rightp);
+				node = page.getNode(idx);
 				celltyp = node.getDownCellTyp();
 				if (celltyp != NodeCellTyp.ID) {
 					return -1;
@@ -298,7 +305,11 @@ public class RunTime implements IConst {
 				downp = node.getDownp();
 				varName = store.getVarName(downp);
 				glbPubVarMap.put(varName, varidx++);
+				glbPubVarList.add(rightp);
 				rightp = node.getRightp();
+				node.setRightp(downp);
+				node.setDownp(0);
+				page.setNode(idx, node);
 			}
 			rightp = firstNode.getRightp();
 			omsg("Global public var count = " + varidx);
@@ -358,18 +369,6 @@ public class RunTime implements IConst {
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp != KeywordTyp.VAR) {
 				return -1;
-			}
-			rightp = node.getRightp();
-			while (rightp > 0) {
-				node = store.getNode(rightp);
-				celltyp = node.getDownCellTyp();
-				if (celltyp != NodeCellTyp.ID) {
-					return -1;
-				}
-				//downp = node.getDownp();
-				//varName = store.getVarName(downp);
-				//glbPubVarMap.put(varName, varidx++);
-				rightp = node.getRightp();
 			}
 			rightp = firstNode.getRightp();
 			omsg("Global public var count = " + varidx);
