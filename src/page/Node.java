@@ -37,10 +37,6 @@ public class Node {
 
 	public void setRightp(int rightp) {
 		this.rightp = rightp;
-		/* if (rightp < 0) {  
-			System.out.println("setRightp: rightp = " + rightp);
-			System.exit(0);
-		} */
 	}
 	
 	public boolean isOpenPar() {
@@ -78,11 +74,6 @@ public class Node {
 		return getCellIdxTyp(idx);
 	}
 
-	public NodeCellTyp getRightCellTyp() {
-		int idx = header &0xF;
-		return getCellIdxTyp(idx);
-	}
-
 	public NodeCellTyp getCellIdxTyp(int idx) {
 		NodeCellTyp rtnval = NodeCellTyp.values[idx];
 		return rtnval;
@@ -93,8 +84,13 @@ public class Node {
 		header = (short)((header & 0xFF0F) | idx);
 	}
 
-	public void setRightCellTyp(int idx) {
-		header = (short)((header & 0xFFF0) | idx);
+	public boolean isRightCell() {
+		return ((header & 0x0001) != 0);
+	}
+	
+	public void setRightCell(boolean flag) {
+		int flagbit = flag ? 1 : 0;
+		header = (short)((header & 0xFFFE) | flagbit);
 	}
 
 }
