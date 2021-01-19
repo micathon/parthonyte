@@ -351,11 +351,8 @@ public class RunTime implements IConst {
 		Node node;
 		Node firstNode;
 		KeywordTyp kwtyp;
-		NodeCellTyp celltyp;
 		int downp;
 		int savep = rightp;
-		String varName;
-		int varidx = 0;
 		int stmtCount = 0;
 		boolean rtnval;
 
@@ -371,7 +368,6 @@ public class RunTime implements IConst {
 				return -1;
 			}
 			rightp = firstNode.getRightp();
-			omsg("Global public var count = " + varidx);
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp == KeywordTyp.ZPAREN) {  // (ivar ...)
@@ -422,14 +418,23 @@ public class RunTime implements IConst {
 	private boolean runStmt(int rightp) {
 		Node node;
 		KeywordTyp kwtyp;
+		int rtnval;
 		
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		switch (kwtyp) {
-		case SET: return runSetStmt(node);
-		case PRINTLN: return runPrintlnStmt(node);
+		case SET: 
+			rtnval = runSetStmt(node);
+			break;
+		case PRINTLN: 
+			rtnval = runPrintlnStmt(node);
+			break;
 		default: return false;
 		}
+		if (rtnval < 0) {
+			omsg("runStmt: err code = " + rtnval);
+		}
+		return (rtnval >= 0);
 	}
 	
 	private boolean scanSetStmt(Node node) {
@@ -442,7 +447,7 @@ public class RunTime implements IConst {
 			return false;
 		}
 		node = store.getNode(rightp);
-		rtnval = scanLocVar(node);
+		rtnval = scanLocVar(rightp);
 		return rtnval;
 	}
 	
@@ -453,7 +458,7 @@ public class RunTime implements IConst {
 		rightp = node.getRightp();
 		while (rightp > 0) {
 			node = store.getNode(rightp);
-			rtnval = scanLocVar(node);
+			rtnval = scanLocVar(rightp);
 			if (!rtnval) {
 				return false;
 			}
@@ -462,13 +467,17 @@ public class RunTime implements IConst {
 		return true;
 	}
 	
-	private boolean scanLocVar(Node node) {
+	private boolean scanLocVar(int rightp) {
 		int downp;
+		Page page;
+		int idx;
+		Node node;
 		NodeCellTyp celltyp;
 		String varName;
 		Integer value;
 		int varidx;
 		
+		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (celltyp != NodeCellTyp.ID) {
 			return false;
@@ -482,6 +491,9 @@ public class RunTime implements IConst {
 		varidx = (int)value;
 		node.setDownCellTyp(NodeCellTyp.LOCVAR.ordinal());
 		node.setDownp(varidx);
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		page.setNode(idx, node);
 		omsg("LocVar = " + varidx);
 		return true;
 	}
@@ -494,36 +506,80 @@ public class RunTime implements IConst {
 		return rightp;
 	}
 	
-	private boolean runSetStmt(Node node) {
+	private int runSetStmt(Node node) {
 		int rightp;
-		boolean rtnval;
+		Page page;
+		int idx;
+		Node valnode;
+		NodeCellTyp celltyp;
+		int varidx;
+		int value;
 		
 		count++;
+		omsg("runSetStmt: top");
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			return false;
+			return -1;
 		}
 		node = store.getNode(rightp);
-		//rtnval = scanLocVar(node);
-		rtnval = true;
-		return rtnval;
+		celltyp = node.getDownCellTyp();
+		if (celltyp != NodeCellTyp.LOCVAR) {
+			return -2;
+		}
+		varidx = node.getDownp();
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return -3;
+		}
+		valnode = store.getNode(rightp);
+		celltyp = valnode.getDownCellTyp();
+		if (celltyp != NodeCellTyp.INT) {
+			return -4;
+		}
+		value = valnode.getDownp();
+		rightp = glbPubVarList.get(varidx);
+		node = store.getNode(rightp);
+		node.setDownCellTyp(NodeCellTyp.INT.ordinal());
+		node.setDownp(value);
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		page.setNode(idx, node);
+		omsg("set stmt: value = " + value);
+		return 0;
 	}
 	
-	private boolean runPrintlnStmt(Node node) {
+	private int runPrintlnStmt(Node node) {
 		int rightp;
-		boolean rtnval;
+		NodeCellTyp celltyp;
+		Node varnode;
+		int varidx;
+		int varp, namep;
+		int value;
+		String varname;
+		String msg = "";
 
 		rightp = node.getRightp();
 		while (rightp > 0) {
 			node = store.getNode(rightp);
-			//rtnval = scanLocVar(node);
-			rtnval = true;
-			if (!rtnval) {
-				return false;
+			celltyp = node.getDownCellTyp();
+			if (celltyp != NodeCellTyp.LOCVAR) {
+				return -51;
 			}
+			varidx = node.getDownp();
+			varp = glbPubVarList.get(varidx);
+			varnode = store.getNode(varp);
+			namep = varnode.getRightp();
+			varname = store.getVarName(namep);
+			celltyp = varnode.getDownCellTyp();
+			if (celltyp != NodeCellTyp.INT) {
+				return -52;
+			}
+			value = varnode.getDownp();
+			msg = msg + varname + " = " + value + "; ";
 			rightp = node.getRightp();
 		}
-		return true;
+		omsg(msg);
+		return 0;
 	}
 	
 }
