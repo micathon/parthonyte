@@ -309,6 +309,7 @@ public class RunTime implements IConst {
 				rightp = node.getRightp();
 				node.setRightp(downp);
 				node.setDownp(0);
+				node.setRightCell(true);
 				page.setNode(idx, node);
 			}
 			rightp = firstNode.getRightp();
