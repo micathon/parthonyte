@@ -99,7 +99,7 @@ public class ScanSrc implements IConst {
 		rootNode = new Node(0, KeywordTyp.NULL.ordinal(), 0);
 		rootNode.setKeywordTyp(KeywordTyp.NULL);
 		rootNode.setDownCellTyp(NodeCellTyp.KWD.ordinal());
-		rootNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+		rootNode.setRightCell(false);
 		rootNodep = store.allocNode(rootNode);
 		currNodep = rootNodep;
 	}
@@ -1124,7 +1124,7 @@ public class ScanSrc implements IConst {
 		}
 		node.setKeywordTyp(kwtyp);
 		node.setDownCellTyp(celltyp.ordinal());
-		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+		node.setRightCell(false);
 		out("currNodep = " + currNodep + ", idx = " + idx);
 		rightp = store.allocNode(node);
 		out("rightp = " + rightp + ", celltyp = " + celltyp +
@@ -1202,7 +1202,7 @@ public class ScanSrc implements IConst {
 		node.setKeywordTyp(kwtyp);
 		ctyp = NodeCellTyp.PTR;
 		node.setDownCellTyp(ctyp.ordinal());
-		node.setRightCellTyp(ctyp.ordinal());
+		node.setRightCell(false);
 		node.setOpenPar(true);
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
@@ -1218,7 +1218,7 @@ public class ScanSrc implements IConst {
 			kwtyp = KeywordTyp.values[downp];
 			currNode.setKeywordTyp(kwtyp);
 			currNode.setDownCellTyp(celltyp.ordinal());
-			currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+			currNode.setRightCell(false);
 			page.setNode(idx, currNode);
 			out("List kwtyp = " + kwtyp + ", downp = " + downp);
 			out("rightp = " + rightp + ", celltyp = " + celltyp);
@@ -1229,7 +1229,7 @@ public class ScanSrc implements IConst {
 			// warning: sys funcs not handled!
 			currNode.setKeywordTyp(KeywordTyp.NULL);
 			currNode.setDownCellTyp(celltyp.ordinal());
-			currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+			currNode.setRightCell(false);
 			currNode.setDownp(downp);
 			page.setNode(idx, currNode);
 			out("BIF kwtyp = " + kwtyp + ", downp = " + downp);
@@ -1247,7 +1247,7 @@ public class ScanSrc implements IConst {
 			celltyp = NodeCellTyp.FUNC;
 			currNode.setKeywordTyp(kwtyp);
 			currNode.setDownCellTyp(celltyp.ordinal());
-			currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+			currNode.setRightCell(false);
 			currNode.setDownp(downp);
 			page.setNode(idx, currNode);
 			out("Func kwtyp = " + kwtyp + ", downp = " + downp);
@@ -1263,7 +1263,7 @@ public class ScanSrc implements IConst {
 			ctyp = NodeCellTyp.KWD;
 			currNode.setKeywordTyp(kwtyp);
 			currNode.setDownCellTyp(ctyp.ordinal());
-			currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+			currNode.setRightCell(false);
 			page.setNode(idx, currNode);
 			out("Const kwtyp = " + kwtyp + ", downp = " + downp);
 			out("rightp = " + rightp + ", celltyp = " + celltyp);
@@ -1279,7 +1279,7 @@ public class ScanSrc implements IConst {
 				kwtyp = KeywordTyp.ZNULL;
 				currNode.setKeywordTyp(kwtyp);
 				currNode.setDownCellTyp(celltyp.ordinal());
-				currNode.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+				currNode.setRightCell(false);
 				currNode.setDownp(downp);
 				page.setNode(idx, currNode);
 			}
@@ -1493,7 +1493,7 @@ public class ScanSrc implements IConst {
 		celltyp = NodeCellTyp.KWD;
 		node.setKeywordTyp(kwtyp);
 		node.setDownCellTyp(celltyp.ordinal());
-		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+		node.setRightCell(false);
 		node.setDownp(kwidx);
 		prevNode = node;
 
@@ -1507,7 +1507,7 @@ public class ScanSrc implements IConst {
 		kwtyp = KeywordTyp.NULL;
 		celltyp = NodeCellTyp.INT;
 		node.setDownCellTyp(celltyp.ordinal());
-		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+		node.setRightCell(false);
 		node.setDownp(crPathLen);
 		prevNode = node;
 
@@ -1521,7 +1521,7 @@ public class ScanSrc implements IConst {
 		kwtyp = KeywordTyp.NULL;
 		celltyp = NodeCellTyp.INT;
 		node.setDownCellTyp(celltyp.ordinal());
-		node.setRightCellTyp(NodeCellTyp.PTR.ordinal());
+		node.setRightCell(false);
 		node.setDownp(crPathVal);
 		page.setNode(idx, node);
 		currNodep = rightp;
