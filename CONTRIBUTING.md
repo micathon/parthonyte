@@ -1,6 +1,6 @@
 # Contributing to Parvascript
 * Many thanks for your interest in being a Parvascript contributor
-* I hope to begin accepting contributions in by end of 2021
+* I hope to begin accepting contributions by end of 2021
 * If you wish to write detailed design specs or anything more ambitious, please contact me
 * At this point I don't have much documentation for coders, but feel free to email me with your questions for now
 # How to run Parvascript
