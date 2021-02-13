@@ -24,8 +24,9 @@ public class RunTime implements IConst {
 	private SynChk synChk;
 	private static final boolean isSilent = false;
 	private int rootNodep;
-	private HashMap<String, Integer> glbPubVarMap;
-	private ArrayList<Integer> glbPubVarList;
+	private HashMap<String, Integer> glbLocVarMap;
+	private ArrayList<Integer> glbLocVarList;
+	private ArrayList<AddrNode> locVarList;
 	private int count;
 
 	public RunTime(Store store, ScanSrc scanSrc, SynChk synChk,	int rootNodep) {
@@ -33,8 +34,9 @@ public class RunTime implements IConst {
 		this.scanSrc = scanSrc;
 		this.synChk = synChk;
 		this.rootNodep = rootNodep;
-		glbPubVarMap = new HashMap<String, Integer>();
-		glbPubVarList = new ArrayList<Integer>();
+		glbLocVarMap = new HashMap<String, Integer>();
+		glbLocVarList = new ArrayList<Integer>();
+		locVarList = new ArrayList<AddrNode>();
 		count = 0;
 	}
 
@@ -303,9 +305,10 @@ public class RunTime implements IConst {
 					return -1;
 				}
 				downp = node.getDownp();
-				varName = store.getVarName(downp);
-				glbPubVarMap.put(varName, varidx++);
-				glbPubVarList.add(rightp);
+				varName = getGdefunWord();
+				varName += store.getVarName(downp);
+				glbLocVarMap.put(varName, varidx++);
+				glbLocVarList.add(rightp);
 				rightp = node.getRightp();
 				node.setRightp(downp);
 				node.setDownp(0);
@@ -337,7 +340,7 @@ public class RunTime implements IConst {
 				return -1;
 			}
 			downp = node.getDownp();
-			rtnval = scanStmt(downp);
+			rtnval = scopeStmt(downp);
 			if (!rtnval) {
 				return -1;
 			}
@@ -403,15 +406,16 @@ public class RunTime implements IConst {
 		return savep;
 	}
 	
-	private boolean scanStmt(int rightp) {
+	private boolean scopeStmt(int rightp) {
 		Node node;
 		KeywordTyp kwtyp;
 		
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		switch (kwtyp) {
-		case SET: return scanSetStmt(node);
-		case PRINTLN: return scanPrintlnStmt(node);
+		case SET: return scopeSetStmt(node);
+		case PRINTLN: return scopePrintlnStmt(node);
+		case ZCALL: return scopeZcallStmt(node);
 		default: return false;
 		}
 	}
@@ -430,6 +434,9 @@ public class RunTime implements IConst {
 		case PRINTLN: 
 			rtnval = runPrintlnStmt(node);
 			break;
+		case ZCALL:
+			rtnval = runZcallStmt(node);
+			break;
 		default: return false;
 		}
 		if (rtnval < 0) {
@@ -438,7 +445,7 @@ public class RunTime implements IConst {
 		return (rtnval >= 0);
 	}
 	
-	private boolean scanSetStmt(Node node) {
+	private boolean scopeSetStmt(Node node) {
 		int rightp;
 		boolean rtnval;
 		
@@ -448,18 +455,18 @@ public class RunTime implements IConst {
 			return false;
 		}
 		node = store.getNode(rightp);
-		rtnval = scanLocVar(rightp);
+		rtnval = scopeLocVar(rightp);
 		return rtnval;
 	}
 	
-	private boolean scanPrintlnStmt(Node node) {
+	private boolean scopePrintlnStmt(Node node) {
 		int rightp;
 		boolean rtnval;
 
 		rightp = node.getRightp();
 		while (rightp > 0) {
 			node = store.getNode(rightp);
-			rtnval = scanLocVar(rightp);
+			rtnval = scopeLocVar(rightp);
 			if (!rtnval) {
 				return false;
 			}
@@ -468,7 +475,11 @@ public class RunTime implements IConst {
 		return true;
 	}
 	
-	private boolean scanLocVar(int rightp) {
+	private boolean scopeZcallStmt(Node node) {
+		return true;
+	}
+	
+	private boolean scopeLocVar(int rightp) {
 		int downp;
 		Page page;
 		int idx;
@@ -484,8 +495,9 @@ public class RunTime implements IConst {
 			return false;
 		}
 		downp = node.getDownp();
-		varName = store.getVarName(downp);
-		value = glbPubVarMap.get(varName);
+		varName = getGdefunWord();
+		varName += store.getVarName(downp);
+		value = glbLocVarMap.get(varName);
 		if (value == null) {
 			return false;
 		}
@@ -538,7 +550,7 @@ public class RunTime implements IConst {
 			return -4;
 		}
 		value = valnode.getDownp();
-		rightp = glbPubVarList.get(varidx);
+		rightp = glbLocVarList.get(varidx);
 		node = store.getNode(rightp);
 		node.setDownCellTyp(NodeCellTyp.INT.ordinal());
 		node.setDownp(value);
@@ -567,7 +579,7 @@ public class RunTime implements IConst {
 				return -51;
 			}
 			varidx = node.getDownp();
-			varp = glbPubVarList.get(varidx);
+			varp = glbLocVarList.get(varidx);
 			varnode = store.getNode(varp);
 			namep = varnode.getRightp();
 			varname = store.getVarName(namep);
@@ -581,6 +593,15 @@ public class RunTime implements IConst {
 		}
 		omsg(msg);
 		return 0;
+	}
+	
+	private int runZcallStmt(Node node) {
+		omsg("runZcallStmt");
+		return 0;
+	}
+	
+	private String getGdefunWord() {
+		return "gdefun@";
 	}
 	
 }
