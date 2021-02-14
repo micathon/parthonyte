@@ -455,7 +455,7 @@ public class RunTime implements IConst {
 		boolean rtnval;
 
 		omsg("Keyword gdefun detected.");
-		scopeFuncName = getGdefunWord();
+		scopeFuncName = "";
 		node = store.getNode(rightp);
 		firstNode = node;
 		kwtyp = node.getKeywordTyp();
@@ -636,7 +636,8 @@ public class RunTime implements IConst {
 		int idx;
 		Node node;
 		NodeCellTyp celltyp;
-		String varName;
+		boolean isGlb;
+		String varName, name;
 		Integer value;
 		int varidx;
 		
@@ -646,13 +647,32 @@ public class RunTime implements IConst {
 			return false;
 		}
 		downp = node.getDownp();
-		varName = scopeFuncName + ' ';
-		varName += store.getVarName(downp);
-		value = glbLocVarMap.get(varName);
-		if (value == null) {
+		isGlb = scopeFuncName.equals("");
+		if (isGlb) {
+			name = getGdefunWord();
+		}
+		else {
+			name = scopeFuncName;
+		}
+		varName = store.getVarName(downp);
+		name = name + ' ' + varName;
+		value = glbLocVarMap.get(name);
+		if (value != null) { }
+		else if (isGlb) {
 			return false;
 		}
+		else {
+			isGlb = true;
+			name = getGdefunWord() + ' ' + varName;
+			value = glbLocVarMap.get(name);
+			if (value == null) {
+				return false;
+			}
+		}
 		varidx = (int)value;
+		if (isGlb) {
+			varidx = -1 - varidx;
+		}
 		node.setDownCellTyp(NodeCellTyp.LOCVAR.ordinal());
 		node.setDownp(varidx);
 		page = store.getPage(rightp);
@@ -847,6 +867,9 @@ public class RunTime implements IConst {
 			return -2;
 		}
 		varidx = node.getDownp();
+		if (varidx < 0) {
+			varidx = -1 - varidx;
+		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			return -3;
@@ -886,6 +909,9 @@ public class RunTime implements IConst {
 				return -51;
 			}
 			varidx = node.getDownp();
+			if (varidx < 0) {
+				varidx = -1 - varidx;
+			}
 			varp = glbLocVarList.get(varidx);
 			varnode = store.getNode(varp);
 			namep = varnode.getRightp();
@@ -909,6 +935,10 @@ public class RunTime implements IConst {
 	
 	private String getGdefunWord() {
 		return "gdefun";
+	}
+	
+	private boolean isGdefun(String s) {
+		return s.equals("gdefun");
 	}
 	
 }
