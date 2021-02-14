@@ -1381,7 +1381,7 @@ public class SynChk {
 		switch (kwtyp) {
 		case SCOOL:
 		case ISCOOL:
-			return chkScoolStmt(rightp);
+			return chkHedronStmt(rightp);
 		case ENUM:
 		case IENUM:
 			return chkEnumStmt(rightp, false);
@@ -1514,7 +1514,7 @@ public class SynChk {
 		}
 	}
 	
-	private int chkScoolStmt(int rightp) {
+	private int chkHedronStmt(int rightp) {
 		Node node;
 		Node parNode;
 		int savep = rightp;
@@ -1538,20 +1538,20 @@ public class SynChk {
 				kwtyp = KeywordTyp.NULL;
 			}
 			else {
-				oerrd(rightp, "Error in scool def: unexpected keyword encountered",
+				oerrd(rightp, "Error in hedron def: unexpected keyword encountered",
 					260.1);
-				out("chkScoolStmt (): fail 0");
+				out("chkHedronStmt (): fail 0");
 				return -1;
 			}
-			phaseNo = getScoolPhase(kwtyp, oldPhaseNo);
+			phaseNo = getHedronPhase(kwtyp, oldPhaseNo);
 			if (phaseNo < 0) {
-				oerrd(rightp, "Malformed scool def with invalid keyword: " + 
+				oerrd(rightp, "Malformed hedron def with invalid keyword: " + 
 					kwtyp, 260.2);
 				return -1;
 			}
 			if (phaseNo <= oldPhaseNo) {
-				oerrd(rightp, "Malformed (mixed up) scool def", 260.25);
-				out("chkScoolStmt (): fail 1");
+				oerrd(rightp, "Malformed (mixed up) hedron def", 260.25);
+				out("chkHedronStmt (): fail 1");
 				return -1;
 			}
 			switch (phaseNo) {
@@ -1562,7 +1562,7 @@ public class SynChk {
 				// does
 				rightp = node.getRightp();
 				if (!isValidDoesList(rightp, rightq)) {
-					out("chkScoolStmt (): fail 2");
+					out("chkHedronStmt (): fail 2");
 					return -1;
 				}
 				break;
@@ -1570,7 +1570,7 @@ public class SynChk {
 				// const
 				rightp = node.getRightp();
 				if (!isValidConstList(rightp, rightq)) {
-					out("chkScoolStmt (): fail 3");
+					out("chkHedronStmt (): fail 3");
 					return -1;
 				}
 				break;
@@ -1578,29 +1578,29 @@ public class SynChk {
 				break;
 			}
 			if (!isNameFound && (phaseNo > 1)) {
-				oerrd(rightp, "Error in scool def: missing scool name",
+				oerrd(rightp, "Error in hedron def: missing hedron name",
 					260.4);
-				out("chkScoolStmt (): fail 4");
+				out("chkHedronStmt (): fail 4");
 				return -1;
 			}
 			oldPhaseNo = phaseNo;
 			rightp = parNode.getRightp();
 		}
-		out("scool: chk DO");
+		out("hedron: chk DO");
 		if (rightp <= 0) {
-			oerrd(rightq, "Missing DO in scool def", 260.5);
+			oerrd(rightq, "Missing DO in hedron def", 260.5);
 			return -1;
 		}
-		rightp = chkScoolDoBlock(rightp);
+		rightp = chkHedronDoBlock(rightp);
 		if (rightp != 0) {
-			oerrd(rightq, "Error in DO block in scool def", 260.6);
-			out("chkScoolStmt (): fail 5");
+			oerrd(rightq, "Error in DO block in hedron def", 260.6);
+			out("chkHedronStmt (): fail 5");
 			return -1;
 		}
 		return savep;
 	}
 	
-	private int getScoolPhase(KeywordTyp kwtyp, int phaseNo) {
+	private int getHedronPhase(KeywordTyp kwtyp, int phaseNo) {
 		switch (kwtyp) {
 		case NULL:
 			return 1;
@@ -1609,7 +1609,7 @@ public class SynChk {
 		case CONST:
 			return 3;
 		default:
-			out("getScoolPhase (): fail 1");
+			out("getHedronPhase (): fail 1");
 			return -1;
 		}
 	}
@@ -1913,28 +1913,28 @@ public class SynChk {
 		return 0; // OK
 	}
 	
-	private int chkScoolDoBlock(int rightp) {
+	private int chkHedronDoBlock(int rightp) {
 		Node node, subNode;
 		KeywordTyp kwtyp;
 		int downp, downq;
 		
 		if (rightp <= 0) {
-			out("doScoolBlock (): fail 0");
+			out("doHedronBlock (): fail 0");
 			return -1;
 		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
-			oerr(rightp, "System error in scool do block: missing DO keyword");
-			out("doScoolBlock (): fail 1");
+			oerr(rightp, "System error in hedron do block: missing DO keyword");
+			out("doHedronBlock (): fail 1");
 			return -1;
 		}
 		rightp = node.getDownp();
 		while (rightp > 0) {
 			node = store.getNode(rightp);
 			if (!node.isOpenPar()) {
-				oerr(rightp, "System error in scool do block: isOpenPar failure");
-				out("doScoolBlock (): fail 3");
+				oerr(rightp, "System error in hedron do block: isOpenPar failure");
+				out("doHedronBlock (): fail 3");
 				return -1;
 			}
 			downp = node.getDownp();
@@ -1942,9 +1942,9 @@ public class SynChk {
 			kwtyp = subNode.getKeywordTyp();
 			downp = subNode.getRightp();
 			if (downp == 0) {
-				oerrd(rightp, "Error in scool def: " + kwtyp +
+				oerrd(rightp, "Error in hedron def: " + kwtyp +
 					" missing open paren", 420.1);
-				out("doScoolBlock (): fail 4");
+				out("doHedronBlock (): fail 4");
 				return -1;
 			}
 			switch (kwtyp) {
@@ -1955,16 +1955,16 @@ public class SynChk {
 				downq = chkDefunStmt(downp);
 				break;
 			default:
-				oerrd(downp, "Error in scool def: unexpected keyword " +
+				oerrd(downp, "Error in hedron def: unexpected keyword " +
 					kwtyp + " found", 420.2);
-				out("doScoolBlock (): fail 5");
+				out("doHedronBlock (): fail 5");
 				return -1;
 			}
-			out("doScoolBlock (): OK - 5");
+			out("doHedronBlock (): OK - 5");
 			if (downq <= 0) {
-				oerrd(downp, "Error in scool def: invalid abdefun/defimp def",
+				oerrd(downp, "Error in hedron def: invalid abdefun/defimp def",
 					420.3);
-				out("doScoolBlock (): fail 6");
+				out("doHedronBlock (): fail 6");
 				return -1;
 			}
 			rightp = node.getRightp();
