@@ -9,6 +9,7 @@ import page.AddrNode;
 import page.Node;
 import scansrc.ScanSrc;
 import synchk.SynChk;
+import runtm.RunScanner;
 import runtm.RunTime;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -83,7 +84,7 @@ public class InitMain implements IConst {
 		BufferedReader fbr;
 		ScanSrc scanSrc;
 		SynChk synchk;
-		RunTime runtm;
+		RunScanner runtm;
 		int rootNodep;
 		boolean fatalErr = false;
 		boolean rtnval = true;
@@ -91,7 +92,7 @@ public class InitMain implements IConst {
 		scanSrc = new ScanSrc(store);
 		synchk = new SynChk(scanSrc, store);
 		rootNodep = scanSrc.rootNodep;
-		runtm = new RunTime(store, scanSrc, synchk, rootNodep);
+		runtm = new RunScanner(store, scanSrc, synchk, rootNodep);
 		scanSrc.setSynChk(synchk);
 		synchk.isUnitTest = isUnitTest;
 		if (isUnitTest) {
@@ -113,6 +114,7 @@ public class InitMain implements IConst {
 				rtnval = synchk.showUnitTestVal();
 			}
 			else if (scanSrc.scanSummary(fatalErr)) {
+				omsg("Stack idx: " + store.printStkIdxs());
 				runtm.run();
 			}
 		} catch (IOException exc) {
