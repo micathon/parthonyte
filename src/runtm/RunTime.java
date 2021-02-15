@@ -26,8 +26,8 @@ public class RunTime implements IConst {
 	private int rootNodep;
 	private HashMap<String, Integer> glbFunMap;
 	private HashMap<String, Integer> glbLocVarMap;
+	private ArrayList<Integer> glbFunList;
 	private ArrayList<Integer> glbLocVarList;
-	private ArrayList<AddrNode> locVarList;
 	private String scopeFuncName;
 	private int defunCount;
 	private int count;
@@ -39,8 +39,8 @@ public class RunTime implements IConst {
 		this.rootNodep = rootNodep;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
+		glbFunList = new ArrayList<Integer>();
 		glbLocVarList = new ArrayList<Integer>();
-		locVarList = new ArrayList<AddrNode>();
 		defunCount = 0;
 		count = 0;
 	}
@@ -566,7 +566,7 @@ public class RunTime implements IConst {
 		switch (kwtyp) {
 		case SET: return scopeSetStmt(node);
 		case PRINTLN: return scopePrintlnStmt(node);
-		case ZCALL: return scopeZcallStmt(node);
+		case ZCALL: return scopeZcallStmt(rightp);
 		default: return false;
 		}
 	}
@@ -626,7 +626,33 @@ public class RunTime implements IConst {
 		return true;
 	}
 	
-	private boolean scopeZcallStmt(Node node) {
+	private boolean scopeZcallStmt(int rightp) {
+		int downp;
+		Node node;
+		Page page;
+		int idx;
+		NodeCellTyp celltyp;
+		String varName;
+		Integer value;
+		int varidx;
+		
+		node = store.getNode(rightp);
+		celltyp = node.getDownCellTyp();
+		if (celltyp != NodeCellTyp.FUNC) {
+			return false;
+		}
+		downp = node.getDownp();
+		varName = store.getVarName(downp);
+		value = glbFunMap.get(varName);
+		if (value == null) {
+			return false;
+		}
+		varidx = (int)value;
+		node.setDownp(varidx);
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		page.setNode(idx, node);
+		omsg("FunVar = " + varidx);
 		return true;
 	}
 	
@@ -684,11 +710,13 @@ public class RunTime implements IConst {
 	
 	private int scanDefunStmt(int rightp) {
 		Node node;
-		Node upNode;
+		Node upNode, funcNode;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 		int downp;
 		int savep = rightp;
+		int funcp;
+		int rightq;
 		String funcName;
 		String varName;
 		int varidx = 0;
@@ -708,9 +736,11 @@ public class RunTime implements IConst {
 		if (celltyp != NodeCellTyp.FUNC) {
 			return -1;
 		}
+		funcp = rightp;
+		funcNode = node;
 		downp = node.getDownp();
 		funcName = store.getVarName(downp);
-		glbFunMap.put(funcName, defunCount++);
+		glbFunMap.put(funcName, defunCount);
 		node = upNode;
 		rightp = node.getRightp();
 		node = store.getNode(rightp);
@@ -761,6 +791,28 @@ public class RunTime implements IConst {
 			omsg("Missing DO");
 			return -1;
 		}
+		glbFunList.add(rightp);
+		if (node.getRightp() > 0) {
+			omsg("Post DO: unexpected rightp found");
+			return -1;
+		}
+		rightq = rightp;
+		downp = funcNode.getDownp();
+		varName = store.getVarName(downp);
+		omsg("Post DO: varName = " + varName);
+		upNode = new Node(0, funcp, 0);
+		rightp = store.allocNode(upNode);
+		node.setRightp(rightp);
+		page = store.getPage(rightq);
+		idx = store.getElemIdx(rightq);
+		page.setNode(idx, node);
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		celltyp = NodeCellTyp.PTR;
+		upNode.setDownCellTyp(celltyp.ordinal());
+		upNode.setRightCell(false);
+		page.setNode(idx, upNode);
+		defunCount++;
 		return savep;
 	}
 	
