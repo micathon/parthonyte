@@ -529,13 +529,12 @@ public class RunScanner implements IConst {
 	
 	private int scanDefunStmt(int rightp) {
 		Node node;
-		Node upNode, funcNode;
+		Node upNode, funcNameNode;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 		int downp;
 		int savep = rightp;
 		int funcp;
-		int rightq;
 		String funcName;
 		String varName;
 		int varidx = 0;
@@ -549,14 +548,14 @@ public class RunScanner implements IConst {
 		if (kwtyp != KeywordTyp.ZPAREN) {
 			return -1;
 		}
+		funcp = rightp;
 		rightp = node.getDownp();
 		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
 		if (celltyp != NodeCellTyp.FUNC) {
 			return -1;
 		}
-		funcp = rightp;
-		funcNode = node;
+		funcNameNode = node;
 		downp = node.getDownp();
 		funcName = store.getVarName(downp);
 		rt.glbFunMap.put(funcName, defunCount);
@@ -610,26 +609,23 @@ public class RunScanner implements IConst {
 			omsg("Missing DO");
 			return -1;
 		}
-		rt.glbFunList.add(rightp);
 		if (node.getRightp() > 0) {
 			omsg("Post DO: unexpected rightp found");
 			return -1;
 		}
-		rightq = rightp;
-		downp = funcNode.getDownp();
+		// rightp points to do-block
+		// funcp points to zparen of (f x y)
+		downp = funcNameNode.getDownp();
 		varName = store.getVarName(downp);
 		omsg("Post DO: varName = " + varName);
-		upNode = new Node(0, funcp, 0);
+		upNode = new Node(0, funcp, rightp);
 		rightp = store.allocNode(upNode);
-		node.setRightp(rightp);
-		page = store.getPage(rightq);
-		idx = store.getElemIdx(rightq);
-		page.setNode(idx, node);
+		rt.glbFunList.add(rightp);
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		celltyp = NodeCellTyp.PTR;
 		upNode.setDownCellTyp(celltyp.ordinal());
-		upNode.setRightCell(false);
+		upNode.setRightCell(true);
 		page.setNode(idx, upNode);
 		defunCount++;
 		return savep;
