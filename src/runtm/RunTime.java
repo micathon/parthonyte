@@ -305,9 +305,10 @@ public class RunTime implements IConst {
 		Page page;
 		int idx;
 		NodeCellTyp celltyp;
-		String varName;
+		String funcName;
 		Integer value;
 		int varidx;
+		int i, j, k;
 		
 		omsg("runZcallStmt: top");
 		varidx = node.getDownp() - 1;
@@ -318,8 +319,20 @@ public class RunTime implements IConst {
 		downp = node.getDownp();
 		node = store.getNode(downp);
 		downp = node.getDownp();
-		varName = store.getVarName(downp);
-		omsg("runZcall: FunVar = " + varidx + ", Fun = " + varName);
+		funcName = store.getVarName(downp);
+		omsg("runZcall: FunVar = " + varidx + ", Fun = " + funcName);
+		i = glbLocVarMap.get(funcName);
+		k = i;
+		j = 0;
+		while (true) {
+			j = glbLocVarList.get(i);
+			if (j < 0) {
+				break;
+			}
+			i++;
+		}
+		i -= k;
+		omsg("runZcall: LocVar count = " + i);
 		return 0;
 	}
 	

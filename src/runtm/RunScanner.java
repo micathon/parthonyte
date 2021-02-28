@@ -539,6 +539,7 @@ public class RunScanner implements IConst {
 		String varName;
 		int varidx = 0;
 		int idx;
+		int glbLocIdx;
 		Page page;
 
 		omsg("Keyword defun detected.");
@@ -559,6 +560,8 @@ public class RunScanner implements IConst {
 		downp = node.getDownp();
 		funcName = store.getVarName(downp);
 		rt.glbFunMap.put(funcName, defunCount);
+		glbLocIdx = rt.glbLocVarList.size();
+		rt.glbLocVarMap.put(funcName, glbLocIdx);
 		node = upNode;
 		rightp = node.getRightp();
 		node = store.getNode(rightp);
@@ -591,6 +594,7 @@ public class RunScanner implements IConst {
 				node.setRightCell(true);
 				page.setNode(idx, node);
 			}
+			rt.glbLocVarList.add(-1);
 			node = upNode;
 			rightp = node.getRightp();
 			omsg("Global/local var count = " + varidx);
