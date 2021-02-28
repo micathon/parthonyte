@@ -301,7 +301,25 @@ public class RunTime implements IConst {
 	}
 	
 	private int runZcallStmt(Node node) {
-		omsg("runZcallStmt");
+		int downp;
+		Page page;
+		int idx;
+		NodeCellTyp celltyp;
+		String varName;
+		Integer value;
+		int varidx;
+		
+		omsg("runZcallStmt: top");
+		varidx = node.getDownp() - 1;
+		downp = glbFunList.get(varidx);
+		node = store.getNode(downp);
+		downp = node.getDownp();
+		node = store.getNode(downp);
+		downp = node.getDownp();
+		node = store.getNode(downp);
+		downp = node.getDownp();
+		varName = store.getVarName(downp);
+		omsg("runZcall: FunVar = " + varidx + ", Fun = " + varName);
 		return 0;
 	}
 	
