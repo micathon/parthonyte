@@ -29,6 +29,9 @@ public class RunTime implements IConst {
 	private static final int NEGADDR = -2;
 	private static final int STKOVERFLOW = -3;
 	private static final int BADSTMT = -4;
+	private static final int BADOP = -5;
+	private static final int BADCELLTYP = -6;
+	private static final int BADALLOC = -7;
 	private static final int NONVAR = 0; // same as AddrNode
 	private static final int LOCVAR = 1; //
 	private static final int FLDVAR = 2; //
@@ -212,6 +215,10 @@ public class RunTime implements IConst {
 		switch (rightp) {
 		case NEGADDR: return "Nonpositive pointer encountered";
 		case STKOVERFLOW: return "Stack overflow";
+		case BADSTMT: return "Unsupported stmt. type";
+		case BADOP: return "Unsupported operator";
+		case BADCELLTYP: return "Unsupported var/const type";
+		case BADALLOC: return "Memory allocation failure";
 		default: return "Error code = " + (-rightp);
 		}
 	}
@@ -220,6 +227,12 @@ public class RunTime implements IConst {
 		KeywordTyp kwtyp;
 		Node node;
 		AddrNode addrNode;
+		NodeCellTyp celltyp;
+		Page page;
+		int idx, varidx;
+		int downp;
+		int ival, rtnval;
+		double dval;
 		
 		while (rightp >= 0) {
 			while (rightp <= 0) {
@@ -240,27 +253,38 @@ public class RunTime implements IConst {
 				stmtCount++;
 				return runStmt(node);
 			}
-			if (isTgtExpr) {
-				return runTgtExpr(node);
-			}
 			if (kwtyp == KeywordTyp.ZPAREN) {
 				return runExpr(node);
 			}
-			rightp = runToken(node);
+			celltyp = node.getDownCellTyp();
+			switch (celltyp) {
+			case ID:
+				varidx = node.getDownp();
+				if (!pushVar(varidx)) {
+					return STKOVERFLOW;
+				}
+				break;
+			case INT:
+				ival = node.getDownp();
+				if (!pushInt(ival)) {
+					return STKOVERFLOW;
+				}
+				break;
+			case DOUBLE:	
+				downp = node.getDownp();
+				page = store.getPage(downp);
+				idx = store.getElemIdx(downp);
+				dval = page.getDouble(idx);
+				rtnval = pushFloat(dval);
+				if (rtnval < 0) {
+					return rtnval;
+				}
+				break;
+			default: return BADCELLTYP;
+			}
+			rightp = node.getRightp();
 		} 
 		return rightp;
-	}
-	
-	private int runTgtExpr(Node node) {
-		return node.getRightp();
-	}
-	
-	private int runExpr(Node node) {
-		return node.getRightp();
-	}
-	
-	private int runToken(Node node) {
-		return node.getRightp();
 	}
 	
 	private int runStmt(Node node) {
@@ -291,6 +315,42 @@ public class RunTime implements IConst {
 		default: return BADSTMT;
 		}
 		return rtnval;
+	}
+	
+	private int runExpr(Node node) {
+		KeywordTyp kwtyp;
+		int rightp;
+		AddrNode addrNode;
+		
+		rightp = node.getRightp();
+		if (!pushAddr(rightp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getDownp();
+		if (rightp <= 0) {
+			return NEGADDR;
+		}
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		switch (kwtyp) {
+		case ADD:
+		case MPY:
+			addrNode = new AddrNode(0, kwtyp.ordinal());
+			addrNode.setHdrPgTyp(PageTyp.KWD);
+			if (!pushOp(kwtyp) || !store.pushNode(addrNode)) {
+				return STKOVERFLOW;
+			}
+			break;
+		case MINUS:
+		case DIV:
+			if (!pushOp(kwtyp)) {
+				return STKOVERFLOW;
+			}
+			break;
+		default: return BADOP;
+		}
+		rightp = node.getRightp();
+		return rightp;
 	}
 	
 	private int runSetStmt(Node node) {
@@ -417,7 +477,7 @@ public class RunTime implements IConst {
 	
 	private boolean pushVal(int val, PageTyp pgtyp, int locVarTyp) {
 		AddrNode addrNode;
-		addrNode = new AddrNode(0, 0);
+		addrNode = new AddrNode(0, val);
 		addrNode.setHdrPgTyp(pgtyp);
 		addrNode.setHdrLocVarTyp(locVarTyp);
 		if (!store.pushNode(addrNode)) {
@@ -430,6 +490,64 @@ public class RunTime implements IConst {
 		AddrNode addrNode;
 		addrNode = new AddrNode(0, rightp);
 		if (!store.pushNode(addrNode)) {
+			return false;
+		}
+		return true;
+	}
+	
+	private int pushFloat(double val) {
+		AddrNode addrNode;
+		int addr;
+		
+		addr = store.allocDouble(val);
+		if (addr < 0) {
+			return BADALLOC;
+		}
+		addrNode = new AddrNode(0, addr);
+		addrNode.setHdrPgTyp(PageTyp.DOUBLE);
+		if (!store.pushNode(addrNode)) {
+			return STKOVERFLOW;
+		}
+		return 0;
+	}
+	
+	private boolean pushInt(int val) {
+		AddrNode addrNode;
+		addrNode = new AddrNode(0, val);
+		addrNode.setHdrPgTyp(PageTyp.INTVAL);
+		if (!store.pushNode(addrNode)) {
+			return false;
+		}
+		return true;
+	}
+	
+	private boolean pushOp(KeywordTyp kwtyp) {
+		byte byt = (byte)(kwtyp.ordinal());
+		if (!store.pushByte(byt)) {
+			return false;
+		}
+		return true;
+	}
+	
+	private boolean pushVar(int varidx) {
+		boolean isLocal;
+		int stkidx;
+		int locVarTyp;
+		PageTyp pgtyp;
+		AddrNode addrNode;
+		
+		isLocal = (varidx >= 0);
+		if (isLocal) {
+			stkidx = locBaseIdx + varidx;
+			locVarTyp = LOCVAR;
+		}
+		else {
+			stkidx = -1 - varidx;
+			locVarTyp = GLBVAR;
+		}
+		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if (!pushVal(varidx, pgtyp, locVarTyp)) {
 			return false;
 		}
 		return true;
