@@ -6,6 +6,10 @@ public class AddrNode {
 	
 	private short header;
 	private int addr;
+	public static final int NONVAR = 0;
+	public static final int LOCVAR = 1;
+	public static final int FLDVAR = 2;
+	public static final int GLBVAR = 3;
 	
 	public AddrNode(int header, int addr) {
 		this.header = (short) header;
@@ -51,35 +55,35 @@ public class AddrNode {
 	}
 	
 	public void setHdrNonVar() {
-		setHdrLocVarTyp(0);
+		setHdrLocVarTyp(NONVAR);
 	}
 	
 	public void setHdrLocVar() {
-		setHdrLocVarTyp(1);
+		setHdrLocVarTyp(LOCVAR);
 	}
 	
 	public void setHdrFldVar() {
-		setHdrLocVarTyp(2);
+		setHdrLocVarTyp(FLDVAR);
 	}
 	
 	public void setHdrGlbVar() {
-		setHdrLocVarTyp(3);
+		setHdrLocVarTyp(GLBVAR);
 	}
 	
 	public boolean getHdrNonVar() {
-		return (getHdrLocVarTyp() == 0);
+		return (getHdrLocVarTyp() == NONVAR);
 	}
 	
 	public boolean getHdrLocVar() {
-		return (getHdrLocVarTyp() == 1);
+		return (getHdrLocVarTyp() == LOCVAR);
 	}
 	
 	public boolean getHdrFldVar() {
-		return (getHdrLocVarTyp() == 2);
+		return (getHdrLocVarTyp() == FLDVAR);
 	}
 	
 	public boolean getHdrGlbVar() {
-		return (getHdrLocVarTyp() == 3);
+		return (getHdrLocVarTyp() == GLBVAR);
 	}
 	
 }
