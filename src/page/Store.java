@@ -308,6 +308,10 @@ public class Store implements IConst {
 		return stackTab.pushNode(node);
 	}
 
+	public AddrNode fetchNode(int stkidx) {
+		return stackTab.fetchNode(stkidx);
+	}
+	
 	public long topLong() {
 		return stackTab.topLong();
 	}
@@ -373,6 +377,10 @@ public class Store implements IConst {
 		page.setString(idx, s);
 	}
 
+	public String printStkIdxs() {
+		return stackTab.printStkIdxs();
+	}
+	
 }
 
 class PageTab implements IConst {
@@ -454,6 +462,11 @@ class PageTab implements IConst {
 			list.add(0);
 		}
 		return list;
+	}
+	
+	public String printStkIdxs() {
+		return "(" + opStkPgIdx + ',' + opStkIdx + " - " + 
+			nodeStkLstIdx + ',' + nodeStkIdx  + ')';
 	}
 	
 	public long packHdrAddr(int header, int addr) {
@@ -541,6 +554,19 @@ class PageTab implements IConst {
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
+	public AddrNode fetchNode(int stkidx) {
+		AddrNode node;
+		ArrayList<AddrNode> list;
+		int myStkIdx, myStkLstIdx;
+		
+		myStkIdx = stkidx % NODESTKLEN;
+		myStkLstIdx = stkidx / NODESTKLEN;
+		list = (ArrayList<AddrNode>) nodepg.getList(myStkLstIdx);
+		node = list.get(myStkIdx);
+		return node;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public boolean appendNodep(int nodep, int lineno) {
 		ArrayList<Integer> list;

@@ -42,6 +42,11 @@ public class AddrNode {
 		header = (short)((header & 0xFFF0) | mask);
 	}
 	
+	public PageTyp getHdrPgTyp() {
+		PageTyp rtnval = PageTyp.values()[header & 0xF];
+		return rtnval;
+	}
+	
 	public int getHdrLocVarTyp() {
 		short locVarTyp = (short)((header & (short)0x0030) >>> 4);
 		return (int)locVarTyp;
