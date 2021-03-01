@@ -3,6 +3,8 @@ package runtm;
 import iconst.IConst;
 import iconst.KeywordTyp;
 import iconst.NodeCellTyp;
+import iconst.TokenTyp;
+import iconst.PageTyp;
 import page.Node;
 import page.AddrNode;
 import page.Store;
@@ -20,6 +22,17 @@ public class RunTime implements IConst {
 	private ScanSrc scanSrc;
 	private SynChk synChk;
 	private RunScanner rscan;
+	private int locBaseIdx;
+	private int stmtCount;
+	private boolean isTgtExpr;
+	private static final int EXIT = -1;
+	private static final int NEGADDR = -2;
+	private static final int STKOVERFLOW = -3;
+	private static final int BADSTMT = -4;
+	private static final int NONVAR = 0; // same as AddrNode
+	private static final int LOCVAR = 1; //
+	private static final int FLDVAR = 2; //
+	private static final int GLBVAR = 3; //
 	public HashMap<String, Integer> glbFunMap;
 	public HashMap<String, Integer> glbLocVarMap;
 	public ArrayList<Integer> glbFunList;
@@ -29,6 +42,9 @@ public class RunTime implements IConst {
 		this.store = store;
 		this.scanSrc = scanSrc;
 		this.synChk = synChk;
+		locBaseIdx = 0;
+		stmtCount = 0;
+		isTgtExpr = false;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
 		glbFunList = new ArrayList<Integer>();
@@ -44,6 +60,10 @@ public class RunTime implements IConst {
 	}
 	
 	public void omsg(String msg) {  
+		rscan.omsg(msg);
+	}
+	
+	public void oerr(String msg) {  
 		rscan.omsg(msg);
 	}
 	
@@ -143,10 +163,7 @@ public class RunTime implements IConst {
 		Node node;
 		Node firstNode;
 		KeywordTyp kwtyp;
-		int downp;
 		int savep = rightp;
-		int stmtCount = 0;
-		boolean rtnval;
 
 		omsg("Keyword gdefun detected again.");
 		node = store.getNode(rightp);
@@ -176,29 +193,89 @@ public class RunTime implements IConst {
 			return -1;
 		}
 		rightp = node.getDownp();
-		while (rightp > 0) {
-			node = store.getNode(rightp);
-			kwtyp = node.getKeywordTyp();
-			if (kwtyp != KeywordTyp.ZSTMT) {
-				return -1;
-			}
-			downp = node.getDownp();
-			rtnval = runStmt(downp);
-			if (!rtnval) {
-				return -1;
-			}
-			stmtCount++;
-			rightp = node.getRightp();
-		} 
+		if (rightp <= 0) {
+			return savep;
+		}
+		rightp = handleToken(rightp);
 		omsg("Stmt count = " + stmtCount);
+		if (rightp < EXIT) {
+			handleErrToken(rightp);
+		}
 		return savep;
 	}
 	
-	private boolean runStmt(int rightp) {
-		Node node;
+	private void handleErrToken(int rightp) {
+		oerr("Runtime Error: " + convertErrToken(rightp));
+	}
+	
+	private String convertErrToken(int rightp) {
+		switch (rightp) {
+		case NEGADDR: return "Nonpositive pointer encountered";
+		case STKOVERFLOW: return "Stack overflow";
+		default: return "Error code = " + (-rightp);
+		}
+	}
+	
+	private int handleToken(int rightp) {	
 		KeywordTyp kwtyp;
+		Node node;
+		AddrNode addrNode;
+		
+		while (rightp >= 0) {
+			while (rightp <= 0) {
+				if (store.isNodeStkEmpty()) {
+					return EXIT;
+				}
+				addrNode = store.popNode();
+				rightp = addrNode.getAddr();
+				if (rightp > 0) {
+					node = store.getNode(rightp);
+					rightp = node.getRightp();
+					continue;
+				}
+			}
+			node = store.getNode(rightp);
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp == KeywordTyp.ZSTMT) {
+				stmtCount++;
+				return runStmt(node);
+			}
+			if (isTgtExpr) {
+				return runTgtExpr(node);
+			}
+			if (kwtyp == KeywordTyp.ZPAREN) {
+				return runExpr(node);
+			}
+			rightp = runToken(node);
+		} 
+		return rightp;
+	}
+	
+	private int runTgtExpr(Node node) {
+		return node.getRightp();
+	}
+	
+	private int runExpr(Node node) {
+		return node.getRightp();
+	}
+	
+	private int runToken(Node node) {
+		return node.getRightp();
+	}
+	
+	private int runStmt(Node node) {
+		KeywordTyp kwtyp;
+		int rightp;
 		int rtnval;
 		
+		rightp = node.getRightp();
+		if (!pushAddr(rightp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getDownp();
+		if (rightp <= 0) {
+			return NEGADDR;
+		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		switch (kwtyp) {
@@ -211,12 +288,9 @@ public class RunTime implements IConst {
 		case ZCALL:
 			rtnval = runZcallStmt(node);
 			break;
-		default: return false;
+		default: return BADSTMT;
 		}
-		if (rtnval < 0) {
-			omsg("runStmt: err code = " + rtnval);
-		}
-		return (rtnval >= 0);
+		return rtnval;
 	}
 	
 	private int runSetStmt(Node node) {
@@ -303,14 +377,17 @@ public class RunTime implements IConst {
 	private int runZcallStmt(Node node) {
 		int downp;
 		Page page;
+		PageTyp pgtyp;
 		int idx;
 		NodeCellTyp celltyp;
 		String funcName;
 		Integer value;
 		int varidx;
 		int i, j, k;
+		int oldBaseIdx;
 		
 		omsg("runZcallStmt: top");
+		oldBaseIdx = locBaseIdx;
 		varidx = node.getDownp() - 1;
 		downp = glbFunList.get(varidx);
 		node = store.getNode(downp);
@@ -322,18 +399,40 @@ public class RunTime implements IConst {
 		funcName = store.getVarName(downp);
 		omsg("runZcall: FunVar = " + varidx + ", Fun = " + funcName);
 		i = glbLocVarMap.get(funcName);
-		k = i;
-		j = 0;
+		locBaseIdx = i;
 		while (true) {
 			j = glbLocVarList.get(i);
 			if (j < 0) {
 				break;
 			}
+			if (!pushVal(0, PageTyp.INTVAL, LOCVAR)) {
+				return STKOVERFLOW;
+			}
 			i++;
 		}
-		i -= k;
+		i -= locBaseIdx;
 		omsg("runZcall: LocVar count = " + i);
 		return 0;
+	}
+	
+	private boolean pushVal(int val, PageTyp pgtyp, int locVarTyp) {
+		AddrNode addrNode;
+		addrNode = new AddrNode(0, 0);
+		addrNode.setHdrPgTyp(pgtyp);
+		addrNode.setHdrLocVarTyp(locVarTyp);
+		if (!store.pushNode(addrNode)) {
+			return false;
+		}
+		return true;
+	}
+	
+	private boolean pushAddr(int rightp) {
+		AddrNode addrNode;
+		addrNode = new AddrNode(0, rightp);
+		if (!store.pushNode(addrNode)) {
+			return false;
+		}
+		return true;
 	}
 	
 	private String getGdefunWord() {
