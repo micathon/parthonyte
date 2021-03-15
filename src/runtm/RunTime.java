@@ -25,6 +25,7 @@ public class RunTime implements IConst {
 	private int locBaseIdx;
 	private int stmtCount;
 	private boolean isTgtExpr;
+	private boolean isNegInt;
 	private static final int EXIT = -1;
 	private static final int NEGADDR = -2;
 	private static final int STKOVERFLOW = -3;
@@ -34,6 +35,9 @@ public class RunTime implements IConst {
 	private static final int BADCELLTYP = -7;
 	private static final int BADALLOC = -8;
 	private static final int BADPOP = -9;
+	private static final int ZERODIV = -10;
+	private static final int KWDPOPPED = -11;
+	private static final int NULLPOPPED = -12;
 	private static final int NONVAR = 0; // same as AddrNode
 	private static final int LOCVAR = 1; //
 	private static final int FLDVAR = 2; //
@@ -223,6 +227,8 @@ public class RunTime implements IConst {
 		case BADCELLTYP: return "Unsupported var/const type";
 		case BADALLOC: return "Memory allocation failure";
 		case BADPOP: return "Error in pop operation";
+		case ZERODIV: return "Divide by zero";
+		case KWDPOPPED: return "Keyword popped unexpectedly";
 		default: return "Error code = " + (-rightp);
 		}
 	}
@@ -330,6 +336,7 @@ public class RunTime implements IConst {
 	
 	private int runExpr(Node node) {
 		KeywordTyp kwtyp;
+		KeywordTyp nullkwd;
 		int rightp;
 		
 		rightp = node.getRightp();
@@ -345,7 +352,8 @@ public class RunTime implements IConst {
 		switch (kwtyp) {
 		case ADD:
 		case MPY:
-			if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp)) {
+			nullkwd = KeywordTyp.NULL; 
+			if (!pushOp(kwtyp) || !pushOpAsNode(nullkwd)) {
 				return STKOVERFLOW;
 			}
 			break;
@@ -362,32 +370,85 @@ public class RunTime implements IConst {
 	}
 	
 	private int runAddExpr() {
+		int n;
+		int val;
+		int sum = 0;
+
+		val = popInt(true);
+		while (val != NULLPOPPED) {
+			if (val < 0) {
+				return val;
+			}
+			n = packIntSign(isNegInt, val);
+			sum += n;
+			val = popInt(true);
+		}
+		if (!pushInt(sum)) {
+			return STKOVERFLOW;
+		}
 		return 0;
 	}
 	
 	private int runMpyExpr() {
+		int n;
+		int val;
+		int product = 1;
+
+		val = popInt(true);
+		while (val != NULLPOPPED) {
+			if (val < 0) {
+				return val;
+			}
+			n = packIntSign(isNegInt, val);
+			product *= n;
+			val = popInt(true);
+		}
+		if (!pushInt(product)) {
+			return STKOVERFLOW;
+		}
 		return 0;
 	}
 	
 	private int runDivExpr() {
+		int m, n;
+		int val;
+		int ival;
+		
+		val = popInt(false);
+		if (val < 0) {
+			return val;
+		}
+		n = packIntSign(isNegInt, val);
+		if (n == 0) {
+			return ZERODIV;
+		}
+		val = popInt(false);
+		if (val < 0) {
+			return val;
+		}
+		m = packIntSign(isNegInt, val);
+		ival = m / n;
+		if (!pushInt(ival)) {
+			return STKOVERFLOW;
+		}
 		return 0;
 	}
 	
 	private int runMinusExpr() {
 		int m, n;
-		Object val;
+		int val;
 		int ival;
 		
-		val = popInt();
-		if (val == null) {
-			return BADPOP;
+		val = popInt(false);
+		if (val < 0) {
+			return val;
 		}
-		n = (int)val;
-		val = popInt();
-		if (val == null) {
-			return BADPOP;
+		n = packIntSign(isNegInt, val);
+		val = popInt(false);
+		if (val < 0) {
+			return val;
 		}
-		m = (int)val;
+		m = packIntSign(isNegInt, val);
 		ival = m - n;
 		if (!pushInt(ival)) {
 			return STKOVERFLOW;
@@ -589,17 +650,42 @@ public class RunTime implements IConst {
 		return kwtyp;
 	}
 	
-	private Object popInt() {
+	public int stripIntSign(int val) {
+		if (val == 0x80000000) {
+			return 0;
+		}
+		return val;
+	}
+	
+	public int packIntSign(boolean isNeg, int val) {
+		if (isNeg && (val == 0)) {
+			return 0x80000000;
+		}
+		val = isNeg ? -val : val;
+		return val;
+	}
+	
+	private int popInt(boolean isKwd) {
 		// assume set stmt. only handles integer vars/values
 		AddrNode addrNode;
 		PageTyp pgtyp;
+		KeywordTyp kwtyp;
 		int locVarTyp;
 		int varidx;
-		// return null on error, else int
+		int rtnval;
 		
 		addrNode = store.popNode();
 		if (addrNode == null) {
-			return null;
+			return STKUNDERFLOW;
+		}
+		kwtyp = KeywordTyp.values[addrNode.getAddr()];
+		pgtyp = addrNode.getHdrPgTyp(); 
+		if (pgtyp != PageTyp.KWD) { }
+		else if (!isKwd || (kwtyp != KeywordTyp.NULL)) {
+			return KWDPOPPED;
+		}
+		else {
+			return NULLPOPPED;
 		}
 		locVarTyp = addrNode.getHdrLocVarTyp();
 		switch (locVarTyp) {
@@ -614,11 +700,15 @@ public class RunTime implements IConst {
 			addrNode = store.fetchNode(varidx);
 			pgtyp = addrNode.getHdrPgTyp(); 
 			if (pgtyp != PageTyp.INTVAL) {
-				return null;
+				return BADPOP;
 			}
-			return addrNode.getAddr();
+			rtnval = addrNode.getAddr();
+			isNegInt = (rtnval < 0);
+			rtnval = stripIntSign(rtnval);
+			break;
+		default: rtnval = BADPOP;
 		}
-		return null;
+		return rtnval;
 	}
 	
 	private boolean pushVal(int val, PageTyp pgtyp, int locVarTyp) {
