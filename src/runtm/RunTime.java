@@ -33,6 +33,7 @@ public class RunTime implements IConst {
 	private static final int BADOP = -6;
 	private static final int BADCELLTYP = -7;
 	private static final int BADALLOC = -8;
+	private static final int BADPOP = -9;
 	private static final int NONVAR = 0; // same as AddrNode
 	private static final int LOCVAR = 1; //
 	private static final int FLDVAR = 2; //
@@ -221,6 +222,7 @@ public class RunTime implements IConst {
 		case BADOP: return "Unsupported operator";
 		case BADCELLTYP: return "Unsupported var/const type";
 		case BADALLOC: return "Memory allocation failure";
+		case BADPOP: return "Error in pop operation";
 		default: return "Error code = " + (-rightp);
 		}
 	}
@@ -242,9 +244,12 @@ public class RunTime implements IConst {
 					return STKUNDERFLOW; 
 				}
 				kwtyp = popKwd();
-				rtnval = handleKwd(kwtyp);
-				if (rtnval < 0) {
-					return rtnval;
+				rightp = handleKwd(kwtyp);
+				if (rightp < 0) {
+					return rightp;
+				}
+				else if (rightp > 0) {
+					continue;
 				}
 				if (store.isNodeStkEmpty()) {
 					return STKUNDERFLOW;
@@ -369,9 +374,24 @@ public class RunTime implements IConst {
 	}
 	
 	private int runMinusExpr() {
+		int m, n;
+		Object val;
+		int ival;
 		
-		
-		
+		val = popInt();
+		if (val == null) {
+			return BADPOP;
+		}
+		n = (int)val;
+		val = popInt();
+		if (val == null) {
+			return BADPOP;
+		}
+		m = (int)val;
+		ival = m - n;
+		if (!pushInt(ival)) {
+			return STKOVERFLOW;
+		}
 		return 0;
 	}
 	
@@ -547,8 +567,6 @@ public class RunTime implements IConst {
 	}
 	
 	private int handleKwd(KeywordTyp kwtyp) {
-		int rightp = 0;
-		
 		switch (kwtyp) {
 		case SET: return runSetStmt();
 		case PRINTLN: return runPrintlnStmt();
@@ -558,9 +576,8 @@ public class RunTime implements IConst {
 		case MINUS: return runMinusExpr();
 		case DIV: return runDivExpr();
 		default:
-			rightp = BADOP;
+			return BADOP;
 		}
-		return rightp;
 	}
 	
 	private KeywordTyp popKwd() {
@@ -570,6 +587,38 @@ public class RunTime implements IConst {
 		ival = (int)store.popByte();
 		kwtyp = KeywordTyp.values[ival];
 		return kwtyp;
+	}
+	
+	private Object popInt() {
+		// assume set stmt. only handles integer vars/values
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int locVarTyp;
+		int varidx;
+		// return null on error, else int
+		
+		addrNode = store.popNode();
+		if (addrNode == null) {
+			return null;
+		}
+		locVarTyp = addrNode.getHdrLocVarTyp();
+		switch (locVarTyp) {
+		case NONVAR: 
+			return addrNode.getAddr();
+		case LOCVAR:
+		case GLBVAR:
+			varidx = addrNode.getAddr();
+			if (addrNode.getHdrLocVar()) {
+				varidx += locBaseIdx;
+			}
+			addrNode = store.fetchNode(varidx);
+			pgtyp = addrNode.getHdrPgTyp(); 
+			if (pgtyp != PageTyp.INTVAL) {
+				return null;
+			}
+			return addrNode.getAddr();
+		}
+		return null;
 	}
 	
 	private boolean pushVal(int val, PageTyp pgtyp, int locVarTyp) {
