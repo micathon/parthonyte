@@ -671,14 +671,15 @@ public class RunTime implements IConst {
 		PageTyp pgtyp;
 		KeywordTyp kwtyp;
 		int locVarTyp;
-		int varidx;
+		int addr, varidx;
 		int rtnval;
 		
 		addrNode = store.popNode();
 		if (addrNode == null) {
 			return STKUNDERFLOW;
 		}
-		kwtyp = KeywordTyp.values[addrNode.getAddr()];
+		addr = addrNode.getAddr();
+		kwtyp = KeywordTyp.values[addr];
 		pgtyp = addrNode.getHdrPgTyp(); 
 		if (pgtyp != PageTyp.KWD) { }
 		else if (!isKwd || (kwtyp != KeywordTyp.NULL)) {
@@ -690,10 +691,10 @@ public class RunTime implements IConst {
 		locVarTyp = addrNode.getHdrLocVarTyp();
 		switch (locVarTyp) {
 		case NONVAR: 
-			return addrNode.getAddr();
+			return addr;
 		case LOCVAR:
 		case GLBVAR:
-			varidx = addrNode.getAddr();
+			varidx = addr;
 			if (addrNode.getHdrLocVar()) {
 				varidx += locBaseIdx;
 			}
