@@ -312,6 +312,18 @@ public class Store implements IConst {
 		return stackTab.fetchNode(stkidx);
 	}
 	
+	public void initSpareStkIdx() {
+		stackTab.initSpareStkIdx();
+	}
+	
+	public AddrNode popSpare() {
+		return stackTab.popSpare();
+	}
+	
+	public AddrNode fetchSpare() {
+		return stackTab.fetchSpare();
+	}
+	
 	public long topLong() {
 		return stackTab.topLong();
 	}
@@ -377,6 +389,18 @@ public class Store implements IConst {
 		page.setString(idx, s);
 	}
 
+	public void pokeNode(int rightp, int ival) {
+		Page page;
+		int idx;
+		Node node;
+		
+		page = getPage(rightp);
+		idx = getElemIdx(rightp);
+		node = page.getNode(idx);
+		node.setDownp(ival);
+		page.setNode(idx, node);
+	}
+	
 	public String printStkIdxs() {
 		return stackTab.printStkIdxs();
 	}
@@ -392,6 +416,8 @@ class PageTab implements IConst {
 	private int opStkPgIdx;
 	private int opStkIdx;
 	private int nodeLstIdx, nodeMastIdx;
+	private int spareStkLstIdx;
+	private int spareStkIdx;
 	
 	public PageTab(PageTyp pgtyp) {
 		Page page;
@@ -565,6 +591,57 @@ class PageTab implements IConst {
 		list = (ArrayList<AddrNode>) nodepg.getList(myStkLstIdx);
 		node = list.get(myStkIdx);
 		return node;
+	}
+	
+	public void initSpareStkIdx() {
+		spareStkLstIdx = nodeStkLstIdx;
+		spareStkIdx = nodeStkIdx;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public AddrNode popSpare() {
+		AddrNode node;
+		ArrayList<AddrNode> list;
+		
+		if (spareStkIdx > 0) {
+			list = (ArrayList<AddrNode>) nodepg.getList(spareStkLstIdx);
+			node = list.get(--spareStkIdx);
+		}
+		else if (spareStkLstIdx > 0) {
+			list = (ArrayList<AddrNode>) nodepg.getList(--spareStkLstIdx);
+			spareStkIdx = NODESTKLEN - 1;
+			node = list.get(spareStkIdx);
+		}
+		else {
+			node = null;
+		}
+		return node;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public AddrNode fetchSpare() {
+		AddrNode addrNode;
+		ArrayList<AddrNode> list;
+
+		if (spareStkIdx >= nodeStkIdx && spareStkLstIdx >= nodeStkLstIdx) {
+			return null;
+		}
+		if (spareStkIdx < NODESTKLEN) { 
+			list = (ArrayList<AddrNode>) nodepg.getList(spareStkLstIdx);
+		}
+		else if (spareStkLstIdx < INTPGLEN - 1) {
+			list = (ArrayList<AddrNode>) nodepg.getList(++spareStkLstIdx);
+			if (list == null) {
+				list = initStkLst(NODESTKLEN);
+				nodepg.setList(spareStkLstIdx, list);
+			}
+			spareStkIdx = 0;
+		}
+		else {
+			return null;
+		}
+		addrNode = list.get(spareStkIdx++);
+		return addrNode;
 	}
 	
 	@SuppressWarnings("unchecked")
