@@ -556,22 +556,27 @@ public class RunTime implements IConst {
 	}
 			
 	private int pushZcallStmt(Node node) {
-		int downp;
-		Page page;
-		PageTyp pgtyp;
-		int idx;
-		NodeCellTyp celltyp;
-		String funcName;
-		Integer value;
-		int varidx;
-		int i, j, k;
-		int oldBaseIdx;
+		// assume no args.
+		// after handling args., may need to call pushOpAsNode
+		int rightp;
+		KeywordTyp kwtyp;
 		
 		omsg("pushZcallStmt: top");
-		return 0;
+		kwtyp = KeywordTyp.ZCALL;
+		if (!pushOp(kwtyp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
+		return rightp;
 	}
 	
 	private int runZcallStmt() {
+		// - pop func ref.
+		// - get ptr to func def parm list
+		// - push parms. as INTVAL
+		// - push ptr to zstmt of func ref.
+		// - push RETURN
+		// - go to func body: return ptr to first zstmt
 		int downp;
 		Page page;
 		PageTyp pgtyp;
@@ -611,7 +616,15 @@ public class RunTime implements IConst {
 		}
 		i -= locBaseIdx;
 		omsg("runZcall: LocVar count = " + i);
-		return 0;
+		return 0; // wrong!
+	}
+	
+	private int runRtnStmt() {
+		// - already popped RETURN
+		// - pop ptr to zstmt of func ref.
+		// - return getRightp of popped ptr
+		
+		return 0; // wrong!
 	}
 	
 	private int handleKwd(KeywordTyp kwtyp) {
@@ -619,6 +632,7 @@ public class RunTime implements IConst {
 		case SET: return runSetStmt();
 		case PRINTLN: return runPrintlnStmt();
 		case ZCALL: return runZcallStmt();
+		case RETURN: return runRtnStmt();
 		case ADD: return runAddExpr();
 		case MPY: return runMpyExpr();
 		case MINUS: return runMinusExpr();
