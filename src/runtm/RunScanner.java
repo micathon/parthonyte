@@ -417,7 +417,6 @@ public class RunScanner implements IConst {
 	
 	private boolean scopeSetStmt(Node node) {
 		int rightp;
-		boolean rtnval;
 		
 		count++;
 		rightp = node.getRightp();
@@ -425,8 +424,14 @@ public class RunScanner implements IConst {
 			return false;
 		}
 		node = store.getNode(rightp);
-		rtnval = scopeLocVar(rightp);
-		return rtnval;
+		if (!scopeLocVar(rightp)) {
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return false;
+		}
+		return scopeExpr(rightp);
 	}
 	
 	private boolean scopePrintlnStmt(Node node) {
@@ -524,6 +529,11 @@ public class RunScanner implements IConst {
 		idx = store.getElemIdx(rightp);
 		page.setNode(idx, node);
 		omsg("LocVar = " + varidx);
+		return true;
+	}
+	
+	private boolean scopeExpr(int rightp) {
+		// call scopeLocVar for all lower level IDs...
 		return true;
 	}
 	

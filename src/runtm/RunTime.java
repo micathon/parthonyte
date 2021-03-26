@@ -282,6 +282,12 @@ public class RunTime implements IConst {
 						return STKOVERFLOW;
 					}
 					break;
+				case FUNC:
+					varidx = node.getDownp();
+					if (!pushInt(varidx)) {
+						return STKOVERFLOW;
+					}
+					break;
 				case INT:
 					ival = node.getDownp();
 					if (!pushInt(ival)) {
@@ -328,7 +334,7 @@ public class RunTime implements IConst {
 			rightp = pushPrintlnStmt(node);
 			break;
 		case ZCALL:
-			rightp = pushZcallStmt(node);
+			rightp = pushZcallStmt(rightp);
 			break;
 		default: return BADSTMT;
 		}
@@ -555,23 +561,25 @@ public class RunTime implements IConst {
 		return 0;
 	}
 			
-	private int pushZcallStmt(Node node) {
+	private int pushZcallStmt(int rightp) {
 		// assume no args.
 		// after handling args., may need to call pushOpAsNode
-		int rightp;
+		
+		//Node node;
 		KeywordTyp kwtyp;
 		
 		omsg("pushZcallStmt: top");
+		//node = store.getNode(rightp);
 		kwtyp = KeywordTyp.ZCALL;
 		if (!pushOp(kwtyp)) {
 			return STKOVERFLOW;
 		}
-		rightp = node.getRightp();
+		//rightp = node.getRightp();
 		return rightp;
 	}
 	
 	private int runZcallStmt() {
-		// - pop func ref.
+		// - pop func ref. (idx in func list)
 		// - get ptr to func def parm list
 		// - push parms. as INTVAL
 		// - push ptr to zstmt of func ref.
