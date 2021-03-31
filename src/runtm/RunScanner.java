@@ -533,8 +533,26 @@ public class RunScanner implements IConst {
 	}
 	
 	private boolean scopeExpr(int rightp) {
-		// call scopeLocVar for all lower level IDs...
-		return true;
+		// call scopeLocVar for all lower level IDs
+		Node node;
+		NodeCellTyp celltyp;
+		boolean rtnval = true;
+
+		node = store.getNode(rightp);
+		celltyp = node.getDownCellTyp();
+		if (celltyp == NodeCellTyp.ID) {
+			return scopeLocVar(rightp);
+		}
+		if (celltyp != NodeCellTyp.PTR) {
+			return true;
+		}
+		rightp = node.getDownp();
+		while (rtnval && (rightp > 0)) {
+			rtnval = rtnval && scopeExpr(rightp);
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
+		}
+		return rtnval;
 	}
 	
 	private int scanDefunStmt(int rightp) {
