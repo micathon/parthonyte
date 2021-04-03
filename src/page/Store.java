@@ -312,6 +312,10 @@ public class Store implements IConst {
 		return stackTab.fetchNode(stkidx);
 	}
 	
+	public int getStkIdx() {
+		return stackTab.getStkIdx();
+	}
+	
 	public void initSpareStkIdx() {
 		stackTab.initSpareStkIdx();
 	}
@@ -591,6 +595,12 @@ class PageTab implements IConst {
 		list = (ArrayList<AddrNode>) nodepg.getList(myStkLstIdx);
 		node = list.get(myStkIdx);
 		return node;
+	}
+	
+	public int getStkIdx() {
+		int rtnval;
+		rtnval = (nodeStkLstIdx << 10) + nodeStkIdx;
+		return rtnval;
 	}
 	
 	public void initSpareStkIdx() {
