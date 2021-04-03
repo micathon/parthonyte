@@ -24,6 +24,7 @@ public class RunTime implements IConst {
 	private RunScanner rscan;
 	private int locBaseIdx;
 	private int stmtCount;
+	private int currZstmt;
 	private boolean isTgtExpr;
 	private boolean isNegInt;
 	private static final int EXIT = -1;
@@ -268,6 +269,7 @@ public class RunTime implements IConst {
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp == KeywordTyp.ZSTMT) {
 				stmtCount++;
+				currZstmt = rightp;
 				rightp = runStmt(node);
 			}
 			else if (kwtyp == KeywordTyp.ZPAREN) {
@@ -581,37 +583,39 @@ public class RunTime implements IConst {
 	private int runZcallStmt() {
 		// - pop func ref. (idx in func list)
 		// - get ptr to func def parm list
-		// - push parms. as INTVAL
+		// - push parms. as INTVAL ( //##! )
+		// - push stk idx
 		// - push ptr to zstmt of func ref.
 		// - push RETURN
 		// - go to func body: return ptr to first zstmt
 		int downp;
-		Page page;
-		PageTyp pgtyp;
-		int idx;
-		NodeCellTyp celltyp;
+		int funcidx;
+		int upNodep;
+		int funcp;
+		int firstp;
 		Node node = null;
+		Node upNode;
 		String funcName;
-		Integer value;
-		int varidx;
-		int i, j, k;
-		int oldBaseIdx;
+		int i, j;
 		
 		omsg("runZcallStmt: top");
-		// not yet written...
-		oldBaseIdx = locBaseIdx;
-		varidx = node.getDownp() - 1;
-		downp = glbFunList.get(varidx);
-		node = store.getNode(downp);
-		downp = node.getDownp();
-		node = store.getNode(downp);
-		downp = node.getDownp();
+		funcidx = popIdxVal();
+		if (funcidx < 0) {
+			return STKUNDERFLOW;
+		}
+		upNodep = glbFunList.get(funcidx);
+		upNode = store.getNode(upNodep);
+		funcp = upNode.getDownp();
+		firstp = upNode.getRightp();
+		node = store.getNode(firstp);
+		firstp = node.getDownp();  // return firstp
+		node = store.getNode(funcp);
+		downp = node.getDownp();  // (_f_ x y)
 		node = store.getNode(downp);
 		downp = node.getDownp();
 		funcName = store.getVarName(downp);
-		omsg("runZcall: FunVar = " + varidx + ", Fun = " + funcName);
 		i = glbLocVarMap.get(funcName);
-		locBaseIdx = i;
+		locBaseIdx = store.getStkIdx();
 		while (true) {
 			j = glbLocVarList.get(i);
 			if (j < 0) {
@@ -622,17 +626,42 @@ public class RunTime implements IConst {
 			}
 			i++;
 		}
-		i -= locBaseIdx;
-		omsg("runZcall: LocVar count = " + i);
-		return 0; // wrong!
+		if (!pushInt(locBaseIdx)) {
+			return STKOVERFLOW;
+		}
+		if (!pushInt(currZstmt)) {
+			return STKOVERFLOW;
+		}
+		if (!pushOp(KeywordTyp.RETURN)) {
+			return STKOVERFLOW;
+		}
+		return firstp;
 	}
 	
 	private int runRtnStmt() {
 		// - already popped RETURN
 		// - pop ptr to zstmt of func ref.
+		// - pop locBaseIdx
 		// - return getRightp of popped ptr
+		int rightp;
+		int stkIdx;
+		Node node;
 		
-		return 0; // wrong!
+		rightp = popIdxVal();
+		if (rightp < 0) {
+			return STKOVERFLOW;
+		}
+		if (rightp == 0) {
+			return NEGADDR;
+		}
+		stkIdx = popIdxVal();
+		if (stkIdx < 0) {
+			return STKUNDERFLOW;
+		}
+		locBaseIdx = stkIdx;
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		return rightp;
 	}
 	
 	private int handleKwd(KeywordTyp kwtyp) {
@@ -672,6 +701,17 @@ public class RunTime implements IConst {
 		}
 		val = isNeg ? -val : val;
 		return val;
+	}
+	
+	private int popIdxVal() {
+		AddrNode addrNode;
+		int rtnval = -1;
+		
+		addrNode = store.popNode();
+		if (addrNode != null) {
+			rtnval = addrNode.getAddr();
+		}
+		return rtnval;
 	}
 	
 	private int popInt(boolean isKwd) {
