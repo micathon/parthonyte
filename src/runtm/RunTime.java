@@ -270,10 +270,10 @@ public class RunTime implements IConst {
 			if (kwtyp == KeywordTyp.ZSTMT) {
 				stmtCount++;
 				currZstmt = rightp;
-				rightp = runStmt(node);
+				rightp = pushStmt(node);
 			}
 			else if (kwtyp == KeywordTyp.ZPAREN) {
-				rightp = runExpr(node);
+				rightp = pushExpr(node);
 			}
 			else {
 				celltyp = node.getDownCellTyp();
@@ -314,7 +314,7 @@ public class RunTime implements IConst {
 		return rightp;
 	}
 	
-	private int runStmt(Node node) {
+	private int pushStmt(Node node) {
 		KeywordTyp kwtyp;
 		int rightp;
 		
@@ -343,7 +343,7 @@ public class RunTime implements IConst {
 		return rightp;
 	}
 	
-	private int runExpr(Node node) {
+	private int pushExpr(Node node) {
 		KeywordTyp kwtyp;
 		KeywordTyp nullkwd;
 		int rightp;
