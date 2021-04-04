@@ -324,6 +324,7 @@ public class RunScanner implements IConst {
 				node.setRightCell(true);
 				page.setNode(idx, node);
 			}
+			rt.glbLocVarList.add(-1);
 			rightp = firstNode.getRightp();
 			omsg("Global public var count = " + varidx);
 			node = store.getNode(rightp);
