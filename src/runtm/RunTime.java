@@ -25,6 +25,7 @@ public class RunTime implements IConst {
 	private int locBaseIdx;
 	private int stmtCount;
 	private int currZstmt;
+	private int stkZstmt;
 	private boolean isTgtExpr;
 	private boolean isNegInt;
 	private static final char SP = ' ';
@@ -251,6 +252,7 @@ public class RunTime implements IConst {
 		int downp;
 		int ival, rtnval;
 		double dval;
+		boolean isRtnExit;
 		
 		while (rightp >= 0) {
 			while (rightp <= 0) {
@@ -260,11 +262,21 @@ public class RunTime implements IConst {
 				kwtyp = popKwd();
 				omsg("htok: kwtyp popped = " + kwtyp);
 				rightp = handleKwd(kwtyp);
+				if (!stmtClnStk(kwtyp)) {
+					omsg("stmtClnStk fail!");
+					return STKUNDERFLOW;
+				}
+				isRtnExit = (kwtyp == KeywordTyp.RETURN && rightp == EXIT);
+				if (isRtnExit) {
+					omsg("isRtnExit = Y");
+					store.popNode();
+					continue;
+				}
 				if (rightp < 0) {
 					return rightp;
 				}
 				else if (rightp > 0) {
-					continue;
+					break;
 				}
 				if (store.isNodeStkEmpty()) {
 					return STKUNDERFLOW;
@@ -334,6 +346,7 @@ public class RunTime implements IConst {
 		if (!pushAddr(rightp)) {
 			return STKOVERFLOW;
 		}
+		stkZstmt = store.getStkIdx();
 		rightp = node.getDownp();
 		if (rightp <= 0) {
 			return NEGADDR;
@@ -348,6 +361,7 @@ public class RunTime implements IConst {
 			rightp = pushPrintlnStmt(node);
 			break;
 		case ZCALL:
+			omsg("pushStmt: ZCALL, currZstmt = " + currZstmt);
 			rightp = pushZcallStmt(rightp);
 			break;
 		default: return BADSTMT;
@@ -537,8 +551,8 @@ public class RunTime implements IConst {
 			pgtyp == PageTyp.KWD))
 		);
 		addrNode = store.fetchSpare();  // pop the PRINTLN
-		if (addrNode == null) {
-			return STKOVERFLOW;  // never happens
+		if (addrNode == null) { 
+			return STKOVERFLOW; 
 		}
 		while (true) {
 			addrNode = store.fetchSpare();
@@ -615,6 +629,7 @@ public class RunTime implements IConst {
 		if (funcidx < 0) {
 			return STKUNDERFLOW;
 		}
+		omsg("Zcall: funcidx = " + funcidx);
 		upNodep = glbFunList.get(funcidx);
 		upNode = store.getNode(upNodep);
 		funcp = upNode.getDownp();
@@ -672,9 +687,14 @@ public class RunTime implements IConst {
 			return STKUNDERFLOW;
 		}
 		locBaseIdx = stkIdx;
+		omsg("runRtnStmt: rightp = " + rightp);
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
-		return rightp;
+		omsg("runRtnStmt: rtnval = " + rightp);
+		if (rightp == 0) {
+			return EXIT;
+		}
+		return rightp;  // never returns zero
 	}
 	
 	private boolean runGlbCall() {
@@ -707,6 +727,16 @@ public class RunTime implements IConst {
 		case DIV: return runDivExpr();
 		default:
 			return BADOP;
+		}
+	}
+	
+	private boolean stmtClnStk(KeywordTyp kwtyp) {
+		switch (kwtyp) {
+		case ZCALL:
+		case RETURN:
+			return true;
+		default:
+			return (stkZstmt == store.getStkIdx());
 		}
 	}
 	
@@ -808,7 +838,6 @@ public class RunTime implements IConst {
 		PageTyp pgtyp;
 		int locVarTyp;
 		int addr, varidx;
-		int rightp;
 		
 		addrNode = store.popNode();
 		if (addrNode == null) {
