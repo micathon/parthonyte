@@ -320,6 +320,10 @@ public class Store implements IConst {
 		return stackTab.getStkIdx();
 	}
 	
+	public void putStkIdx(int stkidx) {
+		stackTab.putStkIdx(stkidx);
+	}
+	
 	public void initSpareStkIdx() {
 		stackTab.initSpareStkIdx();
 	}
@@ -558,6 +562,7 @@ class PageTab implements IConst {
 		else {
 			node = null;
 		}
+		System.out.println("Popped " + node.getAddr());
 		return node;
 	}
 	
@@ -585,6 +590,7 @@ class PageTab implements IConst {
 		addrNode = list.get(nodeStkIdx++);
 		addrNode.setHeader(header);
 		addrNode.setAddr(addr);
+		System.out.println("Pushed " + addrNode.getAddr());
 		return true;
 	}
 
@@ -618,6 +624,11 @@ class PageTab implements IConst {
 		int rtnval;
 		rtnval = (nodeStkLstIdx << 10) + nodeStkIdx;
 		return rtnval;
+	}
+	
+	public void putStkIdx(int stkidx) {
+		nodeStkIdx = stkidx % NODESTKLEN;
+		nodeStkLstIdx = stkidx / NODESTKLEN;
 	}
 	
 	public void initSpareStkIdx() {
