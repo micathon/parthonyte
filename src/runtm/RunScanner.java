@@ -294,6 +294,7 @@ public class RunScanner implements IConst {
 
 		omsg("Keyword gdefun detected.");
 		rt.glbFunMap.put(getGdefunWord(), defunCount++);
+		rt.glbFunList.add(0);
 		node = store.getNode(rightp);
 		firstNode = node;
 		kwtyp = node.getKeywordTyp();
