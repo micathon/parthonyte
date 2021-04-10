@@ -23,6 +23,7 @@ public class RunTime implements IConst {
 	private SynChk synChk;
 	private RunScanner rscan;
 	private int locBaseIdx;
+	private int varCountIdx;
 	private int stmtCount;
 	private int currZstmt;
 	private int stkZstmt;
@@ -56,6 +57,7 @@ public class RunTime implements IConst {
 		this.scanSrc = scanSrc;
 		this.synChk = synChk;
 		locBaseIdx = 0;
+		varCountIdx = 0;
 		stmtCount = 0;
 		isTgtExpr = false;
 		glbFunMap = new HashMap<String, Integer>();
@@ -205,7 +207,7 @@ public class RunTime implements IConst {
 			omsg("Missing DO");
 			return -1;
 		}
-		if (!runGlbCall()) {
+		if (runGlbCall() < 0) {
 			handleErrToken(STKOVERFLOW);
 			return -1;
 		}
@@ -217,6 +219,9 @@ public class RunTime implements IConst {
 		omsg("Stmt count = " + stmtCount);
 		if (rightp < EXIT) {
 			handleErrToken(rightp);
+		}
+		if (rightp == 0) {
+			omsg("handleToken rtn = 0");  // done
 		}
 		omsg("runGlbDefStmt: btm");
 		return savep;
@@ -252,7 +257,6 @@ public class RunTime implements IConst {
 		int downp;
 		int ival, rtnval;
 		double dval;
-		boolean isRtnExit;
 		
 		while (rightp >= 0) {
 			while (rightp <= 0) {
@@ -266,11 +270,14 @@ public class RunTime implements IConst {
 					omsg("stmtClnStk fail! rightp = " + rightp);
 					return STKUNDERFLOW;
 				}
-				isRtnExit = (kwtyp == KeywordTyp.RETURN && rightp == EXIT);
-				if (isRtnExit) {
+				if (kwtyp != KeywordTyp.RETURN) { }
+				else if (rightp == EXIT) {
 					omsg("isRtnExit = Y");
 					store.popNode();
 					continue;
+				}
+				else if (rightp == 0) {  // done
+					return 0;
 				}
 				if (rightp < 0) {
 					return rightp;
@@ -615,6 +622,7 @@ public class RunTime implements IConst {
 		// - push ptr to zstmt of func ref.
 		// - push RETURN
 		// - go to func body: return ptr to first zstmt
+		// - note: above needs review
 		int downp;
 		int funcidx;
 		int upNodep;
@@ -623,9 +631,8 @@ public class RunTime implements IConst {
 		Node node = null;
 		Node upNode;
 		String funcName;
-		int stkidx;
-		int varCount;
-		int i, j, k;
+		int varCount = 0;
+		int i, j;
 		
 		omsg("runZcallStmt: top");
 		funcidx = popIdxVal();
@@ -645,24 +652,22 @@ public class RunTime implements IConst {
 		downp = node.getDownp();
 		funcName = store.getVarName(downp);
 		i = glbLocVarMap.get(funcName);
-		k = 0;
-		stkidx = locBaseIdx;
-		locBaseIdx = store.getStkIdx();
-		varCount = locBaseIdx - stkidx;
+		locBaseIdx = store.getStkIdx() + 1;
+		if (!pushInt(varCountIdx)) {
+			return STKOVERFLOW;
+		}
 		while (true) {
-			j = glbLocVarList.get(i + k);
+			j = glbLocVarList.get(i + varCount);
 			if (j < 0) {
 				break;
 			}
-			if (!pushVal(k, PageTyp.INTVAL, LOCVAR)) {
+			if (!pushVal(varCount, PageTyp.INTVAL, LOCVAR)) {
 				return STKOVERFLOW;
 			}
-			k++;
+			varCount++;
 		}
-		if (!pushInt(k)) {
-			return STKOVERFLOW;
-		}
-		if (!pushInt(locBaseIdx + k)) {
+		varCountIdx = store.getStkIdx();
+		if (!pushInt(varCount)) {
 			return STKOVERFLOW;
 		}
 		if (!pushInt(currZstmt)) {
@@ -677,13 +682,24 @@ public class RunTime implements IConst {
 	private int runRtnStmt() {
 		// - already popped RETURN
 		// - pop ptr to zstmt of func ref.
-		// - pop locBaseIdx
+		// - pop locBaseIdx (wrong!)
 		// - return getRightp of popped ptr
+		// - note: above needs review
 		int rightp;
-		int stkidx;
+		int funcCallIdx;
+		int varCount;
 		Node node;
 		AddrNode addrNode;
 		
+		funcCallIdx = locBaseIdx - 1;
+		addrNode = store.fetchNode(funcCallIdx);
+		varCountIdx = addrNode.getAddr();
+		if (varCountIdx == 0) {
+			return 0;  // done
+		}
+		addrNode = store.fetchNode(varCountIdx);
+		varCount = addrNode.getAddr();
+		locBaseIdx = varCountIdx - varCount;
 		rightp = popIdxVal();
 		if (rightp < 0) {
 			return STKOVERFLOW;
@@ -691,6 +707,14 @@ public class RunTime implements IConst {
 		if (rightp == 0) {
 			return NEGADDR;
 		}
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		omsg("runRtnStmt: rtnval = " + rightp);
+		if (rightp == 0) {
+			return EXIT;
+		}
+		return rightp;  // never returns zero
+		/*
 		stkidx = popIdxVal();
 		if (stkidx < 0) {
 			return STKUNDERFLOW;
@@ -701,18 +725,15 @@ public class RunTime implements IConst {
 		locBaseIdx = stkidx;
 		omsg("runRtnStmt: locBaseIdx = " + locBaseIdx);
 		omsg("runRtnStmt: rightp = " + rightp);
-		node = store.getNode(rightp);
-		rightp = node.getRightp();
-		omsg("runRtnStmt: rtnval = " + rightp);
-		if (rightp == 0) {
-			return EXIT;
-		}
-		return rightp;  // never returns zero
+		*/
 	}
 	
-	private boolean runGlbCall() {
+	private int runGlbCall() {
 		int i, j;
 		
+		if (!pushInt(0)) {
+			return STKOVERFLOW;
+		}
 		i = 0;
 		locBaseIdx = store.getStkIdx();
 		omsg("runGlbCall: locBaseIdx = " + locBaseIdx);
@@ -722,11 +743,15 @@ public class RunTime implements IConst {
 				break;
 			}
 			if (!pushVal(i, PageTyp.INTVAL, GLBVAR)) {
-				return false;
+				return STKOVERFLOW;
 			}
 			i++;
 		}
-		return true;
+		varCountIdx = store.getStkIdx();
+		if (!pushInt(i)) {
+			return STKOVERFLOW;
+		}
+		return 0;
 	}
 	
 	private int handleKwd(KeywordTyp kwtyp) {
