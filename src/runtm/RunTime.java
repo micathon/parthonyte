@@ -261,7 +261,8 @@ public class RunTime implements IConst {
 		while (rightp >= 0) {
 			while (rightp <= 0) {
 				if (store.isOpStkEmpty()) {
-					return STKUNDERFLOW; 
+					omsg("htok: top of while, empty op stk");
+					return 0;  // done
 				}
 				kwtyp = popKwd();
 				omsg("htok: kwtyp popped = " + kwtyp);
@@ -290,6 +291,9 @@ public class RunTime implements IConst {
 				}
 				addrNode = store.popNode();
 				rightp = addrNode.getAddr();
+				if (rightp == 0) {
+					omsg("htok: btm of while, rightp = zero");
+				}
 			}
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
@@ -617,12 +621,13 @@ public class RunTime implements IConst {
 	private int runZcallStmt() {
 		// - pop func ref. (idx in func list)
 		// - get ptr to func def parm list
-		// - push parms. as INTVAL ( //##! )
-		// - push stk idx
-		// - push ptr to zstmt of func ref.
+		// - set locBaseIdx
+		// - push loc vars
+		// - set varCountIdx
+		// - push varCount
+		// - push currZstmt
 		// - push RETURN
 		// - go to func body: return ptr to first zstmt
-		// - note: above needs review
 		int downp;
 		int funcidx;
 		int upNodep;
@@ -652,10 +657,8 @@ public class RunTime implements IConst {
 		downp = node.getDownp();
 		funcName = store.getVarName(downp);
 		i = glbLocVarMap.get(funcName);
-		locBaseIdx = store.getStkIdx() + 1;
-		if (!pushInt(varCountIdx)) {
-			return STKOVERFLOW;
-		}
+		// old currZstmt at top of stack
+		locBaseIdx = store.getStkIdx();
 		while (true) {
 			j = glbLocVarList.get(i + varCount);
 			if (j < 0) {
@@ -681,31 +684,55 @@ public class RunTime implements IConst {
 	
 	private int runRtnStmt() {
 		// - already popped RETURN
-		// - pop ptr to zstmt of func ref.
-		// - pop locBaseIdx (wrong!)
-		// - return getRightp of popped ptr
-		// - note: above needs review
+		// - pop currZstmt
+		// - pop varCount
+		// - pop loc vars
+		// - if currZstmt then done
+		// - pop old currZstmt
+		// - varCount = top
+		// - set locBaseIdx, varCountIdx
+		// - push old currZstmt
+		// - return getRightp of currZstmt
 		int rightp;
-		int funcCallIdx;
+		int zstmt;
 		int varCount;
+		int i;
 		Node node;
 		AddrNode addrNode;
 		
-		funcCallIdx = locBaseIdx - 1;
-		addrNode = store.fetchNode(funcCallIdx);
-		varCountIdx = addrNode.getAddr();
-		if (varCountIdx == 0) {
-			return 0;  // done
-		}
-		addrNode = store.fetchNode(varCountIdx);
-		varCount = addrNode.getAddr();
-		locBaseIdx = varCountIdx - varCount;
-		rightp = popIdxVal();
+		rightp = popIdxVal(); // currZstmt
 		if (rightp < 0) {
-			return STKOVERFLOW;
+			return STKUNDERFLOW;
+		}
+		varCount = popVal(); // varCount
+		if (varCount < 0) {
+			return STKUNDERFLOW;
+		}
+		for (i = 0; i < varCount; i++) {
+			if (popVal() < 0) {
+				return STKUNDERFLOW;
+			}
 		}
 		if (rightp == 0) {
+			omsg("runRtnStmt: done");
+			return 0; // done
+		}
+		zstmt = popVal();
+		if (zstmt < 0) {
+			return STKUNDERFLOW;
+		}
+		varCountIdx = store.getStkIdx() - 1;
+		addrNode = store.topNode();
+		if (addrNode == null) {
+			return STKUNDERFLOW;
+		}
+		varCount = addrNode.getAddr();
+		if (varCount < 0) {
 			return NEGADDR;
+		}
+		locBaseIdx = varCountIdx - varCount;
+		if (!pushInt(zstmt)) {
+			return STKOVERFLOW;
 		}
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
@@ -714,26 +741,11 @@ public class RunTime implements IConst {
 			return EXIT;
 		}
 		return rightp;  // never returns zero
-		/*
-		stkidx = popIdxVal();
-		if (stkidx < 0) {
-			return STKUNDERFLOW;
-		}
-		store.putStkIdx(stkidx);
-		addrNode = store.topNode();
-		stkidx -= addrNode.getAddr();
-		locBaseIdx = stkidx;
-		omsg("runRtnStmt: locBaseIdx = " + locBaseIdx);
-		omsg("runRtnStmt: rightp = " + rightp);
-		*/
 	}
 	
 	private int runGlbCall() {
 		int i, j;
 		
-		if (!pushInt(0)) {
-			return STKOVERFLOW;
-		}
 		i = 0;
 		locBaseIdx = store.getStkIdx();
 		omsg("runGlbCall: locBaseIdx = " + locBaseIdx);
@@ -749,6 +761,9 @@ public class RunTime implements IConst {
 		}
 		varCountIdx = store.getStkIdx();
 		if (!pushInt(i)) {
+			return STKOVERFLOW;
+		}
+		if (!pushInt(0)) {
 			return STKOVERFLOW;
 		}
 		return 0;
@@ -869,6 +884,18 @@ public class RunTime implements IConst {
 		default: rtnval = BADPOP;
 		}
 		return rtnval;
+	}
+	
+	private int popVal() {
+		AddrNode node;
+		int val;
+		
+		node = store.popNode();
+		if (node == null) {
+			return -1;
+		}
+		val = node.getAddr();
+		return val;
 	}
 	
 	private int storeInt(int ival) {
