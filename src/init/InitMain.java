@@ -114,7 +114,7 @@ public class InitMain implements IConst {
 				rtnval = synchk.showUnitTestVal();
 			}
 			else if (scanSrc.scanSummary(fatalErr)) {
-				omsg("Stack idx: " + store.printStkIdxs());
+				//omsg("Stack idx: " + store.printStkIdxs());
 				runtm.run();
 			}
 		} catch (IOException exc) {
