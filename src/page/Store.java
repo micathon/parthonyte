@@ -622,6 +622,7 @@ class PageTab implements IConst {
 		list = (ArrayList<AddrNode>) nodepg.getList(myStkLstIdx);
 		node = list.get(myStkIdx);
 		node.setAddr(val);
+		node.setValue();
 	}
 	
 	public int getStkIdx() {

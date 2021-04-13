@@ -37,6 +37,14 @@ public class AddrNode {
 		return ((header & 0xF) == pgtyp.ordinal());
 	}
 	
+	public boolean hasValue() {
+		return ((header & 0x0100) != 0);
+	}
+	
+	public void setValue() {
+		header |= 0x0100;
+	}
+	
 	public void setHdrPgTyp(PageTyp pgtyp) {
 		short mask = (short)(pgtyp.ordinal());
 		header = (short)((header & 0xFFF0) | mask);
