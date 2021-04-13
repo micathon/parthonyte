@@ -29,6 +29,7 @@ public class RunTime implements IConst {
 	private int stkZstmt;
 	private boolean isTgtExpr;
 	private boolean isNegInt;
+	private boolean isQuote;
 	private static final char SP = ' ';
 	private static final int EXIT = -1;
 	private static final int NEGADDR = -2;
@@ -60,6 +61,7 @@ public class RunTime implements IConst {
 		varCountIdx = 0;
 		stmtCount = 0;
 		isTgtExpr = false;
+		isQuote = false;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
 		glbFunList = new ArrayList<Integer>();
@@ -257,11 +259,13 @@ public class RunTime implements IConst {
 		AddrNode addrNode;
 		NodeCellTyp celltyp;
 		Page page;
+		boolean wasKwd = false;
 		int idx, varidx;
 		int downp;
 		int ival, rtnval;
 		double dval;
 		
+		isQuote = false;
 		while (rightp >= 0) {
 			while (rightp <= 0) {
 				if (store.isOpStkEmpty()) {
@@ -271,6 +275,8 @@ public class RunTime implements IConst {
 				kwtyp = popKwd();
 				omsg("htok: kwtyp popped = " + kwtyp);
 				rightp = handleKwd(kwtyp);
+				isQuote = (kwtyp == KeywordTyp.SET);
+				wasKwd = true;
 				if (!stmtClnStk(kwtyp)) {
 					omsg("stmtClnStk fail! rightp = " + rightp);
 					return STKUNDERFLOW;
@@ -348,6 +354,10 @@ public class RunTime implements IConst {
 				}
 				rightp = node.getRightp();
 			}
+			if (!wasKwd) {
+				isQuote = false;
+			}
+			wasKwd = false;
 		} 
 		return rightp;
 	}
@@ -772,6 +782,23 @@ public class RunTime implements IConst {
 		return 0;
 	}
 	
+	private int fetchInt(AddrNode node) {
+		int varidx;
+		varidx = node.getAddr();
+		varidx += locBaseIdx;
+		node = store.fetchNode(varidx);
+		return node.getAddr();
+	}
+	
+	private AddrNode fetchStkNode(int varidx) {
+		int stkidx;
+		AddrNode node;
+		
+		stkidx = locBaseIdx + varidx;
+		node = store.fetchNode(stkidx);
+		return node;
+	}
+	
 	private int handleKwd(KeywordTyp kwtyp) {
 		switch (kwtyp) {
 		case SET: return runSetStmt();
@@ -925,14 +952,12 @@ public class RunTime implements IConst {
 		case GLBVAR:
 			varidx = addr;
 			omsg("storeInt: varidx = " + varidx);
-			//-----------if (addrNode.getHdrLocVar()) { }
 			varidx += locBaseIdx;
 			addrNode = store.fetchNode(varidx);
 			pgtyp = addrNode.getHdrPgTyp(); 
 			if (pgtyp != PageTyp.INTVAL) {
 				return BADPOP;
 			}
-			//--------------rightp = addrNode.getAddr();
 			store.writeNode(varidx, ival);
 			break;
 		default: return BADPOP;
