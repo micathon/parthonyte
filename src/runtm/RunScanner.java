@@ -41,7 +41,7 @@ public class RunScanner implements IConst {
 		rt.setRscan(this);
 		rtnval = runRoot(rootNodep);
 		if (!rtnval) {
-			omsg("Runtime error detected!");
+			oprn("Runtime error detected!");
 		}
 		return rtnval;
 	}
@@ -53,9 +53,13 @@ public class RunScanner implements IConst {
 	}
 	
 	public void omsg(String msg) {  
-		if (!isSilent) {
+		if (isrtbug) {
 			System.out.println(msg);
 		}
+	}
+	
+	public void oprn(String msg) {  
+		System.out.println(msg);
 	}
 	
 	private boolean runRoot(int rightp) {

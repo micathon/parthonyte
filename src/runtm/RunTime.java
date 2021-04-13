@@ -78,6 +78,10 @@ public class RunTime implements IConst {
 		rscan.omsg(msg);
 	}
 	
+	public void oprn(String msg) {  
+		rscan.oprn(msg);
+	}
+	
 	public void oerr(String msg) {  
 		rscan.omsg(msg);
 	}
@@ -228,7 +232,7 @@ public class RunTime implements IConst {
 	}
 	
 	private void handleErrToken(int rightp) {
-		oerr("Runtime Error: " + convertErrToken(rightp));
+		oprn("Runtime Error: " + convertErrToken(rightp));
 	}
 	
 	private String convertErrToken(int rightp) {
@@ -308,25 +312,24 @@ public class RunTime implements IConst {
 				rightp = pushExpr(node);
 			}
 			else {
+				varidx = node.getDownp();
 				celltyp = node.getDownCellTyp();
-				omsg("htok: celltyp = " + celltyp);
+				omsg("htok: celltyp = " + celltyp + ", downp = " + varidx);
 				switch (celltyp) {
 				case ID:
 				case LOCVAR:
-					varidx = node.getDownp();
 					if (!pushVar(varidx)) {
 						return STKOVERFLOW;
 					}
 					omsg("htok: ID var = " + varidx);
 					break;
 				case FUNC:
-					varidx = node.getDownp();
 					if (!pushInt(varidx)) {
 						return STKOVERFLOW;
 					}
 					break;
 				case INT:
-					ival = node.getDownp();
+					ival = varidx;
 					if (!pushInt(ival)) {
 						return STKOVERFLOW;
 					}
@@ -585,7 +588,7 @@ public class RunTime implements IConst {
 			count++;
 		}
 		if (count > 0) {
-			omsg(msg);
+			oprn(msg);
 		}
 		do {
 			addrNode = store.popNode();
