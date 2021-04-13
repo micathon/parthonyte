@@ -505,7 +505,7 @@ public class ScanSrc implements IConst {
 			return false;
 		}
 		if (!fatalErr && isClean && synchk.isValidSrc()) {
-			omsg("Src file is valid.");
+			out("Src file is valid.");
 			return true;
 		}
 		if (!isClean) {
