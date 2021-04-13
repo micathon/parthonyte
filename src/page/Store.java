@@ -417,6 +417,10 @@ public class Store implements IConst {
 		return stackTab.printStkIdxs();
 	}
 	
+	private void omsg(String msg) {
+		stackTab.omsg(msg);
+	}
+	
 }
 
 class PageTab implements IConst {
@@ -562,7 +566,7 @@ class PageTab implements IConst {
 		else {
 			node = null;
 		}
-		System.out.println("Popped " + node.getAddr());
+		omsg("Popped " + node.getAddr());
 		return node;
 	}
 	
@@ -590,7 +594,7 @@ class PageTab implements IConst {
 		addrNode = list.get(nodeStkIdx++);
 		addrNode.setHeader(header);
 		addrNode.setAddr(addr);
-		System.out.println("Pushed " + addrNode.getAddr());
+		omsg("Pushed " + addrNode.getAddr());
 		return true;
 	}
 
@@ -871,6 +875,12 @@ class PageTab implements IConst {
 	@SuppressWarnings("unused")
 	private void out(boolean flag, String msg) {
 		if (flag) {
+			System.out.println(msg);
+		}
+	}
+	
+	public void omsg(String msg) {
+		if (isrtbug) {
 			System.out.println(msg);
 		}
 	}
