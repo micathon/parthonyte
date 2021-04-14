@@ -304,10 +304,13 @@ public class RunTime implements IConst {
 				if (rightp == 0) {
 					omsg("htok: btm of while, rightp = zero");
 				}
+				if (rightp == 4116) {
+					omsg("-------------------rightp == 4116");
+				}
 			}
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
-			omsg("htok: kwtyp = " + kwtyp);
+			omsg("htok: kwtyp = " + kwtyp + ", rightp = " + rightp);
 			if (kwtyp == KeywordTyp.ZSTMT) {
 				stmtCount++;
 				omsg("htok: stmtCount = " + stmtCount);
@@ -364,10 +367,10 @@ public class RunTime implements IConst {
 	
 	private int pushStmt(Node node) {
 		KeywordTyp kwtyp;
-		int rightp;
+		int rightp, rightq;
 		
-		rightp = node.getRightp();
-		if (!pushAddr(rightp)) {
+		rightq = node.getRightp();
+		if (!pushAddr(rightq)) {
 			return STKOVERFLOW;
 		}
 		stkZstmt = store.getStkIdx();
@@ -377,6 +380,7 @@ public class RunTime implements IConst {
 		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
+		//if (kwtyp == KeywordTyp.SET) {store.popNode();}
 		switch (kwtyp) {
 		case SET: 
 			rightp = pushSetStmt(node);
@@ -744,6 +748,10 @@ public class RunTime implements IConst {
 			return NEGADDR;
 		}
 		locBaseIdx = varCountIdx - varCount;
+		if (locBaseIdx < 0) {
+			omsg("runRtnStmt: -ve locBaseIdx = " + locBaseIdx +
+				", varCount = " + varCount);
+		}
 		if (!pushInt(zstmt)) {
 			return STKOVERFLOW;
 		}
@@ -1002,9 +1010,16 @@ public class RunTime implements IConst {
 	}
 	
 	private boolean pushInt(int val) {
+		boolean rtnval;
+		rtnval = pushIntVar(val, NONVAR);
+		return rtnval;
+	}
+	
+	private boolean pushIntVar(int val, int locVarTyp) {
 		AddrNode addrNode;
 		addrNode = new AddrNode(0, val);
 		addrNode.setHdrPgTyp(PageTyp.INTVAL);
+		addrNode.setHdrLocVarTyp(locVarTyp);
 		if (!store.pushNode(addrNode)) {
 			return false;
 		}
@@ -1037,7 +1052,11 @@ public class RunTime implements IConst {
 		int locVarTyp;
 		PageTyp pgtyp;
 		AddrNode addrNode;
+		boolean rtnval;
 		
+		if (varidx == -1) {
+			omsg("pushVar: varidx == -1, locBaseIdx = " + locBaseIdx);
+		}
 		isLocal = (varidx >= 0);
 		if (isLocal) {
 			locVarTyp = LOCVAR;
@@ -1049,10 +1068,18 @@ public class RunTime implements IConst {
 		stkidx = locBaseIdx + varidx;
 		addrNode = store.fetchNode(stkidx);
 		pgtyp = addrNode.getHdrPgTyp();
-		if (!pushVal(varidx, pgtyp, locVarTyp)) {
+		if (isQuote) { }
+		else if (pushVal(varidx, pgtyp, locVarTyp)) {
+			return true;
+		}
+		else {
 			return false;
 		}
-		return true;
+		if (pgtyp != PageTyp.INTVAL) {
+			return false;
+		}
+		rtnval = pushIntVar(varidx, locVarTyp);
+		return rtnval;
 	}
 	
 	private String getGdefunWord() {
