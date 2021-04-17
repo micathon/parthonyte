@@ -26,7 +26,6 @@ public class RunTime implements IConst {
 	private int varCountIdx;
 	private int stmtCount;
 	private int currZstmt;
-	private int stkZstmt;
 	private boolean isTgtExpr;
 	private boolean isNegInt;
 	private boolean isQuote;
@@ -277,14 +276,10 @@ public class RunTime implements IConst {
 				rightp = handleKwd(kwtyp);
 				isQuote = (kwtyp == KeywordTyp.SET);
 				wasKwd = true;
-				if (!stmtClnStk(kwtyp)) {
-					omsg("stmtClnStk fail! rightp = " + rightp);
-					return STKUNDERFLOW;
-				}
 				if (kwtyp != KeywordTyp.RETURN) { }
 				else if (rightp == EXIT) {
 					omsg("isRtnExit = Y");
-					store.popNode();
+					//store.popNode();
 					continue;
 				}
 				else if (rightp == 0) {  // done
@@ -301,12 +296,7 @@ public class RunTime implements IConst {
 				}
 				addrNode = store.popNode();
 				rightp = addrNode.getAddr();
-				if (rightp == 0) {
-					omsg("htok: btm of while, rightp = zero");
-				}
-				if (rightp == 4116) {
-					omsg("-------------------rightp == 4116");
-				}
+				omsg("htok: --------- btm of while, rightp = " + rightp);
 			}
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
@@ -370,17 +360,16 @@ public class RunTime implements IConst {
 		int rightp, rightq;
 		
 		rightq = node.getRightp();
-		if (!pushAddr(rightq)) {
-			return STKOVERFLOW;
-		}
-		stkZstmt = store.getStkIdx();
 		rightp = node.getDownp();
 		if (rightp <= 0) {
 			return NEGADDR;
 		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
-		//if (kwtyp == KeywordTyp.SET) {store.popNode();}
+		if (isJumpKwd(kwtyp)) { }
+		else if (!pushAddr(rightq)) {
+			return STKOVERFLOW;
+		}
 		switch (kwtyp) {
 		case SET: 
 			rightp = pushSetStmt(node);
@@ -717,6 +706,7 @@ public class RunTime implements IConst {
 		Node node;
 		AddrNode addrNode;
 		
+		omsg("runRtnStmt: top");
 		rightp = popIdxVal(); // currZstmt
 		if (rightp < 0) {
 			return STKUNDERFLOW;
@@ -725,6 +715,7 @@ public class RunTime implements IConst {
 		if (varCount < 0) {
 			return STKUNDERFLOW;
 		}
+		omsg("runRtnStmt: varCount = " + varCount);
 		for (i = 0; i < varCount; i++) {
 			if (popVal() < 0) {
 				return STKUNDERFLOW;
@@ -821,14 +812,14 @@ public class RunTime implements IConst {
 			return BADOP;
 		}
 	}
-	
-	private boolean stmtClnStk(KeywordTyp kwtyp) {
+
+	private boolean isJumpKwd(KeywordTyp kwtyp) {
 		switch (kwtyp) {
 		case ZCALL:
 		case RETURN:
 			return true;
 		default:
-			return (stkZstmt == store.getStkIdx());
+			return false;
 		}
 	}
 	
