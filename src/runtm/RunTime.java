@@ -579,8 +579,6 @@ public class RunTime implements IConst {
 			}
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
-			//if (pgtyp != PageTyp.INTVAL) {
-			//return BADPOP;
 			val = popIntFromNode(addrNode);
 			if (val < 0) {
 				omsg("runPrintlnStmt: rtn = " + val);
@@ -610,17 +608,13 @@ public class RunTime implements IConst {
 	private int pushZcallStmt(int rightp) {
 		// assume no args.
 		// after handling args., may need to call pushOpAsNode
-		
-		//Node node;
 		KeywordTyp kwtyp;
 		
 		omsg("pushZcallStmt: top");
-		//node = store.getNode(rightp);
 		kwtyp = KeywordTyp.ZCALL;
 		if (!pushOp(kwtyp)) {
 			return STKOVERFLOW;
 		}
-		//rightp = node.getRightp();
 		return rightp;
 	}
 	
@@ -779,23 +773,6 @@ public class RunTime implements IConst {
 			return STKOVERFLOW;
 		}
 		return 0;
-	}
-	
-	private int fetchInt(AddrNode node) {
-		int varidx;
-		varidx = node.getAddr();
-		varidx += locBaseIdx;
-		node = store.fetchNode(varidx);
-		return node.getAddr();
-	}
-	
-	private AddrNode fetchStkNode(int varidx) {
-		int stkidx;
-		AddrNode node;
-		
-		stkidx = locBaseIdx + varidx;
-		node = store.fetchNode(stkidx);
-		return node;
 	}
 	
 	private int handleKwd(KeywordTyp kwtyp) {
@@ -1071,6 +1048,23 @@ public class RunTime implements IConst {
 		}
 		rtnval = pushIntVar(varidx, locVarTyp);
 		return rtnval;
+	}
+	
+	private int fetchInt(AddrNode node) {
+		int varidx;
+		varidx = node.getAddr();
+		varidx += locBaseIdx;
+		node = store.fetchNode(varidx);
+		return node.getAddr();
+	}
+	
+	private AddrNode fetchStkNode(int varidx) {
+		int stkidx;
+		AddrNode node;
+		
+		stkidx = locBaseIdx + varidx;
+		node = store.fetchNode(stkidx);
+		return node;
 	}
 	
 	private String getGdefunWord() {
