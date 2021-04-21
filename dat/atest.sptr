@@ -1,0 +1,9 @@
+do (
+gdefun (var a b c) do (
+  set a 100;
+  println a;
+  set b (/ (- 350 50) 100);
+  println a b;
+);
+)
+
