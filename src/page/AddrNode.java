@@ -45,6 +45,14 @@ public class AddrNode {
 		header |= 0x0100;
 	}
 	
+	public boolean isPtr() {
+		return ((header & 0x0200) != 0);
+	}
+	
+	public void setPtr() {
+		header |= 0x0200;
+	}
+	
 	public void setHdrPgTyp(PageTyp pgtyp) {
 		short mask = (short)(pgtyp.ordinal());
 		header = (short)((header & 0xFFF0) | mask);
