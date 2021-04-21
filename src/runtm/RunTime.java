@@ -27,6 +27,7 @@ public class RunTime implements IConst {
 	private int stmtCount;
 	private int currZstmt;
 	private boolean isTgtExpr;
+	private boolean isCalcExpr;
 	private boolean isNegInt;
 	private boolean isQuote;
 	private static final char SP = ' ';
@@ -43,6 +44,7 @@ public class RunTime implements IConst {
 	private static final int KWDPOPPED = -11;
 	private static final int NULLPOPPED = -12;
 	private static final int BADSTORE = -13;
+	private static final int BADINTVAL = -14;
 	private static final int NONVAR = 0; // same as AddrNode
 	private static final int LOCVAR = 1; //
 	private static final int FLDVAR = 2; //
@@ -60,6 +62,7 @@ public class RunTime implements IConst {
 		varCountIdx = 0;
 		stmtCount = 0;
 		isTgtExpr = false;
+		isCalcExpr = false;
 		isQuote = false;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
@@ -248,6 +251,7 @@ public class RunTime implements IConst {
 		case BADPOP: return "Error in pop operation";
 		case ZERODIV: return "Divide by zero";
 		case KWDPOPPED: return "Keyword popped unexpectedly";
+		case BADINTVAL: return "Integer data expected after pop operation";
 		default: return "Error code = " + (-rightp);
 		}
 	}
@@ -288,8 +292,12 @@ public class RunTime implements IConst {
 				if (rightp < 0) {
 					return rightp;
 				}
-				else if (rightp > 0) {
+				omsg("htok: isQuote [YN] = " + isQuote);
+				if (rightp > 0) {
 					break;
+				}
+				else if (isCalcExpr) {
+					continue;
 				}
 				if (store.isNodeStkEmpty()) {
 					return STKUNDERFLOW;
@@ -349,6 +357,7 @@ public class RunTime implements IConst {
 			}
 			if (!wasKwd) {
 				isQuote = false;
+				omsg("htok: isQuote = N");
 			}
 			wasKwd = false;
 		} 
@@ -389,10 +398,10 @@ public class RunTime implements IConst {
 	private int pushExpr(Node node) {
 		KeywordTyp kwtyp;
 		KeywordTyp nullkwd;
-		int rightp;
+		int rightp, rightq;
 		
-		rightp = node.getRightp();
-		if (!pushAddr(rightp)) {
+		rightq = node.getRightp();
+		if (!pushAddr(rightq)) {
 			return STKOVERFLOW;
 		}
 		rightp = node.getDownp();
@@ -401,6 +410,7 @@ public class RunTime implements IConst {
 		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
+		omsg("pushExpr: kwtyp = " + kwtyp + ", rightq = " + rightq);
 		switch (kwtyp) {
 		case ADD:
 		case MPY:
@@ -462,50 +472,68 @@ public class RunTime implements IConst {
 	}
 	
 	private int runDivExpr() {
-		int m, n;
-		int val;
-		int ival;
+		int denom;
+		int base;
+		int quotient;
+		int stkidx;
 		
-		val = popInt(false);
-		if (val < 0) {
-			return val;
+		omsg("runDivExpr: top");
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
 		}
-		n = packIntSign(isNegInt, val);
-		if (n == 0) {
+		denom = getIntOffStk(stkidx);
+		if (denom == 0) {
 			return ZERODIV;
 		}
-		val = popInt(false);
-		if (val < 0) {
-			return val;
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
 		}
-		m = packIntSign(isNegInt, val);
-		ival = m / n;
-		if (!pushInt(ival)) {
+		base = getIntOffStk(stkidx);
+		quotient = base / denom;
+		if (!pushIntStk(quotient)) {
 			return STKOVERFLOW;
 		}
 		return 0;
 	}
 	
 	private int runMinusExpr() {
-		int m, n;
-		int val;
-		int ival;
+		int delta;
+		int base;
+		int diff;
+		int stkidx;
 		
-		val = popInt(false);
-		if (val < 0) {
-			return val;
+		omsg("runMinusExpr: top");
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
 		}
-		n = packIntSign(isNegInt, val);
-		val = popInt(false);
-		if (val < 0) {
-			return val;
+		delta = getIntOffStk(stkidx);
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
 		}
-		m = packIntSign(isNegInt, val);
-		ival = m - n;
-		if (!pushInt(ival)) {
+		base = getIntOffStk(stkidx);
+		diff = base - delta;
+		if (!pushIntStk(diff)) {
 			return STKOVERFLOW;
 		}
 		return 0;
+	}
+	
+	private int runSetStmt() {
+		int val;
+		int stkidx;
+		
+		omsg("runSetStmt: top");
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		val = getIntOffStk(stkidx);
+		omsg("set stmt: value = " + val);
+		return storeInt(val);
 	}
 	
 	private int pushSetStmt(Node node) {
@@ -519,20 +547,6 @@ public class RunTime implements IConst {
 		}
 		rightp = node.getRightp();
 		return rightp;
-	}
-	
-	private int runSetStmt() {
-		int n;
-		int val;
-		
-		omsg("runSetStmt: top");
-		val = popInt(false);
-		if (val < 0) {
-			return val;
-		}
-		n = packIntSign(isNegInt, val);
-		omsg("set stmt: value = " + n);
-		return storeInt(n);
 	}
 	
 	private int pushPrintlnStmt(Node node) {
@@ -776,11 +790,16 @@ public class RunTime implements IConst {
 	}
 	
 	private int handleKwd(KeywordTyp kwtyp) {
+		isCalcExpr = false;
 		switch (kwtyp) {
 		case SET: return runSetStmt();
 		case PRINTLN: return runPrintlnStmt();
 		case ZCALL: return runZcallStmt();
 		case RETURN: return runRtnStmt();
+		default:
+			isCalcExpr = true;
+		}
+		switch (kwtyp) {
 		case ADD: return runAddExpr();
 		case MPY: return runMpyExpr();
 		case MINUS: return runMinusExpr();
@@ -833,6 +852,59 @@ public class RunTime implements IConst {
 			rtnval = addrNode.getAddr();
 		}
 		return rtnval;
+	}
+	
+	private int getIntOffStk(int stkidx) {
+		AddrNode addrNode;
+		int rtnval;
+		
+		addrNode = store.fetchNode(stkidx);
+		rtnval = addrNode.getAddr();
+		return rtnval;
+	}
+	
+	private int popIntStk() {
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int locVarTyp;
+		int varidx;
+		int rtnval;
+		boolean ptrFlag;
+
+		addrNode = store.popNode(); 
+		if (addrNode == null){
+			return STKUNDERFLOW;
+		}
+		rtnval = store.getStkIdx();
+		pgtyp = addrNode.getHdrPgTyp(); 
+		if (pgtyp != PageTyp.INTVAL) {
+			return BADINTVAL;
+		}
+		ptrFlag = addrNode.isPtr();
+		locVarTyp = addrNode.getHdrLocVarTyp();
+		if (ptrFlag && addrNode.getHdrNonVar()) {
+			return addrNode.getAddr();
+		}
+		switch (locVarTyp) {
+		case NONVAR: 
+			return rtnval;
+		case LOCVAR:
+		case GLBVAR:
+			varidx = addrNode.getAddr();
+			if (addrNode.getHdrLocVar()) {
+				varidx += locBaseIdx;
+			}
+			addrNode = store.fetchNode(varidx);
+			pgtyp = addrNode.getHdrPgTyp(); 
+			if (pgtyp != PageTyp.INTVAL) {
+				return BADINTVAL;
+			}
+			if (ptrFlag) {
+				return addrNode.getAddr();
+			}
+			return varidx;
+		default: return BADINTVAL;
+		}
 	}
 	
 	private int popInt(boolean isKwd) {
@@ -946,6 +1018,7 @@ public class RunTime implements IConst {
 		addrNode = new AddrNode(0, val);
 		addrNode.setHdrPgTyp(pgtyp);
 		addrNode.setHdrLocVarTyp(locVarTyp);
+		addrNode.setPtr();
 		if (!store.pushNode(addrNode)) {
 			return false;
 		}
@@ -979,15 +1052,24 @@ public class RunTime implements IConst {
 	
 	private boolean pushInt(int val) {
 		boolean rtnval;
-		rtnval = pushIntVar(val, NONVAR);
+		rtnval = pushIntVar(val, NONVAR, true);
 		return rtnval;
 	}
 	
-	private boolean pushIntVar(int val, int locVarTyp) {
+	private boolean pushIntStk(int val) {
+		boolean rtnval;
+		rtnval = pushIntVar(val, NONVAR, false);
+		return rtnval;
+	}
+	
+	private boolean pushIntVar(int val, int locVarTyp, boolean ptrFlag) {
 		AddrNode addrNode;
 		addrNode = new AddrNode(0, val);
 		addrNode.setHdrPgTyp(PageTyp.INTVAL);
 		addrNode.setHdrLocVarTyp(locVarTyp);
+		if (ptrFlag) {
+			addrNode.setPtr();
+		}
 		if (!store.pushNode(addrNode)) {
 			return false;
 		}
@@ -1036,7 +1118,9 @@ public class RunTime implements IConst {
 		stkidx = locBaseIdx + varidx;
 		addrNode = store.fetchNode(stkidx);
 		pgtyp = addrNode.getHdrPgTyp();
-		if (isQuote) { }
+		if (isQuote) { 
+			omsg("pushVar: isQuote = Y");
+		}
 		else if (pushVal(varidx, pgtyp, locVarTyp)) {
 			return true;
 		}
@@ -1046,7 +1130,7 @@ public class RunTime implements IConst {
 		if (pgtyp != PageTyp.INTVAL) {
 			return false;
 		}
-		rtnval = pushIntVar(varidx, locVarTyp);
+		rtnval = pushIntVar(varidx, locVarTyp, true);
 		return rtnval;
 	}
 	
