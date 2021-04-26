@@ -262,7 +262,6 @@ public class RunTime implements IConst {
 		AddrNode addrNode;
 		NodeCellTyp celltyp;
 		Page page;
-		boolean wasKwd = false;
 		int idx, varidx;
 		int downp;
 		int ival, rtnval;
@@ -275,11 +274,10 @@ public class RunTime implements IConst {
 					omsg("htok: top of while, empty op stk");
 					return 0;  // done
 				}
+				isQuote = false;
 				kwtyp = popKwd();
 				omsg("htok: kwtyp popped = " + kwtyp);
 				rightp = handleKwd(kwtyp);
-				isQuote = (kwtyp == KeywordTyp.SET);
-				wasKwd = true;
 				if (kwtyp != KeywordTyp.RETURN) { }
 				else if (rightp == EXIT) {
 					omsg("isRtnExit = Y");
@@ -292,11 +290,13 @@ public class RunTime implements IConst {
 				if (rightp < 0) {
 					return rightp;
 				}
-				omsg("htok: isQuote [YN] = " + isQuote);
 				if (rightp > 0) {
 					break;
 				}
-				else if (isCalcExpr) {
+				if (isCalcExpr) {
+					//addrNode = store.topNode();
+					//rightp = addrNode.getAddr();
+					//omsg("htok: --------- 2 btm of while, rightp = " + rightp);
 					continue;
 				}
 				if (store.isNodeStkEmpty()) {
@@ -313,9 +313,11 @@ public class RunTime implements IConst {
 				stmtCount++;
 				omsg("htok: stmtCount = " + stmtCount);
 				currZstmt = rightp;
+				isQuote = false;
 				rightp = pushStmt(node);
 			}
 			else if (kwtyp == KeywordTyp.ZPAREN) {
+				isQuote = false;
 				rightp = pushExpr(node);
 			}
 			else {
@@ -328,7 +330,8 @@ public class RunTime implements IConst {
 					if (!pushVar(varidx)) {
 						return STKOVERFLOW;
 					}
-					omsg("htok: ID var = " + varidx);
+					omsg("htok: ID var = " + varidx + ", isQuote = " +
+						isQuote);
 					break;
 				case FUNC:
 					if (!pushInt(varidx)) {
@@ -337,7 +340,8 @@ public class RunTime implements IConst {
 					break;
 				case INT:
 					ival = varidx;
-					if (!pushInt(ival)) {
+					omsg("htok: push INT = " + ival);
+					if (!pushIntStk(ival)) {
 						return STKOVERFLOW;
 					}
 					break;
@@ -353,13 +357,9 @@ public class RunTime implements IConst {
 					break;
 				default: return BADCELLTYP;
 				}
+				isQuote = false;
 				rightp = node.getRightp();
 			}
-			if (!wasKwd) {
-				isQuote = false;
-				omsg("htok: isQuote = N");
-			}
-			wasKwd = false;
 		} 
 		return rightp;
 	}
@@ -516,6 +516,8 @@ public class RunTime implements IConst {
 		}
 		base = getIntOffStk(stkidx);
 		diff = base - delta;
+		omsg("runMinusExpr: base, delta, diff = " + base +
+			" " + delta + " " + diff);
 		if (!pushIntStk(diff)) {
 			return STKOVERFLOW;
 		}
@@ -532,7 +534,7 @@ public class RunTime implements IConst {
 			return stkidx;
 		}
 		val = getIntOffStk(stkidx);
-		omsg("set stmt: value = " + val);
+		omsg("set stmt: value = " + val + ", stkidx = " + stkidx);
 		return storeInt(val);
 	}
 	
@@ -545,6 +547,7 @@ public class RunTime implements IConst {
 		if (!pushOp(kwtyp)) {
 			return STKOVERFLOW;
 		}
+		isQuote = true;
 		rightp = node.getRightp();
 		return rightp;
 	}
@@ -882,11 +885,13 @@ public class RunTime implements IConst {
 		}
 		ptrFlag = addrNode.isPtr();
 		locVarTyp = addrNode.getHdrLocVarTyp();
+		omsg("popIntStk: ptrFlag = " + ptrFlag);
 		if (ptrFlag && addrNode.getHdrNonVar()) {
 			return addrNode.getAddr();
 		}
 		switch (locVarTyp) {
 		case NONVAR: 
+			omsg("popIntStk: nonvar, rtn = " + rtnval);
 			return rtnval;
 		case LOCVAR:
 		case GLBVAR:
@@ -902,6 +907,7 @@ public class RunTime implements IConst {
 			if (ptrFlag) {
 				return addrNode.getAddr();
 			}
+			omsg("popIntStk: varidx, rtn = " + rtnval);
 			return varidx;
 		default: return BADINTVAL;
 		}
@@ -1105,7 +1111,7 @@ public class RunTime implements IConst {
 		boolean rtnval;
 		
 		if (varidx == -1) {
-			omsg("pushVar: varidx == -1, locBaseIdx = " + locBaseIdx);
+			//omsg("pushVar: varidx == -1, locBaseIdx = " + locBaseIdx);
 		}
 		isLocal = (varidx >= 0);
 		if (isLocal) {
