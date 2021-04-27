@@ -264,6 +264,7 @@ public class RunTime implements IConst {
 		Page page;
 		int idx, varidx;
 		int downp;
+		int rightq;
 		int ival, rtnval;
 		double dval;
 		
@@ -294,9 +295,15 @@ public class RunTime implements IConst {
 					break;
 				}
 				if (isCalcExpr) {
-					//addrNode = store.topNode();
-					//rightp = addrNode.getAddr();
-					//omsg("htok: --------- 2 btm of while, rightp = " + rightp);
+					addrNode = store.fetchRelNode(1);
+					rightp = addrNode.getAddr();
+					if (rightp > 0) {
+						node = store.getNode(rightp);
+						rightq = node.getRightp();
+						store.writeRelNode(1, rightq);
+						omsg("htok: rightq = " + rightq);
+					}
+					omsg("htok: --------- 2 btm of while, rightp = " + rightp);
 					continue;
 				}
 				if (store.isNodeStkEmpty()) {
