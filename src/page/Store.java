@@ -312,8 +312,16 @@ public class Store implements IConst {
 		return stackTab.fetchNode(stkidx);
 	}
 	
+	public AddrNode fetchRelNode(int depth) {
+		return stackTab.fetchRelNode(depth);
+	}
+	
 	public void writeNode(int stkidx, int val) {
 		stackTab.writeNode(stkidx, val);
+	}
+	
+	public void writeRelNode(int depth, int val) {
+		stackTab.writeRelNode(depth, val);
 	}
 	
 	public int getStkIdx() {
@@ -611,6 +619,15 @@ class PageTab implements IConst {
 		return node;
 	}
 	
+	public AddrNode fetchRelNode(int depthIdx) {
+		int stkidx;
+		stkidx = getStkIdx() - depthIdx - 1;
+		if (stkidx < 0) {
+			return null;
+		}
+		return fetchNode(stkidx);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public void writeNode(int stkidx, int val) {
 		AddrNode node;
@@ -623,6 +640,15 @@ class PageTab implements IConst {
 		node = list.get(myStkIdx);
 		node.setAddr(val);
 		node.setValue();
+	}
+	
+	public void writeRelNode(int depthIdx, int val) {
+		int stkidx;
+		stkidx = getStkIdx() - depthIdx - 1;
+		if (stkidx < 0) {
+			return;
+		}
+		writeNode(stkidx, val);
 	}
 	
 	public int getStkIdx() {
