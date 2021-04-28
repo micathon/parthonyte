@@ -324,6 +324,10 @@ public class Store implements IConst {
 		stackTab.writeRelNode(depth, val);
 	}
 	
+	public boolean swapNodes() {
+		return stackTab.swapNodes();
+	}
+	
 	public int getStkIdx() {
 		return stackTab.getStkIdx();
 	}
@@ -649,6 +653,19 @@ class PageTab implements IConst {
 			return;
 		}
 		writeNode(stkidx, val);
+	}
+	
+	public boolean swapNodes() {
+		AddrNode topNode, node;
+		
+		if (getStkIdx() < 2) {
+			return false;
+		}
+		topNode = popNode();
+		node = popNode();
+		pushNode(topNode);
+		pushNode(node);
+		return true;
 	}
 	
 	public int getStkIdx() {
