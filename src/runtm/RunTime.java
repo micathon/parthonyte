@@ -325,7 +325,7 @@ public class RunTime implements IConst {
 			}
 			else if (kwtyp == KeywordTyp.ZPAREN) {
 				isQuote = false;
-				rightp = pushExpr(node);
+				rightp = pushExpr(rightp);
 			}
 			else {
 				varidx = node.getDownp();
@@ -402,22 +402,22 @@ public class RunTime implements IConst {
 		return rightp;
 	}
 	
-	private int pushExpr(Node node) {
+	private int pushExpr(int rightp) {
 		KeywordTyp kwtyp;
 		KeywordTyp nullkwd;
-		int rightp, rightq;
+		Node node;
 		
-		rightq = node.getRightp();
-		if (!pushAddr(rightq)) {
+		if (!pushAddr(rightp)) {  
 			return STKOVERFLOW;
 		}
+		node = store.getNode(rightp);
 		rightp = node.getDownp();
 		if (rightp <= 0) {
 			return NEGADDR;
 		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
-		omsg("pushExpr: kwtyp = " + kwtyp + ", rightq = " + rightq);
+		omsg("pushExpr: kwtyp = " + kwtyp + ", rightp = " + rightp);
 		switch (kwtyp) {
 		case ADD:
 		case MPY:
@@ -800,15 +800,32 @@ public class RunTime implements IConst {
 	}
 	
 	private int handleKwd(KeywordTyp kwtyp) {
-		isCalcExpr = false;
+		int rightp;
+		AddrNode addrNode;
+		Node node;
+		
 		switch (kwtyp) {
 		case SET: return runSetStmt();
 		case PRINTLN: return runPrintlnStmt();
 		case ZCALL: return runZcallStmt();
 		case RETURN: return runRtnStmt();
 		default:
-			isCalcExpr = true;
+			rightp = handleOpKwd(kwtyp);
 		}
+		if (rightp < 0) {
+			return rightp;
+		}
+		if (!store.swapNodes()) {
+			return STKUNDERFLOW;
+		}
+		addrNode = store.popNode();
+		rightp = addrNode.getAddr();
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		return rightp;
+	}
+	
+	private int handleOpKwd(KeywordTyp kwtyp) {
 		switch (kwtyp) {
 		case ADD: return runAddExpr();
 		case MPY: return runMpyExpr();
