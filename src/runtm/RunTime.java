@@ -45,6 +45,7 @@ public class RunTime implements IConst {
 	private static final int NULLPOPPED = -12;
 	private static final int BADSTORE = -13;
 	private static final int BADINTVAL = -14;
+	private static final int STMTINEXPR = -15;
 	private static final int NONVAR = 0; // same as AddrNode
 	private static final int LOCVAR = 1; //
 	private static final int FLDVAR = 2; //
@@ -223,7 +224,7 @@ public class RunTime implements IConst {
 		if (rightp <= 0) {
 			return savep;
 		}
-		rightp = handleToken(rightp);
+		rightp = handleStmtToken(rightp);
 		omsg("Stmt count = " + stmtCount);
 		if (rightp < EXIT) {
 			handleErrToken(rightp);
@@ -252,11 +253,12 @@ public class RunTime implements IConst {
 		case ZERODIV: return "Divide by zero";
 		case KWDPOPPED: return "Keyword popped unexpectedly";
 		case BADINTVAL: return "Integer data expected after pop operation";
+		case STMTINEXPR: return "Statement encountered in expression";
 		default: return "Error code = " + (-rightp);
 		}
 	}
 	
-	private int handleToken(int rightp) {	
+	private int handleStmtToken(int rightp) {	
 		KeywordTyp kwtyp;
 		Node node;
 		AddrNode addrNode;
@@ -272,13 +274,13 @@ public class RunTime implements IConst {
 		while (rightp >= 0) {
 			while (rightp <= 0) {
 				if (store.isOpStkEmpty()) {
-					omsg("htok: top of while, empty op stk");
+					omsg("stmtok: top of while, empty op stk");
 					return 0;  // done
 				}
 				isQuote = false;
 				kwtyp = popKwd();
-				omsg("htok: kwtyp popped = " + kwtyp);
-				rightp = handleKwd(kwtyp);
+				omsg("stmtok: kwtyp popped = " + kwtyp);
+				rightp = handleExprKwd(kwtyp);
 				if (kwtyp != KeywordTyp.RETURN) { }
 				else if (rightp == EXIT) {
 					omsg("isRtnExit = Y");
@@ -301,9 +303,9 @@ public class RunTime implements IConst {
 						node = store.getNode(rightp);
 						rightq = node.getRightp();
 						store.writeRelNode(1, rightq);
-						omsg("htok: rightq = " + rightq);
+						omsg("stmtok: rightq = " + rightq);
 					}
-					omsg("htok: --------- 2 btm of while, rightp = " + rightp);
+					omsg("stmtok: --------- 2 btm of while, rightp = " + rightp);
 					continue;
 				}
 				if (store.isNodeStkEmpty()) {
@@ -311,14 +313,14 @@ public class RunTime implements IConst {
 				}
 				addrNode = store.popNode();
 				rightp = addrNode.getAddr();
-				omsg("htok: --------- btm of while, rightp = " + rightp);
+				omsg("stmtok: --------- btm of while, rightp = " + rightp);
 			}
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
-			omsg("htok: kwtyp = " + kwtyp + ", rightp = " + rightp);
+			omsg("stmtok: kwtyp = " + kwtyp + ", rightp = " + rightp);
 			if (kwtyp == KeywordTyp.ZSTMT) {
 				stmtCount++;
-				omsg("htok: stmtCount = " + stmtCount);
+				omsg("stmtok: stmtCount = " + stmtCount);
 				currZstmt = rightp;
 				isQuote = false;
 				rightp = pushStmt(node);
@@ -328,49 +330,171 @@ public class RunTime implements IConst {
 				rightp = pushExpr(rightp);
 			}
 			else {
-				varidx = node.getDownp();
-				celltyp = node.getDownCellTyp();
-				omsg("htok: celltyp = " + celltyp + ", downp = " + varidx);
-				switch (celltyp) {
-				case ID:
-				case LOCVAR:
-					if (!pushVar(varidx)) {
-						return STKOVERFLOW;
-					}
-					omsg("htok: ID var = " + varidx + ", isQuote = " +
-						isQuote);
-					break;
-				case FUNC:
-					if (!pushInt(varidx)) {
-						return STKOVERFLOW;
-					}
-					break;
-				case INT:
-					ival = varidx;
-					omsg("htok: push INT = " + ival);
-					if (!pushIntStk(ival)) {
-						return STKOVERFLOW;
-					}
-					break;
-				case DOUBLE:	
-					downp = node.getDownp();
-					page = store.getPage(downp);
-					idx = store.getElemIdx(downp);
-					dval = page.getDouble(idx);
-					rtnval = pushFloat(dval);
-					if (rtnval < 0) {
-						return rtnval;
-					}
-					break;
-				default: return BADCELLTYP;
-				}
-				isQuote = false;
-				rightp = node.getRightp();
+				return handleLeafToken(node);
 			}
 		} 
 		return rightp;
 	}
 	
+	private int handleExprToken(int rightp) {	
+		KeywordTyp kwtyp;
+		Node node;
+		AddrNode addrNode;
+		NodeCellTyp celltyp;
+		Page page;
+		int idx, varidx;
+		int downp;
+		int rightq;
+		int ival, rtnval;
+		double dval;
+		
+		isQuote = false;
+		while (rightp >= 0) {
+			while (rightp <= 0) {
+				if (store.isOpStkEmpty()) {
+					omsg("exprtok: top of while, empty op stk");
+					return 0;  // done
+				}
+				isQuote = false;
+				kwtyp = popKwd();
+				omsg("exprtok: kwtyp popped = " + kwtyp);
+				rightp = handleExprKwd(kwtyp);
+				if (kwtyp != KeywordTyp.RETURN) { }
+				else if (rightp == EXIT) {
+					omsg("isRtnExit = Y");
+					//store.popNode();
+					continue;
+				}
+				else if (rightp == 0) {  // done
+					return 0;
+				}
+				if (rightp < 0) {
+					return rightp;
+				}
+				if (rightp > 0) {
+					break;
+				}
+				if (isCalcExpr) {
+					addrNode = store.fetchRelNode(1);
+					rightp = addrNode.getAddr();
+					if (rightp > 0) {
+						node = store.getNode(rightp);
+						rightq = node.getRightp();
+						store.writeRelNode(1, rightq);
+						omsg("exprtok: rightq = " + rightq);
+					}
+					omsg("exprtok: --------- 2 btm of while, rightp = " + rightp);
+					continue;
+				}
+				if (store.isNodeStkEmpty()) {
+					return STKUNDERFLOW;
+				}
+				addrNode = store.popNode();
+				rightp = addrNode.getAddr();
+				omsg("exprtok: --------- btm of while, rightp = " + rightp);
+			}
+			node = store.getNode(rightp);
+			kwtyp = node.getKeywordTyp();
+			omsg("exprtok: kwtyp = " + kwtyp + ", rightp = " + rightp);
+			if (kwtyp == KeywordTyp.ZSTMT) {
+				return STMTINEXPR;
+			}
+			if (kwtyp == KeywordTyp.ZPAREN) {
+				isQuote = false;
+				rightp = pushExpr(node);
+			}
+			else {
+				rightp = handleLeafToken(node);
+			}
+		} 
+		return rightp;
+	}
+	
+	private int handleLeafToken(Node node) {
+		NodeCellTyp celltyp;
+		Page page;
+		int idx, varidx;
+		int downp;
+		int rightp;
+		int ival, rtnval;
+		double dval;
+
+		varidx = node.getDownp();
+		celltyp = node.getDownCellTyp();
+		omsg("htok: celltyp = " + celltyp + ", downp = " + varidx);
+		switch (celltyp) {
+		case ID:
+		case LOCVAR:
+			if (!pushVar(varidx)) {
+				return STKOVERFLOW;
+			}
+			omsg("htok: ID var = " + varidx + ", isQuote = " +
+				isQuote);
+			break;
+		case FUNC:
+			if (!pushInt(varidx)) {
+				return STKOVERFLOW;
+			}
+			break;
+		case INT:
+			ival = varidx;
+			omsg("htok: push INT = " + ival);
+			if (!pushIntStk(ival)) {
+				return STKOVERFLOW;
+			}
+			break;
+		case DOUBLE:	
+			downp = node.getDownp();
+			page = store.getPage(downp);
+			idx = store.getElemIdx(downp);
+			dval = page.getDouble(idx);
+			rtnval = pushFloat(dval);
+			if (rtnval < 0) {
+				return rtnval;
+			}
+			break;
+		default: return BADCELLTYP;
+		}
+		isQuote = false;
+		rightp = node.getRightp();
+		return rightp;
+	}
+	
+	private int handleStmtKwd(KeywordTyp kwtyp) {
+		switch (kwtyp) {
+		case SET: return runSetStmt();
+		case PRINTLN: return runPrintlnStmt();
+		case ZCALL: return runZcallStmt();
+		case RETURN: return runRtnStmt();
+		default:
+			return BADOP;
+		}
+		/*
+		if (rightp < 0) {
+			return rightp;
+		}
+		if (!store.swapNodes()) {
+			return STKUNDERFLOW;
+		}
+		addrNode = store.popNode();
+		rightp = addrNode.getAddr();
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		return rightp;
+		*/
+	}
+	
+	private int handleExprKwd(KeywordTyp kwtyp) {
+		switch (kwtyp) {
+		case ADD: return runAddExpr();
+		case MPY: return runMpyExpr();
+		case MINUS: return runMinusExpr();
+		case DIV: return runDivExpr();
+		default:
+			return BADOP;
+		}
+	}
+
 	private int pushStmt(Node node) {
 		KeywordTyp kwtyp;
 		int rightp, rightq;
@@ -402,15 +526,15 @@ public class RunTime implements IConst {
 		return rightp;
 	}
 	
-	private int pushExpr(int rightp) {
+	private int pushExpr(Node node) {
 		KeywordTyp kwtyp;
 		KeywordTyp nullkwd;
-		Node node;
+		int rightp;
 		
+		rightp = node.getRightp();
 		if (!pushAddr(rightp)) {  
 			return STKOVERFLOW;
 		}
-		node = store.getNode(rightp);
 		rightp = node.getDownp();
 		if (rightp <= 0) {
 			return NEGADDR;
@@ -799,43 +923,6 @@ public class RunTime implements IConst {
 		return 0;
 	}
 	
-	private int handleKwd(KeywordTyp kwtyp) {
-		int rightp;
-		AddrNode addrNode;
-		Node node;
-		
-		switch (kwtyp) {
-		case SET: return runSetStmt();
-		case PRINTLN: return runPrintlnStmt();
-		case ZCALL: return runZcallStmt();
-		case RETURN: return runRtnStmt();
-		default:
-			rightp = handleOpKwd(kwtyp);
-		}
-		if (rightp < 0) {
-			return rightp;
-		}
-		if (!store.swapNodes()) {
-			return STKUNDERFLOW;
-		}
-		addrNode = store.popNode();
-		rightp = addrNode.getAddr();
-		node = store.getNode(rightp);
-		rightp = node.getRightp();
-		return rightp;
-	}
-	
-	private int handleOpKwd(KeywordTyp kwtyp) {
-		switch (kwtyp) {
-		case ADD: return runAddExpr();
-		case MPY: return runMpyExpr();
-		case MINUS: return runMinusExpr();
-		case DIV: return runDivExpr();
-		default:
-			return BADOP;
-		}
-	}
-
 	private boolean isJumpKwd(KeywordTyp kwtyp) {
 		switch (kwtyp) {
 		case ZCALL:
