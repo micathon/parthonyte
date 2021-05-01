@@ -46,6 +46,7 @@ public class RunTime implements IConst {
 	private static final int BADSTORE = -13;
 	private static final int BADINTVAL = -14;
 	private static final int STMTINEXPR = -15;
+	private static final int NEGBASEVAL = -1000;
 	private static final int NONVAR = 0; // same as AddrNode
 	private static final int LOCVAR = 1; //
 	private static final int FLDVAR = 2; //
@@ -327,7 +328,7 @@ public class RunTime implements IConst {
 			}
 			else if (kwtyp == KeywordTyp.ZPAREN) {
 				isQuote = false;
-				rightp = pushExpr(rightp);
+				rightp = pushExpr(node);
 			}
 			else {
 				return handleLeafToken(node);
@@ -340,51 +341,22 @@ public class RunTime implements IConst {
 		KeywordTyp kwtyp;
 		Node node;
 		AddrNode addrNode;
-		NodeCellTyp celltyp;
-		Page page;
-		int idx, varidx;
-		int downp;
-		int rightq;
-		int ival, rtnval;
-		double dval;
 		
-		isQuote = false;
 		while (rightp >= 0) {
 			while (rightp <= 0) {
 				if (store.isOpStkEmpty()) {
 					omsg("exprtok: top of while, empty op stk");
-					return 0;  // done
+					return STKUNDERFLOW;
 				}
-				isQuote = false;
 				kwtyp = popKwd();
 				omsg("exprtok: kwtyp popped = " + kwtyp);
 				rightp = handleExprKwd(kwtyp);
-				if (kwtyp != KeywordTyp.RETURN) { }
-				else if (rightp == EXIT) {
-					omsg("isRtnExit = Y");
-					//store.popNode();
-					continue;
-				}
-				else if (rightp == 0) {  // done
-					return 0;
-				}
-				if (rightp < 0) {
-					return rightp;
-				}
-				if (rightp > 0) {
+				if (rightp == 0) { }
+				else if (rightp > 0) {
 					break;
 				}
-				if (isCalcExpr) {
-					addrNode = store.fetchRelNode(1);
-					rightp = addrNode.getAddr();
-					if (rightp > 0) {
-						node = store.getNode(rightp);
-						rightq = node.getRightp();
-						store.writeRelNode(1, rightq);
-						omsg("exprtok: rightq = " + rightq);
-					}
-					omsg("exprtok: --------- 2 btm of while, rightp = " + rightp);
-					continue;
+				else {
+					return rightp;  // err if > NEGBASEVAL
 				}
 				if (store.isNodeStkEmpty()) {
 					return STKUNDERFLOW;
@@ -400,7 +372,6 @@ public class RunTime implements IConst {
 				return STMTINEXPR;
 			}
 			if (kwtyp == KeywordTyp.ZPAREN) {
-				isQuote = false;
 				rightp = pushExpr(node);
 			}
 			else {
@@ -491,7 +462,7 @@ public class RunTime implements IConst {
 		case MINUS: return runMinusExpr();
 		case DIV: return runDivExpr();
 		default:
-			return BADOP;
+			return NEGBASEVAL - kwtyp.ordinal();
 		}
 	}
 
