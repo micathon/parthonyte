@@ -337,17 +337,21 @@ public class RunTime implements IConst {
 		return rightp;
 	}
 	
-	private int handleExprToken(int rightp) {	
+	private int handleExprToken(int rightp, boolean isSingle) {	
 		KeywordTyp kwtyp;
 		Node node;
 		AddrNode addrNode;
+		int depth = 0;
+		boolean found = false;
 		
 		while (rightp >= 0) {
-			while (rightp <= 0) {
+			while ((rightp <= 0) && !found) {
 				if (store.isOpStkEmpty()) {
 					omsg("exprtok: top of while, empty op stk");
 					return STKUNDERFLOW;
 				}
+				depth--;
+				found = isSingle && (depth <= 0);
 				kwtyp = popKwd();
 				omsg("exprtok: kwtyp popped = " + kwtyp);
 				rightp = handleExprKwd(kwtyp);
@@ -365,6 +369,9 @@ public class RunTime implements IConst {
 				rightp = addrNode.getAddr();
 				omsg("exprtok: --------- btm of while, rightp = " + rightp);
 			}
+			if (found) {
+				break;
+			}
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			omsg("exprtok: kwtyp = " + kwtyp + ", rightp = " + rightp);
@@ -372,10 +379,12 @@ public class RunTime implements IConst {
 				return STMTINEXPR;
 			}
 			if (kwtyp == KeywordTyp.ZPAREN) {
+				depth++;
 				rightp = pushExpr(node);
 			}
 			else {
 				rightp = handleLeafToken(node);
+				found = isSingle && (depth <= 0);
 			}
 		} 
 		return rightp;
