@@ -46,6 +46,8 @@ public class RunTime implements IConst {
 	private static final int BADSTORE = -13;
 	private static final int BADINTVAL = -14;
 	private static final int STMTINEXPR = -15;
+	private static final int BADZSTMT = -16;
+	private static final int BADSETSTMT = -17;
 	private static final int NEGBASEVAL = -1000;
 	private static final int NONVAR = 0; // same as AddrNode
 	private static final int LOCVAR = 1; //
@@ -221,17 +223,13 @@ public class RunTime implements IConst {
 			handleErrToken(STKOVERFLOW);
 			return -1;
 		}
-		rightp = node.getDownp();
-		if (rightp <= 0) {
-			return savep;
-		}
-		rightp = handleStmtToken(rightp);
+		rightp = handleDoBlock(node);
 		omsg("Stmt count = " + stmtCount);
 		if (rightp < EXIT) {
 			handleErrToken(rightp);
 		}
 		if (rightp == 0) {
-			omsg("handleToken rtn = 0");  // done
+			omsg("handleDoBlock rtn = 0");  // done
 		}
 		omsg("runGlbDefStmt: btm");
 		return savep;
@@ -259,80 +257,53 @@ public class RunTime implements IConst {
 		}
 	}
 	
-	private int handleStmtToken(int rightp) {	
+	private int handleDoBlock(Node node) {	
 		KeywordTyp kwtyp;
-		Node node;
-		AddrNode addrNode;
-		NodeCellTyp celltyp;
-		Page page;
-		int idx, varidx;
-		int downp;
-		int rightq;
-		int ival, rtnval;
-		double dval;
-		
-		isQuote = false;
-		while (rightp >= 0) {
-			while (rightp <= 0) {
-				if (store.isOpStkEmpty()) {
-					omsg("stmtok: top of while, empty op stk");
-					return 0;  // done
-				}
-				isQuote = false;
-				kwtyp = popKwd();
-				omsg("stmtok: kwtyp popped = " + kwtyp);
-				rightp = handleExprKwd(kwtyp);
-				if (kwtyp != KeywordTyp.RETURN) { }
-				else if (rightp == EXIT) {
-					omsg("isRtnExit = Y");
-					//store.popNode();
-					continue;
-				}
-				else if (rightp == 0) {  // done
-					return 0;
-				}
-				if (rightp < 0) {
-					return rightp;
-				}
-				if (rightp > 0) {
-					break;
-				}
-				if (isCalcExpr) {
-					addrNode = store.fetchRelNode(1);
-					rightp = addrNode.getAddr();
-					if (rightp > 0) {
-						node = store.getNode(rightp);
-						rightq = node.getRightp();
-						store.writeRelNode(1, rightq);
-						omsg("stmtok: rightq = " + rightq);
-					}
-					omsg("stmtok: --------- 2 btm of while, rightp = " + rightp);
-					continue;
-				}
-				if (store.isNodeStkEmpty()) {
-					return STKUNDERFLOW;
-				}
-				addrNode = store.popNode();
-				rightp = addrNode.getAddr();
-				omsg("stmtok: --------- btm of while, rightp = " + rightp);
-			}
+		int rightp;
+		/*
+		kwtyp = popKwd();
+		omsg("doblock: kwtyp popped = " + kwtyp);
+		rightp = handleExprKwd(kwtyp);
+		if (kwtyp != KeywordTyp.RETURN) { }
+		else if (rightp == EXIT) {
+			omsg("isRtnExit = Y");
+			continue;
+		}
+		else if (rightp == 0) {  // done
+			return 0;
+		}
+		if (rightp < 0) {
+			return rightp;
+		}
+		if (rightp > 0) {
+			break;
+		}
+		*/
+		rightp = node.getDownp();
+		if (rightp <= 0) {
+			return 0;
+		}
+		while (rightp > 0) {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
-			omsg("stmtok: kwtyp = " + kwtyp + ", rightp = " + rightp);
-			if (kwtyp == KeywordTyp.ZSTMT) {
-				stmtCount++;
-				omsg("stmtok: stmtCount = " + stmtCount);
-				currZstmt = rightp;
-				isQuote = false;
-				rightp = pushStmt(node);
+			omsg("doblock: kwtyp = " + kwtyp + ", rightp = " + rightp);
+			if (kwtyp != KeywordTyp.ZSTMT) {
+				return BADZSTMT;
 			}
-			else if (kwtyp == KeywordTyp.ZPAREN) {
-				isQuote = false;
-				rightp = pushExpr(node);
+			stmtCount++;
+			omsg("doblock: stmtCount = " + stmtCount);
+			currZstmt = rightp;
+			rightp = pushStmt(node);
+			rightp = handleExprToken(rightp, false);
+			if (rightp >= 0) {
+				return BADOP;
 			}
-			else {
-				return handleLeafToken(node);
+			if (rightp > NEGBASEVAL) {
+				return rightp;
 			}
+			rightp = -(rightp - NEGBASEVAL);
+			kwtyp = KeywordTyp.values[rightp];
+			rightp = handleStmtKwd(kwtyp);
 		} 
 		return rightp;
 	}
@@ -391,6 +362,14 @@ public class RunTime implements IConst {
 	}
 	
 	private int handleLeafToken(Node node) {
+		return handleLeafTokenRtn(node, false);
+	}
+	
+	private int handleLeafTokenQuote(Node node) {
+		return handleLeafTokenRtn(node, true);
+	}
+	
+	private int handleLeafTokenRtn(Node node, boolean isQuote) {
 		NodeCellTyp celltyp;
 		Page page;
 		int idx, varidx;
@@ -402,14 +381,25 @@ public class RunTime implements IConst {
 		varidx = node.getDownp();
 		celltyp = node.getDownCellTyp();
 		omsg("htok: celltyp = " + celltyp + ", downp = " + varidx);
+		if (isQuote) {
+			switch (celltyp) {
+			case ID:
+			case LOCVAR:
+				if (!pushVarQuote(varidx)) {
+					return STKOVERFLOW;
+				}
+				rightp = node.getRightp();
+				return rightp;
+			default:
+				return BADCELLTYP;
+			}
+		}
 		switch (celltyp) {
 		case ID:
 		case LOCVAR:
 			if (!pushVar(varidx)) {
 				return STKOVERFLOW;
 			}
-			omsg("htok: ID var = " + varidx + ", isQuote = " +
-				isQuote);
 			break;
 		case FUNC:
 			if (!pushInt(varidx)) {
@@ -435,21 +425,15 @@ public class RunTime implements IConst {
 			break;
 		default: return BADCELLTYP;
 		}
-		isQuote = false;
 		rightp = node.getRightp();
 		return rightp;
 	}
 	
-	private int handleStmtKwd(KeywordTyp kwtyp) {
-		switch (kwtyp) {
-		case SET: return runSetStmt();
-		case PRINTLN: return runPrintlnStmt();
-		case ZCALL: return runZcallStmt();
-		case RETURN: return runRtnStmt();
-		default:
-			return BADOP;
-		}
-		/*
+	private int handleExprKwd(KeywordTyp kwtyp) {
+		int rightp;
+		AddrNode addrNode;
+		
+		rightp = handleExprKwdRtn(kwtyp);
 		if (rightp < 0) {
 			return rightp;
 		}
@@ -458,13 +442,10 @@ public class RunTime implements IConst {
 		}
 		addrNode = store.popNode();
 		rightp = addrNode.getAddr();
-		node = store.getNode(rightp);
-		rightp = node.getRightp();
 		return rightp;
-		*/
 	}
 	
-	private int handleExprKwd(KeywordTyp kwtyp) {
+	private int handleExprKwdRtn(KeywordTyp kwtyp) {
 		switch (kwtyp) {
 		case ADD: return runAddExpr();
 		case MPY: return runMpyExpr();
@@ -475,6 +456,40 @@ public class RunTime implements IConst {
 		}
 	}
 
+	private int handleStmtKwd(KeywordTyp kwtyp) {
+		int rightp;
+		AddrNode addrNode;
+		
+		rightp = handleStmtKwdRtn(kwtyp);
+		if ((rightp < 0) || isJumpKwd(kwtyp)) {
+			return rightp;
+		}
+		addrNode = store.popNode();
+		rightp = addrNode.getAddr();
+		return rightp;
+	}
+	
+	private int handleStmtKwdRtn(KeywordTyp kwtyp) {
+		switch (kwtyp) {
+		case SET: return runSetStmt();
+		case PRINTLN: return runPrintlnStmt();
+		case ZCALL: return runZcallStmt();
+		case RETURN: return runRtnStmt();
+		default:
+			return BADOP;
+		}
+	}
+	
+	private boolean isJumpKwd(KeywordTyp kwtyp) {
+		switch (kwtyp) {
+		case ZCALL:
+		case RETURN:
+			return true;
+		default:
+			return false;
+		}
+	}
+	
 	private int pushStmt(Node node) {
 		KeywordTyp kwtyp;
 		int rightp, rightq;
@@ -498,7 +513,7 @@ public class RunTime implements IConst {
 			rightp = pushPrintlnStmt(node);
 			break;
 		case ZCALL:
-			omsg("pushStmt: ZCALL, currZstmt = " + currZstmt);
+			//omsg("pushStmt: ZCALL, currZstmt = " + currZstmt);
 			rightp = pushZcallStmt(rightp);
 			break;
 		default: return BADSTMT;
@@ -660,6 +675,15 @@ public class RunTime implements IConst {
 		}
 		isQuote = true;
 		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return BADSETSTMT;
+		}
+		node = store.getNode(rightp);
+		rightp = handleLeafTokenQuote(node);
+		if (rightp <= 0) {
+			return BADSETSTMT;
+		}
+		rightp = handleExprToken(rightp, true);
 		return rightp;
 	}
 	
@@ -901,16 +925,6 @@ public class RunTime implements IConst {
 			return STKOVERFLOW;
 		}
 		return 0;
-	}
-	
-	private boolean isJumpKwd(KeywordTyp kwtyp) {
-		switch (kwtyp) {
-		case ZCALL:
-		case RETURN:
-			return true;
-		default:
-			return false;
-		}
 	}
 	
 	private KeywordTyp popKwd() {
@@ -1199,11 +1213,7 @@ public class RunTime implements IConst {
 		int locVarTyp;
 		PageTyp pgtyp;
 		AddrNode addrNode;
-		boolean rtnval;
 		
-		if (varidx == -1) {
-			//omsg("pushVar: varidx == -1, locBaseIdx = " + locBaseIdx);
-		}
 		isLocal = (varidx >= 0);
 		if (isLocal) {
 			locVarTyp = LOCVAR;
@@ -1215,15 +1225,40 @@ public class RunTime implements IConst {
 		stkidx = locBaseIdx + varidx;
 		addrNode = store.fetchNode(stkidx);
 		pgtyp = addrNode.getHdrPgTyp();
-		if (isQuote) { 
-			omsg("pushVar: isQuote = Y");
-		}
-		else if (pushVal(varidx, pgtyp, locVarTyp)) {
+		if (pushVal(varidx, pgtyp, locVarTyp)) {
 			return true;
 		}
 		else {
 			return false;
 		}
+		/*
+		if (pgtyp != PageTyp.INTVAL) {
+			return false;
+		}
+		rtnval = pushIntVar(varidx, locVarTyp, true);
+		return rtnval;
+		*/
+	}
+	
+	private boolean pushVarQuote(int varidx) {
+		boolean isLocal;
+		int stkidx;
+		int locVarTyp;
+		PageTyp pgtyp;
+		AddrNode addrNode;
+		boolean rtnval;
+		
+		isLocal = (varidx >= 0);
+		if (isLocal) {
+			locVarTyp = LOCVAR;
+		}
+		else {
+			varidx = -1 - varidx;
+			locVarTyp = GLBVAR;
+		}
+		stkidx = locBaseIdx + varidx;
+		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
 		if (pgtyp != PageTyp.INTVAL) {
 			return false;
 		}
