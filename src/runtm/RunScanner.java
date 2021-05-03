@@ -447,7 +447,7 @@ public class RunScanner implements IConst {
 		rightp = node.getRightp();
 		while (rightp > 0) {
 			node = store.getNode(rightp);
-			rtnval = scopeLocVar(rightp);
+			rtnval = scopeExpr(rightp);
 			if (!rtnval) {
 				return false;
 			}
