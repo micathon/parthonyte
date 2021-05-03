@@ -569,16 +569,17 @@ class PageTab implements IConst {
 		if (nodeStkIdx > 0) {
 			list = (ArrayList<AddrNode>) nodepg.getList(nodeStkLstIdx);
 			node = list.get(--nodeStkIdx);
+			omsg("Popped " + node.getAddr());
 		}
 		else if (nodeStkLstIdx > 0) {
 			list = (ArrayList<AddrNode>) nodepg.getList(--nodeStkLstIdx);
 			nodeStkIdx = NODESTKLEN - 1;
 			node = list.get(nodeStkIdx);
+			omsg("Popped " + node.getAddr());
 		}
 		else {
 			node = null;
 		}
-		omsg("Popped " + node.getAddr());
 		return node;
 	}
 	
