@@ -29,7 +29,6 @@ public class RunTime implements IConst {
 	private boolean isTgtExpr;
 	private boolean isCalcExpr;
 	private boolean isNegInt;
-	private boolean isQuote;
 	private static final char SP = ' ';
 	private static final int EXIT = -1;
 	private static final int NEGADDR = -2;
@@ -67,7 +66,6 @@ public class RunTime implements IConst {
 		stmtCount = 0;
 		isTgtExpr = false;
 		isCalcExpr = false;
-		isQuote = false;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
 		glbFunList = new ArrayList<Integer>();
@@ -311,7 +309,6 @@ public class RunTime implements IConst {
 	private int handleExprToken(int rightp, boolean isSingle) {	
 		KeywordTyp kwtyp;
 		Node node;
-		AddrNode addrNode;
 		int depth = 0;
 		boolean found = false;
 		
@@ -326,23 +323,15 @@ public class RunTime implements IConst {
 				kwtyp = popKwd();
 				omsg("exprtok: kwtyp popped = " + kwtyp);
 				rightp = handleExprKwd(kwtyp);
-				if (rightp == 0) { }
-				else if (rightp > 0) {
-					break;
-				}
-				else {
+				omsg("exprtok: kwtyp = " + kwtyp + ", rightp = " + rightp);
+				if (rightp < 0) {
 					return rightp;  // err if > NEGBASEVAL
 				}
-				if (store.isNodeStkEmpty()) {
-					return STKUNDERFLOW;
-				}
-				addrNode = store.popNode();
-				rightp = addrNode.getAddr();
-				omsg("exprtok: --------- btm of while, rightp = " + rightp);
 			}
 			if (found) {
 				break;
 			}
+			omsg("exprtok: node -> rightp = " + rightp);
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			omsg("exprtok: kwtyp = " + kwtyp + ", rightp = " + rightp);
@@ -571,7 +560,7 @@ public class RunTime implements IConst {
 			sum += n;
 			val = popInt(true);
 		}
-		if (!pushInt(sum)) {
+		if (!pushIntStk(sum)) {
 			return STKOVERFLOW;
 		}
 		return 0;
@@ -591,7 +580,7 @@ public class RunTime implements IConst {
 			product *= n;
 			val = popInt(true);
 		}
-		if (!pushInt(product)) {
+		if (!pushIntStk(product)) {
 			return STKOVERFLOW;
 		}
 		return 0;
@@ -673,7 +662,6 @@ public class RunTime implements IConst {
 		if (!pushOp(kwtyp)) {
 			return STKOVERFLOW;
 		}
-		isQuote = true;
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			return BADSETSTMT;
@@ -968,6 +956,7 @@ public class RunTime implements IConst {
 		
 		addrNode = store.fetchNode(stkidx);
 		rtnval = addrNode.getAddr();
+		omsg("getIntOffStk: stkidx = " + stkidx + ", rtn = " + rtnval);
 		return rtnval;
 	}
 	
@@ -1010,7 +999,7 @@ public class RunTime implements IConst {
 				return BADINTVAL;
 			}
 			if (ptrFlag) {
-				return addrNode.getAddr();
+				//return addrNode.getAddr();
 			}
 			omsg("popIntStk: varidx, rtn = " + rtnval);
 			return varidx;
