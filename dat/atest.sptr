@@ -1,9 +1,17 @@
 do (
-gdefun (var a b c) do (
-  set a 100;
-  println a;
-  set b (/ (- 350 50) 100);
-  println a b;
+gdefun (var a b) do (
+  set a 60;
+  set b (* a 3);
+  println (- a 1) b;
+  f;
+  println b a;
+);
+defun (f)(var x y) do (
+  set x 77;
+  set y 99;
+  println x y;
+  println (+ 1 y);
+  set x 33;
 );
 )
 

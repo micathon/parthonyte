@@ -34,7 +34,6 @@ defun (h)(var p q r) do (
   set q 94;
   set r 98;
   println r q p;
-  set b 70;
   h2;
 );
 defun (h2)(var p q) do (
