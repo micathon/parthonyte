@@ -258,25 +258,7 @@ public class RunTime implements IConst {
 	private int handleDoBlock(Node node) {	
 		KeywordTyp kwtyp;
 		int rightp;
-		/*
-		kwtyp = popKwd();
-		omsg("doblock: kwtyp popped = " + kwtyp);
-		rightp = handleExprKwd(kwtyp);
-		if (kwtyp != KeywordTyp.RETURN) { }
-		else if (rightp == EXIT) {
-			omsg("isRtnExit = Y");
-			continue;
-		}
-		else if (rightp == 0) {  // done
-			return 0;
-		}
-		if (rightp < 0) {
-			return rightp;
-		}
-		if (rightp > 0) {
-			break;
-		}
-		*/
+
 		rightp = node.getDownp();
 		if (rightp <= 0) {
 			return 0;
@@ -301,7 +283,16 @@ public class RunTime implements IConst {
 			}
 			rightp = -(rightp - NEGBASEVAL);
 			kwtyp = KeywordTyp.values[rightp];
+			omsg("handleDoBlock: btm2, kwtyp = " + kwtyp);
 			rightp = handleStmtKwd(kwtyp);
+			omsg("handleDoBlock: btm2, rightp = " + rightp);
+			while (rightp == 0) {
+				rightp = handleStmtKwd(KeywordTyp.RETURN);
+				omsg("handleDoBlock: btm, rightp = " + rightp);
+				if (rightp == EXIT) {
+					return 0;
+				}
+			}
 		} 
 		return rightp;
 	}
@@ -845,6 +836,7 @@ public class RunTime implements IConst {
 		if (rightp < 0) {
 			return STKUNDERFLOW;
 		}
+		omsg("runRtnStmt: top2");
 		varCount = popVal(); // varCount
 		if (varCount < 0) {
 			return STKUNDERFLOW;
@@ -857,7 +849,7 @@ public class RunTime implements IConst {
 		}
 		if (rightp == 0) {
 			omsg("runRtnStmt: done");
-			return 0; // done
+			return EXIT; // done
 		}
 		zstmt = popVal();
 		if (zstmt < 0) {
@@ -884,9 +876,9 @@ public class RunTime implements IConst {
 		rightp = node.getRightp();
 		omsg("runRtnStmt: rtnval = " + rightp);
 		if (rightp == 0) {
-			return EXIT;
+			//return EXIT;
 		}
-		return rightp;  // never returns zero
+		return rightp;
 	}
 	
 	private int runGlbCall() {
