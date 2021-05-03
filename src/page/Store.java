@@ -657,12 +657,16 @@ class PageTab implements IConst {
 	
 	public boolean swapNodes() {
 		AddrNode topNode, node;
+		int header, addr;
 		
 		if (getStkIdx() < 2) {
 			return false;
 		}
 		topNode = popNode();
 		node = popNode();
+		header = node.getHeader();
+		addr = node.getAddr();
+		node = new AddrNode(header, addr);
 		pushNode(topNode);
 		pushNode(node);
 		return true;
