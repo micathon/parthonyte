@@ -596,6 +596,14 @@ public class RunScanner implements IConst {
 		rt.glbFunMap.put(funcName, defunCount);
 		glbLocIdx = rt.glbLocVarList.size();
 		rt.glbLocVarMap.put(funcName, glbLocIdx);
+		rightp = node.getRightp();
+		while (rightp > 0) {
+			rightp = scanParmVarList(rightp, varidx, funcName);
+			varidx++;
+		}
+		if (rightp < 0) {
+			return rightp;
+		}
 		node = upNode;
 		rightp = node.getRightp();
 		node = store.getNode(rightp);
@@ -610,23 +618,11 @@ public class RunScanner implements IConst {
 			}
 			rightp = node.getRightp();
 			while (rightp > 0) {
-				page = store.getPage(rightp);
-				idx = store.getElemIdx(rightp);
-				node = page.getNode(idx);
-				celltyp = node.getDownCellTyp();
-				if (celltyp != NodeCellTyp.ID) {
-					return -1;
-				}
-				downp = node.getDownp();
-				varName = funcName + ' ';
-				varName += store.getVarName(downp);
-				rt.glbLocVarMap.put(varName, varidx++);
-				rt.glbLocVarList.add(rightp);
-				rightp = node.getRightp();
-				node.setRightp(downp);
-				node.setDownp(0);
-				node.setRightCell(true);
-				page.setNode(idx, node);
+				rightp = scanParmVarList(rightp, varidx, funcName);
+				varidx++;
+			}
+			if (rightp < 0) {
+				return rightp;
 			}
 			rt.glbLocVarList.add(-1);
 			node = upNode;
@@ -667,6 +663,34 @@ public class RunScanner implements IConst {
 		page.setNode(idx, upNode);
 		defunCount++;
 		return savep;
+	}
+	
+	private int scanParmVarList(int rightp, int varidx, String funcName) {
+		Node node;
+		NodeCellTyp celltyp;
+		int downp;
+		String varName;
+		int idx;
+		Page page;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		celltyp = node.getDownCellTyp();
+		if (celltyp != NodeCellTyp.ID) {
+			return -1;
+		}
+		downp = node.getDownp();
+		varName = funcName + ' ';
+		varName += store.getVarName(downp);
+		rt.glbLocVarMap.put(varName, varidx);
+		rt.glbLocVarList.add(rightp);
+		rightp = node.getRightp();
+		node.setRightp(downp);
+		node.setDownp(0);
+		node.setRightCell(true);
+		page.setNode(idx, node);
+		return rightp;
 	}
 	
 	private int scopeDefunStmt(int rightp) {
