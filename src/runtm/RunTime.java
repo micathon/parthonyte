@@ -47,6 +47,7 @@ public class RunTime implements IConst {
 	private static final int STMTINEXPR = -15;
 	private static final int BADZSTMT = -16;
 	private static final int BADSETSTMT = -17;
+	private static final int BADPARMCT = -18;
 	private static final int NEGBASEVAL = -1000;
 	private static final int NONVAR = 0; // same as AddrNode
 	private static final int LOCVAR = 1; //
@@ -452,7 +453,7 @@ public class RunTime implements IConst {
 	private int handleStmtKwdRtn(KeywordTyp kwtyp) {
 		switch (kwtyp) {
 		case SET: return runSetStmt();
-		case PRINTLN: return runPrintlnStmt();
+		case PRINTLN: return runPrintlnStmt(kwtyp, -1);
 		case ZCALL: return runZcallStmt();
 		case RETURN: return runRtnStmt();
 		default:
@@ -678,13 +679,14 @@ public class RunTime implements IConst {
 		return rightp;
 	}
 	
-	private int runPrintlnStmt() {
+	private int runPrintlnStmt(KeywordTyp kwtyp, int parmCount) {
 		AddrNode addrNode;
 		PageTyp pgtyp;
 		int val;
 		int addr;
 		int count = 0;
 		String msg = "";
+		boolean isPrintln = (kwtyp == KeywordTyp.PRINTLN);
 
 		store.initSpareStkIdx();
 		do {
@@ -692,17 +694,22 @@ public class RunTime implements IConst {
 			if (addrNode == null) {
 				return STKUNDERFLOW;
 			}
+			count++;
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
 			omsg("runPrintlnStmt: addr = " + addr + ", pgtyp = " + pgtyp);
 		} while (
-			!(addr == KeywordTyp.PRINTLN.ordinal() && (
+			!(addr == kwtyp.ordinal() && (
 			pgtyp == PageTyp.KWD))
 		);
 		addrNode = store.fetchSpare();  // pop the PRINTLN
 		if (addrNode == null) { 
 			return STKOVERFLOW; 
 		}
+		if (parmCount >= 0 && parmCount != count) {
+			return BADPARMCT;
+		}
+		count = 0;
 		while (true) {
 			addrNode = store.fetchSpare();
 			if (addrNode == null) {
@@ -719,7 +726,7 @@ public class RunTime implements IConst {
 			msg = msg + val + SP;
 			count++;
 		}
-		if (count > 0) {
+		if (isPrintln && (count > 0)) {
 			oprn(msg);
 		}
 		do {
@@ -730,7 +737,7 @@ public class RunTime implements IConst {
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
 		} while (
-			!(addr == KeywordTyp.PRINTLN.ordinal() && (
+			!(addr == kwtyp.ordinal() && (
 			pgtyp == PageTyp.KWD))
 		);
 		return 0;
@@ -788,7 +795,7 @@ public class RunTime implements IConst {
 		downp = node.getDownp();
 		funcName = store.getVarName(downp);
 		i = glbLocVarMap.get(funcName);
-		// old currZstmt at top of stack
+		// old currZstmt at top of stack //##??
 		locBaseIdx = store.getStkIdx();
 		while (true) {
 			j = glbLocVarList.get(i + varCount);

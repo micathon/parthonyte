@@ -604,6 +604,9 @@ public class RunScanner implements IConst {
 		if (rightp < 0) {
 			return rightp;
 		}
+		// call to put used if parm count value needed later:
+		varName = funcName + " var";
+		rt.glbLocVarMap.put(varName, varidx);
 		node = upNode;
 		rightp = node.getRightp();
 		node = store.getNode(rightp);
