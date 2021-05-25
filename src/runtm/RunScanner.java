@@ -605,7 +605,7 @@ public class RunScanner implements IConst {
 			return rightp;
 		}
 		// call to put used if parm count value needed later:
-		varName = funcName + " var";
+		varName = getFunVar(funcName);
 		rt.glbLocVarMap.put(varName, varidx);
 		node = upNode;
 		rightp = node.getRightp();
@@ -784,6 +784,12 @@ public class RunScanner implements IConst {
 	
 	private boolean isGdefun(String s) {
 		return s.equals("gdefun");
+	}
+	
+	public String getFunVar(String funcName) {
+		String varName;
+		varName = funcName + " var";
+		return varName;
 	}
 	
 }
