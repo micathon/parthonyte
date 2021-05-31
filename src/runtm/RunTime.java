@@ -692,6 +692,7 @@ public class RunTime implements IConst {
 		boolean isPrintln = (kwtyp == KeywordTyp.PRINTLN);
 		boolean isVarList = !isPrintln;
 
+		getCountOfSpares(kwtyp, false);
 		count = 0;
 		while (true) {
 			addrNode = store.fetchSpare();
@@ -702,7 +703,7 @@ public class RunTime implements IConst {
 			pgtyp = addrNode.getHdrPgTyp();
 			val = popIntFromNode(addrNode);
 			if (val < 0) {
-				omsg("runPrintlnStmt: rtn = " + val);
+				omsg("runPrintlnStmt: rtn = " + val + ", count = " + count);
 				return val;
 			}
 			val = packIntSign(isNegInt, val);
