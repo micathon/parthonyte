@@ -304,6 +304,7 @@ public class RunTime implements IConst {
 		int depth = 0;
 		boolean found = false;
 		
+		omsg("exprtok: top, rightp = " + rightp);
 		while (rightp >= 0) {
 			while ((rightp <= 0) && !found) {
 				if (store.isOpStkEmpty()) {
@@ -326,7 +327,7 @@ public class RunTime implements IConst {
 			omsg("exprtok: node -> rightp = " + rightp);
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
-			omsg("exprtok: kwtyp = " + kwtyp + ", rightp = " + rightp);
+			omsg("exprtok: btm kwtyp = " + kwtyp + ", rightp = " + rightp);
 			if (kwtyp == KeywordTyp.ZSTMT) {
 				return STMTINEXPR;
 			}
@@ -453,7 +454,7 @@ public class RunTime implements IConst {
 	private int handleStmtKwdRtn(KeywordTyp kwtyp) {
 		switch (kwtyp) {
 		case SET: return runSetStmt();
-		case PRINTLN: return runPrintlnStmt(kwtyp, -1);
+		case PRINTLN: return runPrintlnStmt(kwtyp);
 		case ZCALL: return runZcallStmt();
 		case RETURN: return runRtnStmt();
 		default:
@@ -671,6 +672,7 @@ public class RunTime implements IConst {
 		int rightp;
 		KeywordTyp kwtyp;
 
+		omsg("pushPrintlnStmt: top");
 		kwtyp = KeywordTyp.PRINTLN;
 		if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp)) {
 			return STKOVERFLOW;
@@ -679,7 +681,7 @@ public class RunTime implements IConst {
 		return rightp;
 	}
 	
-	private int runPrintlnStmt(KeywordTyp kwtyp, int parmCount) {
+	private int runPrintlnStmt(KeywordTyp kwtyp) {
 		AddrNode addrNode;
 		PageTyp pgtyp;
 		int val;
@@ -690,10 +692,6 @@ public class RunTime implements IConst {
 		boolean isPrintln = (kwtyp == KeywordTyp.PRINTLN);
 		boolean isVarList = !isPrintln;
 
-		count = getCountOfSpares(kwtyp, false);
-		if (parmCount >= 0 && parmCount != count) {
-			return BADPARMCT;
-		}
 		count = 0;
 		while (true) {
 			addrNode = store.fetchSpare();
@@ -758,9 +756,13 @@ public class RunTime implements IConst {
 			count++;
 		}
 		if (isZcall) {
-			addrNode = store.popSpare();
+			addrNode = store.fetchSpare();  // pop the ZCALL
 			if (addrNode == null) {
-				return STKUNDERFLOW;
+				return STKOVERFLOW; 
+			}
+			addrNode = store.fetchSpare();  // pop the func var
+			if (addrNode == null) {
+				return STKOVERFLOW; 
 			}
 			addr = addrNode.getAddr();
 			omsg("getCountOfSpares: rtn addr = " + addr);
@@ -782,7 +784,7 @@ public class RunTime implements IConst {
 		if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp)) {
 			return STKOVERFLOW;
 		}
-		rightp = node.getRightp();
+		rightp = handleLeafToken(node);
 		return rightp;
 	}
 	
@@ -842,9 +844,10 @@ public class RunTime implements IConst {
 			varCount++;
 		}
 		varName = rscan.getFunVar(funcName);
-		parmCount = glbLocVarMap.get(varName);
-		rtnval = runPrintlnStmt(kwtyp, parmCount);
+		parmCount = glbLocVarMap.get(varName);  
+		rtnval = runPrintlnStmt(kwtyp);
 		if (rtnval < 0) {
+			omsg("Zcall: rtnval = " + rtnval);
 			return rtnval;
 		}
 		addrNode = store.popNode();
@@ -861,6 +864,7 @@ public class RunTime implements IConst {
 		if (!pushOp(KeywordTyp.RETURN)) {
 			return STKOVERFLOW;
 		}
+		omsg("Zcall: btm, firstp = " + firstp);
 		return firstp;
 	}
 	

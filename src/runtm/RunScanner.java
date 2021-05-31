@@ -297,8 +297,9 @@ public class RunScanner implements IConst {
 		Page page;
 
 		omsg("Keyword gdefun detected.");
-		rt.glbFunMap.put(getGdefunWord(), defunCount++);
+		rt.glbFunMap.put(getGdefunWord(), defunCount);
 		rt.glbFunList.add(0);
+		defunCount++;
 		node = store.getNode(rightp);
 		firstNode = node;
 		kwtyp = node.getKeywordTyp();
@@ -321,8 +322,9 @@ public class RunScanner implements IConst {
 				downp = node.getDownp();
 				varName = getGdefunWord() + ' ';
 				varName += store.getVarName(downp);
-				rt.glbLocVarMap.put(varName, varidx++);
+				rt.glbLocVarMap.put(varName, varidx);
 				rt.glbLocVarList.add(rightp);
+				varidx++;
 				rightp = node.getRightp();
 				node.setRightp(downp);
 				node.setDownp(0);
