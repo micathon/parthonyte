@@ -252,6 +252,9 @@ public class RunTime implements IConst {
 		case KWDPOPPED: return "Keyword popped unexpectedly";
 		case BADINTVAL: return "Integer data expected after pop operation";
 		case STMTINEXPR: return "Statement encountered in expression";
+		case BADZSTMT: return "Expression encountered at stmt. level";
+		case BADSETSTMT: return "Malformed SET statement";
+		case BADPARMCT: return "Mismatched parameter count"; // unused
 		default: return "Error code = " + (-rightp);
 		}
 	}
@@ -692,7 +695,8 @@ public class RunTime implements IConst {
 		boolean isPrintln = (kwtyp == KeywordTyp.PRINTLN);
 		boolean isVarList = !isPrintln;
 
-		getCountOfSpares(kwtyp, false);
+		count = getCountOfSpares(kwtyp, false);
+		omsg("runPrintlnStmt: count of spares = " + count);
 		count = 0;
 		while (true) {
 			addrNode = store.fetchSpare();
@@ -709,6 +713,7 @@ public class RunTime implements IConst {
 			val = packIntSign(isNegInt, val);
 			if (isPrintln) {
 				msg = msg + val + SP;
+				omsg("runPrintlnStmt: msg = " + msg);
 			}
 			rtnval = 0;
 			if (isVarList) {
@@ -839,6 +844,7 @@ public class RunTime implements IConst {
 			if (j < 0) {
 				break;
 			}
+			omsg("runZcallStmt: stkidx = " + store.getStkIdx());
 			if (!pushVal(varCount, PageTyp.INTVAL, LOCVAR)) {
 				return STKOVERFLOW;
 			}
@@ -1176,6 +1182,9 @@ public class RunTime implements IConst {
 		AddrNode addrNode;
 		addrNode = new AddrNode(0, val);
 		addrNode.setHdrPgTyp(pgtyp);
+		if (pgtyp == PageTyp.KWD) {
+			omsg("pushVal: pushing KWD!!!");
+		}
 		addrNode.setHdrLocVarTyp(locVarTyp);
 		addrNode.setPtr();
 		if (!store.pushNode(addrNode)) {
@@ -1249,6 +1258,7 @@ public class RunTime implements IConst {
 		
 		addrNode = new AddrNode(0, val);
 		addrNode.setHdrPgTyp(PageTyp.KWD);
+		omsg("pushOpAsNode: --------------------------");
 		if (!store.pushNode(addrNode)) {
 			return false;
 		}
@@ -1273,7 +1283,12 @@ public class RunTime implements IConst {
 		stkidx = locBaseIdx + varidx;
 		addrNode = store.fetchNode(stkidx);
 		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp == PageTyp.KWD) {
+			omsg("pushVar: KWD stkidx = " + stkidx);
+		}
 		if (pushVal(varidx, pgtyp, locVarTyp)) {
+			omsg("pushVar: varidx = " + varidx + ", pgtyp = " + 
+				pgtyp + ", locvartyp = " + locVarTyp);
 			return true;
 		}
 		else {
