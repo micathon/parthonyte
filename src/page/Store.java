@@ -611,7 +611,7 @@ class PageTab implements IConst {
 		addrNode.setAddr(addr);
 		isKwd = (addrNode.getHdrPgTyp() == PageTyp.KWD);
 		if (isKwd) {
-			s = " KWD";
+			s = " KWD, stkidx = " + getStkIdx();
 		}
 		omsg("Pushed " + addrNode.getAddr() + s);
 		return true;
@@ -695,10 +695,17 @@ class PageTab implements IConst {
 		spareStkIdx = nodeStkIdx;
 	}
 	
+	public int getSpareStkIdx() {
+		int rtnval;
+		rtnval = (spareStkLstIdx << 10) + spareStkIdx;
+		return rtnval;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public AddrNode popSpare() {
 		AddrNode node;
 		ArrayList<AddrNode> list;
+		int stkidx = getSpareStkIdx();
 		
 		if (spareStkIdx > 0) {
 			list = (ArrayList<AddrNode>) nodepg.getList(spareStkLstIdx);
@@ -712,6 +719,7 @@ class PageTab implements IConst {
 		else {
 			node = null;
 		}
+		omsg("PopSpare: " + node.getAddr() + ", stkidx = " + stkidx);
 		return node;
 	}
 	
