@@ -287,9 +287,11 @@ public class RunTime implements IConst {
 			}
 			rightp = -(rightp - NEGBASEVAL);
 			kwtyp = KeywordTyp.values[rightp];
+			outFetchKwd(8);
 			omsg("handleDoBlock: btm2, kwtyp = " + kwtyp);
 			rightp = handleStmtKwd(kwtyp);
 			omsg("handleDoBlock: btm2, rightp = " + rightp);
+			outFetchKwd(8);
 			while (rightp == 0) {
 				rightp = handleStmtKwd(KeywordTyp.RETURN);
 				omsg("handleDoBlock: btm, rightp = " + rightp);
@@ -466,6 +468,7 @@ public class RunTime implements IConst {
 	}
 	
 	private boolean isJumpKwd(KeywordTyp kwtyp) {
+		omsg("isJumpKwd: kwtyp = " + kwtyp);
 		switch (kwtyp) {
 		case ZCALL:
 		case RETURN:
@@ -724,10 +727,15 @@ public class RunTime implements IConst {
 				return rtnval;
 			}
 		}
+		if (!isPrintln) {
+			return 0;   //## note: must take care of popping ZCALL in rtn func
+		}
 		if (isPrintln && (count > 0)) {
 			oprn(msg);
 		}
+		count = 0;
 		do {
+			count++;
 			addrNode = store.popNode();
 			if (addrNode == null) {
 				return STKUNDERFLOW;
@@ -738,6 +746,7 @@ public class RunTime implements IConst {
 			!(addr == kwtyp.ordinal() && (
 			pgtyp == PageTyp.KWD))
 		);
+		omsg("runPrintlnStmt: btm, count = " + count);
 		return 0;
 	}
 	
@@ -857,10 +866,10 @@ public class RunTime implements IConst {
 			omsg("Zcall: rtnval = " + rtnval);
 			return rtnval;
 		}
-		addrNode = store.popNode();
+		/* addrNode = store.popNode();  // ???
 		if (addrNode == null) {
 			return STKUNDERFLOW;
-		}
+		} */
 		varCountIdx = store.getStkIdx();
 		if (!pushInt(varCount)) {
 			return STKOVERFLOW;
@@ -1256,12 +1265,14 @@ public class RunTime implements IConst {
 		int val = kwtyp.ordinal();
 		AddrNode addrNode;
 		
+		outFetchKwd(8);
 		addrNode = new AddrNode(0, val);
 		addrNode.setHdrPgTyp(PageTyp.KWD);
 		omsg("pushOpAsNode: --------------------------");
 		if (!store.pushNode(addrNode)) {
 			return false;
 		}
+		outFetchKwd(8);
 		return true;
 	}
 	
@@ -1281,6 +1292,7 @@ public class RunTime implements IConst {
 			locVarTyp = GLBVAR;
 		}
 		stkidx = locBaseIdx + varidx;
+		outFetchKwd(stkidx);
 		addrNode = store.fetchNode(stkidx);
 		pgtyp = addrNode.getHdrPgTyp();
 		if (pgtyp == PageTyp.KWD) {
@@ -1294,13 +1306,6 @@ public class RunTime implements IConst {
 		else {
 			return false;
 		}
-		/*
-		if (pgtyp != PageTyp.INTVAL) {
-			return false;
-		}
-		rtnval = pushIntVar(varidx, locVarTyp, true);
-		return rtnval;
-		*/
 	}
 	
 	private boolean pushVarQuote(int varidx) {
@@ -1327,6 +1332,20 @@ public class RunTime implements IConst {
 		}
 		rtnval = pushIntVar(varidx, locVarTyp, true);
 		return rtnval;
+	}
+	
+	private void outFetchKwd(int stkidx) {
+		PageTyp pgtyp;
+		AddrNode addrNode;
+		
+		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp == PageTyp.KWD) {
+			omsg("outFetchKwd: KWD=Yes, stkidx = " + stkidx);
+		}
+		else {
+			omsg("outFetchKwd: KWD=no, stkidx = " + stkidx);
+		}
 	}
 	
 	private int fetchInt(AddrNode node) {
