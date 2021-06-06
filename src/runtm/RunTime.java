@@ -254,7 +254,7 @@ public class RunTime implements IConst {
 		case STMTINEXPR: return "Statement encountered in expression";
 		case BADZSTMT: return "Expression encountered at stmt. level";
 		case BADSETSTMT: return "Malformed SET statement";
-		case BADPARMCT: return "Mismatched parameter count"; // unused
+		case BADPARMCT: return "Mismatched parameter count";
 		default: return "Error code = " + (-rightp);
 		}
 	}
@@ -287,11 +287,9 @@ public class RunTime implements IConst {
 			}
 			rightp = -(rightp - NEGBASEVAL);
 			kwtyp = KeywordTyp.values[rightp];
-			outFetchKwd(8);
 			omsg("handleDoBlock: btm2, kwtyp = " + kwtyp);
 			rightp = handleStmtKwd(kwtyp);
 			omsg("handleDoBlock: btm2, rightp = " + rightp);
-			outFetchKwd(8);
 			while (rightp == 0) {
 				rightp = handleStmtKwd(KeywordTyp.RETURN);
 				omsg("handleDoBlock: btm, rightp = " + rightp);
@@ -840,12 +838,12 @@ public class RunTime implements IConst {
 		int currLocBase;
 		Node node = null;
 		Node upNode;
-		AddrNode addrNode;
 		KeywordTyp kwtyp = KeywordTyp.ZCALL;
 		String funcName;
 		String varName;
 		int varCount = 0;  // includes parms, loc vars
-		int parmCount = 0;
+		int parmCount;
+		int parmFixedCount;
 		int i, j;
 		int rtnval;
 		
@@ -868,6 +866,11 @@ public class RunTime implements IConst {
 		node = store.getNode(downp);
 		downp = node.getDownp();
 		funcName = store.getVarName(downp);
+		varName = rscan.getFunVar(funcName);
+		parmFixedCount = glbLocVarMap.get(varName);  
+		if (parmFixedCount != parmCount) {
+			return BADPARMCT;
+		}
 		i = glbLocVarMap.get(funcName);
 		locBaseIdx = store.getStkIdx() - parmCount;
 		while (true) {
@@ -881,14 +884,11 @@ public class RunTime implements IConst {
 			}
 			varCount++;
 		}
-		//varName = rscan.getFunVar(funcName);
-		//parmCount = glbLocVarMap.get(varName);  
 		rtnval = runAltZcallStmt(parmCount);
 		if (rtnval < 0) {
 			omsg("Zcall: rtnval = " + rtnval);
 			return rtnval;
 		}
-		//varCountIdx = store.getStkIdx();
 		if (!pushInt(varCount)) {
 			return STKOVERFLOW;
 		}
@@ -1272,14 +1272,12 @@ public class RunTime implements IConst {
 		int val = kwtyp.ordinal();
 		AddrNode addrNode;
 		
-		outFetchKwd(8);
 		addrNode = new AddrNode(0, val);
 		addrNode.setHdrPgTyp(PageTyp.KWD);
 		omsg("pushOpAsNode: --------------------------");
 		if (!store.pushNode(addrNode)) {
 			return false;
 		}
-		outFetchKwd(8);
 		return true;
 	}
 	
@@ -1299,7 +1297,6 @@ public class RunTime implements IConst {
 			locVarTyp = GLBVAR;
 		}
 		stkidx = locBaseIdx + varidx;
-		outFetchKwd(stkidx);
 		addrNode = store.fetchNode(stkidx);
 		pgtyp = addrNode.getHdrPgTyp();
 		if (pgtyp == PageTyp.KWD) {
@@ -1340,9 +1337,6 @@ public class RunTime implements IConst {
 		rtnval = pushIntVar(varidx, locVarTyp, true);
 		return rtnval;
 	}
-	
-	private void outFetchKwd(int stkidx) { }
-	 
 	/*
 	private void outFetchKwd(int stkidx) {
 		PageTyp pgtyp;
