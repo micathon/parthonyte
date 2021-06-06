@@ -728,7 +728,7 @@ class PageTab implements IConst {
 		AddrNode addrNode;
 		ArrayList<AddrNode> list;
 
-		if (spareStkIdx >= nodeStkIdx && spareStkLstIdx >= nodeStkLstIdx) {
+		if (getSpareStkIdx() >= getStkIdx()) {
 			return null;
 		}
 		if (spareStkIdx < NODESTKLEN) { 
