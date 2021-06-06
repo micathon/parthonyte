@@ -467,6 +467,7 @@ public class RunScanner implements IConst {
 		String varName;
 		Integer value;
 		int varidx;
+		boolean rtnval;
 		
 		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
@@ -485,7 +486,8 @@ public class RunScanner implements IConst {
 		idx = store.getElemIdx(rightp);
 		page.setNode(idx, node);
 		omsg("FunVar = " + varidx);
-		return true;
+		rtnval = scopePrintlnStmt(node);
+		return rtnval;
 	}
 	
 	private boolean scopeLocVar(int rightp) {

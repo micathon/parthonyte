@@ -908,10 +908,10 @@ public class RunTime implements IConst {
 	private int runRtnStmt() {
 		// - already popped RETURN
 		// - pop currZstmt
+		// - if currZstmt=0 then done
 		// - pop calling locBaseIdx
 		// - pop varCount
 		// - pop loc vars, parms
-		// - if currZstmt=0 then done
 		// - pop until ZCALL, inclusive
 		// - set locBaseIdx
 		// - return getRightp of currZstmt
@@ -928,12 +928,16 @@ public class RunTime implements IConst {
 		if (rightp < 0) {
 			return STKUNDERFLOW;
 		}
+		if (rightp == 0) {
+			omsg("runRtnStmt: done");
+			return EXIT; // done
+		}
 		omsg("runRtnStmt: top2");
-		currLocBase = popVal(); // varCount
+		currLocBase = popVal(); // locBaseIdx
 		if (currLocBase < 0) {
 			return STKUNDERFLOW;
 		}
-		omsg("runRtnStmt: top2");
+		omsg("runRtnStmt: top3");
 		varCount = popVal(); // varCount
 		if (varCount < 0) {
 			return STKUNDERFLOW;
@@ -943,10 +947,6 @@ public class RunTime implements IConst {
 			if (popVal() < 0) {
 				return STKUNDERFLOW;
 			}
-		}
-		if (rightp == 0) {
-			omsg("runRtnStmt: done");
-			return EXIT; // done
 		}
 		rtnval = popUntilKwd(kwtyp);
 		if (rtnval < 0) {
@@ -1341,6 +1341,9 @@ public class RunTime implements IConst {
 		return rtnval;
 	}
 	
+	private void outFetchKwd(int stkidx) { }
+	 
+	/*
 	private void outFetchKwd(int stkidx) {
 		PageTyp pgtyp;
 		AddrNode addrNode;
@@ -1354,7 +1357,7 @@ public class RunTime implements IConst {
 			omsg("outFetchKwd: KWD=no, stkidx = " + stkidx);
 		}
 	}
-	
+	*/
 	private int fetchInt(AddrNode node) {
 		int varidx;
 		varidx = node.getAddr();
