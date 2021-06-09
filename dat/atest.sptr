@@ -1,21 +1,21 @@
 do (
 gdefun (var c b a) do (
-  set a (- 60 2);
-  println a (/ a 2);
-  f a; # 128;
-  println a;
+  #set a (- 60 2);
+  #println a (/ a 2);
+  set b (f 0 61);
+  println b 444;
+  g;
+  #f (+ 2 a) 128;
+  #println a;
 );
-defun (f n)(var x y) do (
+defun (f n m)(var x y) do (
   set x 77;
   set y 99;
-  #set n 255;
-  println x y n;
+  set n 255;
+  println x y m;
   g;
-); {
-  println (+ 1 y);
-  set x 33;
-  g;
-); }
+  return 333;
+); 
 defun (g)(var m) do (
   set m 800;
   println m;
