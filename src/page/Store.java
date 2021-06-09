@@ -589,6 +589,7 @@ class PageTab implements IConst {
 		int addr = node.getAddr();
 		AddrNode addrNode;
 		ArrayList<AddrNode> list;
+		int pval;
 		boolean isKwd;
 		String s = "";
 
@@ -609,11 +610,12 @@ class PageTab implements IConst {
 		addrNode = list.get(nodeStkIdx++);
 		addrNode.setHeader(header);
 		addrNode.setAddr(addr);
+		pval = addrNode.getAddr();
 		isKwd = (addrNode.getHdrPgTyp() == PageTyp.KWD);
 		if (isKwd) {
 			s = " KWD, stkidx = " + getStkIdx();
 		}
-		omsg("Pushed " + addrNode.getAddr() + s);
+		omsg("Pushed " + pval + s);
 		return true;
 	}
 
