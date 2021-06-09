@@ -26,6 +26,7 @@ public class RunTime implements IConst {
 	private int varCountIdx;
 	private int stmtCount;
 	private int currZstmt;
+	private int locDepth;
 	private boolean isTgtExpr;
 	private boolean isCalcExpr;
 	private boolean isNegInt;
@@ -65,6 +66,7 @@ public class RunTime implements IConst {
 		locBaseIdx = 0;
 		varCountIdx = 0;
 		stmtCount = 0;
+		locDepth = 0;
 		isTgtExpr = false;
 		isCalcExpr = false;
 		glbFunMap = new HashMap<String, Integer>();
@@ -222,6 +224,12 @@ public class RunTime implements IConst {
 			handleErrToken(STKOVERFLOW);
 			return -1;
 		}
+		if (!pushInt(currZstmt)) {
+			return STKOVERFLOW;
+		}
+		if (!pushInt(locDepth)) {
+			return STKOVERFLOW;
+		}
 		rightp = handleDoBlock(node);
 		omsg("Stmt count = " + stmtCount);
 		if (rightp < EXIT) {
@@ -267,6 +275,7 @@ public class RunTime implements IConst {
 		if (rightp <= 0) {
 			return 0;
 		}
+		
 		while (rightp > 0) {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
@@ -291,7 +300,7 @@ public class RunTime implements IConst {
 			rightp = handleStmtKwd(kwtyp);
 			omsg("handleDoBlock: btm2, rightp = " + rightp);
 			while (rightp == 0) {
-				rightp = handleStmtKwd(KeywordTyp.RETURN);
+				rightp = runRtnStmt(false);
 				omsg("handleDoBlock: btm, rightp = " + rightp);
 				if (rightp == EXIT) {
 					return 0;
@@ -304,7 +313,7 @@ public class RunTime implements IConst {
 	private int handleExprToken(int rightp, boolean isSingle) {	
 		KeywordTyp kwtyp;
 		Node node;
-		int depth = 0;
+		//int depth = 0;  // make global locDepth, decide if -1 or 0 is null depth
 		boolean found = false;
 		
 		omsg("exprtok: top, rightp = " + rightp);
@@ -314,15 +323,18 @@ public class RunTime implements IConst {
 					omsg("exprtok: top of while, empty op stk");
 					return STKUNDERFLOW;
 				}
-				depth--;
-				found = isSingle && (depth <= 0);
+				found = isSingle && (locDepth <= 0);
 				kwtyp = popKwd();
 				omsg("exprtok: kwtyp popped = " + kwtyp);
+				if (kwtyp == KeywordTyp.ZCALL && locDepth > 0) {  //##
+					omsg("exprtok: function call, locDepth = " + locDepth);
+				}
 				rightp = handleExprKwd(kwtyp);
 				omsg("exprtok: kwtyp = " + kwtyp + ", rightp = " + rightp);
 				if (rightp < 0) {
 					return rightp;  // err if > NEGBASEVAL
 				}
+				locDepth--;
 			}
 			if (found) {
 				break;
@@ -335,12 +347,12 @@ public class RunTime implements IConst {
 				return STMTINEXPR;
 			}
 			if (kwtyp == KeywordTyp.ZPAREN) {
-				depth++;
+				locDepth++;
 				rightp = pushExpr(node);
 			}
 			else {
 				rightp = handleLeafToken(node);
-				found = isSingle && (depth <= 0);
+				found = isSingle && (locDepth <= 0);
 			}
 		} 
 		return rightp;
@@ -459,7 +471,7 @@ public class RunTime implements IConst {
 		case SET: return runSetStmt();
 		case PRINTLN: return runPrintlnStmt(kwtyp);
 		case ZCALL: return runZcallStmt();
-		case RETURN: return runRtnStmt();
+		case RETURN: return runRtnStmt(true);
 		default:
 			return BADOP;
 		}
@@ -499,8 +511,10 @@ public class RunTime implements IConst {
 			rightp = pushPrintlnStmt(node);
 			break;
 		case ZCALL:
-			//omsg("pushStmt: ZCALL, currZstmt = " + currZstmt);
 			rightp = pushZcallStmt(node);
+			break;
+		case RETURN:
+			rightp = pushRtnStmt(node);
 			break;
 		default: return BADSTMT;
 		}
@@ -537,6 +551,15 @@ public class RunTime implements IConst {
 				return STKOVERFLOW;
 			}
 			break;
+		case ZCALL:
+			if (popVal() < 0) {
+				return STKUNDERFLOW;
+			}
+			if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp)) {
+				return STKOVERFLOW;
+			}
+			rightp = handleLeafToken(node);
+			return rightp;
 		default: return BADOP;
 		}
 		rightp = node.getRightp();
@@ -824,11 +847,10 @@ public class RunTime implements IConst {
 		// - get ptr to func def parm list
 		// - set locBaseIdx
 		// - push parms, loc vars
-									// - set varCountIdx (no need)
 		// - push varCount
 		// - push old locBaseIdx
 		// - push currZstmt
-		// - push RETURN
+		// - push RETURN (don't need)
 		// - go to func body: return ptr to first zstmt
 		int downp;
 		int funcidx;
@@ -898,15 +920,22 @@ public class RunTime implements IConst {
 		if (!pushInt(currZstmt)) {
 			return STKOVERFLOW;
 		}
-		if (!pushOp(KeywordTyp.RETURN)) {
+		if (!pushInt(locDepth)) {
 			return STKOVERFLOW;
 		}
+		/*
+		if (!pushOp(KeywordTyp.RETURN)) {
+			return STKOVERFLOW;
+		} */
+		
+		// set global depth to 0
+		locDepth = 0;
 		omsg("Zcall: btm, firstp = " + firstp);
 		return firstp;
 	}
 	
-	private int runRtnStmt() {
-		// - already popped RETURN
+	private int runRtnStmt(boolean isExpr) {
+		// - already popped RETURN (wrong)
 		// - pop currZstmt
 		// - if currZstmt=0 then done
 		// - pop calling locBaseIdx
@@ -920,10 +949,22 @@ public class RunTime implements IConst {
 		int varCount;
 		int i;
 		int rtnval;
+		int funcReturns = 0;
 		Node node;
 		KeywordTyp kwtyp = KeywordTyp.ZCALL;
 		
 		omsg("runRtnStmt: top");
+		if (isExpr) {
+			funcReturns = popVal(); 
+			if (funcReturns == NEGBASEVAL) {
+				return STKUNDERFLOW;
+			}
+		}
+		locDepth = popVal(); // locBaseIdx
+		if (locDepth == NEGBASEVAL) {
+			return STKUNDERFLOW;
+		}
+		// if locDepth > null depth then pop rtnval...
 		rightp = popIdxVal(); // currZstmt
 		if (rightp < 0) {
 			return STKUNDERFLOW;
@@ -952,10 +993,33 @@ public class RunTime implements IConst {
 		if (rtnval < 0) {
 			return rtnval;
 		}
+		// push func rtnval if locDepth > null depth:
+		if (locDepth <= 0) { }
+		else if (!pushInt(funcReturns)) {  
+			return STKOVERFLOW;
+		}
 		locBaseIdx = currLocBase;
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		omsg("runRtnStmt: rtnval = " + rightp);
+		return rightp;
+	}
+	
+	private int pushRtnStmt(Node node) {
+		int rightp;
+		KeywordTyp kwtyp;
+		
+		omsg("pushSetStmt: top");
+		kwtyp = KeywordTyp.RETURN;
+		if (!pushOp(kwtyp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return BADSETSTMT;  //##
+		}
+		node = store.getNode(rightp);
+		rightp = handleExprToken(rightp, true);
 		return rightp;
 	}
 	
@@ -1140,7 +1204,7 @@ public class RunTime implements IConst {
 		
 		node = store.popNode();
 		if (node == null) {
-			return -1;
+			return NEGBASEVAL;
 		}
 		val = node.getAddr();
 		return val;
@@ -1262,6 +1326,9 @@ public class RunTime implements IConst {
 	
 	private boolean pushOp(KeywordTyp kwtyp) {
 		byte byt = (byte)(kwtyp.ordinal());
+		if (kwtyp == KeywordTyp.RETURN) {
+			//omsg(">>>>>>>>>>>>>>>>pushKwd: RETURN");  //######
+		}
 		if (!store.pushByte(byt)) {
 			return false;
 		}

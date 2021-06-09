@@ -418,7 +418,8 @@ public class RunScanner implements IConst {
 		switch (kwtyp) {
 		case SET: return scopeSetStmt(node);
 		case PRINTLN: return scopePrintlnStmt(node);
-		case ZCALL: return scopeZcallStmt(rightp);
+		case ZCALL: return scopeZcallStmt(rightp, false);
+		case RETURN: return scopeRtnStmt(node);
 		default: return false;
 		}
 	}
@@ -458,7 +459,17 @@ public class RunScanner implements IConst {
 		return true;
 	}
 	
-	private boolean scopeZcallStmt(int rightp) {
+	private boolean scopeRtnStmt(Node node) {
+		int rightp;
+		
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return false;
+		}
+		return scopeExpr(rightp);
+	}
+	
+	private boolean scopeZcallStmt(int rightp, boolean isExpr) {
 		int downp;
 		Node node;
 		Page page;
@@ -486,6 +497,9 @@ public class RunScanner implements IConst {
 		idx = store.getElemIdx(rightp);
 		page.setNode(idx, node);
 		omsg("FunVar = " + varidx);
+		if (isExpr) {
+			return true;
+		}
 		rtnval = scopePrintlnStmt(node);
 		return rtnval;
 	}
@@ -552,6 +566,9 @@ public class RunScanner implements IConst {
 		celltyp = node.getDownCellTyp();
 		if (celltyp == NodeCellTyp.ID) {
 			return scopeLocVar(rightp);
+		}
+		if (celltyp == NodeCellTyp.FUNC) {
+			return scopeZcallStmt(rightp, true);
 		}
 		if (celltyp != NodeCellTyp.PTR) {
 			return true;
