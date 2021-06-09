@@ -26,9 +26,11 @@ public class RunTime implements IConst {
 	private int varCountIdx;
 	private int stmtCount;
 	private int currZstmt;
+	private int currZexpr;
 	private int locDepth;
 	private boolean isTgtExpr;
 	private boolean isCalcExpr;
+	private boolean isExprLoop;
 	private boolean isNegInt;
 	private static final char SP = ' ';
 	private static final int EXIT = -1;
@@ -69,6 +71,7 @@ public class RunTime implements IConst {
 		locDepth = 0;
 		isTgtExpr = false;
 		isCalcExpr = false;
+		isExprLoop = false;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
 		glbFunList = new ArrayList<Integer>();
@@ -275,7 +278,6 @@ public class RunTime implements IConst {
 		if (rightp <= 0) {
 			return 0;
 		}
-		
 		while (rightp > 0) {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
@@ -287,18 +289,21 @@ public class RunTime implements IConst {
 			omsg("doblock: stmtCount = " + stmtCount);
 			currZstmt = rightp;
 			rightp = pushStmt(node);
-			rightp = handleExprToken(rightp, false);
-			if (rightp >= 0) {
-				return BADOP;
-			}
-			if (rightp > NEGBASEVAL) {
-				return rightp;
-			}
-			rightp = -(rightp - NEGBASEVAL);
-			kwtyp = KeywordTyp.values[rightp];
-			omsg("handleDoBlock: btm2, kwtyp = " + kwtyp);
-			rightp = handleStmtKwd(kwtyp);
-			omsg("handleDoBlock: btm2, rightp = " + rightp);
+			do {
+				isExprLoop = false;
+				rightp = handleExprToken(rightp, false);
+				if (rightp >= 0) {
+					return BADOP;
+				}
+				if (rightp > NEGBASEVAL) {
+					return rightp;
+				}
+				rightp = -(rightp - NEGBASEVAL);
+				kwtyp = KeywordTyp.values[rightp];
+				omsg("handleDoBlock: btm2, kwtyp = " + kwtyp);
+				rightp = handleStmtKwd(kwtyp);
+				omsg("handleDoBlock: btm2, rightp = " + rightp);
+			} while (isExprLoop);
 			while (rightp == 0) {
 				rightp = runRtnStmt(false);
 				omsg("handleDoBlock: btm, rightp = " + rightp);
@@ -348,6 +353,7 @@ public class RunTime implements IConst {
 			}
 			if (kwtyp == KeywordTyp.ZPAREN) {
 				locDepth++;
+				currZexpr = rightp;
 				rightp = pushExpr(node);
 			}
 			else {
@@ -555,7 +561,9 @@ public class RunTime implements IConst {
 			if (popVal() < 0) {
 				return STKUNDERFLOW;
 			}
-			if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp)) {
+			if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp) ||
+				!pushInt(currZexpr)) 
+			{
 				return STKOVERFLOW;
 			}
 			rightp = handleLeafToken(node);
@@ -815,11 +823,23 @@ public class RunTime implements IConst {
 		return count;
 	}
 	
-	private int getFuncIdxSpares(KeywordTyp kwtyp) {
+	private int getReturnpSpares() {
 		AddrNode addrNode;
 		int addr;
 	
-		getCountOfSpares(kwtyp);
+		addrNode = store.fetchSpare();  // pop the returnp
+		if (addrNode == null) {
+			return STKOVERFLOW; 
+		}
+		addr = addrNode.getAddr();
+		omsg("getReturnpSpares: rtn addr = " + addr);
+		return addr;
+	}
+			
+	private int getFuncIdxSpares() {
+		AddrNode addrNode;
+		int addr;
+	
 		addrNode = store.fetchSpare();  // pop the func var
 		if (addrNode == null) {
 			return STKOVERFLOW; 
@@ -835,7 +855,7 @@ public class RunTime implements IConst {
 		
 		omsg("pushZcallStmt: top");
 		kwtyp = KeywordTyp.ZCALL;
-		if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp)) {
+		if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp) || !pushInt(currZstmt)) {
 			return STKOVERFLOW;
 		}
 		rightp = handleLeafToken(node);
@@ -857,6 +877,7 @@ public class RunTime implements IConst {
 		int upNodep;
 		int funcp;
 		int firstp;
+		int returnp;
 		int currLocBase;
 		Node node = null;
 		Node upNode;
@@ -871,8 +892,12 @@ public class RunTime implements IConst {
 		
 		omsg("runZcallStmt: top");
 		currLocBase = locBaseIdx;
-		parmCount = getCountOfSpares(kwtyp) - 1;
-		funcidx = getFuncIdxSpares(kwtyp);
+		parmCount = getCountOfSpares(kwtyp) - 2;
+		returnp = getReturnpSpares();
+		if (returnp < 0) {
+			return STKUNDERFLOW;
+		}
+		funcidx = getFuncIdxSpares();
 		if (funcidx < 0) {
 			return STKUNDERFLOW;
 		}
@@ -917,7 +942,7 @@ public class RunTime implements IConst {
 		if (!pushInt(currLocBase)) {
 			return STKOVERFLOW;
 		}
-		if (!pushInt(currZstmt)) {
+		if (!pushInt(returnp)) {
 			return STKOVERFLOW;
 		}
 		if (!pushInt(locDepth)) {
@@ -959,13 +984,16 @@ public class RunTime implements IConst {
 			if (funcReturns == NEGBASEVAL) {
 				return STKUNDERFLOW;
 			}
+			isExprLoop = true;
+			omsg("runRtnStmt: funcReturns = " + funcReturns);
 		}
 		locDepth = popVal(); // locBaseIdx
 		if (locDepth == NEGBASEVAL) {
 			return STKUNDERFLOW;
 		}
 		// if locDepth > null depth then pop rtnval...
-		rightp = popIdxVal(); // currZstmt
+		rightp = popIdxVal(); // currZstmt/Zexpr
+		omsg("runRtnStmt: returnp = " + rightp);
 		if (rightp < 0) {
 			return STKUNDERFLOW;
 		}
