@@ -280,6 +280,7 @@ public class RunTime implements IConst {
 		if (rightp <= 0) {
 			return 0;
 		}
+		pushOp(KeywordTyp.NULL);
 		while (rightp > 0) {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
@@ -297,6 +298,9 @@ public class RunTime implements IConst {
 				rightp = handleExprToken(rightp, false);
 				if (rightp >= 0) {
 					return BADOP;
+				}
+				if (rightp == EXIT) {
+					return 0;
 				}
 				if (rightp > NEGBASEVAL) {
 					return rightp;
@@ -330,8 +334,12 @@ public class RunTime implements IConst {
 					omsg("exprtok: top of while, empty op stk");
 					return STKUNDERFLOW;
 				}
+				//locDepth = (locDepth == 0) ? 0 : locDepth - 1; 
 				found = isSingle && (locDepth <= 0);
 				kwtyp = popKwd();
+				if (kwtyp == KeywordTyp.NULL && store.isOpStkEmpty()) {
+					return EXIT;
+				}
 				omsg("exprtok: kwtyp popped = " + kwtyp);
 				if (kwtyp == KeywordTyp.ZCALL && locDepth > 0) {  
 					omsg("exprtok: function call, locDepth = " + locDepth);
@@ -948,6 +956,7 @@ public class RunTime implements IConst {
 		if (!pushInt(returnp)) {
 			return STKOVERFLOW;
 		}
+		omsg("Zcall: locDepth = " + locDepth);
 		if (!pushInt(locDepth)) {
 			return STKOVERFLOW;
 		}
