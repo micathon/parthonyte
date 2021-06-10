@@ -334,7 +334,6 @@ public class RunTime implements IConst {
 					omsg("exprtok: top of while, empty op stk");
 					return STKUNDERFLOW;
 				}
-				//locDepth = (locDepth == 0) ? 0 : locDepth - 1; 
 				found = isSingle && (locDepth <= 0);
 				kwtyp = popKwd();
 				if (kwtyp == KeywordTyp.NULL && store.isOpStkEmpty()) {
@@ -464,9 +463,12 @@ public class RunTime implements IConst {
 		case MPY: return runMpyExpr();
 		case MINUS: return runMinusExpr();
 		case DIV: return runDivExpr();
+		case ZCALL:
+			break;
 		default:
-			return NEGBASEVAL - kwtyp.ordinal();
+			//
 		}
+		return NEGBASEVAL - kwtyp.ordinal();
 	}
 
 	private int handleStmtKwd(KeywordTyp kwtyp) {
@@ -1041,6 +1043,7 @@ public class RunTime implements IConst {
 		else if (!pushIntStk(funcAddr)) {  
 			return STKOVERFLOW;
 		}
+		locDepth--;
 		locBaseIdx = currLocBase;
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
