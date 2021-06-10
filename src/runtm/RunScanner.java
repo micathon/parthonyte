@@ -648,7 +648,6 @@ public class RunScanner implements IConst {
 			if (rightp < 0) {
 				return rightp;
 			}
-			rt.glbLocVarList.add(-1);
 			node = upNode;
 			rightp = node.getRightp();
 			omsg("Global/local var count = " + varidx);
@@ -663,6 +662,7 @@ public class RunScanner implements IConst {
 			}
 			kwtyp = node.getKeywordTyp();
 		}
+		rt.glbLocVarList.add(-1);
 		if (kwtyp != KeywordTyp.DO) {
 			omsg("Missing DO");
 			return -1;

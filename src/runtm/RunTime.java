@@ -51,6 +51,7 @@ public class RunTime implements IConst {
 	private static final int BADZSTMT = -16;
 	private static final int BADSETSTMT = -17;
 	private static final int BADPARMCT = -18;
+	private static final int RTNISEMPTY = -19;
 	private static final int NEGBASEVAL = -1000;
 	private static final int NONVAR = 0; // same as AddrNode
 	private static final int LOCVAR = 1; //
@@ -266,6 +267,7 @@ public class RunTime implements IConst {
 		case BADZSTMT: return "Expression encountered at stmt. level";
 		case BADSETSTMT: return "Malformed SET statement";
 		case BADPARMCT: return "Mismatched parameter count";
+		case RTNISEMPTY: return "Return stmt. lacks value";
 		default: return "Error code = " + (-rightp);
 		}
 	}
@@ -288,6 +290,7 @@ public class RunTime implements IConst {
 			stmtCount++;
 			omsg("doblock: stmtCount = " + stmtCount);
 			currZstmt = rightp;
+			locDepth = 0;
 			rightp = pushStmt(node);
 			do {
 				isExprLoop = false;
@@ -318,7 +321,6 @@ public class RunTime implements IConst {
 	private int handleExprToken(int rightp, boolean isSingle) {	
 		KeywordTyp kwtyp;
 		Node node;
-		//int depth = 0;  // make global locDepth, decide if -1 or 0 is null depth
 		boolean found = false;
 		
 		omsg("exprtok: top, rightp = " + rightp);
@@ -331,7 +333,7 @@ public class RunTime implements IConst {
 				found = isSingle && (locDepth <= 0);
 				kwtyp = popKwd();
 				omsg("exprtok: kwtyp popped = " + kwtyp);
-				if (kwtyp == KeywordTyp.ZCALL && locDepth > 0) {  //##
+				if (kwtyp == KeywordTyp.ZCALL && locDepth > 0) {  
 					omsg("exprtok: function call, locDepth = " + locDepth);
 				}
 				rightp = handleExprKwd(kwtyp);
@@ -793,7 +795,7 @@ public class RunTime implements IConst {
 				return rtnval;
 			}
 		}
-		return 0;  //## note??: must take care of popping ZCALL in rtn func
+		return 0;
 	}
 	
 	private int getCountOfSpares(KeywordTyp kwtyp) {
@@ -863,14 +865,15 @@ public class RunTime implements IConst {
 	}
 	
 	private int runZcallStmt() {
+		// - popSpare returnp (go back here)
 		// - popSpare func ref. (idx in func list)
 		// - get ptr to func def parm list
 		// - set locBaseIdx
 		// - push parms, loc vars
 		// - push varCount
 		// - push old locBaseIdx
-		// - push currZstmt
-		// - push RETURN (don't need)
+		// - push returnp
+		// - push old local depth
 		// - go to func body: return ptr to first zstmt
 		int downp;
 		int funcidx;
@@ -948,50 +951,51 @@ public class RunTime implements IConst {
 		if (!pushInt(locDepth)) {
 			return STKOVERFLOW;
 		}
-		/*
-		if (!pushOp(KeywordTyp.RETURN)) {
-			return STKOVERFLOW;
-		} */
-		
-		// set global depth to 0
-		locDepth = 0;
 		omsg("Zcall: btm, firstp = " + firstp);
 		return firstp;
 	}
 	
 	private int runRtnStmt(boolean isExpr) {
-		// - already popped RETURN (wrong)
-		// - pop currZstmt
-		// - if currZstmt=0 then done
+		// - pop return value if any
+		// - pop local depth
+		// - pop returnp (go back here)
+		// - if returnp=0 then done
 		// - pop calling locBaseIdx
 		// - pop varCount
 		// - pop loc vars, parms
 		// - pop until ZCALL, inclusive
-		// - set locBaseIdx
-		// - return getRightp of currZstmt
+		// - push return value if any
+		// - set local depth
+		// - return getRightp of returnp
 		int rightp;
 		int currLocBase;
 		int varCount;
+		int funcAddr = 0;
 		int i;
 		int rtnval;
-		int funcReturns = 0;
+		AddrNode funcReturns;
 		Node node;
 		KeywordTyp kwtyp = KeywordTyp.ZCALL;
 		
 		omsg("runRtnStmt: top");
 		if (isExpr) {
-			funcReturns = popVal(); 
-			if (funcReturns == NEGBASEVAL) {
+			funcReturns = store.popNode(); 
+			if (funcReturns == null) {
 				return STKUNDERFLOW;
 			}
+			funcAddr = popIntFromNode(funcReturns);
+			if (funcAddr < 0) {
+				return funcAddr;
+			}
+			funcAddr = packIntSign(isNegInt, funcAddr);
 			isExprLoop = true;
-			omsg("runRtnStmt: funcReturns = " + funcReturns);
+			omsg("runRtnStmt: funcReturns = " + funcAddr);
 		}
 		locDepth = popVal(); // locBaseIdx
+		omsg("runRtnStmt: locDepth = " + locDepth);
 		if (locDepth == NEGBASEVAL) {
 			return STKUNDERFLOW;
 		}
-		// if locDepth > null depth then pop rtnval...
 		rightp = popIdxVal(); // currZstmt/Zexpr
 		omsg("runRtnStmt: returnp = " + rightp);
 		if (rightp < 0) {
@@ -1021,9 +1025,11 @@ public class RunTime implements IConst {
 		if (rtnval < 0) {
 			return rtnval;
 		}
-		// push func rtnval if locDepth > null depth:
-		if (locDepth <= 0) { }
-		else if (!pushInt(funcReturns)) {  
+		// push func rtnval if locDepth > 0:
+		if (locDepth <= 0) { 
+			isExprLoop = false;
+		}
+		else if (!pushIntStk(funcAddr)) {  
 			return STKOVERFLOW;
 		}
 		locBaseIdx = currLocBase;
@@ -1044,7 +1050,7 @@ public class RunTime implements IConst {
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			return BADSETSTMT;  //##
+			return RTNISEMPTY;  
 		}
 		node = store.getNode(rightp);
 		rightp = handleExprToken(rightp, true);
@@ -1090,6 +1096,7 @@ public class RunTime implements IConst {
 		if (val == 0x80000000) {
 			return 0;
 		}
+		val = (val < 0) ? -val : val;
 		return val;
 	}
 	
@@ -1205,7 +1212,9 @@ public class RunTime implements IConst {
 		locVarTyp = addrNode.getHdrLocVarTyp();
 		switch (locVarTyp) {
 		case NONVAR: 
-			return addr;
+			omsg("popIntRtn: nonvar, addr = " + addr);
+			rtnval = addr;
+			break;
 		case LOCVAR:
 		case GLBVAR:
 			varidx = addr;
@@ -1218,11 +1227,12 @@ public class RunTime implements IConst {
 				return BADPOP;
 			}
 			rtnval = addrNode.getAddr();
-			isNegInt = (rtnval < 0);
-			rtnval = stripIntSign(rtnval);
 			break;
-		default: rtnval = BADPOP;
+		default: 
+			return BADPOP;
 		}
+		isNegInt = (rtnval < 0);
+		rtnval = stripIntSign(rtnval);
 		return rtnval;
 	}
 	
@@ -1354,9 +1364,6 @@ public class RunTime implements IConst {
 	
 	private boolean pushOp(KeywordTyp kwtyp) {
 		byte byt = (byte)(kwtyp.ordinal());
-		if (kwtyp == KeywordTyp.RETURN) {
-			//omsg(">>>>>>>>>>>>>>>>pushKwd: RETURN");  //######
-		}
 		if (!store.pushByte(byt)) {
 			return false;
 		}
