@@ -2,13 +2,14 @@ do (
 gdefun (var a b c) do (
   set a -500;
   println a;
+  f a (g);
   set c (inc 100);
   set a (- 60 2);
   set b 747;
   println a (/ a 2) b c;
   println b (f 0 61);
   g;
-  f (+ 2 a (* c 2)) 128;
+  f (+ 2 a (* c 2))(g);
   hello;
   println a;
 );
@@ -24,6 +25,7 @@ defun (f n m)(var x y) do (
 defun (g)(var m) do (
   set m 800;
   println m;
+  return m;
 );
 defun (inc x) do (
   return (+ x 1);
