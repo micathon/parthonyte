@@ -1023,7 +1023,7 @@ public class ScanSrc implements IConst {
 		}
 		outbuf = TABSTR + "FLT" + sp + token + sp + sval;
 		outDetl(outbuf);
-		return addNode(NodeCellTyp.DOUBLE, 0, val, "");
+		return addNode(NodeCellTyp.FLOAT, 0, val, "");
 	}
 	
 	private int putStr(String token) {
@@ -1094,8 +1094,8 @@ public class ScanSrc implements IConst {
 		case LONG:
 			downp = store.allocLong(val);
 			break;
-		case DOUBLE:
-			downp = store.allocDouble(dval);
+		case FLOAT:
+			downp = store.allocFloat(dval);
 			break;
 		case STRING:
 		case ID:
@@ -1456,7 +1456,7 @@ public class ScanSrc implements IConst {
 		case BOOLEAN:
 		case INT:
 		case LONG:
-		case DOUBLE:
+		case FLOAT:
 		case STRING:
 			out("isConst-celltyp = " + celltyp);
 			return true;
