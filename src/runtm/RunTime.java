@@ -425,11 +425,11 @@ public class RunTime implements IConst {
 				return STKOVERFLOW;
 			}
 			break;
-		case DOUBLE:	
+		case FLOAT:	
 			downp = node.getDownp();
 			page = store.getPage(downp);
 			idx = store.getElemIdx(downp);
-			dval = page.getDouble(idx);
+			dval = page.getFloat(idx);
 			rtnval = pushFloat(dval);
 			if (rtnval < 0) {
 				return rtnval;
@@ -1336,12 +1336,12 @@ public class RunTime implements IConst {
 		AddrNode addrNode;
 		int addr;
 		
-		addr = store.allocDouble(val);
+		addr = store.allocFloat(val);
 		if (addr < 0) {
 			return BADALLOC;
 		}
 		addrNode = new AddrNode(0, addr);
-		addrNode.setHdrPgTyp(PageTyp.DOUBLE);
+		addrNode.setHdrPgTyp(PageTyp.FLOAT);
 		if (!store.pushNode(addrNode)) {
 			return STKOVERFLOW;
 		}
