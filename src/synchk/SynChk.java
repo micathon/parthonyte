@@ -449,7 +449,7 @@ public class SynChk {
 
 		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
-		if (celltyp != NodeCellTyp.DOUBLE) {
+		if (celltyp != NodeCellTyp.FLOAT) {
 			return rtnval;
 		}
 		// token following '?' of top-level stmt. (in unit test) is a float const.
@@ -457,7 +457,7 @@ public class SynChk {
 		downp = node.getDownp();
 		page = store.getPage(downp);
 		idx = store.getElemIdx(downp);
-		rtnval = page.getDouble(idx);
+		rtnval = page.getFloat(idx);
 		return rtnval;
 	}
 	
@@ -1269,7 +1269,7 @@ public class SynChk {
 		switch (celltyp) {
 		case INT:
 		case LONG:
-		case DOUBLE:
+		case FLOAT:
 		case STRING:
 			return true;
 		default:

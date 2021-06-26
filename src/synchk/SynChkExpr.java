@@ -172,7 +172,7 @@ public class SynChkExpr {
 			case LONG:
 				isValid = doIntConst(rightp);
 				break;
-			case DOUBLE: 
+			case FLOAT: 
 				isValid = doFloatConst(rightp);
 				break;
 			case STRING: 
@@ -278,7 +278,7 @@ public class SynChkExpr {
 		case LONG:
 			isValid = doIntConst(rightp);
 			break;
-		case DOUBLE: 
+		case FLOAT: 
 			isValid = doFloatConst(rightp);
 			break;
 		case STRING: 
