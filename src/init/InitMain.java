@@ -10,7 +10,6 @@ import page.Node;
 import scansrc.ScanSrc;
 import synchk.SynChk;
 import runtm.RunScanner;
-import runtm.RunTime;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -325,8 +324,8 @@ public class InitMain implements IConst {
 		case LONG:
 			success = page.freeLong(n);
 			break;
-		case DOUBLE:
-			success = page.freeDouble(n);
+		case FLOAT:
+			success = page.freeFloat(n);
 			break;
 		case STRING:
 			success = page.freeString(n);
@@ -341,6 +340,7 @@ public class InitMain implements IConst {
 			success = page.freeMap(n);
 			break;
 		case BYTE:
+		case KWD:
 			success = false;
 			break;
 		}
@@ -484,8 +484,8 @@ public class InitMain implements IConst {
 			lval = page.getLong(idx);
 			System.out.println("" + lval);
 			break;
-		case DOUBLE:
-			x = page.getDouble(idx);
+		case FLOAT:
+			x = page.getFloat(idx);
 			System.out.println("" + x);
 			break;
 		case STRING:
@@ -501,6 +501,7 @@ public class InitMain implements IConst {
 			break;
 		case MAP:
 		case BYTE:
+		case KWD:
 			break;
 		case LIST:
 			list = (ArrayList<AddrNode>) page.getList(idx);
@@ -663,7 +664,7 @@ public class InitMain implements IConst {
 		if (hasDecPt) {
 			System.out.println("You are trying to add float x,");
 			System.out.println("where x = " + x);
-			addr = store.allocDouble(x);
+			addr = store.allocFloat(x);
 		}
 		else if (n < 0) {
 			// user enters +ve: int; enters -ve: long
