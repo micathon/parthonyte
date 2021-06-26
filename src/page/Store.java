@@ -91,7 +91,7 @@ public class Store implements IConst {
 		return allocVal(2, val, 0.0);
 	}
 	
-	public int allocDouble(double val) {
+	public int allocFloat(double val) {
 		return allocVal(3, 0, val);
 	}
 	
@@ -109,7 +109,7 @@ public class Store implements IConst {
 			pgtyp = PageTyp.LONG;
 			break;
 		case 3:
-			pgtyp = PageTyp.DOUBLE;
+			pgtyp = PageTyp.FLOAT;
 			break;
 		}
 		for (int i=0; i < INTPGLEN; i++) {
@@ -136,7 +136,7 @@ public class Store implements IConst {
 					idx = page.allocLong(ival);
 					break;
 				case 3:
-					idx = page.allocDouble(dval);
+					idx = page.allocFloat(dval);
 					break;
 				}
 				if (idx >= 0) {
@@ -429,6 +429,7 @@ public class Store implements IConst {
 		return stackTab.printStkIdxs();
 	}
 	
+	@SuppressWarnings("unused")
 	private void omsg(String msg) {
 		stackTab.omsg(msg);
 	}

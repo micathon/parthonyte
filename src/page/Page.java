@@ -43,7 +43,7 @@ public class Page implements IConst {
 			cellcount = DBLPGLEN;
 			longs = new long[cellcount];
 			break;
-		case DOUBLE:
+		case FLOAT:
 			cellcount = DBLPGLEN;
 			doubles = new double[cellcount];
 			break;
@@ -59,6 +59,8 @@ public class Page implements IConst {
 			cellcount = INTPGLEN;
 			maps = new HashMap<?, ?>[cellcount];
 			break;
+		case KWD:
+			return;
 		}
 		gcbits = new boolean[cellcount];
 		for (int i=0; i < cellcount; i++) {
@@ -122,11 +124,11 @@ public class Page implements IConst {
 		longs[idx] = val;
 	}
 	
-	public double getDouble(int idx) {
+	public double getFloat(int idx) {
 		return doubles[idx];
 	}
 	
-	public void setDouble(int idx, double val) {
+	public void setFloat(int idx, double val) {
 		doubles[idx] = val;
 	}
 	
@@ -310,7 +312,7 @@ public class Page implements IConst {
 		return true;
 	}
 	
-	public int allocDouble(double val) {
+	public int allocFloat(double val) {
 		int rtnval;
 		int nextidx;
 
@@ -318,17 +320,17 @@ public class Page implements IConst {
 			return -1;
 		}
 		if (freeidx < 0) {
-			setDouble(valcount, val);
+			setFloat(valcount, val);
 			return valcount++;
 		}
-		nextidx = (int) getDouble(freeidx);
-		setDouble(freeidx, val);
+		nextidx = (int) getFloat(freeidx);
+		setFloat(freeidx, val);
 		rtnval = freeidx;
 		freeidx = nextidx;
 		return rtnval;
 	}
 	
-	public boolean freeDouble(int idx) {
+	public boolean freeFloat(int idx) {
 		int i = freeidx;
 		if (valcount <= 0 || idx >= valcount) {
 			return false;
@@ -337,9 +339,9 @@ public class Page implements IConst {
 			if (i == idx) {
 				return false;
 			}
-			i = (int) getDouble(i);
+			i = (int) getFloat(i);
 		}
-		setDouble(idx, freeidx);
+		setFloat(idx, freeidx);
 		freeidx = idx;
 		return true;
 	}
