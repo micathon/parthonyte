@@ -1,5 +1,9 @@
 do (
-gdefun (var a b c) do (
+gdefun (var a b c pi firstname) do (
+  set firstname "Mike";
+  println firstname "Hahn";
+  set pi 3.1416;
+  println pi 6.25;
   set a -500;
   println a;
   f a (g);
