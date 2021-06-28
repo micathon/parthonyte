@@ -316,12 +316,12 @@ public class Store implements IConst {
 		return stackTab.fetchRelNode(depth);
 	}
 	
-	public void writeNode(int stkidx, int val) {
-		stackTab.writeNode(stkidx, val);
+	public void writeNode(int stkidx, int val, PageTyp pgtyp) {
+		stackTab.writeNode(stkidx, val, pgtyp);
 	}
 	
-	public void writeRelNode(int depth, int val) {
-		stackTab.writeRelNode(depth, val);
+	public void writeRelNode(int depth, int val, PageTyp pgtyp) {
+		stackTab.writeRelNode(depth, val, pgtyp);
 	}
 	
 	public boolean swapNodes() {
@@ -643,7 +643,7 @@ class PageTab implements IConst {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void writeNode(int stkidx, int val) {
+	public void writeNode(int stkidx, int val, PageTyp pgtyp) {
 		AddrNode node;
 		ArrayList<AddrNode> list;
 		int myStkIdx, myStkLstIdx;
@@ -654,15 +654,16 @@ class PageTab implements IConst {
 		node = list.get(myStkIdx);
 		node.setAddr(val);
 		node.setValue();
+		node.setHdrPgTyp(pgtyp);
 	}
 	
-	public void writeRelNode(int depthIdx, int val) {
+	public void writeRelNode(int depthIdx, int val, PageTyp pgtyp) {
 		int stkidx;
 		stkidx = getStkIdx() - depthIdx - 1;
 		if (stkidx < 0) {
 			return;
 		}
-		writeNode(stkidx, val);
+		writeNode(stkidx, val, pgtyp);
 	}
 	
 	public boolean swapNodes() {
