@@ -667,29 +667,76 @@ public class RunTime implements IConst {
 	}
 	
 	private int runMinusExpr() {
-		int delta;
-		int base;
-		int diff;
+		AddrNode addrNode;
+		Page page;
+		int addr;
+		int idx;
+		int delta = 0;
+		int base = 0;
+		int diff = 0;
 		int stkidx;
+		int rtnval;
+		boolean isDeltaFloat;
+		boolean isBaseFloat;
+		boolean isInt;
+		double fdelta = 0.0;
+		double fbase = 0.0;
+		double fdiff = 0.0;
 		
 		omsg("runMinusExpr: top");
 		stkidx = popIntStk();
 		if (stkidx < 0) {
 			return stkidx;
 		}
-		delta = getIntOffStk(stkidx);
+		addrNode = store.fetchNode(stkidx);
+		addr = addrNode.getAddr();
+		isDeltaFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
+		if (isDeltaFloat) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			fdelta = page.getFloat(idx);
+		}
+		else {
+			delta = getIntOffStk(stkidx);
+		}
 		stkidx = popIntStk();
 		if (stkidx < 0) {
 			return stkidx;
 		}
-		base = getIntOffStk(stkidx);
-		diff = base - delta;
-		omsg("runMinusExpr: base, delta, diff = " + base +
-			" " + delta + " " + diff);
-		if (!pushIntStk(diff)) {
-			return STKOVERFLOW;
+		addrNode = store.fetchNode(stkidx);
+		addr = addrNode.getAddr();
+		isBaseFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
+		if (isBaseFloat) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			fbase = page.getFloat(idx);
 		}
-		return 0;
+		else {
+			base = getIntOffStk(stkidx);
+		}
+		isInt = !isDeltaFloat && !isBaseFloat;
+		if (isInt) {
+			diff = base - delta;
+		}
+		else if (isDeltaFloat && isBaseFloat) {
+			fdiff = fbase - fdelta;
+		}
+		else if (isDeltaFloat) {
+			fdiff = base - fdelta;
+		}
+		else {
+			fdiff = fbase - delta;
+		}
+		omsg("runMinusExpr: base, delta, diff = " + base +
+				" " + delta + " " + diff);
+		omsg("runMinusExpr: fbase, fdelta, fdiff = " + fbase +
+				" " + fdelta + " " + fdiff);
+		if (isInt) { 
+			rtnval = pushIntStk(diff) ? 0 : STKOVERFLOW;
+			return rtnval;
+		}
+		rtnval = pushFloat(fdiff);
+		return rtnval;
 	}
 	
 	private int runSetStmt() {
@@ -1181,12 +1228,6 @@ public class RunTime implements IConst {
 			return STKUNDERFLOW;
 		}
 		rtnval = store.getStkIdx();
-		/*
-		pgtyp = addrNode.getHdrPgTyp(); 
-		if (pgtyp != PageTyp.INTVAL) {
-			return BADINTVAL;
-		}
-		*/
 		ptrFlag = addrNode.isPtr();
 		locVarTyp = addrNode.getHdrLocVarTyp();
 		omsg("popIntStk: ptrFlag = " + ptrFlag);
@@ -1203,13 +1244,6 @@ public class RunTime implements IConst {
 			if (addrNode.getHdrLocVar()) {
 				varidx += locBaseIdx;
 			}
-			/*
-			addrNode = store.fetchNode(varidx);
-			pgtyp = addrNode.getHdrPgTyp(); 
-			if (pgtyp != PageTyp.INTVAL) {
-				return BADINTVAL;
-			}
-			*/
 			omsg("popIntStk: varidx, rtn = " + rtnval);
 			return varidx;
 		default: return BADINTVAL;
