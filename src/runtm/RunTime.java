@@ -640,30 +640,54 @@ public class RunTime implements IConst {
 	}
 	
 	private int runDivExpr() {
-		int denom;
-		int base;
-		int quotient;
+		AddrNode addrNode;
+		Page page;
+		int addr;
+		int idx;
+		double denom;
+		double base;
+		double quotient;
 		int stkidx;
+		boolean isFloat;
+		int rtnval;
 		
 		omsg("runDivExpr: top");
 		stkidx = popIntStk();
 		if (stkidx < 0) {
 			return stkidx;
 		}
-		denom = getIntOffStk(stkidx);
-		if (denom == 0) {
+		addrNode = store.fetchNode(stkidx);
+		addr = addrNode.getAddr();
+		isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
+		if (isFloat) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			denom = page.getFloat(idx);
+		}
+		else {
+			denom = getIntOffStk(stkidx);
+		}
+		if (denom == 0.0) {
 			return ZERODIV;
 		}
 		stkidx = popIntStk();
 		if (stkidx < 0) {
 			return stkidx;
 		}
-		base = getIntOffStk(stkidx);
-		quotient = base / denom;
-		if (!pushIntStk(quotient)) {
-			return STKOVERFLOW;
+		addrNode = store.fetchNode(stkidx);
+		addr = addrNode.getAddr();
+		isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
+		if (isFloat) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			base = page.getFloat(idx);
 		}
-		return 0;
+		else {
+			base = getIntOffStk(stkidx);
+		}
+		quotient = base / denom;
+		rtnval = pushFloat(quotient);
+		return rtnval;
 	}
 	
 	private int runMinusExpr() {
