@@ -1,9 +1,33 @@
 do (
-gdefun (var a b c pi firstname) do (
+gdefun (var tot a b c prod pi firstname) do (
   set firstname "Mike";
+  set firstname "Dave";
   println firstname "Hahn";
   set pi 3.1416;
+  set pi 2.1416;
   println pi 6.25;
+  set a 40;
+  set b 30;
+  set c (- a b);
+  println a b c;
+  set a 40.5;
+  set b 30.5;
+  set c (- a b);
+  println a b c;
+  set a 1.0;
+  set b 4.0;
+  set c (/ a b);
+  println a b c;
+  set b 0.0;
+  #set c (/ a b);
+  set a 0.5;
+  set b 20;
+  set c 30;
+  set tot (+ a b c);
+  println a b c tot;
+  set prod (* a b c);
+  println prod;
+  {
   set a -500;
   println a;
   f a (g);
@@ -16,6 +40,7 @@ gdefun (var a b c pi firstname) do (
   f (+ 2 a (* c 2))(g);
   hello;
   println a;
+  }
 );
 defun (f n m)(var x y) do (
   println n;
