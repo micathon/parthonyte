@@ -600,43 +600,109 @@ public class RunTime implements IConst {
 	}
 	
 	private int runAddExpr() {
-		int n;
-		int val;
+		int val = 0;
 		int sum = 0;
-
-		val = popInt(true);
-		while (val != NULLPOPPED) {
-			if (val < 0) {
-				return val;
+		AddrNode addrNode;
+		Page page;
+		int addr;
+		int idx;
+		double fsum = 0.0;
+		double dval = 0.0;
+		int stkidx;
+		boolean isFloat;
+		boolean isResFloat = false;
+		int rtnval;
+		
+		while (true) {
+			stkidx = popIntStk();
+			if (stkidx < 0) {
+				return stkidx;
 			}
-			n = packIntSign(isNegInt, val);
-			sum += n;
-			val = popInt(true);
+			addrNode = store.fetchNode(stkidx);
+			if (isNullKwd(addrNode)) {
+				break;
+			}
+			addr = addrNode.getAddr();
+			isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
+			isResFloat = isResFloat || isFloat;
+			if (isFloat) {
+				page = store.getPage(addr);
+				idx = store.getElemIdx(addr);
+				dval = page.getFloat(idx);
+			}
+			else {
+				val = getIntOffStk(stkidx);
+			}
+			if (!isResFloat) {
+				sum += val;
+				fsum = sum;
+			}
+			else if (isFloat) {
+				fsum += dval;
+			}
+			else {
+				fsum += val;
+			}
 		}
-		if (!pushIntStk(sum)) {
-			return STKOVERFLOW;
+		if (!isResFloat) { 
+			rtnval = pushIntStk(sum) ? 0 : STKOVERFLOW;
+			return rtnval;
 		}
-		return 0;
+		rtnval = pushFloat(fsum);
+		return rtnval;
 	}
 	
 	private int runMpyExpr() {
-		int n;
-		int val;
 		int product = 1;
+		double fproduct = 1.0;
+		int val = 0;
+		AddrNode addrNode;
+		Page page;
+		int addr;
+		int idx;
+		double dval = 0.0;
+		int stkidx;
+		boolean isFloat;
+		boolean isResFloat = false;
+		int rtnval;
 
-		val = popInt(true);
-		while (val != NULLPOPPED) {
-			if (val < 0) {
-				return val;
+		while (true) {
+			stkidx = popIntStk();
+			if (stkidx < 0) {
+				return stkidx;
 			}
-			n = packIntSign(isNegInt, val);
-			product *= n;
-			val = popInt(true);
+			addrNode = store.fetchNode(stkidx);
+			if (isNullKwd(addrNode)) {
+				break;
+			}
+			addr = addrNode.getAddr();
+			isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
+			isResFloat = isResFloat || isFloat;
+			if (isFloat) {
+				page = store.getPage(addr);
+				idx = store.getElemIdx(addr);
+				dval = page.getFloat(idx);
+			}
+			else {
+				val = getIntOffStk(stkidx);
+			}
+			if (!isResFloat) {
+				product *= val;
+				fproduct = product;
+			}
+			else if (isFloat) {
+				fproduct *= dval;
+			}
+			else {
+				fproduct *= val;
+			}
 		}
-		if (!pushIntStk(product)) {
-			return STKOVERFLOW;
+		if (!isResFloat) { 
+			rtnval = pushIntStk(product) ? 0 : STKOVERFLOW;
+			return rtnval;
 		}
-		return 0;
+		rtnval = pushFloat(fproduct);
+		return rtnval;
 	}
 	
 	private int runDivExpr() {
@@ -1272,6 +1338,17 @@ public class RunTime implements IConst {
 			return varidx;
 		default: return BADINTVAL;
 		}
+	}
+	
+	private boolean isNullKwd(AddrNode addrNode) {
+		PageTyp pgtyp;
+		int addr;
+		boolean rtnval;
+		
+		addr = addrNode.getAddr();
+		pgtyp = addrNode.getHdrPgTyp(); 
+		rtnval = (pgtyp == PageTyp.KWD) && (addr == KeywordTyp.NULL.ordinal());
+		return rtnval;
 	}
 	
 	private int popInt(boolean isKwd) {
