@@ -32,6 +32,7 @@ public class RunTime implements IConst {
 	private boolean isCalcExpr;
 	private boolean isExprLoop;
 	private boolean isNegInt;
+	private int lastErrCode;
 	private static final char SP = ' ';
 	private static final int EXIT = -1;
 	private static final int NEGADDR = -2;
@@ -70,6 +71,7 @@ public class RunTime implements IConst {
 		varCountIdx = 0;
 		stmtCount = 0;
 		locDepth = 0;
+		lastErrCode = 0;
 		isTgtExpr = false;
 		isCalcExpr = false;
 		isExprLoop = false;
@@ -949,8 +951,8 @@ public class RunTime implements IConst {
 	
 	private int runAltZcallStmt(int parmCount) {
 		AddrNode addrNode;
-		PageTyp pgtyp = PageTyp.INTVAL;
-		int val;
+		PageTyp pgtyp;
+		Integer val;
 		int rtnval;
 		int i;
 
@@ -959,12 +961,13 @@ public class RunTime implements IConst {
 			if (addrNode == null) {
 				return STKOVERFLOW;
 			}
-			val = popIntFromNode(addrNode);
-			if (val < 0) {
-				omsg("runAltZcallStmt: rtn = " + val + ", i = " + i);
-				return val;
+			pgtyp = addrNode.getHdrPgTyp();
+			val = popIObjFromNode(addrNode);
+			if (val == null) {
+				omsg("runAltZcallStmt: rtn = " + lastErrCode + 
+					", i = " + i);
+				return lastErrCode;
 			}
-			val = packIntSign(isNegInt, val);
 			rtnval = storeLocGlbInt(i, val, pgtyp);
 			if (rtnval < 0) {
 				return rtnval;
@@ -1409,6 +1412,47 @@ public class RunTime implements IConst {
 		isNegInt = (rtnval < 0);
 		rtnval = stripIntSign(rtnval);
 		return rtnval;
+	}
+	
+	private Integer popIObjFromNode(AddrNode addrNode) {
+		PageTyp pgtyp;
+		int locVarTyp;
+		int addr, varidx;
+		int rtnval;
+		
+		if (addrNode == null) {
+			return setErrCode(STKUNDERFLOW);
+		}
+		addr = addrNode.getAddr();
+		pgtyp = addrNode.getHdrPgTyp(); 
+		if (pgtyp == PageTyp.KWD) { 
+			return setErrCode(KWDPOPPED);
+		}
+		locVarTyp = addrNode.getHdrLocVarTyp();
+		switch (locVarTyp) {
+		case NONVAR: 
+			omsg("popIObjFN: nonvar, addr = " + addr);
+			rtnval = addr;
+			break;
+		case LOCVAR:
+		case GLBVAR:
+			varidx = addr;
+			if (addrNode.getHdrLocVar()) {
+				varidx += locBaseIdx;
+			}
+			addrNode = store.fetchNode(varidx);
+			pgtyp = addrNode.getHdrPgTyp(); 
+			rtnval = addrNode.getAddr();
+			break;
+		default: 
+			return setErrCode(BADPOP);
+		}
+		return rtnval;
+	}
+	
+	private Integer setErrCode(int errCode) {
+		lastErrCode = errCode;
+		return null;
 	}
 	
 	private String popStrFromNode(AddrNode addrNode) {
