@@ -53,6 +53,7 @@ public class RunTime implements IConst {
 	private static final int BADSETSTMT = -17;
 	private static final int BADPARMCT = -18;
 	private static final int RTNISEMPTY = -19;
+	private static final int GENERR = -99;
 	private static final int NEGBASEVAL = -1000;
 	private static final int NONVAR = 0; // same as AddrNode
 	private static final int LOCVAR = 1; //
@@ -270,6 +271,7 @@ public class RunTime implements IConst {
 		case BADSETSTMT: return "Malformed SET statement";
 		case BADPARMCT: return "Mismatched parameter count";
 		case RTNISEMPTY: return "Return stmt. lacks value";
+		case GENERR: return "General runtime error";
 		default: return "Error code = " + (-rightp);
 		}
 	}
@@ -1152,7 +1154,8 @@ public class RunTime implements IConst {
 		int funcAddr = 0;
 		int i;
 		int rtnval;
-		AddrNode funcReturns;
+		Integer val;
+		AddrNode funcReturns = null;
 		Node node;
 		KeywordTyp kwtyp = KeywordTyp.ZCALL;
 		
@@ -1162,11 +1165,12 @@ public class RunTime implements IConst {
 			if (funcReturns == null) {
 				return STKUNDERFLOW;
 			}
-			funcAddr = popIntFromNode(funcReturns);
-			if (funcAddr < 0) {
-				return funcAddr;
+			val = popIObjFromNode(funcReturns);
+			if (val == null) {
+				omsg("runRtnStmt: isExpr, rtn = " + lastErrCode); 
+				return lastErrCode;
 			}
-			funcAddr = packIntSign(isNegInt, funcAddr);
+			funcAddr = val;
 			isExprLoop = true;
 			omsg("runRtnStmt: funcReturns = " + funcAddr);
 		}
@@ -1208,7 +1212,11 @@ public class RunTime implements IConst {
 		if (locDepth <= 0) { 
 			isExprLoop = false;
 		}
-		else if (!pushIntStk(funcAddr)) {  
+		else if (funcReturns == null) { 
+			return GENERR;
+			//else if (!pushIntStk(funcAddr)) {  
+		}
+		else if (!pushPtrIntVar(funcAddr, funcReturns)) {  
 			return STKOVERFLOW;
 		}
 		locDepth--;
@@ -1684,6 +1692,21 @@ public class RunTime implements IConst {
 			return false;
 		}
 		return true;
+	}
+	
+	private boolean pushPtrIntVar(int val, AddrNode srcNode) {
+		PageTyp pgtyp;
+		int locVarTyp;
+		boolean rtnval;
+		
+		pgtyp = srcNode.getHdrPgTyp();
+		if (pgtyp == PageTyp.INTVAL) {
+			rtnval = pushIntStk(val);
+			return rtnval;
+		}
+		locVarTyp = srcNode.getHdrLocVarTyp();
+		rtnval = pushPtrVar(val, locVarTyp, pgtyp);
+		return rtnval;
 	}
 	
 	private boolean pushOp(KeywordTyp kwtyp) {
