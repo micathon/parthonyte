@@ -1216,7 +1216,7 @@ public class RunTime implements IConst {
 			return GENERR;
 			//else if (!pushIntStk(funcAddr)) {  
 		}
-		else if (!pushPtrIntVar(funcAddr, funcReturns)) {  
+		else if (!pushFuncRtnVal(funcAddr, funcReturns)) {  
 			return STKOVERFLOW;
 		}
 		locDepth--;
@@ -1423,15 +1423,19 @@ public class RunTime implements IConst {
 	}
 	
 	private Integer popIObjFromNode(AddrNode addrNode) {
+		// replaces popInt* functions
 		PageTyp pgtyp;
 		int locVarTyp;
 		int addr, varidx;
+		boolean flag;
 		int rtnval;
 		
 		if (addrNode == null) {
 			return setErrCode(STKUNDERFLOW);
 		}
 		addr = addrNode.getAddr();
+		flag = addrNode.isPtr();
+		omsg("popIObjFN: isPtr = " + flag);
 		pgtyp = addrNode.getHdrPgTyp(); 
 		if (pgtyp == PageTyp.KWD) { 
 			return setErrCode(KWDPOPPED);
@@ -1682,6 +1686,23 @@ public class RunTime implements IConst {
 		return true;
 	}
 	
+	private boolean pushFuncRtnVal(int val, AddrNode srcNode) {
+		PageTyp pgtyp;
+		int locVarTyp;
+		boolean rtnval;
+		
+		pgtyp = srcNode.getHdrPgTyp();
+		if (isImmedTyp(pgtyp)) {
+			rtnval = pushIntStk(val);
+			return rtnval;
+		}
+		
+		
+		locVarTyp = srcNode.getHdrLocVarTyp();
+		rtnval = pushPtrVar(val, locVarTyp, pgtyp);
+		return rtnval;
+	}
+	
 	private boolean pushPtrVar(int val, int locVarTyp, PageTyp pgtyp) {
 		AddrNode addrNode;
 		addrNode = new AddrNode(0, val);
@@ -1694,19 +1715,8 @@ public class RunTime implements IConst {
 		return true;
 	}
 	
-	private boolean pushPtrIntVar(int val, AddrNode srcNode) {
-		PageTyp pgtyp;
-		int locVarTyp;
-		boolean rtnval;
-		
-		pgtyp = srcNode.getHdrPgTyp();
-		if (pgtyp == PageTyp.INTVAL) {
-			rtnval = pushIntStk(val);
-			return rtnval;
-		}
-		locVarTyp = srcNode.getHdrLocVarTyp();
-		rtnval = pushPtrVar(val, locVarTyp, pgtyp);
-		return rtnval;
+	private boolean isImmedTyp(PageTyp pgtyp) {
+		return (pgtyp == PageTyp.INTVAL);
 	}
 	
 	private boolean pushOp(KeywordTyp kwtyp) {
