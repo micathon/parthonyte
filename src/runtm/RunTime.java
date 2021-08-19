@@ -53,6 +53,7 @@ public class RunTime implements IConst {
 	private static final int BADSETSTMT = -17;
 	private static final int BADPARMCT = -18;
 	private static final int RTNISEMPTY = -19;
+	private static final int BADTYPE = -20;
 	private static final int GENERR = -99;
 	private static final int NEGBASEVAL = -1000;
 	private static final int NONVAR = 0; // same as AddrNode
@@ -271,6 +272,7 @@ public class RunTime implements IConst {
 		case BADSETSTMT: return "Malformed SET statement";
 		case BADPARMCT: return "Mismatched parameter count";
 		case RTNISEMPTY: return "Return stmt. lacks value";
+		case BADTYPE: return "Unexpected data type";
 		case GENERR: return "General runtime error";
 		default: return "Error code = " + (-rightp);
 		}
@@ -1155,9 +1157,9 @@ public class RunTime implements IConst {
 		int i;
 		int rtnval;
 		Integer val;
+		boolean isDelayPops = false;
 		AddrNode funcReturns = null;
 		Node node;
-		KeywordTyp kwtyp = KeywordTyp.ZCALL;
 		
 		omsg("runRtnStmt: top");
 		if (isExpr) {
@@ -1199,14 +1201,12 @@ public class RunTime implements IConst {
 			return STKUNDERFLOW;
 		}
 		omsg("runRtnStmt: varCount = " + varCount);
-		for (i = 0; i < varCount; i++) {
-			if (popVal() < 0) {
-				return STKUNDERFLOW;
+		isDelayPops = isNonImmedLocVar(funcReturns);
+		if (!isDelayPops) {
+			rtnval = popMulti(varCount);
+			if (rtnval < 0) {
+				return rtnval;
 			}
-		}
-		rtnval = popUntilKwd(kwtyp);
-		if (rtnval < 0) {
-			return rtnval;
 		}
 		// push func rtnval if locDepth > 0:
 		if (locDepth <= 0) { 
@@ -1216,8 +1216,12 @@ public class RunTime implements IConst {
 			return GENERR;
 			//else if (!pushIntStk(funcAddr)) {  
 		}
-		else if (!pushFuncRtnVal(funcAddr, funcReturns)) {  
-			return STKOVERFLOW;
+		else {  
+			rtnval = pushFuncRtnVal(funcAddr, funcReturns, isDelayPops,
+				varCount);
+			if (rtnval < 0) {
+				return rtnval;
+			}
 		}
 		locDepth--;
 		locBaseIdx = currLocBase;
@@ -1225,6 +1229,20 @@ public class RunTime implements IConst {
 		rightp = node.getRightp();
 		omsg("runRtnStmt: rtnval = " + rightp);
 		return rightp;
+	}
+	
+	private int popMulti(int varCount) {
+		KeywordTyp kwtyp = KeywordTyp.ZCALL;
+		int i;
+		int rtnval;
+		
+		for (i = 0; i < varCount; i++) {
+			if (popVal() < 0) {
+				return STKUNDERFLOW;
+			}
+		}
+		rtnval = popUntilKwd(kwtyp);
+		return rtnval;
 	}
 	
 	private int pushRtnStmt(Node node) {
@@ -1434,7 +1452,7 @@ public class RunTime implements IConst {
 			return setErrCode(STKUNDERFLOW);
 		}
 		addr = addrNode.getAddr();
-		flag = addrNode.isPtr();
+		flag = addrNode.isPtr();  // debug
 		omsg("popIObjFN: isPtr = " + flag);
 		pgtyp = addrNode.getHdrPgTyp(); 
 		if (pgtyp == PageTyp.KWD) { 
@@ -1453,7 +1471,7 @@ public class RunTime implements IConst {
 				varidx += locBaseIdx;
 			}
 			addrNode = store.fetchNode(varidx);
-			pgtyp = addrNode.getHdrPgTyp(); 
+			//pgtyp = addrNode.getHdrPgTyp(); 
 			rtnval = addrNode.getAddr();
 			break;
 		default: 
@@ -1686,20 +1704,88 @@ public class RunTime implements IConst {
 		return true;
 	}
 	
-	private boolean pushFuncRtnVal(int val, AddrNode srcNode) {
+	private int pushFuncRtnVal(int val, AddrNode srcNode,
+		boolean isDelayPops, int varCount) 
+	{
+		PageTyp pgtyp;
+		AddrNode addrNode;
+		int locVarTyp;
+		boolean flag;
+		int rtnval;
+		
+		if (!isDelayPops) {
+			rtnval = popMulti(varCount);
+			if (rtnval < 0) {
+				return rtnval;
+			}
+		}
+		pgtyp = srcNode.getHdrPgTyp();
+		if (isImmedTyp(pgtyp)) {
+			flag = pushIntStk(val);
+			return flag ? 0 : STKOVERFLOW;
+		}
+		locVarTyp = srcNode.getHdrLocVarTyp();
+		if (locVarTyp == NONVAR) {
+			rtnval = pushNonImmed(val, pgtyp);
+			return rtnval;
+		}
+		if (locVarTyp == GLBVAR) {
+			addrNode = store.fetchNode(val);
+			val = addrNode.getAddr();
+			pgtyp = addrNode.getHdrPgTyp(); 
+			rtnval = pushNonImmed(val, pgtyp);
+			return rtnval;
+		}
+		if (locVarTyp != LOCVAR || !isDelayPops) {
+			return GENERR;
+		}
+		val += locBaseIdx;
+		addrNode = store.fetchNode(val);
+		rtnval = popMulti(varCount);
+		if (rtnval < 0) {
+			return rtnval;
+		}
+		val = addrNode.getAddr();
+		pgtyp = addrNode.getHdrPgTyp(); 
+		rtnval = pushNonImmed(val, pgtyp);
+		return rtnval;
+	}
+	
+	private int pushNonImmed(int addr, PageTyp pgtyp) {
+		Page page;
+		int idx;
+		double dval;
+		String sval;
+		int rtnval;
+
+		page = store.getPage(addr);
+		idx = store.getElemIdx(addr);
+		if (pgtyp == PageTyp.FLOAT) {
+			dval = page.getFloat(idx);
+			rtnval = pushFloat(dval);
+			return rtnval;
+		}
+		else if (pgtyp == PageTyp.STRING) {
+			sval = page.getString(idx);
+			rtnval = pushString(sval);
+			return rtnval;
+		}
+		else {
+			return BADTYPE;
+		}
+	}
+	
+	private boolean isNonImmedLocVar(AddrNode addrNode) {
 		PageTyp pgtyp;
 		int locVarTyp;
 		boolean rtnval;
 		
-		pgtyp = srcNode.getHdrPgTyp();
-		if (isImmedTyp(pgtyp)) {
-			rtnval = pushIntStk(val);
-			return rtnval;
+		if (addrNode == null) {
+			return false;
 		}
-		
-		
-		locVarTyp = srcNode.getHdrLocVarTyp();
-		rtnval = pushPtrVar(val, locVarTyp, pgtyp);
+		pgtyp = addrNode.getHdrPgTyp();
+		locVarTyp = addrNode.getHdrLocVarTyp();
+		rtnval = (!isImmedTyp(pgtyp)) && (locVarTyp == LOCVAR);
 		return rtnval;
 	}
 	
