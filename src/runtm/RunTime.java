@@ -1174,7 +1174,7 @@ public class RunTime implements IConst {
 			}
 			funcAddr = val;
 			isExprLoop = true;
-			omsg("runRtnStmt: funcReturns = " + funcAddr);
+			omsg("runRtnStmt: funcAddr = " + funcAddr);
 		}
 		locDepth = popVal(); // locBaseIdx
 		omsg("runRtnStmt: locDepth = " + locDepth);
@@ -1210,11 +1210,11 @@ public class RunTime implements IConst {
 		}
 		// push func rtnval if locDepth > 0:
 		if (locDepth <= 0) { 
+			omsg("runRtnStmt: locDepth = " + locDepth);
 			isExprLoop = false;
 		}
 		else if (funcReturns == null) { 
 			return GENERR;
-			//else if (!pushIntStk(funcAddr)) {  
 		}
 		else {  
 			rtnval = pushFuncRtnVal(funcAddr, funcReturns, isDelayPops,
@@ -1458,6 +1458,7 @@ public class RunTime implements IConst {
 		if (pgtyp == PageTyp.KWD) { 
 			return setErrCode(KWDPOPPED);
 		}
+		omsg("popIObjFN: pgtyp = " + pgtyp);
 		locVarTyp = addrNode.getHdrLocVarTyp();
 		switch (locVarTyp) {
 		case NONVAR: 
@@ -1713,13 +1714,8 @@ public class RunTime implements IConst {
 		boolean flag;
 		int rtnval;
 		
-		if (!isDelayPops) {
-			rtnval = popMulti(varCount);
-			if (rtnval < 0) {
-				return rtnval;
-			}
-		}
 		pgtyp = srcNode.getHdrPgTyp();
+		omsg("pushFuncRtnVal: pgtyp = " + pgtyp);
 		if (isImmedTyp(pgtyp)) {
 			flag = pushIntStk(val);
 			return flag ? 0 : STKOVERFLOW;
@@ -1730,6 +1726,7 @@ public class RunTime implements IConst {
 			return rtnval;
 		}
 		if (locVarTyp == GLBVAR) {
+			omsg("pushFuncRtnVal: GLBVAR, val = " + val);
 			addrNode = store.fetchNode(val);
 			val = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp(); 
