@@ -1203,6 +1203,7 @@ public class RunTime implements IConst {
 		omsg("runRtnStmt: varCount = " + varCount);
 		isDelayPops = isNonImmedLocVar(funcReturns);
 		if (!isDelayPops) {
+			omsg("runRtnStmt: popMulti");
 			rtnval = popMulti(varCount);
 			if (rtnval < 0) {
 				return rtnval;
@@ -1471,6 +1472,8 @@ public class RunTime implements IConst {
 			if (addrNode.getHdrLocVar()) {
 				varidx += locBaseIdx;
 			}
+			omsg("popIObjFN: varidx = " + varidx + 
+				", locBaseIdx = " + locBaseIdx);
 			addrNode = store.fetchNode(varidx);
 			//pgtyp = addrNode.getHdrPgTyp(); 
 			rtnval = addrNode.getAddr();
@@ -1709,7 +1712,6 @@ public class RunTime implements IConst {
 		boolean isDelayPops, int varCount) 
 	{
 		PageTyp pgtyp;
-		AddrNode addrNode;
 		int locVarTyp;
 		boolean flag;
 		int rtnval;
@@ -1727,23 +1729,23 @@ public class RunTime implements IConst {
 		}
 		if (locVarTyp == GLBVAR) {
 			omsg("pushFuncRtnVal: GLBVAR, val = " + val);
-			addrNode = store.fetchNode(val);
-			val = addrNode.getAddr();
-			pgtyp = addrNode.getHdrPgTyp(); 
+			//addrNode = store.fetchNode(val);
+			//val = addrNode.getAddr();
+			//pgtyp = addrNode.getHdrPgTyp(); 
 			rtnval = pushNonImmed(val, pgtyp);
 			return rtnval;
 		}
 		if (locVarTyp != LOCVAR || !isDelayPops) {
 			return GENERR;
 		}
-		val += locBaseIdx;
-		addrNode = store.fetchNode(val);
+		//val += locBaseIdx;
+		//addrNode = store.fetchNode(val);
 		rtnval = popMulti(varCount);
 		if (rtnval < 0) {
 			return rtnval;
 		}
-		val = addrNode.getAddr();
-		pgtyp = addrNode.getHdrPgTyp(); 
+		//val = addrNode.getAddr();
+		//pgtyp = addrNode.getHdrPgTyp(); 
 		rtnval = pushNonImmed(val, pgtyp);
 		return rtnval;
 	}
@@ -1833,12 +1835,13 @@ public class RunTime implements IConst {
 		isLocal = (varidx >= 0);
 		if (isLocal) {
 			locVarTyp = LOCVAR;
+			stkidx = locBaseIdx + varidx;
 		}
 		else {
 			varidx = -1 - varidx;
 			locVarTyp = GLBVAR;
+			stkidx = varidx;
 		}
-		stkidx = locBaseIdx + varidx;
 		addrNode = store.fetchNode(stkidx);
 		pgtyp = addrNode.getHdrPgTyp();
 		//oprn("pushVar: pgtyp = " + pgtyp);
