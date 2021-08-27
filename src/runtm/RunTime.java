@@ -972,7 +972,7 @@ public class RunTime implements IConst {
 					", i = " + i);
 				return lastErrCode;
 			}
-			rtnval = storeLocGlbInt(i, val, pgtyp);
+			rtnval = storeLocGlbInt(i, val, pgtyp, false);
 			if (rtnval < 0) {
 				return rtnval;
 			}
@@ -1573,6 +1573,7 @@ public class RunTime implements IConst {
 		int rtnval;
 		int val;
 		PageTyp pgtyp;
+		boolean isGlb = true;
 		
 		val = node.getAddr();
 		pgtyp = node.getHdrPgTyp();
@@ -1592,8 +1593,9 @@ public class RunTime implements IConst {
 		case NONVAR: 
 			return KWDPOPPED;
 		case LOCVAR:
+			isGlb = false;
 		case GLBVAR:
-			rtnval = storeLocGlbInt(addr, val, pgtyp);
+			rtnval = storeLocGlbInt(addr, val, pgtyp, isGlb);
 			if (rtnval < 0) {
 				return rtnval;
 			}
@@ -1603,9 +1605,14 @@ public class RunTime implements IConst {
 		return 0;
 	}
 
-	private int storeLocGlbInt(int varidx, int val, PageTyp pgtyp) {
-		omsg("storeLocGlbInt: varidx = " + varidx);
-		varidx += locBaseIdx;
+	private int storeLocGlbInt(int varidx, int val, PageTyp pgtyp,
+		boolean isGlb) 
+	{
+		omsg("storeLocGlbInt: varidx = " + varidx + ", val = " +
+			val + ", pgtyp = " + pgtyp);
+		if (!isGlb) {
+			varidx += locBaseIdx;
+		}
 		/*
 		addrNode = store.fetchNode(varidx);
 		pgtyp = addrNode.getHdrPgTyp(); 
@@ -1866,28 +1873,34 @@ public class RunTime implements IConst {
 		AddrNode addrNode;
 		boolean rtnval = false;
 		
+		omsg("pushVarQuote: top");
 		isLocal = (varidx >= 0);
 		if (isLocal) {
 			locVarTyp = LOCVAR;
+			stkidx = locBaseIdx + varidx;
 		}
 		else {
 			varidx = -1 - varidx;
 			locVarTyp = GLBVAR;
+			stkidx = varidx;
 		}
-		stkidx = locBaseIdx + varidx;
 		addrNode = store.fetchNode(stkidx);
 		pgtyp = addrNode.getHdrPgTyp();
 		switch (pgtyp) {
 		case INTVAL:
+			omsg("pushVarQuote: call pushIntVar");
 			rtnval = pushIntVar(varidx, locVarTyp, true);
 			break;
 		case FLOAT:
 		case STRING:
+			omsg("pushVarQuote: call pushPtrVar");
 			rtnval = pushPtrVar(varidx, locVarTyp, pgtyp);
 			break;
 		default:
+			omsg("pushVarQuote: default, pgtyp = " + pgtyp);
 			return false;
 		}
+		omsg("pushVarQuote: rtnval = " + rtnval);
 		return rtnval;
 	}
 
