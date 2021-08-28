@@ -1,20 +1,33 @@
 do (
 gdefun (var tot a b c x prod pi firstname) do (
-  set pi 3.14;
-  #set pi "3_14";
-  set x (funh);
-  println x;
+  #set pi 3.14;
+  #set x (funh);
+  #println "x =" x;
   fun-btm;
 );
 defun (funh)(var y) do (
   println "top of funh";
   set y pi;
+  println "y =" y;
   return y;
-  #return 1.414;
+);
+defun (h x s)(var i y z w) do (
+  set y (* 2.0 x);
+  println "y =" y;
+  set x "error!";
+  set z 6.75;
+  set w 44.49;
+  println x s;
+  #return (* 2.0 n);
+  #return pi;
+  return 4054;
 );
 defun (fun-btm)(var bprod) do (
-  set firstname "Dave";
-  println firstname "Hahn";
+  #set firstname "Dave";
+  #println firstname "Hahn";
+  set x (h 4.83 "foo");
+  println x;
+  {
   set pi 2.1416;
   println pi;
   set a 40;
@@ -38,9 +51,6 @@ defun (fun-btm)(var bprod) do (
   println a b c tot;
   set prod (* a b c);
   println prod;
-  set x (h 72 4.83 "foo");
-  #println (h 72 4.83 "foo");
-  println x;
   
   set a -500;
   println a;
@@ -54,14 +64,7 @@ defun (fun-btm)(var bprod) do (
   f (+ 2 a (* c 2))(g);
   hello;
   println a;
-);
-defun (h n x s)(var y) do (
-  println n x s;
-  set y (* 1.0 n);
-  println "y =" y;
-  set y "error!"; #84.0;
-  #return (* 2.0 n);
-  return pi;
+  }
 );
 defun (f n m)(var x y) do (
   println n;
