@@ -1243,9 +1243,13 @@ public class RunTime implements IConst {
 		int idx;
 		int addr;
 		int i;
+		int flagCount = 0;
 		boolean flag;
 		int rtnval;
 		
+		if (varCount < 0) {
+			return 0;
+		}
 		for (i = 0; i < varCount; i++) {
 			node = store.popNode();
 			if (node == null) {
@@ -1256,6 +1260,8 @@ public class RunTime implements IConst {
 			page = store.getPage(addr);
 			idx = store.getElemIdx(addr);
 			pgtyp = node.getHdrPgTyp();
+			omsg("popm: i = " + i + ", addr = " + addr + 
+				", pgtyp = " + pgtyp);
 			switch (pgtyp) {
 			case FLOAT:
 				flag = page.isFreeFloat(idx);
@@ -1268,11 +1274,13 @@ public class RunTime implements IConst {
 			}
 			if (flag && (popMultiFreeCount >= 0)) {
 				++popMultiFreeCount;
+				++flagCount;
 			}
 			else {
 				popMultiFreeCount = -1;
 			}
 		}
+		omsg("popMulti: flagCount = " + flagCount);
 		rtnval = popUntilKwd(kwtyp);
 		return rtnval;
 	}
@@ -1746,43 +1754,52 @@ public class RunTime implements IConst {
 		return true;
 	}
 	
+	private int pushIntMulti(int val, int varCount) {
+		int rtnval;
+		boolean flag;
+		
+		omsg("pushIntMulti: popMulti, string");
+		rtnval = popMulti(varCount);
+		if (rtnval < 0) {
+			return rtnval;
+		}
+		flag = pushIntVar(val, NONVAR, false);
+		return flag ? 0 : STKOVERFLOW;
+	}
+	
 	private int pushFuncRtnVal(int val, AddrNode srcNode,
 		boolean isDelayPops, int varCount) 
 	{
 		PageTyp pgtyp;
 		int locVarTyp;
-		boolean flag;
 		int rtnval;
+		boolean flag;
 		
 		pgtyp = srcNode.getHdrPgTyp();
 		omsg("pushFuncRtnVal: pgtyp = " + pgtyp);
 		if (isImmedTyp(pgtyp)) {
+			//rtnval = pushIntMulti(val, varCount);
 			flag = pushIntStk(val);
 			return flag ? 0 : STKOVERFLOW;
 		}
 		locVarTyp = srcNode.getHdrLocVarTyp();
 		if (locVarTyp == NONVAR) {
-			rtnval = pushNonImmed(val, pgtyp);
+			rtnval = pushNonImmed(val, pgtyp, -1);
 			return rtnval;
 		}
 		if (locVarTyp == GLBVAR) {
 			omsg("pushFuncRtnVal: GLBVAR, val = " + val);
-			rtnval = pushNonImmed(val, pgtyp);
+			rtnval = pushNonImmed(val, pgtyp, -1);
 			return rtnval;
 		}
 		if (locVarTyp != LOCVAR || !isDelayPops) {
 			return GENERR;
 		}
-		omsg("pushFuncRtnVal: popMulti");
-		rtnval = popMulti(varCount);
-		if (rtnval < 0) {
-			return rtnval;
-		}
-		rtnval = pushNonImmed(val, pgtyp);
+		rtnval = pushNonImmed(val, pgtyp, varCount);
 		return rtnval;
 	}
 	
-	private int pushNonImmed(int addr, PageTyp pgtyp) {
+	private int pushNonImmed(int addr, PageTyp pgtyp, int varCount) {
 		Page page;
 		int idx;
 		double dval;
@@ -1793,11 +1810,21 @@ public class RunTime implements IConst {
 		idx = store.getElemIdx(addr);
 		if (pgtyp == PageTyp.FLOAT) {
 			dval = page.getFloat(idx);
+			omsg("pushNonImmed: popMulti, float");
+			rtnval = popMulti(varCount);
+			if (rtnval < 0) {
+				return rtnval;
+			}
 			rtnval = pushFloat(dval);
 			return rtnval;
 		}
 		else if (pgtyp == PageTyp.STRING) {
 			sval = page.getString(idx);
+			omsg("pushNonImmed: popMulti, string");
+			rtnval = popMulti(varCount);
+			if (rtnval < 0) {
+				return rtnval;
+			}
 			rtnval = pushString(sval);
 			return rtnval;
 		}
