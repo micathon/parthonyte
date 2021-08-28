@@ -25,6 +25,7 @@ public class RunTime implements IConst {
 	private int locBaseIdx;
 	private int varCountIdx;
 	private int stmtCount;
+	private int popMultiFreeCount;
 	private int currZstmt;
 	private int currZexpr;
 	private int locDepth;
@@ -74,6 +75,7 @@ public class RunTime implements IConst {
 		stmtCount = 0;
 		locDepth = 0;
 		lastErrCode = 0;
+		popMultiFreeCount = 0;
 		isTgtExpr = false;
 		isCalcExpr = false;
 		isExprLoop = false;
@@ -246,6 +248,7 @@ public class RunTime implements IConst {
 		if (rightp == 0) {
 			omsg("handleDoBlock rtn = 0");  // done
 		}
+		omsg("runGlbDefStmt: popFreeCount = " + popMultiFreeCount);
 		omsg("runGlbDefStmt: btm");
 		return savep;
 	}
@@ -1234,12 +1237,40 @@ public class RunTime implements IConst {
 	
 	private int popMulti(int varCount) {
 		KeywordTyp kwtyp = KeywordTyp.ZCALL;
+		AddrNode node;
+		PageTyp pgtyp;
+		Page page;
+		int idx;
+		int addr;
 		int i;
+		boolean flag;
 		int rtnval;
 		
 		for (i = 0; i < varCount; i++) {
-			if (popVal() < 0) {
+			node = store.popNode();
+			if (node == null) {
 				return STKUNDERFLOW;
+			}
+			flag = false;
+			addr = node.getAddr();
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			pgtyp = node.getHdrPgTyp();
+			switch (pgtyp) {
+			case FLOAT:
+				flag = page.isFreeFloat(idx);
+				break;
+			case STRING:
+				flag = page.isFreeString(idx);
+				break;
+			default:
+				continue;
+			}
+			if (flag && (popMultiFreeCount >= 0)) {
+				++popMultiFreeCount;
+			}
+			else {
+				popMultiFreeCount = -1;
 			}
 		}
 		rtnval = popUntilKwd(kwtyp);
@@ -1736,23 +1767,17 @@ public class RunTime implements IConst {
 		}
 		if (locVarTyp == GLBVAR) {
 			omsg("pushFuncRtnVal: GLBVAR, val = " + val);
-			//addrNode = store.fetchNode(val);
-			//val = addrNode.getAddr();
-			//pgtyp = addrNode.getHdrPgTyp(); 
 			rtnval = pushNonImmed(val, pgtyp);
 			return rtnval;
 		}
 		if (locVarTyp != LOCVAR || !isDelayPops) {
 			return GENERR;
 		}
-		//val += locBaseIdx;
-		//addrNode = store.fetchNode(val);
+		omsg("pushFuncRtnVal: popMulti");
 		rtnval = popMulti(varCount);
 		if (rtnval < 0) {
 			return rtnval;
 		}
-		//val = addrNode.getAddr();
-		//pgtyp = addrNode.getHdrPgTyp(); 
 		rtnval = pushNonImmed(val, pgtyp);
 		return rtnval;
 	}
