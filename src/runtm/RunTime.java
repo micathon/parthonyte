@@ -975,6 +975,9 @@ public class RunTime implements IConst {
 					", i = " + i);
 				return lastErrCode;
 			}
+			omsg("runAltZcallStmt: i/pc = " + i + "/" + parmCount +
+				", val = " + val +
+				", pgtyp = " + pgtyp);
 			rtnval = storeLocGlbInt(i, val, pgtyp, false);
 			if (rtnval < 0) {
 				return rtnval;
@@ -1109,6 +1112,10 @@ public class RunTime implements IConst {
 		i = glbLocVarMap.get(funcName);
 		locBaseIdx = store.getStkIdx() - parmCount;
 		while (true) {
+			if (varCount < parmCount) {
+				varCount++;
+				continue;
+			}
 			j = glbLocVarList.get(i + varCount);
 			if (j < 0) {
 				break;
@@ -1654,6 +1661,8 @@ public class RunTime implements IConst {
 		}
 		/*
 		addrNode = store.fetchNode(varidx);
+		addr = addrNode.getAddr();
+		omsg("storeLocGlbInt: varidx = " + varidx + ", addr = " + addr);
 		pgtyp = addrNode.getHdrPgTyp(); 
 		if (pgtyp != PageTyp.INTVAL) {
 			return BADPOP;
