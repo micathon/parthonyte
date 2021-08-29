@@ -1137,7 +1137,7 @@ public class ScanSrc implements IConst {
 			wassemicln = true;
 			node.setOpenPar(true);
 			node.setDownp(0);
-			addrNode = new AddrNode(0, rightp);
+			addrNode = store.newAddrNode(0, rightp);
 			if (!store.pushNode(addrNode)) {
 				return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
 			}
@@ -1192,7 +1192,7 @@ public class ScanSrc implements IConst {
 		}
 		page.setNode(idx, currNode);
 		// push zparen or zstmt keyword and pointer to new node
-		addrNode = new AddrNode(0, rightp);
+		addrNode = store.newAddrNode(0, rightp);
 		if (!store.pushNode(addrNode)) {
 			return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
 		}
