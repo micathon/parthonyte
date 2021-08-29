@@ -1673,7 +1673,8 @@ public class RunTime implements IConst {
 	
 	private boolean pushVal(int val, PageTyp pgtyp, int locVarTyp) {
 		AddrNode addrNode;
-		addrNode = new AddrNode(0, val);
+		addrNode = store.newAddrNode(0, val);
+		//addrNode = new AddrNode(0, val);
 		addrNode.setHdrPgTyp(pgtyp);
 		if (pgtyp == PageTyp.KWD) {
 			omsg("pushVal: pushing KWD!!!");
@@ -1688,7 +1689,7 @@ public class RunTime implements IConst {
 	
 	private boolean pushAddr(int rightp) {
 		AddrNode addrNode;
-		addrNode = new AddrNode(0, rightp);
+		addrNode = store.newAddrNode(0, rightp);
 		if (!store.pushNode(addrNode)) {
 			return false;
 		}
@@ -1712,7 +1713,7 @@ public class RunTime implements IConst {
 		dval = page.getFloat(idx);
 		omsg("pushFloat: dval = " + dval + ", addr = " + addr);
 
-		addrNode = new AddrNode(0, addr);
+		addrNode = store.newAddrNode(0, addr);
 		addrNode.setHdrPgTyp(PageTyp.FLOAT);
 		if (!store.pushNode(addrNode)) {
 			return STKOVERFLOW;
@@ -1728,7 +1729,7 @@ public class RunTime implements IConst {
 		if (addr < 0) {
 			return BADALLOC;
 		}
-		addrNode = new AddrNode(0, addr);
+		addrNode = store.newAddrNode(0, addr);
 		addrNode.setHdrPgTyp(PageTyp.STRING);
 		if (!store.pushNode(addrNode)) {
 			return STKOVERFLOW;
@@ -1750,7 +1751,7 @@ public class RunTime implements IConst {
 	
 	private boolean pushIntVar(int val, int locVarTyp, boolean ptrFlag) {
 		AddrNode addrNode;
-		addrNode = new AddrNode(0, val);
+		addrNode = store.newAddrNode(0, val);
 		addrNode.setHdrPgTyp(PageTyp.INTVAL);
 		addrNode.setHdrLocVarTyp(locVarTyp);
 		if (ptrFlag) {
@@ -1857,7 +1858,7 @@ public class RunTime implements IConst {
 	
 	private boolean pushPtrVar(int val, int locVarTyp, PageTyp pgtyp) {
 		AddrNode addrNode;
-		addrNode = new AddrNode(0, val);
+		addrNode = store.newAddrNode(0, val);
 		addrNode.setHdrPgTyp(pgtyp);
 		addrNode.setHdrLocVarTyp(locVarTyp);
 		addrNode.setPtr();
@@ -1883,7 +1884,7 @@ public class RunTime implements IConst {
 		int val = kwtyp.ordinal();
 		AddrNode addrNode;
 		
-		addrNode = new AddrNode(0, val);
+		addrNode = store.newAddrNode(0, val);
 		addrNode.setHdrPgTyp(PageTyp.KWD);
 		omsg("pushOpAsNode: --------------------------");
 		if (!store.pushNode(addrNode)) {
