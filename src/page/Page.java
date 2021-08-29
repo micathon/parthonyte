@@ -263,38 +263,35 @@ public class Page implements IConst {
 		return rtnval;
 	}
 	
-	public boolean isFreeInt(int idx) {
+	public boolean freeInt(int idx) {
 		if (idx < 0 || idx >= INTPGLEN) {
-			return false;  // error
+			return false;  
 		}
 		if (valcount <= 0) { 
-			setIntVal(idx, freeidx);
-			freeidx = idx;
+			return false;
 		}
-		else if (freeidx < 0) {
+		if (freeidx < 0) {
 			if (idx == (valcount - 1)) {
 				valcount--;
 			}
 			else if (idx >= valcount) {
-				return false;  // error
+				return false;  
 			}
 			else {
 				freeidx = idx;
-				valcount = 0;
 			}
 			setIntVal(idx, -1);
 		}
 		else if (idx >= valcount) {
-			return false;  // error
+			return false;  
 		}
 		else {
-			valcount = 0;
 			setIntVal(idx, freeidx);
 			freeidx = idx;
 		}
 		return true;
 	}
-	
+/*	
 	public boolean freeInt(int idx) {
 		int i = freeidx;
 		if (valcount <= 0 || idx >= valcount) {
@@ -310,7 +307,7 @@ public class Page implements IConst {
 		freeidx = idx;
 		return true;
 	}
-	
+*/	
 	public int allocLong(long val) {
 		int rtnval;
 		int nextidx;
@@ -329,38 +326,35 @@ public class Page implements IConst {
 		return rtnval;
 	}
 	
-	public boolean isFreeLong(int idx) {
+	public boolean freeLong(int idx) {
 		if (idx < 0 || idx >= DBLPGLEN) {
-			return false;  // error
+			return false;  
 		}
 		if (valcount <= 0) { 
-			setLong(idx, freeidx);
-			freeidx = idx;
+			return false;
 		}
-		else if (freeidx < 0) {
+		if (freeidx < 0) {
 			if (idx == (valcount - 1)) {
 				valcount--;
 			}
 			else if (idx >= valcount) {
-				return false;  // error
+				return false;  
 			}
 			else {
 				freeidx = idx;
-				valcount = 0;
 			}
 			setLong(idx, -1);
 		}
 		else if (idx >= valcount) {
-			return false;  // error
+			return false;  
 		}
 		else {
-			valcount = 0;
 			setLong(idx, freeidx);
 			freeidx = idx;
 		}
 		return true;
 	}
-	
+/*	
 	public boolean freeLong(int idx) {
 		int i = freeidx;
 		if (valcount <= 0 || idx >= valcount) {
@@ -376,7 +370,7 @@ public class Page implements IConst {
 		freeidx = idx;
 		return true;
 	}
-	
+*/	
 	public int allocFloat(double val) {
 		int rtnval;
 		int nextidx;
@@ -395,38 +389,35 @@ public class Page implements IConst {
 		return rtnval;
 	}
 	
-	public boolean isFreeFloat(int idx) {
+	public boolean freeFloat(int idx) {
 		if (idx < 0 || idx >= DBLPGLEN) {
-			return false;  // error
+			return false;  
 		}
 		if (valcount <= 0) { 
-			setFloat(idx, freeidx);
-			freeidx = idx;
+			return false;
 		}
-		else if (freeidx < 0) {
+		if (freeidx < 0) {
 			if (idx == (valcount - 1)) {
 				valcount--;
 			}
 			else if (idx >= valcount) {
-				return false;  // error
+				return false;  
 			}
 			else {
 				freeidx = idx;
-				valcount = 0;
 			}
 			setFloat(idx, -1);
 		}
 		else if (idx >= valcount) {
-			return false;  // error
+			return false;  
 		}
 		else {
-			valcount = 0;
 			setFloat(idx, freeidx);
 			freeidx = idx;
 		}
 		return true;
 	}
-	
+/*	
 	public boolean freeFloat(int idx) {
 		int i = freeidx;
 		if (valcount <= 0 || idx >= valcount) {
@@ -442,7 +433,7 @@ public class Page implements IConst {
 		freeidx = idx;
 		return true;
 	}
-	
+*/	
 	public int allocString(String val) {
 		int rtnval;
 		int nextidx;
@@ -468,38 +459,35 @@ public class Page implements IConst {
 		return rtnval;
 	}
 	
-	public boolean isFreeString(int idx) {
+	public boolean freeString(int idx) {
 		if (idx < 0 || idx >= INTPGLEN) {
-			return false;  // error
+			return false;  
 		}
 		if (valcount <= 0) { 
-			setString(idx, "" + freeidx);
-			freeidx = idx;
+			return false;
 		}
-		else if (freeidx < 0) {
+		if (freeidx < 0) {
 			if (idx == (valcount - 1)) {
 				valcount--;
 			}
 			else if (idx >= valcount) {
-				return false;  // error
+				return false;  
 			}
 			else {
 				freeidx = idx;
-				valcount = 0;
 			}
 			setString(idx, "-1");
 		}
 		else if (idx >= valcount) {
-			return false;  // error
+			return false;  
 		}
 		else {
-			valcount = 0;
 			setString(idx, "" + freeidx);
 			freeidx = idx;
 		}
 		return true;
 	}
-	
+/*	
 	public boolean freeString(int idx) {
 		int i = freeidx;
 		if (valcount <= 0 || idx >= valcount) {
@@ -520,7 +508,7 @@ public class Page implements IConst {
 		freeidx = idx;
 		return true;
 	}
-	
+*/	
 	@SuppressWarnings("unchecked")
 	public int allocList(ArrayList<AddrNode> arrlist) {
 		int rtnval;
