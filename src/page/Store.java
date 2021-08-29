@@ -147,6 +147,20 @@ public class Store implements IConst {
 		return -1;
 	}
 	
+	public AddrNode newAddrNode(int header, int addr) {
+		// reuse nodes at end of stack
+		AddrNode node;
+		if (stackTab.isMaxStkIdx()) {
+			node = new AddrNode(header, addr);
+		}
+		else {
+			node = stackTab.getUpperNode();
+			node.setHeader(header);
+			node.setAddr(addr);
+		}
+		return node;
+	}
+	
 	public int allocNode(Node node) {
 		int rtnval = allocNodeRtn(node);
 		if (rtnval > 0) {
@@ -447,6 +461,7 @@ class PageTab implements IConst {
 	private int nodeLstIdx, nodeMastIdx;
 	private int spareStkLstIdx;
 	private int spareStkIdx;
+	private int maxStkIdx;
 	
 	public PageTab(PageTyp pgtyp) {
 		Page page;
@@ -480,6 +495,7 @@ class PageTab implements IConst {
 			nodepg.setList(i, null);
 		}
 
+		maxStkIdx = 0;
 		nodeMastIdx = 0;
 		nodeLstIdx = 0;
 		nodelstpg = new Page(PageTyp.LIST);
@@ -542,6 +558,19 @@ class PageTab implements IConst {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public AddrNode getUpperNode() {
+		AddrNode node;
+		ArrayList<AddrNode> list;
+		int topStkIdx = getStkIdx();
+		int topIdx, topLstIdx;
+		
+		topIdx = topStkIdx % NODESTKLEN;
+		topLstIdx = topStkIdx / NODESTKLEN;
+		list = (ArrayList<AddrNode>) nodepg.getList(topLstIdx);
+		node = list.get(topIdx);
+		return node;
+	}
+	
 	public AddrNode topNode() {
 		int idx;
 		AddrNode node;
@@ -677,6 +706,7 @@ class PageTab implements IConst {
 		node = popNode();
 		header = node.getHeader();
 		addr = node.getAddr();
+		//node = newAddrNode(header, addr);
 		node = new AddrNode(header, addr);
 		pushNode(topNode);
 		pushNode(node);
@@ -703,6 +733,16 @@ class PageTab implements IConst {
 		int rtnval;
 		rtnval = (spareStkLstIdx << 10) + spareStkIdx;
 		return rtnval;
+	}
+	
+	public boolean isMaxStkIdx() {
+		int stkIdx = getStkIdx();
+		boolean flag = stkIdx > maxStkIdx;
+		
+		if (flag) {
+			maxStkIdx = stkIdx;
+		}
+		return flag;
 	}
 	
 	@SuppressWarnings("unchecked")
