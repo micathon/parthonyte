@@ -1271,10 +1271,12 @@ public class RunTime implements IConst {
 				", pgtyp = " + pgtyp);
 			switch (pgtyp) {
 			case FLOAT:
-				flag = page.isFreeFloat(idx);
+				flag = page.freeFloat(idx);
+				//flag = store.freeFloat(addr);
 				break;
 			case STRING:
-				flag = page.isFreeString(idx);
+				flag = page.freeString(idx);
+				//flag = store.freeString(addr);
 				break;
 			default:
 				continue;
@@ -1664,9 +1666,6 @@ public class RunTime implements IConst {
 		addr = addrNode.getAddr();
 		omsg("storeLocGlbInt: varidx = " + varidx + ", addr = " + addr);
 		pgtyp = addrNode.getHdrPgTyp(); 
-		if (pgtyp != PageTyp.INTVAL) {
-			return BADPOP;
-		}
 		*/
 		store.writeNode(varidx, val, pgtyp);
 		return 0;
