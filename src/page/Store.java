@@ -21,12 +21,15 @@ public class Store implements IConst {
 	private int firstIntPgno;
 	private int lastIntPgno;
 	private int freeIntPgno;
+	private int fullIntPgno;
 	private int firstFloatPgno;
 	private int lastFloatPgno;
 	private int freeFloatPgno;
+	private int fullFloatPgno;
 	private int firstStringPgno;
 	private int lastStringPgno;
 	private int freeStringPgno;
+	private int fullStringPgno;
 	
 	public Store() {
 		PageTab pgtab;
@@ -40,12 +43,15 @@ public class Store implements IConst {
 		firstIntPgno = 0;
 		lastIntPgno = 0;
 		freeIntPgno = -1;
+		fullIntPgno = -1;
 		firstFloatPgno = -1;
 		lastFloatPgno = -1;
 		freeFloatPgno = -1;
+		fullFloatPgno = -1;
 		firstStringPgno = -1;
 		lastStringPgno = -1;
 		freeStringPgno = -1;
+		fullStringPgno = -1;
 	}
 	
 	public PageTab getPageTab(int idx) {
@@ -312,7 +318,7 @@ public class Store implements IConst {
 	
 	public boolean freeString(int addr) {
 		// use linked list of String type PageTab objects
-		// call page.freeString(idx); 
+		// call page.freeString(idx)...
 		
 		return false;
 	}
@@ -1087,4 +1093,64 @@ class PageTab implements IConst {
 		}
 	}
 	
+}
+
+class DataRec {
+	
+	public int intVal;
+	public long longVal;
+	public double floatVal;
+	public boolean boolVal;
+	public String strVal;
+	public Node nodeVal;
+	public ArrayList<AddrNode> listVal;
+	public HashMap<String, AddrNode> mapVal;
+	
+	public DataRec(){}
+	
+}
+
+class AllocFree implements IConst {
+	
+	private PageTyp pageTyp;
+	private DataRec datarec;
+	
+	public AllocFree(PageTyp pgtyp) {
+		pageTyp = pgtyp;
+		datarec = new DataRec();
+		//
+	}
+	
+	public void setLong(long longVal) {
+		datarec.longVal = longVal;
+	}
+
+	public void setFloat(double floatVal) {
+		datarec.floatVal = floatVal;
+	}
+
+	public void setBool(boolean boolVal) {
+		datarec.boolVal = boolVal;
+	}
+
+	public void setStr(String strVal) {
+		datarec.strVal = strVal;
+	}
+
+	public void setNode(Node nodeVal) {
+		datarec.nodeVal = nodeVal;
+	}
+
+	public void setInt(int intVal) {
+		datarec.intVal = intVal;
+	}
+
+	public void setList(ArrayList<AddrNode> listVal) {
+		datarec.listVal = listVal;
+	}
+
+	public void setMap(HashMap<String, AddrNode> mapVal) {
+		datarec.mapVal = mapVal;
+	}
+
 }
