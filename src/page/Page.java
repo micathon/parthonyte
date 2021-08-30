@@ -20,12 +20,16 @@ public class Page implements IConst {
 	private String strings[];
 	private List<?> lists[];
 	private HashMap<?, ?> maps[];
+	private int nextIdx;
+	private int prevIdx;
 	private boolean gcbits[];  // will be used for garbage collection (future)
 	
 	public Page(PageTyp pgtyp) {
 		this.pgtyp = pgtyp;
 		valcount = 0;
 		freeidx = -1;
+		nextIdx = -1;
+		prevIdx = -1;
 		switch (pgtyp) {
 		case NODE:
 			cellcount = WRDPGLEN;
@@ -633,6 +637,22 @@ public class Page implements IConst {
 		setMap(idx, strmap);
 		freeidx = idx;
 		return true;
+	}
+	
+	public int getNext() {
+		return nextIdx;
+	}
+	
+	public int getPrev() {
+		return prevIdx;
+	}
+	
+	public void setNext(int idx) {
+		nextIdx = idx;
+	}
+	
+	public void setPrev(int idx) {
+		prevIdx = idx;
 	}
 	
 }

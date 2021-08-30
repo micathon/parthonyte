@@ -18,6 +18,15 @@ public class Store implements IConst {
 
 	private PageTab bookTab[];
 	private PageTab stackTab;
+	private int firstIntPgno;
+	private int lastIntPgno;
+	private int freeIntPgno;
+	private int firstFloatPgno;
+	private int lastFloatPgno;
+	private int freeFloatPgno;
+	private int firstStringPgno;
+	private int lastStringPgno;
+	private int freeStringPgno;
 	
 	public Store() {
 		PageTab pgtab;
@@ -28,6 +37,15 @@ public class Store implements IConst {
 		}
 		pgtab = new PageTab(PageTyp.INTVAL);
 		bookTab[0] = pgtab;
+		firstIntPgno = 0;
+		lastIntPgno = 0;
+		freeIntPgno = -1;
+		firstFloatPgno = -1;
+		lastFloatPgno = -1;
+		freeFloatPgno = -1;
+		firstStringPgno = -1;
+		lastStringPgno = -1;
+		freeStringPgno = -1;
 	}
 	
 	public PageTab getPageTab(int idx) {
@@ -54,6 +72,32 @@ public class Store implements IConst {
 	public Page getPageZero(int pgidx) {
 		PageTab pgtab = bookTab[0];
 		return pgtab.getPage(pgidx);
+	}
+	
+	public Page getIdxToPage(int idx) {
+		PageTab pgtab;
+		Page page;
+		int pageidx, pgtabidx;
+		
+		if (idx < 0) {
+			return null;
+		}
+		pageidx = idx & 0x3FF;
+		pgtabidx = idx >>> 10;
+		pgtab = getPageTab(pgtabidx);
+		if (pgtab == null) {
+			return null;
+		}
+		page = pgtab.getPage(pageidx);
+		return page;
+	}
+	
+	private int getIdxOfPage(int idx) {
+		return idx & 0x3FF;
+	}
+	
+	private int getTabIdxOfPage(int idx) {
+		return idx >>> 10;
 	}
 	
 	public int getElemIdx(int addr) {
@@ -204,7 +248,7 @@ public class Store implements IConst {
 		return -1;
 	}
 	
-	public int allocString(String str) {
+	public int oldAllocString(String str) {
 		PageTab pgtab;
 		Page page;
 		int idx;
@@ -231,6 +275,46 @@ public class Store implements IConst {
 			}
 		}
 		return -1;
+	}
+	
+	public int allocString(String str) {
+		PageTab pgtab;
+		Page page;
+		int idx;
+		
+		page = getIdxToPage(firstStringPgno);
+		
+		// call page.allocString(str)...
+		// junk rest of this code:
+		for (int i=0; i < INTPGLEN; i++) {
+			pgtab = getPageTab(i);
+			if (pgtab == null) {
+				pgtab = new PageTab(PageTyp.STRING);
+				setPageTab(i, pgtab);
+			}
+			for (int j=0; j < INTPGLEN; j++) {
+				page = pgtab.getPage(j);
+				if (page == null) {
+					page = new Page(PageTyp.STRING);
+					pgtab.setPage(j, page);
+				}
+				else if (page.getPageTyp() != PageTyp.STRING) {
+					continue;
+				}
+				idx = page.allocString(str);
+				if (idx >= 0) {
+					return getAddr(i, j, idx);
+				}
+			}
+		}
+		return -1;
+	}
+	
+	public boolean freeString(int addr) {
+		// use linked list of String type PageTab objects
+		// call page.freeString(idx); 
+		
+		return false;
 	}
 	
 	public int allocList(ArrayList<AddrNode> list) {
@@ -462,6 +546,7 @@ class PageTab implements IConst {
 	private int spareStkLstIdx;
 	private int spareStkIdx;
 	private int maxStkIdx;
+	private int count;
 	
 	public PageTab(PageTyp pgtyp) {
 		Page page;
@@ -471,6 +556,7 @@ class PageTab implements IConst {
 		}
 		page = new Page(pgtyp);
 		pageTab[0] = page;
+		count = 1;
 	}
 	
 	public PageTab() {
@@ -511,6 +597,14 @@ class PageTab implements IConst {
 	
 	public void setPage(int idx, Page page) {
 		pageTab[idx] = page;
+	}
+	
+	public int getCount() {
+		return count;
+	}
+	
+	public void setCount(int n) {
+		count = n;
 	}
 	
 	private ArrayList<AddrNode> initStkLst(int len) {
@@ -706,7 +800,8 @@ class PageTab implements IConst {
 		node = popNode();
 		header = node.getHeader();
 		addr = node.getAddr();
-		//node = newAddrNode(header, addr);
+		// Warning: using newAddrNode caused error
+		//node = newAddrNode(header, addr); // bad!
 		node = new AddrNode(header, addr);
 		pushNode(topNode);
 		pushNode(node);
