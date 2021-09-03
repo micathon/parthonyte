@@ -1114,7 +1114,7 @@ class DataRec {
 	public int intVal;
 	public long longVal;
 	public double floatVal;
-	public boolean boolVal;
+	public byte byteVal;
 	public String strVal;
 	public Node nodeVal;
 	public ArrayList<AddrNode> listVal;
@@ -1183,8 +1183,9 @@ class AllocFree implements IConst {
 		case INTVAL: return page.allocInt(datarec.intVal);
 		case FLOAT: return page.allocFloat(datarec.floatVal);
 		case STRING: return page.allocString(datarec.strVal);
-		case NODE: return page.allocNode(datarec.nodeVal);
 		case LONG: return page.allocLong(datarec.longVal);
+		case BYTE: return page.allocByte(datarec.byteVal);
+		case NODE: return page.allocNode(datarec.nodeVal);
 		case LIST: return page.allocList(datarec.listVal);
 		case MAP: return page.allocMap(datarec.mapVal);
 		default: return -1;
@@ -1196,8 +1197,9 @@ class AllocFree implements IConst {
 		case INTVAL: return page.freeInt(idx);
 		case FLOAT: return page.freeFloat(idx);
 		case STRING: return page.freeString(idx);
-		case NODE: return page.freeNode(idx);
 		case LONG: return page.freeLong(idx);
+		case BYTE: return page.freeByte(idx);
+		case NODE: return page.freeNode(idx);
 		case LIST: return page.freeList(idx);
 		case MAP: return page.freeMap(idx);
 		default: return false;
@@ -1212,8 +1214,8 @@ class AllocFree implements IConst {
 		datarec.floatVal = floatVal;
 	}
 
-	public void setBool(boolean boolVal) {
-		datarec.boolVal = boolVal;
+	public void setByte(boolean boolVal) {
+		datarec.byteVal = (byte)(boolVal ? 1 : 0);
 	}
 
 	public void setStr(String strVal) {
