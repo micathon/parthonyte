@@ -18,10 +18,6 @@ public class Store implements IConst {
 
 	private PageTab bookTab[];
 	private PageTab stackTab;
-	private int firstIntPgno;
-	private int lastIntPgno;
-	private int freeIntPgno;
-	private int fullIntPgno;
 	private AllocFree afInt;
 	private AllocFree afFloat;
 	private AllocFree afString;
@@ -48,10 +44,6 @@ public class Store implements IConst {
 		afNode = new AllocFree(PageTyp.NODE, this);
 		afList = new AllocFree(PageTyp.LIST, this);
 		afMap = new AllocFree(PageTyp.MAP, this);
-		firstIntPgno = 0;
-		lastIntPgno = 0;
-		freeIntPgno = -1;
-		fullIntPgno = -1;
 	}
 	
 	public PageTab getPageTab(int idx) {
@@ -297,7 +289,7 @@ public class Store implements IConst {
 		return -1;
 	}
 	
-	public int allocString(String str) {
+	public int xallocString(String str) {
 		PageTab pgtab;
 		Page page;
 		int idx;
@@ -330,11 +322,20 @@ public class Store implements IConst {
 		return -1;
 	}
 	
-	public boolean freeString(int addr) {
+	public boolean xfreeString(int addr) {
 		// use linked list of String type PageTab objects
 		// call page.freeString(idx)...
 		
 		return false;
+	}
+	
+	public int allocString(String str) {
+		afString.setStr(str);
+		return afString.alloc();
+	}
+	
+	public boolean freeString(int addr) {
+		return afString.free(addr);
 	}
 	
 	public int allocList(ArrayList<AddrNode> list) {
@@ -1129,12 +1130,19 @@ class AllocFree implements IConst {
 	private PageTyp pageTyp;
 	private DataRec datarec;
 	private Store store;
+	private int firstPgno;
+	private int lastPgno;
+	private int freePgno;
+	private int fullPgno;
 	
 	public AllocFree(PageTyp pgtyp, Store store) {
 		pageTyp = pgtyp;
 		datarec = new DataRec();
 		this.store = store;
-		//
+		firstPgno = -1;
+		lastPgno = -1;
+		freePgno = -1;
+		fullPgno = -1;
 	}
 	
 	public int alloc() {
@@ -1142,7 +1150,7 @@ class AllocFree implements IConst {
 		Page page;
 		int idx;
 		
-		//page = getIdxToPage(firstStringPgno);
+		page = store.getIdxToPage(firstPgno);
 		
 		// call page.allocString(str)...
 		// junk rest of this code:
