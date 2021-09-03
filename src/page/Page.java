@@ -247,6 +247,54 @@ public class Page implements IConst {
 		freeidx = idx;
 		return true;
 	}
+
+	public int allocByte(int val) {
+		int rtnval;
+		int nextidx;
+
+		if ((freeidx < 0) && (valcount >= BYTPGLEN)) {
+			return -1;
+		}
+		if (freeidx < 0) {
+			setByte(valcount, val);
+			return valcount++;
+		}
+		nextidx = getByte(freeidx);
+		setByte(freeidx, val);
+		rtnval = freeidx;
+		freeidx = nextidx;
+		valcount = 0;
+		return rtnval;
+	}
+	
+	public boolean freeByte(int idx) {
+		if (idx < 0 || idx >= BYTPGLEN) {
+			return false;  
+		}
+		if (valcount <= 0) { 
+			return false;
+		}
+		if (freeidx < 0) {
+			if (idx == (valcount - 1)) {
+				valcount--;
+			}
+			else if (idx >= valcount) {
+				return false;  
+			}
+			else {
+				freeidx = idx;
+			}
+			setByte(idx, -1);
+		}
+		else if (idx >= valcount) {
+			return false;  
+		}
+		else {
+			setByte(idx, freeidx);
+			freeidx = idx;
+		}
+		return true;
+	}
 	
 	public int allocInt(int val) {
 		int rtnval;

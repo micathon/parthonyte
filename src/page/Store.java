@@ -22,14 +22,14 @@ public class Store implements IConst {
 	private int lastIntPgno;
 	private int freeIntPgno;
 	private int fullIntPgno;
-	private int firstFloatPgno;
-	private int lastFloatPgno;
-	private int freeFloatPgno;
-	private int fullFloatPgno;
-	private int firstStringPgno;
-	private int lastStringPgno;
-	private int freeStringPgno;
-	private int fullStringPgno;
+	private AllocFree afInt;
+	private AllocFree afFloat;
+	private AllocFree afString;
+	private AllocFree afLong;
+	private AllocFree afByte;
+	private AllocFree afNode;
+	private AllocFree afList;
+	private AllocFree afMap;
 	
 	public Store() {
 		PageTab pgtab;
@@ -40,18 +40,18 @@ public class Store implements IConst {
 		}
 		pgtab = new PageTab(PageTyp.INTVAL);
 		bookTab[0] = pgtab;
+		afInt = new AllocFree(PageTyp.INTVAL, this);
+		afFloat = new AllocFree(PageTyp.FLOAT, this);
+		afString = new AllocFree(PageTyp.STRING, this);
+		afLong = new AllocFree(PageTyp.LONG, this);
+		afByte = new AllocFree(PageTyp.BYTE, this);
+		afNode = new AllocFree(PageTyp.NODE, this);
+		afList = new AllocFree(PageTyp.LIST, this);
+		afMap = new AllocFree(PageTyp.MAP, this);
 		firstIntPgno = 0;
 		lastIntPgno = 0;
 		freeIntPgno = -1;
 		fullIntPgno = -1;
-		firstFloatPgno = -1;
-		lastFloatPgno = -1;
-		freeFloatPgno = -1;
-		fullFloatPgno = -1;
-		firstStringPgno = -1;
-		lastStringPgno = -1;
-		freeStringPgno = -1;
-		fullStringPgno = -1;
 	}
 	
 	public PageTab getPageTab(int idx) {
@@ -131,6 +131,20 @@ public class Store implements IConst {
 		idx = getElemIdx(addr);
 		rtnval = page.getNode(idx);
 		return rtnval;
+	}
+	
+	public AllocFree getAllocFree(PageTyp pgtyp) {
+		switch (pgtyp) {
+		case INTVAL: return afInt;
+		case FLOAT: return afFloat;
+		case STRING: return afString;
+		case LONG: return afLong;
+		case BYTE: return afByte;
+		case NODE: return afNode;
+		case LIST: return afList;
+		case MAP: return afMap;
+		default: return null;
+		}
 	}
 	
 	public int allocInt(int val) {
@@ -288,7 +302,7 @@ public class Store implements IConst {
 		Page page;
 		int idx;
 		
-		page = getIdxToPage(firstStringPgno);
+		//page = getIdxToPage(firstStringPgno);
 		
 		// call page.allocString(str)...
 		// junk rest of this code:
@@ -1114,11 +1128,80 @@ class AllocFree implements IConst {
 	
 	private PageTyp pageTyp;
 	private DataRec datarec;
+	private Store store;
 	
-	public AllocFree(PageTyp pgtyp) {
+	public AllocFree(PageTyp pgtyp, Store store) {
 		pageTyp = pgtyp;
 		datarec = new DataRec();
+		this.store = store;
 		//
+	}
+	
+	public int alloc() {
+		PageTab pgtab;
+		Page page;
+		int idx;
+		
+		//page = getIdxToPage(firstStringPgno);
+		
+		// call page.allocString(str)...
+		// junk rest of this code:
+		for (int i=0; i < INTPGLEN; i++) {
+			pgtab = store.getPageTab(i);
+			if (pgtab == null) {
+				pgtab = new PageTab(PageTyp.STRING);
+				store.setPageTab(i, pgtab);
+			}
+			for (int j=0; j < INTPGLEN; j++) {
+				page = pgtab.getPage(j);
+				if (page == null) {
+					page = new Page(PageTyp.STRING);
+					pgtab.setPage(j, page);
+				}
+				else if (page.getPageTyp() != PageTyp.STRING) {
+					continue;
+				}
+				//idx = page.allocString(str);
+				idx = pageAlloc(page);
+				if (idx >= 0) {
+					return store.getAddr(i, j, idx);
+				}
+			}
+		}
+		return -1;
+	}
+	
+	public boolean free(int addr) {
+		// use linked list of String type PageTab objects
+		// call page.freeString(idx)...
+		
+		return false;
+	}
+	
+	private int pageAlloc(Page page) {
+		switch (pageTyp) {
+		case INTVAL: return page.allocInt(datarec.intVal);
+		case FLOAT: return page.allocFloat(datarec.floatVal);
+		case STRING: return page.allocString(datarec.strVal);
+		case NODE: return page.allocNode(datarec.nodeVal);
+		case LONG: return page.allocLong(datarec.longVal);
+		case LIST: return page.allocList(datarec.listVal);
+		case MAP: return page.allocMap(datarec.mapVal);
+		default: return -1;
+		}
+	}
+	
+	private boolean pageFree(Page page, int idx) {
+		switch (pageTyp) {
+		case INTVAL: return page.freeInt(idx);
+		case FLOAT: return page.freeFloat(idx);
+		case STRING: return page.freeString(idx);
+		case NODE: return page.freeNode(idx);
+		case LONG: return page.freeLong(idx);
+		case LIST: return page.freeList(idx);
+		case MAP: return page.freeMap(idx);
+		default: return false;
+		}
 	}
 	
 	public void setLong(long longVal) {
