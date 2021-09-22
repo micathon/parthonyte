@@ -6,11 +6,11 @@
 # How to run Aljebrist
 * Install the Java SDK
 * `$ cd path/to/bin`
-* `$ java alj dotop > out.txt`
+* `$ java alj atest > out.txt`
 * text files:
-  * `dat/dotop.alj`: sample Aljebrist source code
+  * `dat/atest.alj`: sample Aljebrist source code
   * `bin/out.txt`: used for debugging and logging what my code is doing
-  * both `dotop` and `out.txt` file names can be any valid Linux file name (or Windows/Mac)
+  * both `atest` and `out.txt` file names can be any valid Linux file name (or Windows/Mac)
 # Roadmap
 * Go to home page of [website](http://aljegrid.com), scroll to bottom
 # Contact Me
