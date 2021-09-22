@@ -1,5 +1,5 @@
 # Contributing to Aljebrist
-* Many thanks for your interest in being a Aljebrist contributor
+* Many thanks for your interest in being an Aljebrist contributor
 * I hope to begin accepting contributions in 2022
 * If you wish to write detailed design specs or anything more ambitious, please contact me
 * At this point I don't have much documentation for coders, but feel free to email me with your questions for now
