@@ -20,9 +20,12 @@ public class Page implements IConst {
 	private String strings[];
 	private List<?> lists[];
 	private HashMap<?, ?> maps[];
-	private int nextIdx;
-	private int prevIdx;
 	private boolean gcbits[];  // will be used for garbage collection (future)
+	//
+	private int pageLen;  // same as valcount;
+	private int firstFree;  // same as freeidx;
+	private int nextIdx;  // index to PageTab
+	private int prevIdx;  // index to PageTab
 	
 	public Page(PageTyp pgtyp) {
 		this.pgtyp = pgtyp;

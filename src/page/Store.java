@@ -26,6 +26,27 @@ public class Store implements IConst {
 	private AllocFree afNode;
 	private AllocFree afList;
 	private AllocFree afMap;
+	//
+	private int bookLen;
+	private int firstFree;
+	// afInt.firstBookIdx
+	
+	// int bookLen;
+	// int firstFree;
+	// afInt.firstBookIdx
+	
+	// PageTab:
+	// int nextIdx;  // index to bookTab
+	// int prevIdx;  // index to bookTab
+	// int pageTabLen;  // same as count
+	// int firstFreeIdx;
+	// int firstPageIdx;
+	
+	// Page:
+	// int nextIdx;  // index to PageTab
+	// int prevIdx;  // index to PageTab
+	// int pageLen;  // same as valcount;
+	// int firstFree;  // same as freeidx;
 	
 	public Store() {
 		PageTab pgtab;
@@ -44,6 +65,9 @@ public class Store implements IConst {
 		afNode = new AllocFree(PageTyp.NODE, this);
 		afList = new AllocFree(PageTyp.LIST, this);
 		afMap = new AllocFree(PageTyp.MAP, this);
+		afInt.setFirst(0);
+		firstFree = -1;
+		bookLen = 1;
 	}
 	
 	public PageTab getPageTab(int idx) {
@@ -568,6 +592,12 @@ class PageTab implements IConst {
 	private int spareStkIdx;
 	private int maxStkIdx;
 	private int count;
+	//
+	private int nextIdx;  // index to bookTab
+	private int prevIdx;  // index to bookTab
+	private int firstPageIdx;
+	private int firstFreeIdx;
+	private int pageTabLen;  // same as count
 	
 	public PageTab(PageTyp pgtyp) {
 		Page page;
@@ -1134,6 +1164,8 @@ class AllocFree implements IConst {
 	private int lastPgno;
 	private int freePgno;
 	private int fullPgno;
+	//
+	private int firstBookIdx;
 	
 	public AllocFree(PageTyp pgtyp, Store store) {
 		pageTyp = pgtyp;
@@ -1143,12 +1175,43 @@ class AllocFree implements IConst {
 		lastPgno = -1;
 		freePgno = -1;
 		fullPgno = -1;
+		//
+		firstBookIdx = -1;
 	}
+	
+	// int bookLen;
+	// int firstFree;
+	// afInt.firstBookIdx
+	
+	// PageTab:
+	// int nextIdx;  // index to bookTab
+	// int prevIdx;  // index to bookTab
+	// int pageTabLen;  // same as count
+	// int firstFreeIdx;
+	// int firstPageIdx;
+	
+	// Page:
+	// int nextIdx;  // index to PageTab
+	// int prevIdx;  // index to PageTab
+	// int pageLen;  // same as valcount;
+	// int firstFree;  // same as freeidx;
 	
 	public int alloc() {
 		PageTab pgtab;
-		Page page;
+		Page page;	// PageTab:
 		int idx;
+		
+		// if current page is partial, then fill the hole
+		//   done.
+		// iterate...
+		// pageTab = bookTab[afInt.firstBookIdx]
+		// pageTabIdx = pageTab.firstPageIdx
+		// page = pageTab[pageTabIdx]
+		// if page.firstFree < 0
+		//   keep iterating
+		// assume not out of memory
+		// current page is partial
+		// fill the hole
 		
 		page = store.getIdxToPage(firstPgno);
 		
@@ -1212,6 +1275,14 @@ class AllocFree implements IConst {
 		case MAP: return page.freeMap(idx);
 		default: return false;
 		}
+	}
+	
+	public void setFirst(int firstidx) {
+		firstBookIdx = firstidx;
+	}
+	
+	public int getFirst() {
+		return firstBookIdx;
 	}
 	
 	public void setLong(long longVal) {
