@@ -29,6 +29,7 @@ public class Store implements IConst {
 	//
 	private int bookLen;
 	private int firstFree;
+	private int currBookIdx;
 	// afInt.firstBookIdx
 	
 	// int bookLen;
@@ -68,6 +69,8 @@ public class Store implements IConst {
 		afInt.setFirst(0);
 		firstFree = -1;
 		bookLen = 1;
+		currBookIdx = 0;
+		pgtab.setCurrPageIdx(0);
 	}
 	
 	public PageTab getPageTab(int idx) {
@@ -136,6 +139,21 @@ public class Store implements IConst {
 	
 	public boolean isLocAddr(int addr) {
 		return (getBookIdx(addr) == 0);
+	}
+	
+	public Page getCurrPage() {
+		PageTab pgtab = bookTab[currBookIdx];
+		int pageIdx = pgtab.getCurrPageIdx();
+		Page page = pgtab.getPage(pageIdx);
+		return page;
+	}
+	
+	public int getCurrBookIdx() {
+		return currBookIdx;
+	}
+	
+	public void setCurrBookIdx(int idx) {
+		currBookIdx = idx;
 	}
 	
 	public Node getNode(int addr) {
@@ -598,6 +616,7 @@ class PageTab implements IConst {
 	private int firstPageIdx;
 	private int firstFreeIdx;
 	private int pageTabLen;  // same as count
+	private int currPageIdx;
 	
 	public PageTab(PageTyp pgtyp) {
 		Page page;
@@ -656,6 +675,30 @@ class PageTab implements IConst {
 	
 	public void setCount(int n) {
 		count = n;
+	}
+	
+	public int getCurrPageIdx() {
+		return currPageIdx;
+	}
+	
+	public void setCurrPageIdx(int idx) {
+		currPageIdx = idx;
+	}
+	
+	public int getFirstPageIdx() {
+		return firstPageIdx;
+	}
+	
+	public void setFirstPageIdx(int idx) {
+		firstPageIdx = idx;
+	}
+	
+	public int getNextBookIdx() {
+		return nextIdx;
+	}
+	
+	public void setNextBookIdx(int idx) {
+		nextIdx = idx;
 	}
 	
 	private ArrayList<AddrNode> initStkLst(int len) {
@@ -1197,9 +1240,12 @@ class AllocFree implements IConst {
 	// int firstFree;  // same as freeidx;
 	
 	public int alloc() {
-		PageTab pgtab;
+		PageTab pgtab = null; // initialized upon isFirstIter
 		Page page;	// PageTab:
 		int idx;
+		int bookIdx;
+		int pageIdx;
+		boolean isFirstIter = true;
 		
 		// if current page is partial, then fill the hole
 		//   done.
@@ -1213,10 +1259,44 @@ class AllocFree implements IConst {
 		// current page is partial
 		// fill the hole
 		
-		page = store.getIdxToPage(firstPgno);
-		
+		while (true) {
+			page = store.getCurrPage();
+			if (page.isAvailPage()) {
+				break;
+			}
+			if (isFirstIter) {
+				isFirstIter = false;
+				store.setCurrBookIdx(firstBookIdx);
+				pgtab = store.getPageTab(firstBookIdx);
+				pageIdx = pgtab.getFirstPageIdx();
+				pgtab.setCurrPageIdx(pageIdx);
+				page = store.getPage(pageIdx);
+				continue;
+			}
+			pageIdx = page.getNext();
+			if (pageIdx >= 0) {
+				pgtab.setCurrPageIdx(pageIdx);
+				page = store.getPage(pageIdx);
+				continue;
+			}
+			bookIdx = pgtab.getNextBookIdx();
+			store.setCurrBookIdx(bookIdx);
+			pgtab = store.getPageTab(bookIdx);
+			pageIdx = pgtab.getFirstPageIdx();
+			pgtab.setCurrPageIdx(pageIdx);
+			page = store.getPage(pageIdx);
+		}
+		idx = pageAlloc(page);
+		if (idx >= 0) {
+			bookIdx = store.getCurrBookIdx();
+			pgtab = store.getPageTab(bookIdx);
+			pageIdx = pgtab.getCurrPageIdx();
+			return store.getAddr(bookIdx, pageIdx, idx);
+		}
+		return -1;
+	}
 		// call page.allocString(str)...
-		// junk rest of this code:
+		/*
 		for (int i=0; i < INTPGLEN; i++) {
 			pgtab = store.getPageTab(i);
 			if (pgtab == null) {
@@ -1240,7 +1320,7 @@ class AllocFree implements IConst {
 			}
 		}
 		return -1;
-	}
+		*/
 	
 	public boolean free(int addr) {
 		// use linked list of String type PageTab objects

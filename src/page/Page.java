@@ -99,6 +99,14 @@ public class Page implements IConst {
 		gcbits[idx] = flag;
 	}
 	
+	public int getFirstFree() {
+		return firstFree;
+	}
+	
+	public void setFirstFree(int idx) {
+		firstFree = idx;
+	}
+	
 	public byte getByte(int idx) {
 		return bytes[idx];
 	}
@@ -688,6 +696,11 @@ public class Page implements IConst {
 		setMap(idx, strmap);
 		freeidx = idx;
 		return true;
+	}
+	
+	public boolean isAvailPage() {
+		boolean isAvail = (firstFree >= 0) || (pageLen < INTPGLEN);
+		return isAvail;
 	}
 	
 	public int getNext() {
