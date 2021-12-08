@@ -1224,18 +1224,17 @@ class AllocFree implements IConst {
 	
 	// int bookLen;
 	// int firstFree;
-	// afInt.firstBookIdx
+	// afInt.firstBookIdx .. afString.firstBookIdx
+	// nextIdx, prevIdx: several linked lists
 	
 	// PageTab:
-	// int nextIdx;  // index to bookTab
-	// int prevIdx;  // index to bookTab
 	// int pageTabLen;  // same as count
 	// int firstFreeIdx;
 	// int firstPageIdx;
+	// int firstFullIdx;
+	// nextIdx, prevIdx: 3 linked lists
 	
 	// Page:
-	// int nextIdx;  // index to PageTab
-	// int prevIdx;  // index to PageTab
 	// int pageLen;  // same as valcount;
 	// int firstFree;  // same as freeidx;
 	
@@ -1280,6 +1279,7 @@ class AllocFree implements IConst {
 				continue;
 			}
 			bookIdx = pgtab.getNextBookIdx();
+			// handle bookIdx = -1 ...
 			store.setCurrBookIdx(bookIdx);
 			pgtab = store.getPageTab(bookIdx);
 			pageIdx = pgtab.getFirstPageIdx();
