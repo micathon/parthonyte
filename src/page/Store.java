@@ -625,7 +625,6 @@ class PageTab implements IConst {
 	private int spareStkLstIdx;
 	private int spareStkIdx;
 	private int maxStkIdx;
-	private int count;
 	//
 	private int nextIdx;  // index to bookTab
 	private int prevIdx;  // index to bookTab
@@ -633,7 +632,7 @@ class PageTab implements IConst {
 	private int firstPageIdx;
 	private int firstDensIdx;
 	private int currPageIdx;
-	private int pageTabLen;  // same as count
+	private int pageTabLen;
 	
 	public PageTab(PageTyp pgtyp) {
 		Page page;
@@ -643,7 +642,7 @@ class PageTab implements IConst {
 		}
 		page = new Page(pgtyp);
 		pageTab[0] = page;
-		count = 1;
+		pageTabLen = 1;
 	}
 	
 	public PageTab() {
@@ -687,11 +686,11 @@ class PageTab implements IConst {
 	}
 	
 	public int getCount() {
-		return count;
+		return pageTabLen;
 	}
 	
 	public void setCount(int n) {
-		count = n;
+		pageTabLen = n;
 	}
 	
 	public int getCurrPageIdx() {
@@ -1355,7 +1354,7 @@ class AllocFree implements IConst {
 	// nextIdx, prevIdx: several linked lists
 	
 	// PageTab:
-	// int pageTabLen;  // same as count
+	// int pageTabLen;
 	// int firstFreeIdx;
 	// int firstPageIdx;
 	// int firstDensIdx;  // dense
@@ -1382,7 +1381,7 @@ class AllocFree implements IConst {
 			if (addr >= 0) {
 				return addr;
 			}
-			addr = allocInner(currPageIdx);
+			addr = allocInner();
 			if (addr >= 0) {
 				return addr;
 			}
@@ -1414,11 +1413,46 @@ class AllocFree implements IConst {
 		}
 	}
 	
-	public int allocInner(int currPageIdx) {
+	public int allocInner() {
+		PageTab pgtab;
+		Page page;
+		int addr;
+		int nextIdx;
+		int firstFree;
+		int len;
+		
+		pgtab = store.getPageTab(currBookIdx);
 		while (true) {
+			page = pgtab.getPage(currPageIdx);
+			if (!page.isFullPage()) {
+				break;
+			}
+			nextIdx = page.getNext();
+			// handle full page...
 			//
+			if (nextIdx >= 0) {
+				currPageIdx = nextIdx;
+				continue;
+			}
+			firstFree = pgtab.getFirstFreeIdx();
+			if (firstFree >= 0) {
+				currPageIdx = firstFree;
+				// remove page from free list...
+				//
+				continue;
+			}
+			if (pgtab.getCount() >= INTPGLEN) {
+				return -1;  // curr PageTab is full
+			}
+			currPageIdx = pgtab.getCount();
+			len = currPageIdx + 1;
+			pgtab.setCount(len);
+			// append curr pg to page list...
+			break;
 		}
-		//return -1;
+		page = pgtab.getPage(currPageIdx);
+		addr = pageAlloc(page);
+		return addr;
 	}
 	
 	private int pageAlloc(Page page) {
