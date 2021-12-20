@@ -586,6 +586,22 @@ public class Store implements IConst {
 		page.setNode(idx, node);
 	}
 	
+	public int getBookLen() {
+		return bookLen;
+	}
+	
+	public void setBookLen(int idx) {
+		bookLen = idx;
+	}
+	
+	public int getFirstFree() {
+		return firstFree;
+	}
+	
+	public void setFirstFree(int idx) {
+		firstFree = idx;
+	}
+	
 	public String printStkIdxs() {
 		return stackTab.printStkIdxs();
 	}
@@ -613,10 +629,11 @@ class PageTab implements IConst {
 	//
 	private int nextIdx;  // index to bookTab
 	private int prevIdx;  // index to bookTab
-	private int firstPageIdx;
 	private int firstFreeIdx;
-	private int pageTabLen;  // same as count
+	private int firstPageIdx;
+	private int firstDensIdx;
 	private int currPageIdx;
+	private int pageTabLen;  // same as count
 	
 	public PageTab(PageTyp pgtyp) {
 		Page page;
@@ -691,6 +708,22 @@ class PageTab implements IConst {
 	
 	public void setFirstPageIdx(int idx) {
 		firstPageIdx = idx;
+	}
+	
+	public int getFirstFreeIdx() {
+		return firstFreeIdx;
+	}
+	
+	public void setFirstFreeIdx(int idx) {
+		firstFreeIdx = idx;
+	}
+	
+	public int getFirstDensIdx() {
+		return firstDensIdx;
+	}
+	
+	public void setFirstDensIdx(int idx) {
+		firstDensIdx = idx;
 	}
 	
 	public int getNextBookIdx() {
@@ -1209,6 +1242,9 @@ class AllocFree implements IConst {
 	private int fullPgno;
 	//
 	private int firstBookIdx;
+	private int currPageIdx;
+	private PageTab currPgTab;
+	private int currBookIdx;
 	
 	public AllocFree(PageTyp pgtyp, Store store) {
 		pageTyp = pgtyp;
@@ -1222,23 +1258,7 @@ class AllocFree implements IConst {
 		firstBookIdx = -1;
 	}
 	
-	// int bookLen;
-	// int firstFree;
-	// afInt.firstBookIdx .. afString.firstBookIdx
-	// nextIdx, prevIdx: several linked lists
-	
-	// PageTab:
-	// int pageTabLen;  // same as count
-	// int firstFreeIdx;
-	// int firstPageIdx;
-	// int firstFullIdx;
-	// nextIdx, prevIdx: 3 linked lists
-	
-	// Page:
-	// int pageLen;  // same as valcount;
-	// int firstFree;  // same as freeidx;
-	
-	public int alloc() {
+	public int allocOld() {
 		PageTab pgtab = null; // initialized upon isFirstIter
 		Page page;	// PageTab:
 		int idx;
@@ -1327,6 +1347,78 @@ class AllocFree implements IConst {
 		// call page.freeString(idx)...
 		
 		return false;
+	}
+	
+	// int bookLen;
+	// int firstFree;
+	// afInt.firstBookIdx .. afString.firstBookIdx
+	// nextIdx, prevIdx: several linked lists
+	
+	// PageTab:
+	// int pageTabLen;  // same as count
+	// int firstFreeIdx;
+	// int firstPageIdx;
+	// int firstDensIdx;  // dense
+	// nextIdx, prevIdx: 3 linked lists
+	
+	// Page:
+	// int pageLen;  // same as valcount;
+	// int firstFree;  // same as freeidx;
+	
+	public int alloc() {
+		Page page;
+		boolean isFirstIter = true;
+		int addr;
+		int bookLen;
+		int firstFree;
+		
+		while (true) {
+			if (!isFirstIter) {
+				currPgTab = store.getPageTab(currBookIdx);
+				currPageIdx = currPgTab.getFirstPageIdx();
+			}
+			page = currPgTab.getPage(currPageIdx);
+			addr = pageAlloc(page);
+			if (addr >= 0) {
+				return addr;
+			}
+			addr = allocInner(currPageIdx);
+			if (addr >= 0) {
+				return addr;
+			}
+			if (isFirstIter) {
+				currBookIdx = firstBookIdx;
+			}
+			else {
+				isFirstIter = false;
+				currBookIdx = currPgTab.getNextBookIdx();
+			}
+			if (currBookIdx >= 0) {
+				continue;
+			}
+			bookLen = store.getBookLen();
+			firstFree = store.getFirstFree();
+			if ((bookLen >= INTPGLEN) && (firstFree < 0)) {
+				return -1;  // out of memory
+			}
+			if (firstFree < 0) {
+				currBookIdx = bookLen;
+				bookLen++;
+				store.setBookLen(bookLen);
+				continue;
+			}
+			currBookIdx = firstFree;
+			currPgTab = store.getPageTab(firstFree);
+			firstFree = currPgTab.getNextBookIdx();
+			currPgTab.setFirstFreeIdx(firstFree);
+		}
+	}
+	
+	public int allocInner(int currPageIdx) {
+		while (true) {
+			//
+		}
+		//return -1;
 	}
 	
 	private int pageAlloc(Page page) {
