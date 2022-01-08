@@ -1314,32 +1314,6 @@ class AllocFree implements IConst {
 		}
 		return -1;
 	}
-		// call page.allocString(str)...
-		/*
-		for (int i=0; i < INTPGLEN; i++) {
-			pgtab = store.getPageTab(i);
-			if (pgtab == null) {
-				pgtab = new PageTab(PageTyp.STRING);
-				store.setPageTab(i, pgtab);
-			}
-			for (int j=0; j < INTPGLEN; j++) {
-				page = pgtab.getPage(j);
-				if (page == null) {
-					page = new Page(PageTyp.STRING);
-					pgtab.setPage(j, page);
-				}
-				else if (page.getPageTyp() != PageTyp.STRING) {
-					continue;
-				}
-				//idx = page.allocString(str);
-				idx = pageAlloc(page);
-				if (idx >= 0) {
-					return store.getAddr(i, j, idx);
-				}
-			}
-		}
-		return -1;
-		*/
 	
 	public boolean free(int addr) {
 		// use linked list of String type PageTab objects
@@ -1419,6 +1393,7 @@ class AllocFree implements IConst {
 		int addr;
 		int nextIdx;
 		int firstFree;
+		int pgidx;
 		int len;
 		
 		pgtab = store.getPageTab(currBookIdx);
@@ -1428,8 +1403,11 @@ class AllocFree implements IConst {
 				break;
 			}
 			nextIdx = page.getNext();
-			// handle full page...
-			//
+			// handle full page:
+			pgidx = pgtab.getFirstDensIdx();
+			page.setNext(pgidx);
+			pgtab.setFirstDensIdx(currPageIdx);
+			pgtab.setFirstPageIdx(nextIdx);
 			if (nextIdx >= 0) {
 				currPageIdx = nextIdx;
 				continue;
@@ -1437,8 +1415,10 @@ class AllocFree implements IConst {
 			firstFree = pgtab.getFirstFreeIdx();
 			if (firstFree >= 0) {
 				currPageIdx = firstFree;
-				// remove page from free list...
-				//
+				// remove page from free list:
+				page = pgtab.getPage(currPageIdx);
+				nextIdx = page.getNext();
+				pgtab.setFirstFreeIdx(nextIdx);
 				continue;
 			}
 			if (pgtab.getCount() >= INTPGLEN) {
@@ -1447,12 +1427,15 @@ class AllocFree implements IConst {
 			currPageIdx = pgtab.getCount();
 			len = currPageIdx + 1;
 			pgtab.setCount(len);
-			// append curr pg to page list...
+			// append curr pg to page list:
+			pgidx = pgtab.getFirstPageIdx();
+			page.setNext(pgidx);
+			pgtab.setFirstPageIdx(currPageIdx);
 			break;
 		}
 		page = pgtab.getPage(currPageIdx);
 		addr = pageAlloc(page);
-		return addr;
+		return addr;  // never -ve
 	}
 	
 	private int pageAlloc(Page page) {
