@@ -181,70 +181,6 @@ public class Store implements IConst {
 		}
 	}
 	
-	public int allocInt(int val) {
-		return allocVal(1, val, 0.0);
-	}
-	
-	public int allocLong(long val) {
-		return allocVal(2, val, 0.0);
-	}
-	
-	public int allocFloat(double val) {
-		return allocVal(3, 0, val);
-	}
-	
-	private int allocVal(int typ, long ival, double dval) {
-		PageTab pgtab;
-		Page page;
-		int idx;
-		PageTyp pgtyp = PageTyp.INTVAL;
-		
-		switch (typ) {
-		case 1:
-			pgtyp = PageTyp.INTVAL;
-			break;
-		case 2:
-			pgtyp = PageTyp.LONG;
-			break;
-		case 3:
-			pgtyp = PageTyp.FLOAT;
-			break;
-		}
-		for (int i=0; i < INTPGLEN; i++) {
-			pgtab = getPageTab(i);
-			if (pgtab == null) {
-				pgtab = new PageTab(pgtyp);
-				setPageTab(i, pgtab);
-			}
-			for (int j=0; j < INTPGLEN; j++) {
-				page = pgtab.getPage(j);
-				if (page == null) {
-					page = new Page(pgtyp);
-					pgtab.setPage(j, page);
-				}
-				else if (page.getPageTyp() != pgtyp) {
-					continue;
-				}
-				idx = -1; // no need
-				switch (typ) {
-				case 1:
-					idx = page.allocInt((int) ival);
-					break;
-				case 2:
-					idx = page.allocLong(ival);
-					break;
-				case 3:
-					idx = page.allocFloat(dval);
-					break;
-				}
-				if (idx >= 0) {
-					return getAddr(i, j, idx);
-				}
-			}
-		}
-		return -1;
-	}
-	
 	public AddrNode newAddrNode(int header, int addr) {
 		// reuse nodes at end of stack
 		AddrNode node;
@@ -258,7 +194,7 @@ public class Store implements IConst {
 		}
 		return node;
 	}
-	
+/*	
 	public int allocNode(Node node) {
 		int rtnval = allocNodeRtn(node);
 		if (rtnval > 0) {
@@ -371,6 +307,97 @@ public class Store implements IConst {
 		return false;
 	}
 	
+	private int allocVal(int typ, long ival, double dval) {
+		PageTab pgtab;
+		Page page;
+		int idx;
+		PageTyp pgtyp = PageTyp.INTVAL;
+		
+		switch (typ) {
+		case 1:
+			pgtyp = PageTyp.INTVAL;
+			break;
+		case 2:
+			pgtyp = PageTyp.LONG;
+			break;
+		case 3:
+			pgtyp = PageTyp.FLOAT;
+			break;
+		}
+		for (int i=0; i < INTPGLEN; i++) {
+			pgtab = getPageTab(i);
+			if (pgtab == null) {
+				pgtab = new PageTab(pgtyp);
+				setPageTab(i, pgtab);
+			}
+			for (int j=0; j < INTPGLEN; j++) {
+				page = pgtab.getPage(j);
+				if (page == null) {
+					page = new Page(pgtyp);
+					pgtab.setPage(j, page);
+				}
+				else if (page.getPageTyp() != pgtyp) {
+					continue;
+				}
+				idx = -1; // no need
+				switch (typ) {
+				case 1:
+					idx = page.allocInt((int) ival);
+					break;
+				case 2:
+					idx = page.allocLong(ival);
+					break;
+				case 3:
+					idx = page.allocFloat(dval);
+					break;
+				}
+				if (idx >= 0) {
+					return getAddr(i, j, idx);
+				}
+			}
+		}
+		return -1;
+	}
+	
+	public int allocInt(int val) {
+		return allocVal(1, val, 0.0);
+	}
+	
+	public int allocLong(long val) {
+		return allocVal(2, val, 0.0);
+	}
+	
+	public int allocFloat(double val) {
+		return allocVal(3, 0, val);
+	}
+*/	
+	public int allocInt(int val) {
+		afInt.setInt(val);
+		return afInt.alloc();
+	}
+	
+	public boolean freeInt(int addr) {
+		return afInt.free(addr);
+	}
+	
+	public int allocLong(long val) {
+		afLong.setLong(val);
+		return afLong.alloc();
+	}
+	
+	public boolean freeLong(int addr) {
+		return afLong.free(addr);
+	}
+	
+	public int allocFloat(double val) {
+		afFloat.setFloat(val);
+		return afFloat.alloc();
+	}
+	
+	public boolean freeFloat(int addr) {
+		return afFloat.free(addr);
+	}
+	
 	public int allocString(String str) {
 		afString.setStr(str);
 		return afString.alloc();
@@ -380,6 +407,42 @@ public class Store implements IConst {
 		return afString.free(addr);
 	}
 	
+	public int allocByte(boolean flag) {
+		afByte.setByte(flag);
+		return afByte.alloc();
+	}
+	
+	public boolean freeByte(int addr) {
+		return afByte.free(addr);
+	}
+	
+	public int allocNode(Node node) {
+		afNode.setNode(node);
+		return afNode.alloc();
+	}
+	
+	public boolean freeNode(int addr) {
+		return afNode.free(addr);
+	}
+	
+	public int allocList(ArrayList<AddrNode> list) {
+		afList.setList(list);
+		return afList.alloc();
+	}
+	
+	public boolean freeList(int addr) {
+		return afList.free(addr);
+	}
+	
+	public int allocMap(HashMap<String, AddrNode> map) {
+		afMap.setMap(map);
+		return afMap.alloc();
+	}
+	
+	public boolean freeMap(int addr) {
+		return afMap.free(addr);
+	}
+/*	
 	public int allocList(ArrayList<AddrNode> list) {
 		PageTab pgtab;
 		Page page;
@@ -437,7 +500,7 @@ public class Store implements IConst {
 		}
 		return -1;
 	}
-	
+*/	
 	public int getAddr(int i, int j, int k) {
 		int n;
 		n = (i << 10) | j;
@@ -1249,6 +1312,7 @@ class AllocFree implements IConst {
 		pageTyp = pgtyp;
 		datarec = new DataRec();
 		this.store = store;
+		// don't need Pgno's?
 		firstPgno = -1;
 		lastPgno = -1;
 		freePgno = -1;
@@ -1256,72 +1320,7 @@ class AllocFree implements IConst {
 		//
 		firstBookIdx = -1;
 	}
-	
-	public int allocOld() {
-		PageTab pgtab = null; // initialized upon isFirstIter
-		Page page;	// PageTab:
-		int idx;
-		int bookIdx;
-		int pageIdx;
-		boolean isFirstIter = true;
-		
-		// if current page is partial, then fill the hole
-		//   done.
-		// iterate...
-		// pageTab = bookTab[afInt.firstBookIdx]
-		// pageTabIdx = pageTab.firstPageIdx
-		// page = pageTab[pageTabIdx]
-		// if page.firstFree < 0
-		//   keep iterating
-		// assume not out of memory
-		// current page is partial
-		// fill the hole
-		
-		while (true) {
-			page = store.getCurrPage();
-			if (page.isAvailPage()) {
-				break;
-			}
-			if (isFirstIter) {
-				isFirstIter = false;
-				store.setCurrBookIdx(firstBookIdx);
-				pgtab = store.getPageTab(firstBookIdx);
-				pageIdx = pgtab.getFirstPageIdx();
-				pgtab.setCurrPageIdx(pageIdx);
-				page = store.getPage(pageIdx);
-				continue;
-			}
-			pageIdx = page.getNext();
-			if (pageIdx >= 0) {
-				pgtab.setCurrPageIdx(pageIdx);
-				page = store.getPage(pageIdx);
-				continue;
-			}
-			bookIdx = pgtab.getNextBookIdx();
-			// handle bookIdx = -1 ...
-			store.setCurrBookIdx(bookIdx);
-			pgtab = store.getPageTab(bookIdx);
-			pageIdx = pgtab.getFirstPageIdx();
-			pgtab.setCurrPageIdx(pageIdx);
-			page = store.getPage(pageIdx);
-		}
-		idx = pageAlloc(page);
-		if (idx >= 0) {
-			bookIdx = store.getCurrBookIdx();
-			pgtab = store.getPageTab(bookIdx);
-			pageIdx = pgtab.getCurrPageIdx();
-			return store.getAddr(bookIdx, pageIdx, idx);
-		}
-		return -1;
-	}
-	
-	public boolean free(int addr) {
-		// use linked list of String type PageTab objects
-		// call page.freeString(idx)...
-		
-		return false;
-	}
-	
+
 	// int bookLen;
 	// int firstFree;
 	// afInt.firstBookIdx .. afString.firstBookIdx
@@ -1360,10 +1359,10 @@ class AllocFree implements IConst {
 				return addr;
 			}
 			if (isFirstIter) {
+				isFirstIter = false;
 				currBookIdx = firstBookIdx;
 			}
 			else {
-				isFirstIter = false;
 				currBookIdx = currPgTab.getNextBookIdx();
 			}
 			if (currBookIdx >= 0) {
@@ -1404,9 +1403,11 @@ class AllocFree implements IConst {
 			}
 			nextIdx = page.getNext();
 			// handle full page:
+			// append page to full list:
 			pgidx = pgtab.getFirstDensIdx();
 			page.setNext(pgidx);
 			pgtab.setFirstDensIdx(currPageIdx);
+			// remove page from page list:
 			pgtab.setFirstPageIdx(nextIdx);
 			if (nextIdx >= 0) {
 				currPageIdx = nextIdx;
@@ -1466,6 +1467,71 @@ class AllocFree implements IConst {
 		}
 	}
 	
+	public boolean free(int addr) {
+		// use linked list of String type PageTab objects
+		// call page.freeString(idx)...
+		
+		return false;
+	}
+	/*	
+	public int allocOld() {
+		PageTab pgtab = null; // initialized upon isFirstIter
+		Page page;	// PageTab:
+		int idx;
+		int bookIdx;
+		int pageIdx;
+		boolean isFirstIter = true;
+		
+		// if current page is partial, then fill the hole
+		//   done.
+		// iterate...
+		// pageTab = bookTab[afInt.firstBookIdx]
+		// pageTabIdx = pageTab.firstPageIdx
+		// page = pageTab[pageTabIdx]
+		// if page.firstFree < 0
+		//   keep iterating
+		// assume not out of memory
+		// current page is partial
+		// fill the hole
+		
+		while (true) {
+			page = store.getCurrPage();
+			if (page.isAvailPage()) {
+				break;
+			}
+			if (isFirstIter) {
+				isFirstIter = false;
+				store.setCurrBookIdx(firstBookIdx);
+				pgtab = store.getPageTab(firstBookIdx);
+				pageIdx = pgtab.getFirstPageIdx();
+				pgtab.setCurrPageIdx(pageIdx);
+				page = store.getPage(pageIdx);
+				continue;
+			}
+			pageIdx = page.getNext();
+			if (pageIdx >= 0) {
+				pgtab.setCurrPageIdx(pageIdx);
+				page = store.getPage(pageIdx);
+				continue;
+			}
+			bookIdx = pgtab.getNextBookIdx();
+			// handle bookIdx = -1 ...
+			store.setCurrBookIdx(bookIdx);
+			pgtab = store.getPageTab(bookIdx);
+			pageIdx = pgtab.getFirstPageIdx();
+			pgtab.setCurrPageIdx(pageIdx);
+			page = store.getPage(pageIdx);
+		}
+		idx = pageAlloc(page);
+		if (idx >= 0) {
+			bookIdx = store.getCurrBookIdx();
+			pgtab = store.getPageTab(bookIdx);
+			pageIdx = pgtab.getCurrPageIdx();
+			return store.getAddr(bookIdx, pageIdx, idx);
+		}
+		return -1;
+	}
+*/	
 	public void setFirst(int firstidx) {
 		firstBookIdx = firstidx;
 	}
