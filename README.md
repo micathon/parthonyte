@@ -1,7 +1,7 @@
-# Trinodec
+# Psybergram
 * Python-like scripting language, has Lisp/Java/Pascal qualities
-* Sister language called Trinotext is like HTML, also used for config files
-* Trinodec is easier to learn than most of the popular languages, but somewhat less practical
+* Sister language called Psybertags is like HTML, also used for config files
+* Psybergram is easier to learn than most of the popular languages, but somewhat less practical
 # Info for contributors
 * For detailed info, see [Contributing](CONTRIBUTING.md) file, also if desired check out [Code of Conduct](CODE_OF_CONDUCT.md)
 * Not quite ready yet to accept contributions (currently developing code execution of Trinodec compiler)
