@@ -376,8 +376,8 @@ public class Store implements IConst {
 		return afInt.alloc();
 	}
 	
-	public boolean freeInt(int addr) {
-		return afInt.free(addr);
+	public boolean freeInt(Page page, int idx) {
+		return afInt.free(page, idx);
 	}
 	
 	public int allocLong(long val) {
@@ -385,8 +385,8 @@ public class Store implements IConst {
 		return afLong.alloc();
 	}
 	
-	public boolean freeLong(int addr) {
-		return afLong.free(addr);
+	public boolean freeLong(Page page, int idx) {
+		return afLong.free(page, idx);
 	}
 	
 	public int allocFloat(double val) {
@@ -394,8 +394,8 @@ public class Store implements IConst {
 		return afFloat.alloc();
 	}
 	
-	public boolean freeFloat(int addr) {
-		return afFloat.free(addr);
+	public boolean freeFloat(Page page, int idx) {
+		return afFloat.free(page, idx);
 	}
 	
 	public int allocString(String str) {
@@ -403,8 +403,8 @@ public class Store implements IConst {
 		return afString.alloc();
 	}
 	
-	public boolean freeString(int addr) {
-		return afString.free(addr);
+	public boolean freeString(Page page, int idx) {
+		return afString.free(page, idx);
 	}
 	
 	public int allocByte(boolean flag) {
@@ -412,8 +412,8 @@ public class Store implements IConst {
 		return afByte.alloc();
 	}
 	
-	public boolean freeByte(int addr) {
-		return afByte.free(addr);
+	public boolean freeByte(Page page, int idx) {
+		return afByte.free(page, idx);
 	}
 	
 	public int allocNode(Node node) {
@@ -421,8 +421,8 @@ public class Store implements IConst {
 		return afNode.alloc();
 	}
 	
-	public boolean freeNode(int addr) {
-		return afNode.free(addr);
+	public boolean freeNode(Page page, int idx) {
+		return afNode.free(page, idx);
 	}
 	
 	public int allocList(ArrayList<AddrNode> list) {
@@ -430,8 +430,8 @@ public class Store implements IConst {
 		return afList.alloc();
 	}
 	
-	public boolean freeList(int addr) {
-		return afList.free(addr);
+	public boolean freeList(Page page, int idx) {
+		return afList.free(page, idx);
 	}
 	
 	public int allocMap(HashMap<String, AddrNode> map) {
@@ -439,8 +439,8 @@ public class Store implements IConst {
 		return afMap.alloc();
 	}
 	
-	public boolean freeMap(int addr) {
-		return afMap.free(addr);
+	public boolean freeMap(Page page, int idx) {
+		return afMap.free(page, idx);
 	}
 /*	
 	public int allocList(ArrayList<AddrNode> list) {
@@ -1467,11 +1467,13 @@ class AllocFree implements IConst {
 		}
 	}
 	
-	public boolean free(int addr) {
-		// use linked list of String type PageTab objects
-		// call page.freeString(idx)...
+	public boolean free(Page page, int idx) {
+		// //use linked list of String type PageTab objects
+		// //call page.freeString(idx)...
+		// call pageFree(page, idx)
+		// error out on failure
 		
-		return false;
+		return true;
 	}
 	/*	
 	public int allocOld() {
