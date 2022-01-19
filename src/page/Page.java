@@ -22,8 +22,6 @@ public class Page implements IConst {
 	private HashMap<?, ?> maps[];
 	private boolean gcbits[];  // will be used for garbage collection (future)
 	//
-	private int pageLen;  // same as valcount;
-	private int firstFree;  // same as freeidx;
 	private int nextIdx;  // index to PageTab
 	private int prevIdx;  // index to PageTab
 	
@@ -87,6 +85,10 @@ public class Page implements IConst {
 		valcount++;
 	}
 	
+	public void setValCount(int val) {
+		valcount = val;
+	}
+	
 	public int getIdxVal(int idx) {
 		return (idx & 0xFFF);
 	}
@@ -100,11 +102,11 @@ public class Page implements IConst {
 	}
 	
 	public int getFirstFree() {
-		return firstFree;
+		return freeidx;
 	}
 	
 	public void setFirstFree(int idx) {
-		firstFree = idx;
+		freeidx = idx;
 	}
 	
 	public byte getByte(int idx) {
@@ -319,6 +321,7 @@ public class Page implements IConst {
 			return valcount++;
 		}
 		nextidx = getIntVal(freeidx);
+		nextidx = freeValToIdx(nextidx);
 		setIntVal(freeidx, val);
 		rtnval = freeidx;
 		freeidx = nextidx;
@@ -327,6 +330,8 @@ public class Page implements IConst {
 	}
 	
 	public boolean freeInt(int idx) {
+		int freeVal;
+		
 		if (idx < 0 || idx >= INTPGLEN) {
 			return false;  
 		}
@@ -343,34 +348,56 @@ public class Page implements IConst {
 			else {
 				freeidx = idx;
 			}
-			setIntVal(idx, -1);
+			freeVal = idxToFreeVal(-1);
+			setIntVal(idx, freeVal);
 		}
 		else if (idx >= valcount) {
 			return false;  
 		}
 		else {
-			setIntVal(idx, freeidx);
+			freeVal = idxToFreeVal(freeidx);
+			setIntVal(idx, freeVal);
 			freeidx = idx;
 		}
 		return true;
 	}
-/*	
-	public boolean freeInt(int idx) {
-		int i = freeidx;
-		if (valcount <= 0 || idx >= valcount) {
-			return false;
+	
+	private int idxToFreeVal(int idx) {
+		int rtnval = getLoFreeVal();
+		if (idx == -1) {
+			return rtnval;
 		}
-		while (i >= 0) {
-			if (i == idx) {
-				return false;  // already in free list
-			}
-			i = getIntVal(i);
-		}
-		setIntVal(idx, freeidx);
-		freeidx = idx;
-		return true;
+		rtnval += idx + 1;
+		return rtnval;
 	}
-*/	
+	
+	private int freeValToIdx(int val) {
+		int rtnval = getLoFreeVal();
+		if (val == rtnval) {
+			return -1;
+		}
+		rtnval = val - rtnval;
+		rtnval--;
+		return rtnval;
+	}
+
+	private int getLoFreeVal() {
+		int rtnval = 0x80000001;
+		return rtnval;
+	}
+	
+	private int getHiFreeVal() {
+		int rtnval;
+		rtnval = getLoFreeVal() + cellcount;
+		return rtnval;
+	}
+	
+	private boolean inFreeRange(int val) {
+		boolean rtnval;
+		rtnval = (val >= getLoFreeVal() && val <= getHiFreeVal());
+		return rtnval;
+	}
+
 	public int allocLong(long val) {
 		int rtnval;
 		int nextidx;
@@ -383,6 +410,7 @@ public class Page implements IConst {
 			return valcount++;
 		}
 		nextidx = (int) getLong(freeidx);
+		nextidx = freeValToIdx(nextidx);
 		setLong(freeidx, val);
 		rtnval = freeidx;
 		freeidx = nextidx;
@@ -390,6 +418,8 @@ public class Page implements IConst {
 	}
 	
 	public boolean freeLong(int idx) {
+		int freeVal;
+		
 		if (idx < 0 || idx >= DBLPGLEN) {
 			return false;  
 		}
@@ -406,13 +436,15 @@ public class Page implements IConst {
 			else {
 				freeidx = idx;
 			}
-			setLong(idx, -1);
+			freeVal = idxToFreeVal(-1);
+			setLong(idx, freeVal);
 		}
 		else if (idx >= valcount) {
 			return false;  
 		}
 		else {
-			setLong(idx, freeidx);
+			freeVal = idxToFreeVal(freeidx);
+			setLong(idx, freeVal);
 			freeidx = idx;
 		}
 		return true;
@@ -446,6 +478,7 @@ public class Page implements IConst {
 			return valcount++;
 		}
 		nextidx = (int) getFloat(freeidx);
+		nextidx = freeValToIdx(nextidx);
 		setFloat(freeidx, val);
 		rtnval = freeidx;
 		freeidx = nextidx;
@@ -453,6 +486,8 @@ public class Page implements IConst {
 	}
 	
 	public boolean freeFloat(int idx) {
+		int freeVal;
+		
 		if (idx < 0 || idx >= DBLPGLEN) {
 			return false;  
 		}
@@ -469,13 +504,15 @@ public class Page implements IConst {
 			else {
 				freeidx = idx;
 			}
-			setFloat(idx, -1);
+			freeVal = idxToFreeVal(-1);
+			setFloat(idx, freeVal);
 		}
 		else if (idx >= valcount) {
 			return false;  
 		}
 		else {
-			setFloat(idx, freeidx);
+			freeVal = idxToFreeVal(freeidx);
+			setFloat(idx, freeVal);
 			freeidx = idx;
 		}
 		return true;
@@ -516,6 +553,7 @@ public class Page implements IConst {
 		catch (NumberFormatException exc) {
 			return -1;
 		}
+		nextidx = freeValToIdx(nextidx);
 		setString(freeidx, val);
 		rtnval = freeidx;
 		freeidx = nextidx;
@@ -523,6 +561,8 @@ public class Page implements IConst {
 	}
 	
 	public boolean freeString(int idx) {
+		int freeVal;
+		
 		if (idx < 0 || idx >= INTPGLEN) {
 			return false;  
 		}
@@ -539,13 +579,15 @@ public class Page implements IConst {
 			else {
 				freeidx = idx;
 			}
-			setString(idx, "-1");
+			freeVal = idxToFreeVal(-1);
+			setString(idx, "" + freeVal);
 		}
 		else if (idx >= valcount) {
 			return false;  
 		}
 		else {
-			setString(idx, "" + freeidx);
+			freeVal = idxToFreeVal(freeidx);
+			setString(idx, "" + freeVal);
 			freeidx = idx;
 		}
 		return true;
@@ -574,6 +616,7 @@ public class Page implements IConst {
 */	
 	@SuppressWarnings("unchecked")
 	public int allocList(ArrayList<AddrNode> arrlist) {
+		// not updated with freeValToIdx()
 		int rtnval;
 		int nextidx;
 		ArrayList<AddrNode> list;
@@ -597,6 +640,7 @@ public class Page implements IConst {
 	
 	@SuppressWarnings("unchecked")
 	public boolean freeList(int idx) {
+		// not updated with idxToFreeVal()
 		List<?> list;
 		ArrayList<AddrNode> arrlist;
 		AddrNode node;
@@ -648,6 +692,7 @@ public class Page implements IConst {
 	
 	@SuppressWarnings("unchecked")
 	public int allocMap(HashMap<String, AddrNode> strmap) {
+		// not updated with freeValToIdx()
 		int rtnval;
 		int nextidx;
 		HashMap<String, AddrNode> map;
@@ -671,6 +716,7 @@ public class Page implements IConst {
 	
 	@SuppressWarnings("unchecked")
 	public boolean freeMap(int idx) {
+		// not updated with idxToFreeVal()
 		HashMap<?, ?> map;
 		HashMap<String, AddrNode> strmap;
 		AddrNode node;
@@ -699,7 +745,7 @@ public class Page implements IConst {
 	}
 	
 	public boolean isAvailPage() {
-		boolean isAvail = (firstFree >= 0) || (pageLen < INTPGLEN);
+		boolean isAvail = (freeidx >= 0) || (valcount < INTPGLEN);
 		return isAvail;
 	}
 	
@@ -717,6 +763,28 @@ public class Page implements IConst {
 	
 	public void setPrev(int idx) {
 		prevIdx = idx;
+	}
+	
+	public boolean isFullPage() {
+		boolean isFull;
+		isFull = 
+			(valcount >= getMaxPageLen(pgtyp)) && 
+			(freeidx < 0);
+		return isFull;
+	}
+	
+	private int getMaxPageLen(PageTyp pgtyp) {
+		switch (pgtyp) {
+		case FLOAT: return DBLPGLEN;
+		case LONG: return DBLPGLEN;
+		case INTVAL: return INTPGLEN;
+		case STRING: return INTPGLEN;
+		case LIST: return INTPGLEN;
+		case MAP: return INTPGLEN;
+		case BYTE: return BYTPGLEN;
+		case NODE: return WRDPGLEN;
+		default: return 0;
+		}
 	}
 	
 }

@@ -46,8 +46,8 @@ public class Store implements IConst {
 	// Page:
 	// int nextIdx;  // index to PageTab
 	// int prevIdx;  // index to PageTab
-	// int pageLen;  // same as valcount;
-	// int firstFree;  // same as freeidx;
+	// int valcount;
+	// int freeidx;
 	
 	public Store() {
 		PageTab pgtab;
@@ -1334,8 +1334,8 @@ class AllocFree implements IConst {
 	// nextIdx, prevIdx: 3 linked lists
 	
 	// Page:
-	// int pageLen;  // same as valcount;
-	// int firstFree;  // same as freeidx;
+	// int valcount;
+	// int freeidx;  
 	
 	public int alloc() {
 		Page page;
@@ -1468,72 +1468,18 @@ class AllocFree implements IConst {
 	}
 	
 	public boolean free(Page page, int idx) {
-		// //use linked list of String type PageTab objects
-		// //call page.freeString(idx)...
 		// call pageFree(page, idx)
 		// error out on failure
+		// if valcount = 0 then iterate
 		
+		if (!pageFree(page, idx)) {
+			return false;
+		}
+		//
+
 		return true;
 	}
-	/*	
-	public int allocOld() {
-		PageTab pgtab = null; // initialized upon isFirstIter
-		Page page;	// PageTab:
-		int idx;
-		int bookIdx;
-		int pageIdx;
-		boolean isFirstIter = true;
-		
-		// if current page is partial, then fill the hole
-		//   done.
-		// iterate...
-		// pageTab = bookTab[afInt.firstBookIdx]
-		// pageTabIdx = pageTab.firstPageIdx
-		// page = pageTab[pageTabIdx]
-		// if page.firstFree < 0
-		//   keep iterating
-		// assume not out of memory
-		// current page is partial
-		// fill the hole
-		
-		while (true) {
-			page = store.getCurrPage();
-			if (page.isAvailPage()) {
-				break;
-			}
-			if (isFirstIter) {
-				isFirstIter = false;
-				store.setCurrBookIdx(firstBookIdx);
-				pgtab = store.getPageTab(firstBookIdx);
-				pageIdx = pgtab.getFirstPageIdx();
-				pgtab.setCurrPageIdx(pageIdx);
-				page = store.getPage(pageIdx);
-				continue;
-			}
-			pageIdx = page.getNext();
-			if (pageIdx >= 0) {
-				pgtab.setCurrPageIdx(pageIdx);
-				page = store.getPage(pageIdx);
-				continue;
-			}
-			bookIdx = pgtab.getNextBookIdx();
-			// handle bookIdx = -1 ...
-			store.setCurrBookIdx(bookIdx);
-			pgtab = store.getPageTab(bookIdx);
-			pageIdx = pgtab.getFirstPageIdx();
-			pgtab.setCurrPageIdx(pageIdx);
-			page = store.getPage(pageIdx);
-		}
-		idx = pageAlloc(page);
-		if (idx >= 0) {
-			bookIdx = store.getCurrBookIdx();
-			pgtab = store.getPageTab(bookIdx);
-			pageIdx = pgtab.getCurrPageIdx();
-			return store.getAddr(bookIdx, pageIdx, idx);
-		}
-		return -1;
-	}
-*/	
+
 	public void setFirst(int firstidx) {
 		firstBookIdx = firstidx;
 	}
