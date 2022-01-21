@@ -329,37 +329,38 @@ public class Page implements IConst {
 		return rtnval;
 	}
 	
-	public boolean freeInt(int idx) {
+	public int freeNum(int idx) {
 		int freeVal;
 		
 		if (idx < 0 || idx >= INTPGLEN) {
-			return false;  
+			return RESERR;  
 		}
 		if (valcount <= 0) { 
-			return false;
+			return RESERR;
 		}
 		if (freeidx < 0) {
 			if (idx == (valcount - 1)) {
+				// iter if free underneath it...
 				valcount--;
 			}
 			else if (idx >= valcount) {
-				return false;  
+				return RESERR;  
 			}
 			else {
 				freeidx = idx;
 			}
 			freeVal = idxToFreeVal(-1);
-			setIntVal(idx, freeVal);
+			setNumVal(idx, freeVal);
 		}
 		else if (idx >= valcount) {
-			return false;  
+			return RESERR;  
 		}
 		else {
 			freeVal = idxToFreeVal(freeidx);
-			setIntVal(idx, freeVal);
+			setNumVal(idx, freeVal);
 			freeidx = idx;
 		}
-		return true;
+		return RESOK;
 	}
 	
 	private int idxToFreeVal(int idx) {
@@ -396,6 +397,15 @@ public class Page implements IConst {
 		boolean rtnval;
 		rtnval = (val >= getLoFreeVal() && val <= getHiFreeVal());
 		return rtnval;
+	}
+	
+	private void setNumVal(int idx, int val) {
+		switch (pgtyp) {
+		case INTVAL: setIntVal(idx, val);
+		case LONG: setLong(idx, val);
+		case FLOAT: setFloat(idx, val);
+		case STRING: setString(idx, "" + val);
+		}
 	}
 
 	public int allocLong(long val) {

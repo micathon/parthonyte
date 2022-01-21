@@ -1453,31 +1453,40 @@ class AllocFree implements IConst {
 		}
 	}
 	
-	private boolean pageFree(Page page, int idx) {
+	private int pageFree(Page page, int idx) {
 		switch (pageTyp) {
-		case INTVAL: return page.freeInt(idx);
-		case FLOAT: return page.freeFloat(idx);
-		case STRING: return page.freeString(idx);
-		case LONG: return page.freeLong(idx);
-		case BYTE: return page.freeByte(idx);
-		case NODE: return page.freeNode(idx);
-		case LIST: return page.freeList(idx);
-		case MAP: return page.freeMap(idx);
-		default: return false;
+		case INTVAL: return page.freeNum(idx);
+		case FLOAT: return boolint(page.freeFloat(idx));
+		case STRING: return boolint(page.freeString(idx));
+		case LONG: return boolint(page.freeLong(idx));
+		case BYTE: return boolint(page.freeByte(idx));
+		case NODE: return boolint(page.freeNode(idx));
+		case LIST: return boolint(page.freeList(idx));
+		case MAP: return boolint(page.freeMap(idx));
+		default: return RESERR;
 		}
 	}
 	
 	public boolean free(Page page, int idx) {
 		// call pageFree(page, idx)
 		// error out on failure
-		// if valcount = 0 then iterate
+		// if result = RESFREE then iterate
+		int rtnval;
 		
-		if (!pageFree(page, idx)) {
+		rtnval = pageFree(page, idx); 
+		if (rtnval == RESERR) {
 			return false;
+		}
+		if (rtnval == RESOK) {
+			return true;
 		}
 		//
 
 		return true;
+	}
+	
+	private int boolint(boolean flag) {
+		return flag ? RESOK : RESERR;
 	}
 
 	public void setFirst(int firstidx) {
