@@ -2,7 +2,7 @@ package iconst;
 
 public interface IConst {
 	boolean debug = false;
-	boolean isrtbug = true;
+	boolean isrtbug = false;
 	int WRDPGLEN = 2048;
 	int INTPGLEN = 1024;
 	int DBLPGLEN = 512;
@@ -12,4 +12,7 @@ public interface IConst {
 	int NODESIZ = 5;
 	int NODECOUNT = WRDPGLEN / NODESIZ;
 	String DEFPROMPT = "> ";
+	int RESERR = -1;
+	int RESOK = 0;
+	int RESFREE = 1;
 }
