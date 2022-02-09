@@ -338,27 +338,28 @@ public class Page implements IConst {
 		if (valcount <= 0) { 
 			return RESERR;
 		}
+		if (idx >= valcount) {
+			return RESERR;  
+		}
 		if (freeidx < 0) {
-			if (idx == (valcount - 1)) {
-				// iter if free underneath it...
-				valcount--;
+			if (idx < (valcount - 1)) {
+				freeidx = idx;
+				freeVal = idxToFreeVal(-1);
+				setNumVal(idx, freeVal);
 			}
-			else if (idx >= valcount) {
-				return RESERR;  
+			else if (valcount == 1) {
+				valcount = 0;
+				return RESFREE;
 			}
 			else {
-				freeidx = idx;
+				valcount--;
 			}
-			freeVal = idxToFreeVal(-1);
-			setNumVal(idx, freeVal);
-		}
-		else if (idx >= valcount) {
-			return RESERR;  
 		}
 		else {
 			freeVal = idxToFreeVal(freeidx);
 			setNumVal(idx, freeVal);
 			freeidx = idx;
+			// snip out and iter if top of valcount...
 		}
 		return RESOK;
 	}
