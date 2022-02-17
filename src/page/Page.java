@@ -457,6 +457,14 @@ public class Page implements IConst {
 	}
 	
 	private int getNumVal(int idx) {
+		idx = getRawVal(idx);
+		if (idx == -1) {
+			return -1;
+		}
+		return freeValToIdx(idx);
+	}
+	
+	private int getRawVal(int idx) {
 		String buf;
 		switch (pgtyp) {
 		case INTVAL: return getIntVal(idx);
