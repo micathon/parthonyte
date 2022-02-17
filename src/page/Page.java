@@ -359,9 +359,56 @@ public class Page implements IConst {
 			freeVal = idxToFreeVal(freeidx);
 			setNumVal(idx, freeVal);
 			freeidx = idx;
-			// snip out and iter if top of valcount...
+			// snip out and iter if top of valcount:
+			if (idx >= (valcount - 1)) {
+				return shrinkFreeList(idx);
+			}
 		}
 		return RESOK;
+	}
+	
+	private int shrinkFreeList(int idx) {
+		int i, j, k;
+		
+		if (idx < 0) {
+			return RESERR;
+		}
+		j = -1;
+		while (idx >= (valcount - 1)) {
+			if (!inFreeRange(idx)) {
+				return RESOK;
+			}
+			i = freeidx;
+			while (i != idx && i >= 0) {
+				j = i;
+				i = getNumVal(i);
+			}
+			if (i == idx) {
+				k = getNumVal(i);
+				if (j >= 0) {
+					setNumVal(j, idxToFreeVal(k));
+				}
+				else {
+					freeidx = idxToFreeVal(k);
+				}
+				setNumVal(k, idxToFreeVal(-1));
+			}
+			else if (i < 0) {
+				return RESOK;
+			}
+			else {
+				return RESERR;
+			}
+			valcount--;
+			if (valcount <= 0) {
+				return RESFREE;
+			}
+			if (freeidx < 0) {
+				return RESOK;
+			}
+			idx--;
+		}
+		return RESERR;
 	}
 	
 	private int idxToFreeVal(int idx) {
@@ -407,6 +454,25 @@ public class Page implements IConst {
 		case FLOAT: setFloat(idx, val);
 		case STRING: setString(idx, "" + val);
 		}
+	}
+	
+	private int getNumVal(int idx) {
+		String buf;
+		switch (pgtyp) {
+		case INTVAL: return getIntVal(idx);
+		case LONG: return (int) getLong(idx);
+		case FLOAT: return (int) getFloat(idx);
+		case STRING: 
+			buf = getString(idx);
+			try {
+				idx = Integer.parseInt(buf);
+			}
+			catch (NumberFormatException exc) {
+				return -1;
+			}
+			return idx;
+		}
+		return -1;
 	}
 
 	public int allocLong(long val) {
