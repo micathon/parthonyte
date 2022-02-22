@@ -1388,9 +1388,10 @@ class AllocFree implements IConst {
 	
 	public int allocInner() {
 		PageTab pgtab;
-		Page page;
+		Page page, pg;
 		int addr;
 		int nextIdx;
+		int prevIdx;
 		int firstFree;
 		int pgidx;
 		int len;
@@ -1408,7 +1409,15 @@ class AllocFree implements IConst {
 			page.setNext(pgidx);
 			pgtab.setFirstDensIdx(currPageIdx);
 			// remove page from page list:
-			pgtab.setFirstPageIdx(nextIdx);
+			prevIdx = page.getPrev();
+			if (prevIdx < 0) {
+				pgtab.setFirstPageIdx(nextIdx);
+			}
+			else {
+				pg = pgtab.getPage(prevIdx);
+				pg.setNext(nextIdx);
+			}
+			page.setPrev(-1);
 			if (nextIdx >= 0) {
 				currPageIdx = nextIdx;
 				continue;
@@ -1455,10 +1464,11 @@ class AllocFree implements IConst {
 	
 	private int pageFree(Page page, int idx) {
 		switch (pageTyp) {
-		case INTVAL: return page.freeNum(idx);
-		case FLOAT: return boolint(page.freeFloat(idx));
-		case STRING: return boolint(page.freeString(idx));
-		case LONG: return boolint(page.freeLong(idx));
+		case INTVAL: 
+		case FLOAT:
+		case STRING: 
+		case LONG:
+			return page.freeNum(idx);
 		case BYTE: return boolint(page.freeByte(idx));
 		case NODE: return boolint(page.freeNode(idx));
 		case LIST: return boolint(page.freeList(idx));
@@ -1470,7 +1480,14 @@ class AllocFree implements IConst {
 	public boolean free(Page page, int idx) {
 		// call pageFree(page, idx)
 		// error out on failure
-		// if result = RESFREE then iterate
+		// if result = RESFREE then keep going
+		PageTab pgtab;
+		Page pg;
+		int addr;
+		int nextIdx;
+		int prevIdx;
+		int firstFree;
+		int pgidx;
 		int rtnval;
 		
 		rtnval = pageFree(page, idx); 
@@ -1480,7 +1497,46 @@ class AllocFree implements IConst {
 		if (rtnval == RESOK) {
 			return true;
 		}
-		//
+		nextIdx = page.getNext();
+		// handle empty page:
+		// append page to empty list:
+		pgidx = pgtab.getFirstFreeIdx();
+		page.setNext(pgidx);
+		pgtab.setFirstFreeIdx(currPageIdx);
+		// remove page from page list:
+		prevIdx = page.getPrev();
+		if (prevIdx < 0) {
+			pgtab.setFirstPageIdx(nextIdx);
+		}
+		else {
+			pg = pgtab.getPage(prevIdx);
+			pg.setNext(nextIdx);
+		}
+		page.setPrev(-1);
+		if ((pgtab.getFirstPageIdx() >= 0) || (
+			pgtab.getFirstDensIdx() >= 0)) 
+		{
+			return true;
+		}
+		
+		
+
+		
+		
+
+		
+		firstFree = pgtab.getFirstFreeIdx();
+		if (firstFree >= 0) {
+			currPageIdx = firstFree;
+			// remove page from free list:
+			page = pgtab.getPage(currPageIdx);
+			nextIdx = page.getNext();
+			pgtab.setFirstFreeIdx(nextIdx);
+			continue;
+		}
+		if (pgtab.getCount() >= INTPGLEN) {
+			return -1;  // curr PageTab is full
+		}
 
 		return true;
 	}
