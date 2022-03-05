@@ -689,6 +689,7 @@ class PageTab implements IConst {
 	private int spareStkIdx;
 	private int maxStkIdx;
 	//
+	private boolean isFree;
 	private int nextIdx;  // index to bookTab
 	private int prevIdx;  // index to bookTab
 	private int firstFreeIdx;
@@ -706,6 +707,7 @@ class PageTab implements IConst {
 		page = new Page(pgtyp);
 		pageTab[0] = page;
 		pageTabLen = 1;
+		isFree = false;
 	}
 	
 	public PageTab() {
@@ -1422,6 +1424,7 @@ class AllocFree implements IConst {
 				currPageIdx = nextIdx;
 				continue;
 			}
+			//##
 			firstFree = pgtab.getFirstFreeIdx();
 			if (firstFree >= 0) {
 				currPageIdx = firstFree;
@@ -1497,6 +1500,7 @@ class AllocFree implements IConst {
 		if (rtnval == RESOK) {
 			return true;
 		}
+		pgtab = store.getPageTab(currBookIdx);
 		nextIdx = page.getNext();
 		// handle empty page:
 		// append page to empty list:
@@ -1513,18 +1517,19 @@ class AllocFree implements IConst {
 			pg.setNext(nextIdx);
 		}
 		page.setPrev(-1);
+		//
 		if ((pgtab.getFirstPageIdx() >= 0) || (
 			pgtab.getFirstDensIdx() >= 0)) 
 		{
 			return true;
 		}
-		
-		
-
-		
+		// empty pgtab record
 		
 
 		
+		
+
+		// garbage...
 		firstFree = pgtab.getFirstFreeIdx();
 		if (firstFree >= 0) {
 			currPageIdx = firstFree;
