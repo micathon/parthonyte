@@ -1410,6 +1410,8 @@ class AllocFree implements IConst {
 			pgidx = pgtab.getFirstDensIdx();
 			page.setNext(pgidx);
 			pgtab.setFirstDensIdx(currPageIdx);
+			pg = pgtab.getPage(pgidx);
+			pg.setPrev(currPageIdx);
 			// remove page from page list:
 			prevIdx = page.getPrev();
 			if (prevIdx < 0) {
@@ -1422,9 +1424,10 @@ class AllocFree implements IConst {
 			page.setPrev(-1);
 			if (nextIdx >= 0) {
 				currPageIdx = nextIdx;
+				page = pgtab.getPage(currPageIdx);
+				page.setPrev(prevIdx);
 				continue;
 			}
-			//##
 			firstFree = pgtab.getFirstFreeIdx();
 			if (firstFree >= 0) {
 				currPageIdx = firstFree;
@@ -1432,7 +1435,12 @@ class AllocFree implements IConst {
 				page = pgtab.getPage(currPageIdx);
 				nextIdx = page.getNext();
 				pgtab.setFirstFreeIdx(nextIdx);
-				continue;
+				if (nextIdx < 0) {
+					break;
+				}
+				pg = pgtab.getPage(nextIdx);
+				pg.setPrev(-1);
+				break;
 			}
 			if (pgtab.getCount() >= INTPGLEN) {
 				return -1;  // curr PageTab is full
@@ -1440,10 +1448,17 @@ class AllocFree implements IConst {
 			currPageIdx = pgtab.getCount();
 			len = currPageIdx + 1;
 			pgtab.setCount(len);
+			page = pgtab.getPage(currPageIdx);
+			if (page == null) {
+				page = new Page(pageTyp);
+			}
 			// append curr pg to page list:
 			pgidx = pgtab.getFirstPageIdx();
 			page.setNext(pgidx);
 			pgtab.setFirstPageIdx(currPageIdx);
+			pg = pgtab.getPage(pgidx);
+			pg.setPrev(currPageIdx);
+			page.setPrev(-1);
 			break;
 		}
 		page = pgtab.getPage(currPageIdx);
