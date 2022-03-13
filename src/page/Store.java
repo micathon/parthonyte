@@ -1340,7 +1340,10 @@ class AllocFree implements IConst {
 	// int freeidx;  
 	
 	public int alloc() {
+		// use singly linked list
+		// add doubly linked list later, if necessary
 		Page page;
+		PageTab pgtab;
 		boolean isFirstIter = true;
 		int addr;
 		int bookLen;
@@ -1379,6 +1382,11 @@ class AllocFree implements IConst {
 				currBookIdx = bookLen;
 				bookLen++;
 				store.setBookLen(bookLen);
+				pgtab = store.getPageTab(currBookIdx);
+				if (pgtab == null) {
+					pgtab = new PageTab(pageTyp);
+					store.setPageTab(currBookIdx, pgtab);
+				}
 				continue;
 			}
 			currBookIdx = firstFree;
