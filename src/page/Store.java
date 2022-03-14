@@ -1516,7 +1516,7 @@ class AllocFree implements IConst {
 		int pgidx;
 		int rtnval;
 		
-		rtnval = pageFree(page, idx); 
+		rtnval = pageFree(page, idx);
 		if (rtnval == RESERR) {
 			return false;
 		}
@@ -1528,6 +1528,10 @@ class AllocFree implements IConst {
 		// handle empty page:
 		// append page to empty list:
 		pgidx = pgtab.getFirstFreeIdx();
+		if (pgidx >= 0) {
+			pg = pgtab.getPage(pgidx);
+			pg.setPrev(currPageIdx);
+		}
 		page.setNext(pgidx);
 		pgtab.setFirstFreeIdx(currPageIdx);
 		// remove page from page list:
@@ -1541,8 +1545,9 @@ class AllocFree implements IConst {
 		}
 		page.setPrev(-1);
 		//
-		if ((pgtab.getFirstPageIdx() >= 0) || (
-			pgtab.getFirstDensIdx() >= 0)) 
+		if (!(
+			(pgtab.getFirstPageIdx() < 0) && 
+			(pgtab.getFirstDensIdx() < 0))) 
 		{
 			return true;
 		}
@@ -1551,20 +1556,6 @@ class AllocFree implements IConst {
 
 		
 		
-
-		// garbage...
-		firstFree = pgtab.getFirstFreeIdx();
-		if (firstFree >= 0) {
-			currPageIdx = firstFree;
-			// remove page from free list:
-			page = pgtab.getPage(currPageIdx);
-			nextIdx = page.getNext();
-			pgtab.setFirstFreeIdx(nextIdx);
-			continue;
-		}
-		if (pgtab.getCount() >= INTPGLEN) {
-			return -1;  // curr PageTab is full
-		}
 
 		return true;
 	}
