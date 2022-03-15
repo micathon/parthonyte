@@ -1514,6 +1514,7 @@ class AllocFree implements IConst {
 		int prevIdx;
 		int firstFree;
 		int pgidx;
+		int pageLen;
 		int rtnval;
 		
 		rtnval = pageFree(page, idx);
@@ -1544,12 +1545,34 @@ class AllocFree implements IConst {
 			pg.setNext(nextIdx);
 		}
 		page.setPrev(-1);
-		//
-		if (!(
-			(pgtab.getFirstPageIdx() < 0) && 
-			(pgtab.getFirstDensIdx() < 0))) 
-		{
+		pageLen = pgtab.getCount();
+		if (currPageIdx < (pageLen - 1)) {
 			return true;
+		}
+		while (true) {
+			pageLen--;
+			pgtab.setCount(pageLen);
+			if (pageLen <= 0) {
+				break;
+			}
+			page = pgtab.getPage(pageLen - 1);
+			if (page.getValCount() > 0) {
+				return true;
+			}
+			// snip out of empty list
+			nextIdx = page.getNext();
+			prevIdx = page.getPrev();
+			if (nextIdx >= 0) { 
+				pg = pgtab.getPage(nextIdx);
+				pg.setPrev(prevIdx);
+			}
+			if (prevIdx >= 0) {
+				pg = pgtab.getPage(prevIdx);
+				pg.setNext(nextIdx);
+			}
+			else {
+				pgtab.setFirstFreeIdx(nextIdx);
+			}
 		}
 		// empty pgtab record
 		
