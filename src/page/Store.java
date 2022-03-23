@@ -691,7 +691,7 @@ class PageTab implements IConst {
 	//
 	private boolean isFree;
 	private int nextIdx;  // index to bookTab
-	private int prevIdx;  // index to bookTab
+	//private int prevIdx;  // index to bookTab
 	private int firstFreeIdx;
 	private int firstPageIdx;
 	private int firstDensIdx;
@@ -707,7 +707,7 @@ class PageTab implements IConst {
 		page = new Page(pgtyp);
 		pageTab[0] = page;
 		pageTabLen = 1;
-		isFree = false;
+		isFree = true;
 	}
 	
 	public PageTab() {
@@ -756,6 +756,14 @@ class PageTab implements IConst {
 	
 	public void setCount(int n) {
 		pageTabLen = n;
+	}
+	
+	public boolean getFree() {
+		return isFree;
+	}
+	
+	public void setFree(boolean flag) {
+		isFree = flag;
 	}
 	
 	public int getCurrPageIdx() {
@@ -1300,10 +1308,6 @@ class AllocFree implements IConst {
 	private PageTyp pageTyp;
 	private DataRec datarec;
 	private Store store;
-	private int firstPgno;
-	private int lastPgno;
-	private int freePgno;
-	private int fullPgno;
 	//
 	private int firstBookIdx;
 	private int currPageIdx;
@@ -1314,13 +1318,8 @@ class AllocFree implements IConst {
 		pageTyp = pgtyp;
 		datarec = new DataRec();
 		this.store = store;
-		// don't need Pgno's?
-		firstPgno = -1;
-		lastPgno = -1;
-		freePgno = -1;
-		fullPgno = -1;
-		//
 		firstBookIdx = -1;
+		currBookIdx = -1;
 	}
 
 	// int bookLen;
@@ -1354,7 +1353,9 @@ class AllocFree implements IConst {
 				currPgTab = store.getPageTab(currBookIdx);
 				currPageIdx = currPgTab.getFirstPageIdx();
 			}
-			page = currPgTab.getPage(currPageIdx);
+			//## deal with firstBookIdx = -1 condition...
+			currPgTab.setFree(false);
+			page = currPgTab.getPage(currPageIdx); // currPgTab = ?
 			addr = pageAlloc(page);
 			if (addr >= 0) {
 				return addr;
@@ -1508,10 +1509,11 @@ class AllocFree implements IConst {
 		// error out on failure
 		// if result = RESFREE then keep going
 		PageTab pgtab;
+		PageTab currPgTab;
 		Page pg;
-		int addr;
 		int nextIdx;
 		int prevIdx;
+		int bookIdx;
 		int firstFree;
 		int pgidx;
 		int pageLen;
@@ -1544,6 +1546,10 @@ class AllocFree implements IConst {
 			pg = pgtab.getPage(prevIdx);
 			pg.setNext(nextIdx);
 		}
+		if (nextIdx >= 0) {
+			pg = pgtab.getPage(nextIdx);
+			pg.setPrev(prevIdx);
+		}
 		page.setPrev(-1);
 		pageLen = pgtab.getCount();
 		if (currPageIdx < (pageLen - 1)) {
@@ -1575,11 +1581,28 @@ class AllocFree implements IConst {
 			}
 		}
 		// empty pgtab record
-		
-
-		
-		
-
+		pgtab.setFree(true);
+		nextIdx = pgtab.getNextBookIdx();
+		currPgTab = null;
+		bookIdx = firstBookIdx;
+		while (bookIdx != currBookIdx) {
+			currPgTab = store.getPageTab(bookIdx);
+			bookIdx = currPgTab.getNextBookIdx();
+		}
+		if (currPgTab == null) {
+			firstBookIdx = nextIdx;
+		}
+		else {
+			currPgTab.setNextBookIdx(nextIdx);
+		}
+		firstFree = store.getFirstFree();
+		pgtab.setNextBookIdx(firstFree);
+		store.setFirstFree(currBookIdx);
+		while (bookIdx == 5796) {
+			
+			
+			break;
+		}
 		return true;
 	}
 	
