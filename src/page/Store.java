@@ -1340,7 +1340,6 @@ class AllocFree implements IConst {
 	
 	public int alloc() {
 		// use singly linked list
-		// add doubly linked list later, if necessary
 		Page page;
 		PageTab pgtab;
 		boolean isFirstIter = true;
@@ -1353,16 +1352,17 @@ class AllocFree implements IConst {
 				currPgTab = store.getPageTab(currBookIdx);
 				currPageIdx = currPgTab.getFirstPageIdx();
 			}
-			//## deal with firstBookIdx = -1 condition...
-			currPgTab.setFree(false);
-			page = currPgTab.getPage(currPageIdx); // currPgTab = ?
-			addr = pageAlloc(page);
-			if (addr >= 0) {
-				return addr;
-			}
-			addr = allocInner();
-			if (addr >= 0) {
-				return addr;
+			if (firstBookIdx >= 0) {
+				currPgTab.setFree(false);
+				page = currPgTab.getPage(currPageIdx);
+				addr = pageAlloc(page);
+				if (addr >= 0) {
+					return addr;
+				}
+				addr = allocInner();
+				if (addr >= 0) {
+					return addr;
+				}
 			}
 			if (isFirstIter) {
 				isFirstIter = false;
@@ -1388,12 +1388,16 @@ class AllocFree implements IConst {
 					pgtab = new PageTab(pageTyp);
 					store.setPageTab(currBookIdx, pgtab);
 				}
-				continue;
 			}
-			currBookIdx = firstFree;
-			currPgTab = store.getPageTab(firstFree);
-			firstFree = currPgTab.getNextBookIdx();
-			currPgTab.setFirstFreeIdx(firstFree);
+			else {
+				currBookIdx = firstFree;
+				currPgTab = store.getPageTab(firstFree);
+				firstFree = currPgTab.getNextBookIdx();
+				currPgTab.setFirstFreeIdx(firstFree);
+			}
+			if (firstBookIdx < 0) {
+				firstBookIdx = currBookIdx;
+			}
 		}
 	}
 	
