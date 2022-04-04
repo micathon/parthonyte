@@ -1,0 +1,14 @@
+do (
+gdefun (var tot a b c x prod pi firstname) do (
+  set pi 3.14;
+  set x (funh);
+  println "x =" x;
+);
+defun (funh)(var y) do (
+  println "top of funh";
+  set y pi;
+  println "y =" y;
+  return y;
+);
+)
+
