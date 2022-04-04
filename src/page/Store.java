@@ -689,6 +689,7 @@ class PageTab implements IConst {
 	private int spareStkIdx;
 	private int maxStkIdx;
 	//
+	private PageTyp pgtyp;
 	private boolean isFree;
 	private int nextIdx;  // index to bookTab
 	//private int prevIdx;  // index to bookTab
@@ -706,6 +707,7 @@ class PageTab implements IConst {
 		}
 		page = new Page(pgtyp);
 		pageTab[0] = page;
+		this.pgtyp = pgtyp;
 		pageTabLen = 1;
 		isFree = true;
 	}
@@ -764,6 +766,10 @@ class PageTab implements IConst {
 	
 	public void setFree(boolean flag) {
 		isFree = flag;
+	}
+	
+	public PageTyp getPageTyp() {
+		return pgtyp;
 	}
 	
 	public int getCurrPageIdx() {
@@ -1521,6 +1527,8 @@ class AllocFree implements IConst {
 		int firstFree;
 		int pgidx;
 		int pageLen;
+		int bookLen;
+		int saveIdx;
 		int rtnval;
 		
 		rtnval = pageFree(page, idx);
@@ -1585,6 +1593,7 @@ class AllocFree implements IConst {
 			}
 		}
 		// empty pgtab record
+		// snip out of pgtab list:
 		pgtab.setFree(true);
 		nextIdx = pgtab.getNextBookIdx();
 		currPgTab = null;
@@ -1599,15 +1608,53 @@ class AllocFree implements IConst {
 		else {
 			currPgTab.setNextBookIdx(nextIdx);
 		}
+		// insert in free pgtab list:
 		firstFree = store.getFirstFree();
 		pgtab.setNextBookIdx(firstFree);
 		store.setFirstFree(currBookIdx);
-		while (bookIdx == 5796) {
-			
-			
-			break;
+		bookLen = store.getBookLen();
+		if (currBookIdx < (bookLen - 1)) {
+			currBookIdx = getFirstAtEnd(nextIdx);
+			return true;
 		}
-		return true;
+		// shrink bookTab, since top of bookLen:
+		while (true) {
+			bookLen--;
+			store.setBookLen(bookLen);
+			if (bookLen <= 0) {
+				currBookIdx = getFirstAtEnd(nextIdx);
+				return true;
+			}
+			bookIdx = bookLen - 1;
+			pgtab = store.getPageTab(bookIdx);
+			if (!pgtab.getFree() || (pgtab.getPageTyp() != pageTyp)) {
+				currBookIdx = getFirstAtEnd(nextIdx);
+				return true;
+			}
+			// snip currBookIdx out of free list:
+			saveIdx = nextIdx;
+			nextIdx = pgtab.getNextBookIdx();
+			currPgTab = null;
+			bookIdx = store.getFirstFree();
+			while (bookIdx != currBookIdx) {
+				currPgTab = store.getPageTab(bookIdx);
+				bookIdx = currPgTab.getNextBookIdx();
+			}
+			if (currPgTab == null) {
+				store.setFirstFree(nextIdx);
+			}
+			else {
+				currPgTab.setNextBookIdx(nextIdx);
+			}
+			nextIdx = saveIdx;
+		}
+	}
+	
+	private int getFirstAtEnd(int nextIdx) {
+		if (nextIdx < 0) {
+			nextIdx = firstBookIdx;
+		}
+		return nextIdx;
 	}
 	
 	private int boolint(boolean flag) {
