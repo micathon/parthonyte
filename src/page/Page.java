@@ -332,7 +332,7 @@ public class Page implements IConst {
 	public int freeNum(int idx) {
 		int freeVal;
 		
-		if (idx < 0 || idx >= INTPGLEN) {
+		if (idx < 0 || idx >= cellcount) {
 			return RESERR;  
 		}
 		if (valcount <= 0) { 
@@ -453,6 +453,9 @@ public class Page implements IConst {
 		case LONG: setLong(idx, val);
 		case FLOAT: setFloat(idx, val);
 		case STRING: setString(idx, "" + val);
+		case LIST: setRawListVal(idx, val);
+		case MAP: setRawMapVal(idx, val);
+		case NODE: setPtrNode(idx, val);
 		}
 	}
 	
@@ -479,10 +482,74 @@ public class Page implements IConst {
 				return -1;
 			}
 			return idx;
+		case LIST:
+			return getRawListVal(idx);
+		case MAP:
+			return getRawMapVal(idx);
+		case NODE:
+			return getPtrNode(idx);
+		default:
+			break;
 		}
 		return -1;
 	}
+	
+	@SuppressWarnings("unchecked")
+	private int getRawListVal(int idx) {
+		List<?> list;
+		ArrayList<AddrNode> arrlist;
+		AddrNode node;
+		int rtnval;
+		
+		list = getList(idx);
+		arrlist = (ArrayList<AddrNode>) list;
+		node = arrlist.get(0);
+		rtnval = node.getAddr();
+		return rtnval;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void setRawListVal(int idx, int val) {
+		List<?> list;
+		ArrayList<AddrNode> arrlist;
+		AddrNode node;
+		
+		node = new AddrNode(0, val);
+		list = getList(idx);
+		list.clear();
+		arrlist = (ArrayList<AddrNode>) list;
+		arrlist.add(node);
+		setList(idx, arrlist);
+	}
 
+	@SuppressWarnings("unchecked")
+	private int getRawMapVal(int idx) {
+		HashMap<?, ?> map;
+		HashMap<String, AddrNode> strmap;
+		AddrNode node;
+		int rtnval;
+		
+		map = getMap(idx);
+		strmap = (HashMap<String, AddrNode>) map;
+		node = strmap.get("");
+		rtnval = node.getAddr();
+		return rtnval;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void setRawMapVal(int idx, int val) {
+		HashMap<?, ?> map;
+		HashMap<String, AddrNode> strmap;
+		AddrNode node;
+		
+		node = new AddrNode(0, val);
+		map = getMap(idx);
+		map.clear();
+		strmap = (HashMap<String, AddrNode>) map;
+		strmap.put("", node);
+		setMap(idx, strmap);
+	}
+	
 	public int allocLong(long val) {
 		int rtnval;
 		int nextidx;

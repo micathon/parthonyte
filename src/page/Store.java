@@ -1505,11 +1505,11 @@ class AllocFree implements IConst {
 		case FLOAT:
 		case STRING: 
 		case LONG:
+		case LIST:
+		case MAP:
+		case NODE:
 			return page.freeNum(idx);
 		case BYTE: return boolint(page.freeByte(idx));
-		case NODE: return boolint(page.freeNode(idx));
-		case LIST: return boolint(page.freeList(idx));
-		case MAP: return boolint(page.freeMap(idx));
 		default: return RESERR;
 		}
 	}
