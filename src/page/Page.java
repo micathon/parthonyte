@@ -471,20 +471,12 @@ public class Page implements IConst {
 	}
 	
 	private int getRawVal(int idx) {
-		String buf;
 		switch (pgtyp) {
 		case INTVAL: return getIntVal(idx);
 		case LONG: return (int) getLong(idx);
 		case FLOAT: return (int) getFloat(idx);
-		case STRING: 
-			buf = getString(idx);
-			try {
-				idx = Integer.parseInt(buf);
-			}
-			catch (NumberFormatException exc) {
-				return -1;
-			}
-			return idx;
+		case STRING:
+			return getStrAsInt(idx);
 		case LIST:
 			return getRawListVal(idx);
 		case MAP:
@@ -497,6 +489,18 @@ public class Page implements IConst {
 			break;
 		}
 		return -1;
+	}
+	
+	private int getStrAsInt(int idx) {
+		String buf;
+		buf = getString(idx);
+		try {
+			idx = Integer.parseInt(buf);
+		}
+		catch (NumberFormatException exc) {
+			return -1;
+		}
+		return idx;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -556,12 +560,36 @@ public class Page implements IConst {
 	}
 	
 	private int getRawByteVal(int idx) {
-		
-		return 0;
+		int rtnval;
+		int hdridx;
+		int hdrshift;
+		int hdrval;
+
+		rtnval = getByte(idx);
+		hdridx = (idx / 16) + BYTPGLEN;
+		hdrshift = (idx % 4) << 1;
+		hdrval = getByte(hdridx + BYTPGLEN);
+		hdrval = hdrval & (0x3 << hdrshift);
+		hdrval >>>= hdrshift;
+		rtnval |= hdrval << 8;
+		return rtnval;
 	}
 	
 	private void setRawByteVal(int idx, int val) {
+		byte bytval;
+		int hdrval;
+		int hdridx;
+		int hdrshift;
 		
+		bytval = (byte)(val & 0xFF);
+		setByte(idx, bytval);
+		hdrval = (val & 0x300) >> 8;  // top 2 bits: hdr bits
+		hdridx = (idx / 16) + BYTPGLEN;
+		hdrshift = (idx % 4) << 1;
+		bytval = getByte(hdridx);
+		bytval = (byte)(bytval & ~(0x3 << hdrshift));
+		bytval |= hdrval << hdrshift;
+		setByte(hdridx, bytval);
 	}
 	
 	public int allocLong(long val) {

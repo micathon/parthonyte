@@ -1510,7 +1510,6 @@ class AllocFree implements IConst {
 		case NODE:
 		case BYTE:
 			return page.freeNum(idx);
-		//case BYTE: return boolint(page.freeByte(idx));
 		default: return RESERR;
 		}
 	}
