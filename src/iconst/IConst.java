@@ -6,11 +6,12 @@ public interface IConst {
 	int WRDPGLEN = 2048;
 	int INTPGLEN = 1024;
 	int DBLPGLEN = 512;
-	int BYTPGLEN = 2048;
+	int BYTPGLEN = 1024;
 	int NODESTKLEN = 1024;
 	int OPSTKLEN = 256;
 	int NODESIZ = 5;
 	int NODECOUNT = WRDPGLEN / NODESIZ;
+	int BYTHDRLEN = 64;
 	String DEFPROMPT = "> ";
 	int RESERR = -1;
 	int RESOK = 0;
