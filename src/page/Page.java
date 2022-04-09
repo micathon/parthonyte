@@ -42,7 +42,7 @@ public class Page implements IConst {
 			break;
 		case BYTE:  // used for operator stack
 			cellcount = BYTPGLEN;
-			bytes = new byte[cellcount];
+			bytes = new byte[cellcount + BYTHDRLEN];
 			return;
 		case LONG:
 			cellcount = DBLPGLEN;
@@ -456,6 +456,9 @@ public class Page implements IConst {
 		case LIST: setRawListVal(idx, val);
 		case MAP: setRawMapVal(idx, val);
 		case NODE: setPtrNode(idx, val);
+		case BYTE: setRawByteVal(idx, val);
+		default:
+			break;
 		}
 	}
 	
@@ -488,6 +491,8 @@ public class Page implements IConst {
 			return getRawMapVal(idx);
 		case NODE:
 			return getPtrNode(idx);
+		case BYTE:
+			return getRawByteVal(idx);
 		default:
 			break;
 		}
@@ -548,6 +553,15 @@ public class Page implements IConst {
 		strmap = (HashMap<String, AddrNode>) map;
 		strmap.put("", node);
 		setMap(idx, strmap);
+	}
+	
+	private int getRawByteVal(int idx) {
+		
+		return 0;
+	}
+	
+	private void setRawByteVal(int idx, int val) {
+		
 	}
 	
 	public int allocLong(long val) {

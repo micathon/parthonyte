@@ -1491,10 +1491,10 @@ class AllocFree implements IConst {
 		case FLOAT: return page.allocFloat(datarec.floatVal);
 		case STRING: return page.allocString(datarec.strVal);
 		case LONG: return page.allocLong(datarec.longVal);
-		case BYTE: return page.allocByte(datarec.byteVal);
-		case NODE: return page.allocNode(datarec.nodeVal);
 		case LIST: return page.allocList(datarec.listVal);
 		case MAP: return page.allocMap(datarec.mapVal);
+		case NODE: return page.allocNode(datarec.nodeVal);
+		case BYTE: return page.allocByte(datarec.byteVal);
 		default: return -1;
 		}
 	}
@@ -1508,8 +1508,9 @@ class AllocFree implements IConst {
 		case LIST:
 		case MAP:
 		case NODE:
+		case BYTE:
 			return page.freeNum(idx);
-		case BYTE: return boolint(page.freeByte(idx));
+		//case BYTE: return boolint(page.freeByte(idx));
 		default: return RESERR;
 		}
 	}
