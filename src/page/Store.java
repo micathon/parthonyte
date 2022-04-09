@@ -116,7 +116,7 @@ public class Store implements IConst {
 		page = pgtab.getPage(pageidx);
 		return page;
 	}
-	
+/*	
 	private int getIdxOfPage(int idx) {
 		return idx & 0x3FF;
 	}
@@ -124,7 +124,7 @@ public class Store implements IConst {
 	private int getTabIdxOfPage(int idx) {
 		return idx >>> 10;
 	}
-	
+*/	
 	public int getElemIdx(int addr) {
 		return (addr & 0xFFF);
 	}
@@ -194,183 +194,7 @@ public class Store implements IConst {
 		}
 		return node;
 	}
-/*	
-	public int allocNode(Node node) {
-		int rtnval = allocNodeRtn(node);
-		if (rtnval > 0) {
-			return rtnval;
-		}
-		return rtnval;
-	}
-	
-	public int allocNodeRtn(Node node) {
-		PageTab pgtab;
-		Page page;
-		int idx;
-		int rtnval;
-		
-		for (int i=0; i < INTPGLEN; i++) {
-			pgtab = getPageTab(i);
-			if (pgtab == null) {
-				pgtab = new PageTab(PageTyp.NODE);
-				setPageTab(i, pgtab);
-			}
-			for (int j=0; j < INTPGLEN; j++) {
-				page = pgtab.getPage(j);
-				if (page == null) {
-					page = new Page(PageTyp.NODE);
-					pgtab.setPage(j, page);
-				}
-				else if (page.getPageTyp() != PageTyp.NODE) {
-					continue;
-				}
-				idx = page.allocNode(node);
-				if (idx < 0) { }
-				else if (idx < (1 << 12)) {
-					rtnval = getAddr(i, j, idx);
-					return rtnval;
-				}
-				else {  
-					return -1;
-				}
-			}
-		}
-		return -1;
-	}
-	
-	public int oldAllocString(String str) {
-		PageTab pgtab;
-		Page page;
-		int idx;
-		
-		for (int i=0; i < INTPGLEN; i++) {
-			pgtab = getPageTab(i);
-			if (pgtab == null) {
-				pgtab = new PageTab(PageTyp.STRING);
-				setPageTab(i, pgtab);
-			}
-			for (int j=0; j < INTPGLEN; j++) {
-				page = pgtab.getPage(j);
-				if (page == null) {
-					page = new Page(PageTyp.STRING);
-					pgtab.setPage(j, page);
-				}
-				else if (page.getPageTyp() != PageTyp.STRING) {
-					continue;
-				}
-				idx = page.allocString(str);
-				if (idx >= 0) {
-					return getAddr(i, j, idx);
-				}
-			}
-		}
-		return -1;
-	}
-	
-	public int xallocString(String str) {
-		PageTab pgtab;
-		Page page;
-		int idx;
-		
-		//page = getIdxToPage(firstStringPgno);
-		
-		// call page.allocString(str)...
-		// junk rest of this code:
-		for (int i=0; i < INTPGLEN; i++) {
-			pgtab = getPageTab(i);
-			if (pgtab == null) {
-				pgtab = new PageTab(PageTyp.STRING);
-				setPageTab(i, pgtab);
-			}
-			for (int j=0; j < INTPGLEN; j++) {
-				page = pgtab.getPage(j);
-				if (page == null) {
-					page = new Page(PageTyp.STRING);
-					pgtab.setPage(j, page);
-				}
-				else if (page.getPageTyp() != PageTyp.STRING) {
-					continue;
-				}
-				idx = page.allocString(str);
-				if (idx >= 0) {
-					return getAddr(i, j, idx);
-				}
-			}
-		}
-		return -1;
-	}
-	
-	public boolean xfreeString(int addr) {
-		// use linked list of String type PageTab objects
-		// call page.freeString(idx)...
-		
-		return false;
-	}
-	
-	private int allocVal(int typ, long ival, double dval) {
-		PageTab pgtab;
-		Page page;
-		int idx;
-		PageTyp pgtyp = PageTyp.INTVAL;
-		
-		switch (typ) {
-		case 1:
-			pgtyp = PageTyp.INTVAL;
-			break;
-		case 2:
-			pgtyp = PageTyp.LONG;
-			break;
-		case 3:
-			pgtyp = PageTyp.FLOAT;
-			break;
-		}
-		for (int i=0; i < INTPGLEN; i++) {
-			pgtab = getPageTab(i);
-			if (pgtab == null) {
-				pgtab = new PageTab(pgtyp);
-				setPageTab(i, pgtab);
-			}
-			for (int j=0; j < INTPGLEN; j++) {
-				page = pgtab.getPage(j);
-				if (page == null) {
-					page = new Page(pgtyp);
-					pgtab.setPage(j, page);
-				}
-				else if (page.getPageTyp() != pgtyp) {
-					continue;
-				}
-				idx = -1; // no need
-				switch (typ) {
-				case 1:
-					idx = page.allocInt((int) ival);
-					break;
-				case 2:
-					idx = page.allocLong(ival);
-					break;
-				case 3:
-					idx = page.allocFloat(dval);
-					break;
-				}
-				if (idx >= 0) {
-					return getAddr(i, j, idx);
-				}
-			}
-		}
-		return -1;
-	}
-	
-	public int allocInt(int val) {
-		return allocVal(1, val, 0.0);
-	}
-	
-	public int allocLong(long val) {
-		return allocVal(2, val, 0.0);
-	}
-	
-	public int allocFloat(double val) {
-		return allocVal(3, 0, val);
-	}
-*/	
+
 	public int allocInt(int val) {
 		afInt.setInt(val);
 		return afInt.alloc();
@@ -870,6 +694,7 @@ class PageTab implements IConst {
 		return node;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public AddrNode topNode() {
 		int idx;
 		AddrNode node;
@@ -1314,7 +1139,6 @@ class AllocFree implements IConst {
 	private PageTyp pageTyp;
 	private DataRec datarec;
 	private Store store;
-	//
 	private int firstBookIdx;
 	private int currPageIdx;
 	private PageTab currPgTab;
@@ -1657,10 +1481,6 @@ class AllocFree implements IConst {
 		return nextIdx;
 	}
 	
-	private int boolint(boolean flag) {
-		return flag ? RESOK : RESERR;
-	}
-
 	public void setFirst(int firstidx) {
 		firstBookIdx = firstidx;
 	}
