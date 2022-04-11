@@ -73,6 +73,13 @@ public class Page implements IConst {
 		}
 	}
 	
+	public void out(String msg) {
+		if (debug) {
+		//if (true) {
+			System.out.println(msg);
+		}
+	}
+	
 	public PageTyp getPageTyp() {
 		return pgtyp;
 	}
@@ -228,20 +235,20 @@ public class Page implements IConst {
 	public int allocNode(Node node) {
 		int rtnval;
 		int nextidx;
-		int validx;
 
 		if ((freeidx < 0) && (valcount >= NODECOUNT)) {
 			return -1;
 		}
 		if (freeidx < 0) {
-			validx = valcount++; 
-			setNode(validx , node);
-			return validx;
+			setNode(valcount, node);
+			out("allocNode: rtns valcount = " + valcount);
+			return valcount++;
 		}
 		nextidx = getPtrNode(freeidx);
 		setNode(freeidx, node);
 		rtnval = freeidx;
 		freeidx = nextidx;
+		out("allocNode: rtns freeidx was = " + rtnval);
 		return rtnval;
 	}
 	
@@ -300,6 +307,7 @@ public class Page implements IConst {
 			if (idx < (valcount - 1)) {
 				freeidx = idx;
 				freeVal = idxToFreeVal(-1);
+				out("freeNum: pgtyp = " + pgtyp);
 				setNumVal(idx, freeVal);
 			}
 			else if (valcount == 1) {
@@ -404,14 +412,30 @@ public class Page implements IConst {
 	
 	private void setNumVal(int idx, int val) {
 		switch (pgtyp) {
-		case INTVAL: setIntVal(idx, val);
-		case LONG: setLong(idx, val);
-		case FLOAT: setFloat(idx, val);
-		case STRING: setString(idx, "" + val);
-		case LIST: setRawListVal(idx, val);
-		case MAP: setRawMapVal(idx, val);
-		case NODE: setPtrNode(idx, val);
-		case BYTE: setRawByteVal(idx, val);
+		case INTVAL: 
+			setIntVal(idx, val);
+			break;
+		case LONG: 
+			setLong(idx, val);
+			break;
+		case FLOAT: 
+			setFloat(idx, val);
+			break;
+		case STRING: 
+			setString(idx, "" + val);
+			break;
+		case LIST: 
+			setRawListVal(idx, val);
+			break;
+		case MAP: 
+			setRawMapVal(idx, val);
+			break;
+		case NODE: 
+			setPtrNode(idx, val);
+			break;
+		case BYTE: 
+			setRawByteVal(idx, val);
+			break;
 		default:
 			break;
 		}

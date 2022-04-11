@@ -1152,6 +1152,13 @@ class AllocFree implements IConst {
 		currBookIdx = -1;
 	}
 
+	public void out(String msg) {
+		if (debug) {
+		//if (true) {
+			System.out.println(msg);
+		}
+	}
+	
 	// int bookLen;
 	// int firstFree;
 	// afInt.firstBookIdx .. afString.firstBookIdx
@@ -1172,6 +1179,7 @@ class AllocFree implements IConst {
 		// use singly linked list
 		Page page;
 		PageTab pgtab;
+		PageTyp pgtyp;
 		boolean isFirstIter = true;
 		int addr;
 		int bookLen;
@@ -1187,10 +1195,14 @@ class AllocFree implements IConst {
 				page = currPgTab.getPage(currPageIdx);
 				addr = pageAlloc(page);
 				if (addr >= 0) {
+					pgtyp = page.getPageTyp();
+					out("alloc: addr = " + addr + ", pgtyp = " +
+						pgtyp);
 					return addr;
 				}
 				addr = allocInner();
 				if (addr >= 0) {
+					out("alloc: post Inner, addr = " + addr);
 					return addr;
 				}
 			}
@@ -1241,6 +1253,7 @@ class AllocFree implements IConst {
 		int pgidx;
 		int len;
 		
+		out("allocInner: top");
 		pgtab = store.getPageTab(currBookIdx);
 		while (true) {
 			page = pgtab.getPage(currPageIdx);
@@ -1308,8 +1321,17 @@ class AllocFree implements IConst {
 		addr = pageAlloc(page);
 		return addr;  // never -ve
 	}
-	
+
 	private int pageAlloc(Page page) {
+		int rtnval;
+		int idx;
+
+		idx = pageAllocRtn(page);
+		rtnval = store.getAddr(currBookIdx, currPageIdx, idx);
+		return rtnval;
+	}
+	
+	private int pageAllocRtn(Page page) {
 		switch (pageTyp) {
 		case INTVAL: return page.allocInt(datarec.intVal);
 		case FLOAT: return page.allocFloat(datarec.floatVal);
