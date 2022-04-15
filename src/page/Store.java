@@ -26,28 +26,24 @@ public class Store implements IConst {
 	private AllocFree afNode;
 	private AllocFree afList;
 	private AllocFree afMap;
-	//
 	private int bookLen;
 	private int firstFree;
 	private int currBookIdx;
-	// afInt.firstBookIdx
-	
 	// int bookLen;
 	// int firstFree;
-	// afInt.firstBookIdx
+	// afInt.firstBookIdx .. afString.firstBookIdx
+	// nextIdx, prevIdx: several linked lists
 	
 	// PageTab:
-	// int nextIdx;  // index to bookTab
-	// int prevIdx;  // index to bookTab
-	// int pageTabLen;  // same as count
+	// int pageTabLen;
 	// int firstFreeIdx;
 	// int firstPageIdx;
+	// int firstDensIdx;  // dense
+	// nextIdx, prevIdx: 3 linked lists
 	
 	// Page:
-	// int nextIdx;  // index to PageTab
-	// int prevIdx;  // index to PageTab
 	// int valcount;
-	// int freeidx;
+	// int freeidx;  
 	
 	public Store() {
 		PageTab pgtab;
@@ -116,15 +112,7 @@ public class Store implements IConst {
 		page = pgtab.getPage(pageidx);
 		return page;
 	}
-/*	
-	private int getIdxOfPage(int idx) {
-		return idx & 0x3FF;
-	}
-	
-	private int getTabIdxOfPage(int idx) {
-		return idx >>> 10;
-	}
-*/	
+
 	public int getElemIdx(int addr) {
 		return (addr & 0xFFF);
 	}
@@ -266,65 +254,7 @@ public class Store implements IConst {
 	public boolean freeMap(Page page, int idx) {
 		return afMap.free(page, idx);
 	}
-/*	
-	public int allocList(ArrayList<AddrNode> list) {
-		PageTab pgtab;
-		Page page;
-		int idx;
-		
-		for (int i=0; i < INTPGLEN; i++) {
-			pgtab = getPageTab(i);
-			if (pgtab == null) {
-				pgtab = new PageTab(PageTyp.LIST);
-				setPageTab(i, pgtab);
-			}
-			for (int j=0; j < INTPGLEN; j++) {
-				page = pgtab.getPage(j);
-				if (page == null) {
-					page = new Page(PageTyp.LIST);
-					pgtab.setPage(j, page);
-				}
-				else if (page.getPageTyp() != PageTyp.LIST) {
-					continue;
-				}
-				idx = page.allocList(list);
-				if (idx >= 0) {
-					return getAddr(i, j, idx);
-				}
-			}
-		}
-		return -1;
-	}
-	
-	public int allocMap(HashMap<String, AddrNode> map) {
-		PageTab pgtab;
-		Page page;
-		int idx;
-		
-		for (int i=0; i < INTPGLEN; i++) {
-			pgtab = getPageTab(i);
-			if (pgtab == null) {
-				pgtab = new PageTab(PageTyp.MAP);
-				setPageTab(i, pgtab);
-			}
-			for (int j=0; j < INTPGLEN; j++) {
-				page = pgtab.getPage(j);
-				if (page == null) {
-					page = new Page(PageTyp.MAP);
-					pgtab.setPage(j, page);
-				}
-				else if (page.getPageTyp() != PageTyp.MAP) {
-					continue;
-				}
-				idx = page.allocMap(map);
-				if (idx >= 0) {
-					return getAddr(i, j, idx);
-				}
-			}
-		}
-		return -1;
-	}
-*/	
+
 	public int getAddr(int i, int j, int k) {
 		int n;
 		n = (i << 10) | j;
@@ -512,11 +442,9 @@ class PageTab implements IConst {
 	private int spareStkLstIdx;
 	private int spareStkIdx;
 	private int maxStkIdx;
-	//
 	private PageTyp pgtyp;
 	private boolean isFree;
 	private int nextIdx;  // index to bookTab
-	//private int prevIdx;  // index to bookTab
 	private int firstFreeIdx;
 	private int firstPageIdx;
 	private int firstDensIdx;
@@ -1151,14 +1079,6 @@ class AllocFree implements IConst {
 		firstBookIdx = -1;
 		currBookIdx = -1;
 	}
-
-	public void out(String msg) {
-		if (debug) {
-		//if (true) {
-			System.out.println(msg);
-		}
-	}
-	
 	// int bookLen;
 	// int firstFree;
 	// afInt.firstBookIdx .. afString.firstBookIdx
@@ -1244,6 +1164,7 @@ class AllocFree implements IConst {
 	}
 	
 	public int allocInner() {
+		// untested
 		PageTab pgtab;
 		Page page, pg;
 		int addr;
@@ -1327,6 +1248,9 @@ class AllocFree implements IConst {
 		int idx;
 
 		idx = pageAllocRtn(page);
+		if (idx < 0) {
+			return -1;
+		}
 		rtnval = store.getAddr(currBookIdx, currPageIdx, idx);
 		return rtnval;
 	}
@@ -1365,16 +1289,11 @@ class AllocFree implements IConst {
 		// error out on failure
 		// if result = RESFREE then keep going
 		PageTab pgtab;
-		PageTab currPgTab;
 		Page pg;
 		int nextIdx;
 		int prevIdx;
-		int bookIdx;
-		int firstFree;
 		int pgidx;
 		int pageLen;
-		int bookLen;
-		int saveIdx;
 		int rtnval;
 		
 		rtnval = pageFree(page, idx);
@@ -1384,6 +1303,7 @@ class AllocFree implements IConst {
 		if (rtnval == RESOK) {
 			return true;
 		}
+		// otherwise RESFREE
 		pgtab = store.getPageTab(currBookIdx);
 		nextIdx = page.getNext();
 		// handle empty page:
@@ -1414,6 +1334,8 @@ class AllocFree implements IConst {
 			return true;
 		}
 		while (true) {
+			// top of pageLen in pgtab record
+			// shrink pgtab
 			pageLen--;
 			pgtab.setCount(pageLen);
 			if (pageLen <= 0) {
@@ -1421,6 +1343,7 @@ class AllocFree implements IConst {
 			}
 			page = pgtab.getPage(pageLen - 1);
 			if (page.getValCount() > 0) {
+				// page not empty at top of pageLen
 				return true;
 			}
 			// snip out of empty list
@@ -1438,8 +1361,19 @@ class AllocFree implements IConst {
 				pgtab.setFirstFreeIdx(nextIdx);
 			}
 		}
+		return freeEmptyPgTab(pgtab);
+	}
+		
+	private boolean freeEmptyPgTab(PageTab pgtab) {	
 		// empty pgtab record
 		// snip out of pgtab list:
+		PageTab currPgTab;
+		int nextIdx;
+		int bookIdx;
+		int firstFree;
+		int bookLen;
+		int saveIdx;
+		
 		pgtab.setFree(true);
 		nextIdx = pgtab.getNextBookIdx();
 		currPgTab = null;
@@ -1541,6 +1475,13 @@ class AllocFree implements IConst {
 
 	public void setMap(HashMap<String, AddrNode> mapVal) {
 		datarec.mapVal = mapVal;
+	}
+
+	public void out(String msg) {
+		if (debug) {
+		//if (true) {
+			System.out.println(msg);
+		}
 	}
 
 }

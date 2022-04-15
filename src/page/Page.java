@@ -43,6 +43,8 @@ public class Page implements IConst {
 		case BYTE:  // used for operator stack
 			cellcount = BYTPGLEN;
 			bytes = new byte[cellcount + BYTHDRLEN];
+			// vars of type Byte need a bit of extra space
+			// not just cellcount
 			return;
 		case LONG:
 			cellcount = DBLPGLEN;
@@ -539,10 +541,15 @@ public class Page implements IConst {
 	}
 	
 	private int getRawByteVal(int idx) {
-		int rtnval;
+		// page of BYTE: needs header of 2-bit values
+		// 4 values packed into each byte
+		// 1 2-bit value for each Byte value
+		// no. of Byte values = cellcount
+		// header needed for linked list of Byte values
+		int rtnval;  // at top: 0..255, at btm: 0..1023
 		int hdridx;
 		int hdrshift;
-		int hdrval;
+		int hdrval;  // 2-bit value
 
 		rtnval = getByte(idx);
 		hdridx = (idx / 16) + BYTPGLEN;
@@ -555,6 +562,7 @@ public class Page implements IConst {
 	}
 	
 	private void setRawByteVal(int idx, int val) {
+		// get/set untested
 		byte bytval;
 		int hdrval;
 		int hdridx;
@@ -747,207 +755,5 @@ public class Page implements IConst {
 		default: return 0;
 		}
 	}
-/*	
-	public boolean freeLong(int idx) {
-		int freeVal;
-		
-		if (idx < 0 || idx >= DBLPGLEN) {
-			return false;  
-		}
-		if (valcount <= 0) { 
-			return false;
-		}
-		if (freeidx < 0) {
-			if (idx == (valcount - 1)) {
-				valcount--;
-			}
-			else if (idx >= valcount) {
-				return false;  
-			}
-			else {
-				freeidx = idx;
-			}
-			freeVal = idxToFreeVal(-1);
-			setLong(idx, freeVal);
-		}
-		else if (idx >= valcount) {
-			return false;  
-		}
-		else {
-			freeVal = idxToFreeVal(freeidx);
-			setLong(idx, freeVal);
-			freeidx = idx;
-		}
-		return true;
-	}
 
-	public boolean freeFloat(int idx) {
-		int freeVal;
-		
-		if (idx < 0 || idx >= DBLPGLEN) {
-			return false;  
-		}
-		if (valcount <= 0) { 
-			return false;
-		}
-		if (freeidx < 0) {
-			if (idx == (valcount - 1)) {
-				valcount--;
-			}
-			else if (idx >= valcount) {
-				return false;  
-			}
-			else {
-				freeidx = idx;
-			}
-			freeVal = idxToFreeVal(-1);
-			setFloat(idx, freeVal);
-		}
-		else if (idx >= valcount) {
-			return false;  
-		}
-		else {
-			freeVal = idxToFreeVal(freeidx);
-			setFloat(idx, freeVal);
-			freeidx = idx;
-		}
-		return true;
-	}
-
-	public boolean freeString(int idx) {
-		int freeVal;
-		
-		if (idx < 0 || idx >= INTPGLEN) {
-			return false;  
-		}
-		if (valcount <= 0) { 
-			return false;
-		}
-		if (freeidx < 0) {
-			if (idx == (valcount - 1)) {
-				valcount--;
-			}
-			else if (idx >= valcount) {
-				return false;  
-			}
-			else {
-				freeidx = idx;
-			}
-			freeVal = idxToFreeVal(-1);
-			setString(idx, "" + freeVal);
-		}
-		else if (idx >= valcount) {
-			return false;  
-		}
-		else {
-			freeVal = idxToFreeVal(freeidx);
-			setString(idx, "" + freeVal);
-			freeidx = idx;
-		}
-		return true;
-	}
-
-	public boolean freeList(int idx) {
-		// not updated with idxToFreeVal()
-		List<?> list;
-		ArrayList<AddrNode> arrlist;
-		AddrNode node;
-		int i = freeidx;
-
-		if (valcount <= 0 || idx >= valcount) {
-			return false;
-		}
-		while (i >= 0) {
-			if (i == idx) {
-				return false;
-			}
-			list = getList(i);
-			arrlist = (ArrayList<AddrNode>) list;
-			node = arrlist.get(0);
-			i = node.getAddr();
-		}
-		node = new AddrNode(0, freeidx);
-		list = getList(idx);
-		list.clear();
-		arrlist = (ArrayList<AddrNode>) list;
-		arrlist.add(node);
-		setList(idx, arrlist);
-		freeidx = idx;
-		return true;
-	}
-	
-	public boolean freeMap(int idx) {
-		// not updated with idxToFreeVal()
-		HashMap<?, ?> map;
-		HashMap<String, AddrNode> strmap;
-		AddrNode node;
-		int i = freeidx;
-
-		if (valcount <= 0 || idx >= valcount) {
-			return false;
-		}
-		while (i >= 0) {
-			if (i == idx) {
-				return false;
-			}
-			map = getMap(i);
-			strmap = (HashMap<String, AddrNode>) map;
-			node = strmap.get("");
-			i = node.getAddr();
-		}
-		node = new AddrNode(0, freeidx);
-		map = getMap(idx);
-		map.clear();
-		strmap = (HashMap<String, AddrNode>) map;
-		strmap.put("", node);
-		setMap(idx, strmap);
-		freeidx = idx;
-		return true;
-	}
-	
-	public boolean freeNode(int idx) {
-		int i = freeidx;
-		if (valcount <= 0 || idx >= valcount) {
-			return false;
-		}
-		while (i >= 0) {
-			if (i == idx) {
-				return false;
-			}
-			i = getPtrNode(i);
-		}
-		setPtrNode(idx, freeidx);
-		freeidx = idx;
-		return true;
-	}
-
-	public boolean freeByte(int idx) {
-		if (idx < 0 || idx >= BYTPGLEN) {
-			return false;  
-		}
-		if (valcount <= 0) { 
-			return false;
-		}
-		if (freeidx < 0) {
-			if (idx == (valcount - 1)) {
-				valcount--;
-			}
-			else if (idx >= valcount) {
-				return false;  
-			}
-			else {
-				freeidx = idx;
-			}
-			setByte(idx, -1);
-		}
-		else if (idx >= valcount) {
-			return false;  
-		}
-		else {
-			setByte(idx, freeidx);
-			freeidx = idx;
-		}
-		return true;
-	}
-*/	
 }
