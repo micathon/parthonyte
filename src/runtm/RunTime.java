@@ -1272,12 +1272,12 @@ public class RunTime implements IConst {
 			switch (pgtyp) {
 			case FLOAT:
 				//flag = page.freeFloat(idx);
-				oprn("popm: freeFloat");
+				omsg("popm: freeFloat");
 				flag = store.freeFloat(page, idx);
 				break;
 			case STRING:
 				//flag = page.freeString(idx);
-				oprn("popm: freeString");
+				omsg("popm: freeString");
 				flag = store.freeString(page, idx);
 				break;
 			default:
