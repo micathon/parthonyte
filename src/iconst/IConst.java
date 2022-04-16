@@ -11,7 +11,7 @@ public interface IConst {
 	int OPSTKLEN = 256;
 	int NODESIZ = 5;
 	int NODECOUNT = WRDPGLEN / NODESIZ;
-	int BYTHDRLEN = 64;
+	int BYTHDRLEN = 256;  // not 64
 	String DEFPROMPT = "> ";
 	int RESERR = -1;
 	int RESOK = 0;
