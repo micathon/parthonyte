@@ -106,7 +106,8 @@ public class RunTime implements IConst {
 	}
 	
 	public boolean runTopBlock(int rightp) {
-		// process top-level stmts.
+		// process top-level stmts.:
+		// do ( stmt-1; .. stmt-n; )
 		Node node;
 		int downp;
 		KeywordTyp kwtyp;
@@ -178,7 +179,7 @@ public class RunTime implements IConst {
 				case 4:
 					rightq = rightp;
 					break;
-				case 2:
+				case 2: // only called once
 					rightq = runGlbDefStmt(rightp);
 					break;
 				default:
@@ -240,6 +241,7 @@ public class RunTime implements IConst {
 		if (!pushInt(locDepth)) {
 			return STKOVERFLOW;
 		}
+		// currently only called once, in body of gdefun stmt.
 		rightp = handleDoBlock(node);
 		omsg("Stmt count = " + stmtCount);
 		if (rightp < EXIT) {

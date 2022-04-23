@@ -71,20 +71,26 @@ public class RunScanner implements IConst {
 		rightp = node.getRightp();
 		node = store.getNode(rightp);
 		downp = node.getDownp();
+		// scan decls. of glb/loc vars., 
+		// scan names of func decls., including gdefun
 		rtnval = scanTopBlock(downp);
 		if (!rtnval) {
 			return false;
 		}
+		// replace downp of glb/loc var refs. w/ var idx nos.
+		// must scan all do-blocks
 		rtnval = scopeTopBlock(downp);
 		if (!rtnval) {
 			return false;
 		}
+		// run prog. using do-block of gdefun stmt.
 		rtnval = rt.runTopBlock(downp);
 		return rtnval;
 	}
 	
 	private boolean scanTopBlock(int rightp) {
-		// process top-level stmts.
+		// process top-level stmts.:
+		// do ( stmt-1; .. stmt-n; )
 		Node node;
 		int downp;
 		KeywordTyp kwtyp;
@@ -159,6 +165,7 @@ public class RunScanner implements IConst {
 	}
 	
 	private int scanTopStmt(int rightp, int phaseNo) {
+		// scan process saves local var. names/idx nos., and node ptrs.
 		// process top-level statement
 		// return phase no. of current stmt.: 0=quest, 1=import,
 		//   gdefun, functions, 4=classes
@@ -189,7 +196,7 @@ public class RunScanner implements IConst {
 				switch (currPhaseNo) {
 				case 0:
 					return -1;
-				case 1:
+				case 1:  // stub
 					rightq = scanImportStmt(rightp, kwtyp);
 					break;
 				case 2:
@@ -198,7 +205,7 @@ public class RunScanner implements IConst {
 				case 3:
 					rightq = scanDefunStmt(rightp);
 					break;
-				case 4:
+				case 4:  // stub
 					rightq = scanClassStmt(rightp, kwtyp);
 					break;
 				default:
@@ -248,7 +255,7 @@ public class RunScanner implements IConst {
 				switch (currPhaseNo) {
 				case 0:
 					return -1;
-				case 1:
+				case 1:  // stub
 					rightq = scopeImportStmt(rightp, kwtyp);
 					break;
 				case 2:
@@ -257,7 +264,7 @@ public class RunScanner implements IConst {
 				case 3:
 					rightq = scopeDefunStmt(rightp);
 					break;
-				case 4:
+				case 4:  // stub
 					rightq = scopeClassStmt(rightp, kwtyp);
 					break;
 				default:
@@ -312,6 +319,9 @@ public class RunScanner implements IConst {
 			}
 			rightp = node.getRightp();
 			while (rightp > 0) {
+				// scan decls. of local vars.
+				// save dict. w/ var names and var nos.
+				// save list w/ var decl. node ptrs.
 				page = store.getPage(rightp);
 				idx = store.getElemIdx(rightp);
 				node = page.getNode(idx);
@@ -353,6 +363,9 @@ public class RunScanner implements IConst {
 	}
 	
 	private int scopeGlbDefStmt(int rightp) {
+		// scope operation:
+		// replace downp of glb/loc var refs. w/ var idx nos.
+		// (they were pointing to var names)
 		Node node;
 		Node firstNode;
 		KeywordTyp kwtyp;
@@ -391,6 +404,7 @@ public class RunScanner implements IConst {
 		}
 		rightp = node.getDownp();
 		while (rightp > 0) {
+			// for all stmts. in do-block, perform scope oper.
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp != KeywordTyp.ZSTMT) {
@@ -433,6 +447,7 @@ public class RunScanner implements IConst {
 			return false;
 		}
 		node = store.getNode(rightp);
+		// perform scope oper. on single var. ref.
 		if (!scopeLocVar(rightp)) {
 			return false;
 		}
@@ -440,10 +455,12 @@ public class RunScanner implements IConst {
 		if (rightp <= 0) {
 			return false;
 		}
+		// perform scope oper. on single expr.
 		return scopeExpr(rightp);
 	}
 	
 	private boolean scopePrintlnStmt(Node node) {
+		// perform scope oper. on multiple exprs.
 		int rightp;
 		boolean rtnval;
 
@@ -460,6 +477,8 @@ public class RunScanner implements IConst {
 	}
 	
 	private boolean scopeRtnStmt(Node node) {
+		// perform scope oper. on single expr.
+		// fails if no expr. found
 		int rightp;
 		
 		rightp = node.getRightp();
@@ -470,6 +489,8 @@ public class RunScanner implements IConst {
 	}
 	
 	private boolean scopeZcallStmt(int rightp, boolean isExpr) {
+		// scope a func. call
+		// perform scope oper. on zero or more args.
 		int downp;
 		Node node;
 		Page page;
@@ -492,6 +513,7 @@ public class RunScanner implements IConst {
 			return false;
 		}
 		varidx = (int)value;
+		// replace downp of func. ref. w/ func. idx no.
 		node.setDownp(varidx);
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
@@ -505,6 +527,9 @@ public class RunScanner implements IConst {
 	}
 	
 	private boolean scopeLocVar(int rightp) {
+		// replace downp of glb/loc var ref. w/ var idx no.
+		// (it was pointing to var name)
+		// glb var idx nos. are -ve
 		int downp;
 		Page page;
 		int idx;
@@ -564,10 +589,10 @@ public class RunScanner implements IConst {
 
 		node = store.getNode(rightp);
 		celltyp = node.getDownCellTyp();
-		if (celltyp == NodeCellTyp.ID) {
+		if (celltyp == NodeCellTyp.ID) {  // scope var. ref.
 			return scopeLocVar(rightp);
 		}
-		if (celltyp == NodeCellTyp.FUNC) {
+		if (celltyp == NodeCellTyp.FUNC) {  // scope fun. call
 			return scopeZcallStmt(rightp, true);
 		}
 		if (celltyp != NodeCellTyp.PTR) {
@@ -575,6 +600,7 @@ public class RunScanner implements IConst {
 		}
 		rightp = node.getDownp();
 		while (rtnval && (rightp > 0)) {
+			// handle lower level exprs. recursively
 			rtnval = rtnval && scopeExpr(rightp);
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
@@ -619,6 +645,7 @@ public class RunScanner implements IConst {
 		rt.glbLocVarMap.put(funcName, glbLocIdx);
 		rightp = node.getRightp();
 		while (rightp > 0) {
+			// scan var decls. of parm. list
 			rightp = scanParmVarList(rightp, varidx, funcName);
 			varidx++;
 		}
@@ -642,6 +669,7 @@ public class RunScanner implements IConst {
 			}
 			rightp = node.getRightp();
 			while (rightp > 0) {
+				// scan var decls. of local vars.
 				rightp = scanParmVarList(rightp, varidx, funcName);
 				varidx++;
 			}
@@ -690,6 +718,9 @@ public class RunScanner implements IConst {
 	}
 	
 	private int scanParmVarList(int rightp, int varidx, String funcName) {
+		// scan decl. of local var
+		// save dict. w/ var name and var no.
+		// save list w/ var decl. node ptr.
 		Node node;
 		NodeCellTyp celltyp;
 		int downp;
@@ -718,6 +749,9 @@ public class RunScanner implements IConst {
 	}
 	
 	private int scopeDefunStmt(int rightp) {
+		// scope operation:
+		// replace downp of glb/loc var refs. w/ var idx nos.
+		// (they were pointing to var names)
 		Node node;
 		Node upNode;
 		KeywordTyp kwtyp;
@@ -773,6 +807,7 @@ public class RunScanner implements IConst {
 		}
 		rightp = node.getDownp();
 		while (rightp > 0) {
+			// for all stmts. in do-block, perform scope oper.
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp != KeywordTyp.ZSTMT) {
