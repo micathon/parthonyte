@@ -291,7 +291,9 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtyp;
 		int rightp;
 
-		// return 0 if done (anywhere)
+		// return 0 if done (anywhere in this fn)
+		// Note that a rightp value of zero means points to nothing,
+		//   everywhere in the coop project
 		rightp = node.getDownp();
 		if (rightp <= 0) {
 			return 0;
@@ -309,7 +311,7 @@ public class RunTime implements IConst, RunConst {
 			omsg("doblock: stmtCount = " + stmtCount);
 			currZstmt = rightp;
 			locDepth = 0;
-			rightp = pushStmt(node);  // scan stmt.
+			rightp = pushStmt(node);  // scan stmt., push it
 			do {
 				isExprLoop = false;
 				// handle mult. exprs.
@@ -323,13 +325,14 @@ public class RunTime implements IConst, RunConst {
 				if (rightp > NEGBASEVAL) {  // error
 					return rightp;
 				}
-				// handle stmt. kwd. (encoded in -ve rightp)
+				// run stmt. using kwd. (encoded in -ve rightp)
 				rightp = -(rightp - NEGBASEVAL);
 				kwtyp = KeywordTyp.values[rightp];
 				omsg("handleDoBlock: btm2, kwtyp = " + kwtyp);
 				rightp = handleStmtKwd(kwtyp);
 				omsg("handleDoBlock: btm2, rightp = " + rightp);
-			} while (isExprLoop);  // keep going if return stmt.??
+			} while (isExprLoop);  // keep going if return stmt...
+			// unless depth counter is zero, ends up here:
 			while (rightp == 0) {
 				rightp = runRtnStmt(false);
 				omsg("handleDoBlock: btm, rightp = " + rightp);
@@ -338,7 +341,7 @@ public class RunTime implements IConst, RunConst {
 				}
 			}
 		} 
-		return rightp;
+		return rightp;  // always -ve
 	}
 	
 	private int handleExprToken(int rightp, boolean isSingle) {	
