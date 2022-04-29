@@ -417,6 +417,7 @@ public class RunTime implements IConst, RunConst {
 		int downp;
 		int rightp;
 		int ival, rtnval;
+		long longval;
 		double dval;
 		String sval;
 
@@ -453,6 +454,17 @@ public class RunTime implements IConst, RunConst {
 			omsg("htok: push INT = " + ival);
 			if (!pushIntStk(ival)) {
 				return STKOVERFLOW;
+			}
+			break;
+		case LONG:	
+			downp = node.getDownp();
+			page = store.getPage(downp);
+			idx = store.getElemIdx(downp);
+			longval = page.getLong(idx);
+			rtnval = pushLong(longval);
+			omsg("htok: long = " + longval);
+			if (rtnval < 0) {
+				return rtnval;
 			}
 			break;
 		case FLOAT:	
@@ -631,17 +643,20 @@ public class RunTime implements IConst, RunConst {
 	}
 	
 	private int runAddExpr() {
-		int val = 0;
-		int sum = 0;
+		long sum = 0L;
 		AddrNode addrNode;
 		Page page;
 		int addr;
 		int idx;
 		double fsum = 0.0;
 		double dval = 0.0;
+		long longval = 0L;
 		int stkidx;
 		boolean isFloat;
+		boolean isLong;
 		boolean isResFloat = false;
+		boolean isResLong = false;
+		boolean isNewFloat;
 		int rtnval;
 		
 		while (true) {
@@ -655,38 +670,53 @@ public class RunTime implements IConst, RunConst {
 			}
 			addr = addrNode.getAddr();
 			isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
+			isLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
+			isNewFloat = isFloat && !isResFloat;
 			isResFloat = isResFloat || isFloat;
+			isResLong = isResLong || isLong;
+			isResLong = isResLong && !isResFloat;
 			if (isFloat) {
 				page = store.getPage(addr);
 				idx = store.getElemIdx(addr);
 				dval = page.getFloat(idx);
 			}
-			else {
-				val = getIntOffStk(stkidx);
+			else if (isLong) {
+				page = store.getPage(addr);
+				idx = store.getElemIdx(addr);
+				longval = page.getLong(idx);
 			}
-			if (!isResFloat) {
-				sum += val;
-				fsum = sum;
+			else {
+				longval = getIntOffStk(stkidx);
+			}
+			if (isNewFloat) {
+				fsum = sum + dval;
 			}
 			else if (isFloat) {
 				fsum += dval;
 			}
+			else if (isResFloat) {
+				fsum += longval;
+			}
 			else {
-				fsum += val;
+				sum += longval;
 			}
 		}
-		if (!isResFloat) { 
-			rtnval = pushIntStk(sum) ? 0 : STKOVERFLOW;
-			return rtnval;
+		if (isResFloat) {
+			rtnval = pushFloat(fsum);
 		}
-		rtnval = pushFloat(fsum);
+		else if (isResLong) {
+			rtnval = pushLong(sum);
+		}
+		else { 
+			rtnval = pushIntStk((int)sum) ? 0 : STKOVERFLOW;
+		}
 		return rtnval;
 	}
 	
 	private int runMpyExpr() {
-		int product = 1;
+		long product = 1;
 		double fproduct = 1.0;
-		int val = 0;
+		long longval = 0L;
 		AddrNode addrNode;
 		Page page;
 		int addr;
@@ -694,7 +724,10 @@ public class RunTime implements IConst, RunConst {
 		double dval = 0.0;
 		int stkidx;
 		boolean isFloat;
+		boolean isLong;
 		boolean isResFloat = false;
+		boolean isResLong = false;
+		boolean isNewFloat;
 		int rtnval;
 
 		while (true) {
@@ -708,31 +741,46 @@ public class RunTime implements IConst, RunConst {
 			}
 			addr = addrNode.getAddr();
 			isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
+			isLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
+			isNewFloat = isFloat && !isResFloat;
 			isResFloat = isResFloat || isFloat;
+			isResLong = isResLong || isLong;
+			isResLong = isResLong && !isResFloat;
 			if (isFloat) {
 				page = store.getPage(addr);
 				idx = store.getElemIdx(addr);
 				dval = page.getFloat(idx);
 			}
-			else {
-				val = getIntOffStk(stkidx);
+			else if (isLong) {
+				page = store.getPage(addr);
+				idx = store.getElemIdx(addr);
+				longval = page.getLong(idx);
 			}
-			if (!isResFloat) {
-				product *= val;
-				fproduct = product;
+			else {
+				longval = getIntOffStk(stkidx);
+			}
+			if (isNewFloat) {
+				fproduct = product * dval;
 			}
 			else if (isFloat) {
 				fproduct *= dval;
 			}
+			else if (isResFloat) {
+				fproduct *= longval;
+			}
 			else {
-				fproduct *= val;
+				product *= longval;
 			}
 		}
-		if (!isResFloat) { 
-			rtnval = pushIntStk(product) ? 0 : STKOVERFLOW;
-			return rtnval;
+		if (isResFloat) {
+			rtnval = pushFloat(fproduct);
 		}
-		rtnval = pushFloat(fproduct);
+		else if (isResLong) {
+			rtnval = pushLong(product);
+		}
+		else { 
+			rtnval = pushIntStk((int)product) ? 0 : STKOVERFLOW;
+		}
 		return rtnval;
 	}
 	
@@ -746,6 +794,7 @@ public class RunTime implements IConst, RunConst {
 		double quotient;
 		int stkidx;
 		boolean isFloat;
+		boolean isLong;
 		int rtnval;
 		
 		omsg("runDivExpr: top");
@@ -756,10 +805,16 @@ public class RunTime implements IConst, RunConst {
 		addrNode = store.fetchNode(stkidx);
 		addr = addrNode.getAddr();
 		isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
+		isLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
 		if (isFloat) {
 			page = store.getPage(addr);
 			idx = store.getElemIdx(addr);
 			denom = page.getFloat(idx);
+		}
+		else if (isLong) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			denom = page.getLong(idx);
 		}
 		else {
 			denom = getIntOffStk(stkidx);
@@ -774,10 +829,16 @@ public class RunTime implements IConst, RunConst {
 		addrNode = store.fetchNode(stkidx);
 		addr = addrNode.getAddr();
 		isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
+		isLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
 		if (isFloat) {
 			page = store.getPage(addr);
 			idx = store.getElemIdx(addr);
 			base = page.getFloat(idx);
+		}
+		else if (isLong) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			base = page.getLong(idx);
 		}
 		else {
 			base = getIntOffStk(stkidx);
@@ -792,13 +853,17 @@ public class RunTime implements IConst, RunConst {
 		Page page;
 		int addr;
 		int idx;
-		int delta = 0;
-		int base = 0;
-		int diff = 0;
+		long delta = 0;
+		long base = 0;
+		long diff = 0;
 		int stkidx;
 		int rtnval;
 		boolean isDeltaFloat;
 		boolean isBaseFloat;
+		boolean isDeltaLong;
+		boolean isBaseLong;
+		boolean isResFloat;
+		boolean isResLong;
 		boolean isInt;
 		double fdelta = 0.0;
 		double fbase = 0.0;
@@ -812,10 +877,16 @@ public class RunTime implements IConst, RunConst {
 		addrNode = store.fetchNode(stkidx);
 		addr = addrNode.getAddr();
 		isDeltaFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
+		isDeltaLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
 		if (isDeltaFloat) {
 			page = store.getPage(addr);
 			idx = store.getElemIdx(addr);
 			fdelta = page.getFloat(idx);
+		}
+		else if (isDeltaLong) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			delta = page.getLong(idx);
 		}
 		else {
 			delta = getIntOffStk(stkidx);
@@ -827,10 +898,16 @@ public class RunTime implements IConst, RunConst {
 		addrNode = store.fetchNode(stkidx);
 		addr = addrNode.getAddr();
 		isBaseFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
+		isBaseLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
 		if (isBaseFloat) {
 			page = store.getPage(addr);
 			idx = store.getElemIdx(addr);
 			fbase = page.getFloat(idx);
+		}
+		else if (isBaseLong) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			base = page.getLong(idx);
 		}
 		else {
 			base = getIntOffStk(stkidx);
@@ -852,11 +929,17 @@ public class RunTime implements IConst, RunConst {
 				" " + delta + " " + diff);
 		omsg("runMinusExpr: fbase, fdelta, fdiff = " + fbase +
 				" " + fdelta + " " + fdiff);
-		if (isInt) { 
-			rtnval = pushIntStk(diff) ? 0 : STKOVERFLOW;
-			return rtnval;
+		isResFloat = isDeltaFloat || isBaseFloat;
+		isResLong = isDeltaLong || isBaseLong;
+		if (isResFloat) {
+			rtnval = pushFloat(fdiff);
 		}
-		rtnval = pushFloat(fdiff);
+		else if (isResLong) {
+			rtnval = pushLong(diff);
+		}
+		else { 
+			rtnval = pushIntStk((int)diff) ? 0 : STKOVERFLOW;
+		}
 		return rtnval;
 	}
 	
@@ -1366,6 +1449,10 @@ public class RunTime implements IConst, RunConst {
 	
 	private boolean pushAddr(int rightp) {
 		return pp.pushAddr(rightp);
+	}
+	
+	private int pushLong(long val) {
+		return pp.pushLong(val);
 	}
 	
 	private int pushFloat(double val) {

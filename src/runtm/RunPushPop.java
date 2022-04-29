@@ -242,6 +242,7 @@ class RunPushPop implements IConst, RunConst {
 		String err = "";
 		boolean isImmed = true;
 		double dval;
+		long longval;
 		
 		if (addrNode == null) {
 			return err;
@@ -281,6 +282,11 @@ class RunPushPop implements IConst, RunConst {
 		page = store.getPage(rtnval);
 		idx = store.getElemIdx(rtnval);
 		switch (pgtyp) {
+		case LONG:
+			longval = page.getLong(idx);
+			omsg("popStrFromNode: longval = " + longval);
+			s = "" + longval;
+			break;
 		case FLOAT:
 			dval = page.getFloat(idx);
 			omsg("popStrFromNode: dval = " + dval);
@@ -390,6 +396,31 @@ class RunPushPop implements IConst, RunConst {
 		return true;
 	}
 	
+	public int pushLong(long val) {
+		AddrNode addrNode;
+		int addr;
+		long longval;
+		Page page;
+		int idx;
+		
+		addr = store.allocLong(val);
+		if (addr < 0) {
+			return BADALLOC;
+		}
+		//## debug code:
+		page = store.getPage(addr);
+		idx = store.getElemIdx(addr);
+		longval = page.getLong(idx);
+		omsg("pushFloat: longval = " + longval + ", addr = " + addr);
+
+		addrNode = store.newAddrNode(0, addr);
+		addrNode.setHdrPgTyp(PageTyp.LONG);
+		if (!store.pushNode(addrNode)) {
+			return STKOVERFLOW;
+		}
+		return 0;
+	}
+	
 	public int pushFloat(double val) {
 		AddrNode addrNode;
 		int addr;
@@ -462,7 +493,7 @@ class RunPushPop implements IConst, RunConst {
 		boolean flag;
 		
 		omsg("pushIntMulti: popMulti, string");
-		rtnval = rt.popMulti(varCount);
+		rtnval = popMulti(varCount);
 		if (rtnval < 0) {
 			return rtnval;
 		}
@@ -514,7 +545,7 @@ class RunPushPop implements IConst, RunConst {
 		if (pgtyp == PageTyp.FLOAT) {
 			dval = page.getFloat(idx);
 			omsg("pushNonImmed: popMulti, float");
-			rtnval = rt.popMulti(varCount);
+			rtnval = popMulti(varCount);
 			if (rtnval < 0) {
 				return rtnval;
 			}
@@ -524,7 +555,7 @@ class RunPushPop implements IConst, RunConst {
 		else if (pgtyp == PageTyp.STRING) {
 			sval = page.getString(idx);
 			omsg("pushNonImmed: popMulti, string");
-			rtnval = rt.popMulti(varCount);
+			rtnval = popMulti(varCount);
 			if (rtnval < 0) {
 				return rtnval;
 			}
