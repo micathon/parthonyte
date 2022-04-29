@@ -677,6 +677,7 @@ class RunPushPop implements IConst, RunConst {
 			omsg("pushVarQuote: call pushIntVar");
 			rtnval = pushIntVar(varidx, locVarTyp, true);
 			break;
+		case LONG:
 		case FLOAT:
 		case STRING:
 			omsg("pushVarQuote: call pushPtrVar");
@@ -718,6 +719,10 @@ class RunPushPop implements IConst, RunConst {
 			omsg("popm: i = " + i + ", addr = " + addr + 
 				", pgtyp = " + pgtyp);
 			switch (pgtyp) {
+			case LONG:
+				omsg("popm: freeLong");
+				flag = store.freeLong(page, idx);
+				break;
 			case FLOAT:
 				//flag = page.freeFloat(idx);
 				omsg("popm: freeFloat");
