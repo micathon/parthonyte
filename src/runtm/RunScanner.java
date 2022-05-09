@@ -75,16 +75,19 @@ public class RunScanner implements IConst {
 		// scan names of func decls., including gdefun
 		rtnval = scanTopBlock(downp);
 		if (!rtnval) {
+			omsg("err: scanTopBlock");
 			return false;
 		}
 		// replace downp of glb/loc var refs. w/ var idx nos.
 		// must scan all do-blocks
 		rtnval = scopeTopBlock(downp);
 		if (!rtnval) {
+			omsg("err: scopeTopBlock");
 			return false;
 		}
 		// run prog. using do-block of gdefun stmt.
 		rtnval = rt.runTopBlock(downp);
+		omsg("err: runTopBlock");
 		return rtnval;
 	}
 	
@@ -149,6 +152,7 @@ public class RunScanner implements IConst {
 				downp = node.getDownp();
 				phaseNo = scopeTopStmt(downp, phaseNo);
 				if (phaseNo < 0) {
+					out("scopeTopBlock: -ve phaseNo");
 					return false;
 				}
 				out("Here is )");
@@ -293,22 +297,17 @@ public class RunScanner implements IConst {
 	
 	private int scanGlbDefStmt(int rightp) {
 		Node node;
-		Node firstNode;
 		KeywordTyp kwtyp;
-		NodeCellTyp celltyp;
-		int downp;
+		String fname = getGdefunWord();
 		int savep = rightp;
-		String varName;
-		int varidx = 0;
-		int idx;
-		Page page;
+		int upperp;
 
 		omsg("Keyword gdefun detected.");
 		rt.glbFunMap.put(getGdefunWord(), defunCount);
 		rt.glbFunList.add(0);
 		defunCount++;
+		upperp = rightp;
 		node = store.getNode(rightp);
-		firstNode = node;
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp == KeywordTyp.ZPAREN) {
 			rightp = node.getDownp();
@@ -318,48 +317,82 @@ public class RunScanner implements IConst {
 				return -1;
 			}
 			rightp = node.getRightp();
-			while (rightp > 0) {
-				// scan decls. of local vars.
-				// save dict. w/ var names and var nos.
-				// save list w/ var decl. node ptrs.
-				page = store.getPage(rightp);
-				idx = store.getElemIdx(rightp);
-				node = page.getNode(idx);
-				celltyp = node.getDownCellTyp();
-				if (celltyp != NodeCellTyp.ID) {
-					return -1;
-				}
-				downp = node.getDownp();
-				varName = getGdefunWord() + ' ';
-				varName += store.getVarName(downp);
-				rt.glbLocVarMap.put(varName, varidx);
-				rt.glbLocVarList.add(rightp);
-				varidx++;
-				rightp = node.getRightp();
-				node.setRightp(downp);
-				node.setDownp(0);
-				node.setRightCell(true);
-				page.setNode(idx, node);
+			rightp = scanGlbVarList("g" + fname, upperp, rightp);
+			if (rightp <= 0) {
+				return -1;
 			}
-			rt.glbLocVarList.add(-1);
-			rightp = firstNode.getRightp();
-			omsg("Global public var count = " + varidx);
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
+			upperp = rightp;
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp == KeywordTyp.ZPAREN) {  // (ivar ...)
+				omsg("scanGlbDefStmt: do ivar...");
+				rightp = node.getDownp();
+				node = store.getNode(rightp);
+				kwtyp = node.getKeywordTyp();
+				if (kwtyp != KeywordTyp.IVAR) {
+					return -1;
+				}
 				rightp = node.getRightp();
+				rightp = scanGlbVarList("i" + fname, upperp, rightp);
 				if (rightp <= 0) {
 					return -1;
 				}
 				node = store.getNode(rightp);
+				rightp = node.getRightp();
+				if (rightp <= 0) {
+					omsg("Missing DO");
+					return -1;
+				}
+				node = store.getNode(rightp);
+				kwtyp = node.getKeywordTyp();
 			}
-			kwtyp = node.getKeywordTyp();
 		}
 		if (kwtyp != KeywordTyp.DO) {
-			omsg("Missing DO");
+			omsg("Expecting DO, found kwytp = " + kwtyp);
 			return -1;
 		}
 		return savep;
+	}
+	
+	private int scanGlbVarList(String fname, int upperp, int rightp) {
+		Node node;
+		NodeCellTyp celltyp;
+		int downp;
+		String varName;
+		int varidx = 0;
+		int idx;
+		Page page;
+
+		while (rightp > 0) {
+			// scan decls. of global/local vars.
+			// save dict. w/ var names and var nos.
+			// save list w/ var decl. node ptrs.
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			node = page.getNode(idx);
+			celltyp = node.getDownCellTyp();
+			if (celltyp != NodeCellTyp.ID) {
+				return -1;
+			}
+			downp = node.getDownp();
+			varName = fname + ' ';
+			varName += store.getVarName(downp);
+			rt.glbLocVarMap.put(varName, varidx);
+			rt.glbLocVarList.add(rightp);
+			varidx++;
+			rightp = node.getRightp();
+			node.setRightp(downp);
+			node.setDownp(0);
+			node.setRightCell(true);
+			page.setNode(idx, node);
+			omsg("scanGlbVarList: var = " + varName + 
+				", idx = " + varidx);
+			omsg("Global public var/ivar count = " + varidx);
+		}
+		rt.glbLocVarList.add(-1);
+		return upperp;
 	}
 	
 	private int scopeGlbDefStmt(int rightp) {
@@ -414,6 +447,7 @@ public class RunScanner implements IConst {
 			downp = node.getDownp();
 			rtnval = scopeStmt(downp);
 			if (!rtnval) {
+				omsg("scopeGlbDefStmt: err scopeStmt");
 				return -1;
 			}
 			stmtCount++;
@@ -434,7 +468,9 @@ public class RunScanner implements IConst {
 		case PRINTLN: return scopePrintlnStmt(node);
 		case ZCALL: return scopeZcallStmt(rightp, false);
 		case RETURN: return scopeRtnStmt(node);
-		default: return false;
+		default: 
+			omsg("scopeStmt: invalid kwtyp = " + kwtyp);
+			return false;
 		}
 	}
 	
@@ -442,6 +478,7 @@ public class RunScanner implements IConst {
 		int rightp;
 		
 		count++;
+		omsg("scopeSetStmt: top");
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			return false;
@@ -449,6 +486,7 @@ public class RunScanner implements IConst {
 		node = store.getNode(rightp);
 		// perform scope oper. on single var. ref.
 		if (!scopeLocVar(rightp)) {
+			omsg("scopeSetStmt: scopeLocVar fail");
 			return false;
 		}
 		rightp = node.getRightp();
@@ -456,6 +494,7 @@ public class RunScanner implements IConst {
 			return false;
 		}
 		// perform scope oper. on single expr.
+		omsg("scopeSetStmt: call scopeExpr");
 		return scopeExpr(rightp);
 	}
 	
@@ -548,7 +587,7 @@ public class RunScanner implements IConst {
 		downp = node.getDownp();
 		isGlb = scopeFuncName.equals("");
 		if (isGlb) {
-			name = getGdefunWord();
+			name = getGdefunWord();  //##
 		}
 		else {
 			name = scopeFuncName;
@@ -835,11 +874,7 @@ public class RunScanner implements IConst {
 	}
 	
 	private String getGdefunWord() {
-		return "gdefun";
-	}
-	
-	private boolean isGdefun(String s) {
-		return s.equals("gdefun");
+		return "defun";
 	}
 	
 	public String getFunVar(String funcName) {
