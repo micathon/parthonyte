@@ -152,6 +152,7 @@ public class SynChkExpr {
 		NodeCellTyp celltyp;
 		boolean isValid;
 
+		out("doParenExpr: top");
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		celltyp = node.getDownCellTyp();
@@ -190,6 +191,7 @@ public class SynChkExpr {
 			if (isValid) {
 				return 0;
 			}
+			out("doParenExpr: !isValid");
 			return -1;
 		}
 		return parenExprRtn(rightp, node);
@@ -199,6 +201,7 @@ public class SynChkExpr {
 		int rightq;
 		KeywordTyp kwtyp = node.getKeywordTyp();
 		
+		out("parenExprRtn: top");
 		if (!node.isOpenPar()) {
 			oerrd(rightp, "Error: unexpected token while scanning for " +
 				"parenthesized expression", 30.1);
