@@ -536,13 +536,24 @@ class RunPushPop implements IConst, RunConst {
 	public int pushNonImmed(int addr, PageTyp pgtyp, int varCount) {
 		Page page;
 		int idx;
+		long longval;
 		double dval;
 		String sval;
 		int rtnval;
 
 		page = store.getPage(addr);
 		idx = store.getElemIdx(addr);
-		if (pgtyp == PageTyp.FLOAT) {
+		if (pgtyp == PageTyp.LONG) {
+			longval = page.getLong(idx);
+			omsg("pushNonImmed: popMulti, long");
+			rtnval = popMulti(varCount);
+			if (rtnval < 0) {
+				return rtnval;
+			}
+			rtnval = pushLong(longval);
+			return rtnval;
+		}
+		else if (pgtyp == PageTyp.FLOAT) {
 			dval = page.getFloat(idx);
 			omsg("pushNonImmed: popMulti, float");
 			rtnval = popMulti(varCount);

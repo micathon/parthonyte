@@ -203,33 +203,17 @@ public class RunTime implements IConst, RunConst {
 	
 	private int runGlbDefStmt(int rightp) {
 		Node node;
-		Node firstNode;
 		KeywordTyp kwtyp;
 		int savep = rightp;
 
 		omsg("Keyword gdefun detected again.");
-		node = store.getNode(rightp);
-		firstNode = node;
-		kwtyp = node.getKeywordTyp();
-		if (kwtyp == KeywordTyp.ZPAREN) {
-			rightp = node.getDownp();
-			node = store.getNode(rightp);
-			kwtyp = node.getKeywordTyp();
-			if (kwtyp != KeywordTyp.VAR) {
-				return -1;
-			}
-			rightp = firstNode.getRightp();
-			node = store.getNode(rightp);
-			kwtyp = node.getKeywordTyp();
-			if (kwtyp == KeywordTyp.ZPAREN) {  // (ivar ...)
-				rightp = node.getRightp();
-				if (rightp <= 0) {
-					return -1;
-				}
-				node = store.getNode(rightp);
-			}
-			kwtyp = node.getKeywordTyp();
+		rightp = rscan.scopeGlbVarLists(rightp);
+		if (rightp <= 0) {
+			omsg("runGlbDefStmt: bad var list");
+			return -1;
 		}
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
 			omsg("Missing DO");
 			return -1;

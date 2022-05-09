@@ -87,7 +87,7 @@ public class RunScanner implements IConst {
 		}
 		// run prog. using do-block of gdefun stmt.
 		rtnval = rt.runTopBlock(downp);
-		omsg("err: runTopBlock");
+		omsg("runRoot: runTopBlock = " + rtnval);
 		return rtnval;
 	}
 	
@@ -299,6 +299,7 @@ public class RunScanner implements IConst {
 		Node node;
 		KeywordTyp kwtyp;
 		String fname = getGdefunWord();
+		char prefix;
 		int savep = rightp;
 		int upperp;
 
@@ -313,21 +314,38 @@ public class RunScanner implements IConst {
 			rightp = node.getDownp();
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
-			if (kwtyp != KeywordTyp.VAR) {
+			switch (kwtyp) {
+			case VAR:
+				prefix = 'g';
+				break;
+			case IVAR:
+				prefix = 'i';
+				break;
+			default:
 				return -1;
 			}
 			rightp = node.getRightp();
-			rightp = scanGlbVarList("g" + fname, upperp, rightp);
+			rightp = scanGlbVarList(prefix + fname, upperp, rightp);
 			if (rightp <= 0) {
 				return -1;
 			}
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
+			if (rightp <= 0) {
+				omsg("Missing DO after var/ivar");
+				return -1;
+			}
 			upperp = rightp;
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
-			if (kwtyp == KeywordTyp.ZPAREN) {  // (ivar ...)
-				omsg("scanGlbDefStmt: do ivar...");
+			if (kwtyp != KeywordTyp.ZPAREN) { }
+			else if (prefix == 'i') {
+				omsg("scanGlbDefStmt: open paren found " + 
+					"after (ivar ...)");
+				return -1;
+			}
+			else {
+				omsg("scanGlbDefStmt: do ivar after var");
 				rightp = node.getDownp();
 				node = store.getNode(rightp);
 				kwtyp = node.getKeywordTyp();
@@ -335,7 +353,7 @@ public class RunScanner implements IConst {
 					return -1;
 				}
 				rightp = node.getRightp();
-				rightp = scanGlbVarList("i" + fname, upperp, rightp);
+				rightp = scanGlbVarList('i' + fname, upperp, rightp);
 				if (rightp <= 0) {
 					return -1;
 				}
@@ -374,6 +392,7 @@ public class RunScanner implements IConst {
 			node = page.getNode(idx);
 			celltyp = node.getDownCellTyp();
 			if (celltyp != NodeCellTyp.ID) {
+				omsg("scanGlbVarList: bad celltyp = " + celltyp);
 				return -1;
 			}
 			downp = node.getDownp();
@@ -400,8 +419,8 @@ public class RunScanner implements IConst {
 		// replace downp of glb/loc var refs. w/ var idx nos.
 		// (they were pointing to var names)
 		Node node;
-		Node firstNode;
-		KeywordTyp kwtyp;
+		Node upNode;
+		KeywordTyp kwtyp, kwalt;
 		int downp;
 		int savep = rightp;
 		int stmtCount = 0;
@@ -409,28 +428,13 @@ public class RunScanner implements IConst {
 
 		omsg("Keyword gdefun detected.");
 		scopeFuncName = "";
-		node = store.getNode(rightp);
-		firstNode = node;
-		kwtyp = node.getKeywordTyp();
-		if (kwtyp == KeywordTyp.ZPAREN) {
-			rightp = node.getDownp();
-			node = store.getNode(rightp);
-			kwtyp = node.getKeywordTyp();
-			if (kwtyp != KeywordTyp.VAR) {
-				return -1;
-			}
-			rightp = firstNode.getRightp();
-			node = store.getNode(rightp);
-			kwtyp = node.getKeywordTyp();
-			if (kwtyp == KeywordTyp.ZPAREN) {  // (ivar ...)
-				rightp = node.getRightp();
-				if (rightp <= 0) {
-					return -1;
-				}
-				node = store.getNode(rightp);
-			}
-			kwtyp = node.getKeywordTyp();
+		rightp = scopeGlbVarLists(rightp);
+		if (rightp <= 0) {
+			omsg("scopeGlbDefStmt: bad var list");
+			return -1;
 		}
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
 			omsg("Missing DO");
 			return -1;
@@ -455,6 +459,53 @@ public class RunScanner implements IConst {
 		} 
 		omsg("Stmt count = " + stmtCount + ", set count = " + count);
 		return savep;
+	}
+	
+	public int scopeGlbVarLists(int rightp) {
+		Node node;
+		Node upNode;
+		KeywordTyp kwtyp, kwalt;
+		
+		node = store.getNode(rightp);
+		upNode = node;
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp == KeywordTyp.ZPAREN) {
+			rightp = node.getDownp();
+			node = store.getNode(rightp);
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp != KeywordTyp.VAR && 
+				kwtyp != KeywordTyp.IVAR) 
+			{
+				omsg("scopeGlbDefStmt: expecting var/ivar, " +
+					"found kwd = " + kwtyp);
+				return -1;
+			}
+			rightp = upNode.getRightp();
+			if (rightp <= 0) {
+				omsg("scopeGlbDefStmt: naked var/ivar list");
+				return -1;
+			}
+			node = store.getNode(rightp);
+			upNode = node;
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp == KeywordTyp.ZPAREN) {  // (ivar ...)
+				rightp = node.getDownp();
+				node = store.getNode(rightp);
+				kwalt = node.getKeywordTyp();
+				if (kwalt != KeywordTyp.IVAR || 
+					kwtyp == KeywordTyp.IVAR) 
+				{
+					omsg("scopeGlbDefStmt: 2 invalid var lists");
+					return -1;
+				}
+				rightp = upNode.getRightp();
+				if (rightp <= 0) {
+					omsg("scopeGlbDefStmt: var OK, naked ivar list");
+					return -1;
+				}
+			}
+		}
+		return rightp;
 	}
 	
 	private boolean scopeStmt(int rightp) {
@@ -575,7 +626,9 @@ public class RunScanner implements IConst {
 		Node node;
 		NodeCellTyp celltyp;
 		boolean isGlb;
+		boolean isGlbVar;
 		String varName, name;
+		String gname;
 		Integer value;
 		int varidx;
 		
@@ -585,9 +638,10 @@ public class RunScanner implements IConst {
 			return false;
 		}
 		downp = node.getDownp();
+		gname = getGdefunWord();
 		isGlb = scopeFuncName.equals("");
 		if (isGlb) {
-			name = getGdefunWord();  //##
+			name = 'g' + gname;
 		}
 		else {
 			name = scopeFuncName;
@@ -595,20 +649,20 @@ public class RunScanner implements IConst {
 		varName = store.getVarName(downp);
 		name = name + ' ' + varName;
 		value = rt.glbLocVarMap.get(name);
-		if (value != null) { }
+		isGlbVar = (value != null); 
+		if (isGlbVar) { }
 		else if (isGlb) {
-			return false;
-		}
-		else {
-			isGlb = true;
-			name = getGdefunWord() + ' ' + varName;
+			name = 'i' + gname + ' ' + varName;
 			value = rt.glbLocVarMap.get(name);
 			if (value == null) {
 				return false;
 			}
 		}
+		else {
+			omsg("scopeLocVar: !isGlb");
+		}
 		varidx = (int)value;
-		if (isGlb) {
+		if (isGlbVar) {
 			varidx = -1 - varidx;
 		}
 		node.setDownCellTyp(NodeCellTyp.LOCVAR.ordinal());
