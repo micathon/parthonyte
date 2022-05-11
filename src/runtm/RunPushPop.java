@@ -411,7 +411,7 @@ class RunPushPop implements IConst, RunConst {
 		page = store.getPage(addr);
 		idx = store.getElemIdx(addr);
 		longval = page.getLong(idx);
-		omsg("pushFloat: longval = " + longval + ", addr = " + addr);
+		omsg("pushLong: longval = " + longval + ", addr = " + addr);
 
 		addrNode = store.newAddrNode(0, addr);
 		addrNode.setHdrPgTyp(PageTyp.LONG);

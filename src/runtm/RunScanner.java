@@ -570,12 +570,17 @@ public class RunScanner implements IConst {
 		// perform scope oper. on single expr.
 		// fails if no expr. found
 		int rightp;
+		boolean rtnval;
 		
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			return false;
 		}
-		return scopeExpr(rightp);
+		rtnval = scopeExpr(rightp);
+		if (!rtnval) {
+			omsg("scopeRtnStmt: expr fail");
+		}
+		return rtnval;
 	}
 	
 	private boolean scopeZcallStmt(int rightp, boolean isExpr) {
@@ -621,8 +626,6 @@ public class RunScanner implements IConst {
 		// (it was pointing to var name)
 		// glb var idx nos. are -ve
 		int downp;
-		Page page;
-		int idx;
 		Node node;
 		NodeCellTyp celltyp;
 		boolean isGlb;
@@ -648,30 +651,55 @@ public class RunScanner implements IConst {
 		}
 		varName = store.getVarName(downp);
 		name = name + ' ' + varName;
+		omsg("scopeLocVar: name = " + name);
 		value = rt.glbLocVarMap.get(name);
-		isGlbVar = (value != null); 
-		if (isGlbVar) { }
+		if (value != null) {
+			varidx = (int)value;
+			if (isGlb) {
+				varidx = -1 - varidx;
+			}
+			doScopeLocVar(node, rightp, varidx);
+			return true;
+		}
 		else if (isGlb) {
 			name = 'i' + gname + ' ' + varName;
 			value = rt.glbLocVarMap.get(name);
 			if (value == null) {
+				omsg("scopeLocVar: glb var fail");
 				return false;
 			}
+			varidx = (int)value;
+			doScopeLocVar(node, rightp, varidx);
+			return true;
 		}
-		else {
-			omsg("scopeLocVar: !isGlb");
+		name = 'g' + gname + ' ' + varName;
+		value = rt.glbLocVarMap.get(name);
+		if (value != null) {
+			varidx = (int)value;
+			varidx = -1 - varidx;
+			doScopeLocVar(node, rightp, varidx);
+			return true;
+		}
+		name = 'i' + gname + ' ' + varName;
+		value = rt.glbLocVarMap.get(name);
+		if (value == null) {
+			return false;
 		}
 		varidx = (int)value;
-		if (isGlbVar) {
-			varidx = -1 - varidx;
-		}
+		doScopeLocVar(node, rightp, varidx);
+		return true;
+	}
+	
+	private void doScopeLocVar(Node node, int rightp, int varidx) {
+		Page page;
+		int idx;
+	
 		node.setDownCellTyp(NodeCellTyp.LOCVAR.ordinal());
 		node.setDownp(varidx);
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		page.setNode(idx, node);
 		omsg("LocVar = " + varidx);
-		return true;
 	}
 	
 	private boolean scopeExpr(int rightp) {
