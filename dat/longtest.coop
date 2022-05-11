@@ -9,6 +9,7 @@ gdefun
   (ivar res) #AC
   #(ivar x res) #B
 do (
+  set y 1; #H
   #set x 8100200300L; #BC
   #set res (dbl-func x); #BC
   set res (dbl-func 8100200300L); #A
