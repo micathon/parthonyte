@@ -32,6 +32,10 @@ class RunPushPop implements IConst, RunConst {
 		rt.setLastErrCode(errCode);
 	}
 	
+	public void setLocBaseIdx(int idx) {
+		locBaseIdx = idx;
+	}
+	
 	public KeywordTyp popKwd() {
 		KeywordTyp kwtyp;
 		int ival;
@@ -357,7 +361,7 @@ class RunPushPop implements IConst, RunConst {
 		boolean isGlb) 
 	{
 		omsg("storeLocGlbInt: varidx = " + varidx + ", val = " +
-			val + ", pgtyp = " + pgtyp);
+			val + ", pgtyp = " + pgtyp + ", lbidx = " + locBaseIdx);
 		if (!isGlb) {
 			varidx += locBaseIdx;
 		}
@@ -645,6 +649,7 @@ class RunPushPop implements IConst, RunConst {
 			varidx = -1 - varidx;
 			locVarTyp = GLBVAR;
 			stkidx = varidx;
+			omsg("pushVar: in varidx < 0"); 
 		}
 		addrNode = store.fetchNode(stkidx);
 		pgtyp = addrNode.getHdrPgTyp();

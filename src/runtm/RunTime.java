@@ -88,6 +88,11 @@ public class RunTime implements IConst, RunConst {
 		return locBaseIdx;
 	}
 	
+	public void setLocBaseIdx(int idx) {
+		locBaseIdx = idx;
+		pp.setLocBaseIdx(idx);
+	}
+	
 	public void setNegInt(boolean flag) {
 		isNegInt = flag;
 	}
@@ -1176,7 +1181,9 @@ public class RunTime implements IConst, RunConst {
 			return BADPARMCT;
 		}
 		i = glbLocVarMap.get(funcName);
-		locBaseIdx = store.getStkIdx() - parmCount;
+		setLocBaseIdx(store.getStkIdx() - parmCount);
+		omsg("runZcallStmt: lbidx = " + locBaseIdx + 
+			", parmCount = " + parmCount);
 		while (true) {
 			if (varCount < parmCount) {
 				varCount++;
@@ -1301,7 +1308,7 @@ public class RunTime implements IConst, RunConst {
 			}
 		}
 		locDepth--;
-		locBaseIdx = currLocBase;
+		setLocBaseIdx(currLocBase);
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		omsg("runRtnStmt: rtnval = " + rightp);
@@ -1330,7 +1337,7 @@ public class RunTime implements IConst, RunConst {
 		int i, j;
 		
 		i = 0;
-		locBaseIdx = store.getStkIdx();
+		setLocBaseIdx(store.getStkIdx());
 		omsg("runGlbCall: locBaseIdx = " + locBaseIdx);
 		while (true) {
 			j = glbLocVarList.get(i);
