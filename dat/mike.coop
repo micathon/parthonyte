@@ -1,0 +1,14 @@
+do (
+gdefun
+  (var y2 y3 y res)
+do (
+  set y 1; 
+  set res (dbl-func 0 7 33 8100200); 
+  println "res =" res;
+);
+defun (dbl-func p p1 q z)
+do (
+  return (+ p1 y (* 2 z)); 
+);
+)
+
