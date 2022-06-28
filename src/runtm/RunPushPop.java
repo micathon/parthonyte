@@ -729,11 +729,11 @@ class RunPushPop implements IConst, RunConst {
 			}
 			flag = false;
 			addr = node.getAddr();
+			omsg("popm: i = " + i + ", addr = " + addr);
 			page = store.getPage(addr);
 			idx = store.getElemIdx(addr);
 			pgtyp = node.getHdrPgTyp();
-			omsg("popm: i = " + i + ", addr = " + addr + 
-				", pgtyp = " + pgtyp);
+			omsg("popm: pgtyp = " + pgtyp);
 			switch (pgtyp) {
 			case LONG:
 				omsg("popm: freeLong");
