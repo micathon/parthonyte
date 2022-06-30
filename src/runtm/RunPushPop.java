@@ -190,7 +190,7 @@ class RunPushPop implements IConst, RunConst {
 		return rtnval;
 	}
 	
-	public Integer popIObjFromNode(AddrNode addrNode) {
+	public Integer popIObjFromNode(AddrNode addrNode, int lbidx) {
 		// replaces popInt* functions
 		PageTyp pgtyp;
 		int locVarTyp;
@@ -219,12 +219,12 @@ class RunPushPop implements IConst, RunConst {
 		case GLBVAR:
 			varidx = addr;
 			if (addrNode.getHdrLocVar()) {
-				varidx += locBaseIdx;
+				varidx += lbidx;
 			}
-			omsg("popIObjFN: varidx = " + varidx + 
-				", locBaseIdx = " + locBaseIdx);
+			omsg("popIObjFN: addr = " + addr + 
+				", varidx = " + varidx + 
+				", locBaseIdx = " + lbidx);
 			addrNode = store.fetchNode(varidx);
-			//pgtyp = addrNode.getHdrPgTyp(); 
 			rtnval = addrNode.getAddr();
 			break;
 		default: 

@@ -1030,7 +1030,7 @@ public class RunTime implements IConst, RunConst {
 		return rtnval;
 	}
 	
-	private int runAltZcallStmt(int parmCount) {
+	private int runAltZcallStmt(int parmCount, int lbidx) {
 		AddrNode addrNode;
 		PageTyp pgtyp;
 		Integer val;
@@ -1043,7 +1043,7 @@ public class RunTime implements IConst, RunConst {
 				return STKOVERFLOW;
 			}
 			pgtyp = addrNode.getHdrPgTyp();
-			val = popIObjFromNode(addrNode);
+			val = popIObjFromNode(addrNode, lbidx);
 			if (val == null) {
 				omsg("runAltZcallStmt: rtn = " + lastErrCode + 
 					", i = " + i);
@@ -1202,7 +1202,7 @@ public class RunTime implements IConst, RunConst {
 			}
 			varCount++;
 		}
-		rtnval = runAltZcallStmt(parmCount);
+		rtnval = runAltZcallStmt(parmCount, currLocBase);
 		if (rtnval < 0) {
 			omsg("Zcall: rtnval = " + rtnval);
 			return rtnval;
@@ -1253,7 +1253,7 @@ public class RunTime implements IConst, RunConst {
 			if (funcReturns == null) {
 				return STKUNDERFLOW;
 			}
-			val = popIObjFromNode(funcReturns);
+			val = popIObjFromNode(funcReturns, locBaseIdx);
 			if (val == null) {
 				omsg("runRtnStmt: isExpr, rtn = " + lastErrCode); 
 				return lastErrCode;
@@ -1410,8 +1410,8 @@ public class RunTime implements IConst, RunConst {
 		return pp.popIntRtn(addrNode, isKwd);
 	}
 	
-	private Integer popIObjFromNode(AddrNode addrNode) {
-		return pp.popIObjFromNode(addrNode);
+	private Integer popIObjFromNode(AddrNode addrNode, int lbidx) {
+		return pp.popIObjFromNode(addrNode, lbidx);
 	}
 	
 	private Integer setErrCode(int errCode) {
