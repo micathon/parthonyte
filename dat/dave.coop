@@ -5,17 +5,17 @@ do (
   println ">>>>>>>>>>>>>" (dbl-func);
 );
 defun (dbl-func)
-  (var y y00 y0)
+  (var y y0)
 do (
   set y0 3.14;
-  set y (triple-func 555 y0);
+  set y (triple-func 333 444 555 y0);
   return y;
 );
-defun (triple-func w z)
-  (var y1)
+defun (triple-func u v w z)
+  (var y1 y10 y2)
 do (
-  set y1 (* z 3);
-  return y1;
+  set y2 (* z 3);
+  return y2;
 );
 )
 
