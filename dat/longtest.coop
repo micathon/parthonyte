@@ -4,22 +4,25 @@ do (
 # D, E or H
 # F or G
 gdefun
-  (var y) #AH
+  #(var y) #H
+  #(var y res) #AH
+  #(var res y) #AH #works!
   #(var x) #C
-  (ivar res) #AC
-  #(ivar x res) #B
+  #(ivar res) #AC
+  (ivar x res) #B
 do (
-  set y 1; #H
+  #set y 1; #H
   #set x 8100200300L; #BC
-  #set res (dbl-func x); #BC
-  set res (dbl-func 8100200300L); #A
+  set x 8100200300.0; #BC
+  set res (dbl-func x); #BC
+  #set res (dbl-func 8100200); #A
   println "res =" res;
-  println "res2 =" (dbl-func res);
+  #println "res2 =" (dbl-func res);
 );
 defun (dbl-func z)
-  #(var y) #DE 
+  (var y) #DE 
 do (
-  #set y 1; #D
+  set y 1; #D
   #set y 1L; #E
   #set y (+ (* 2 z) y); #G
   #println "y =" y; #G
@@ -34,13 +37,13 @@ do (
 # y = 32400801203 # (9 runs)
 # res2 = 32400801203
 {
- ADF
+ADF
  BDF
  CDF
  AEF
  BEF
  CEF
-AHF
+ AHF*
 BHF
 CHF
 ADG
