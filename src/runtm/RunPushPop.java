@@ -86,6 +86,7 @@ class RunPushPop implements IConst, RunConst {
 		AddrNode addrNode;
 		int locVarTyp;
 		int varidx;
+		int addr;
 		int rtnval;
 		boolean ptrFlag;
 
@@ -96,9 +97,10 @@ class RunPushPop implements IConst, RunConst {
 		rtnval = store.getStkIdx();
 		ptrFlag = addrNode.isPtr();
 		locVarTyp = addrNode.getHdrLocVarTyp();
+		addr = addrNode.getAddr();
 		omsg("popIntStk: ptrFlag = " + ptrFlag);
 		if (ptrFlag && addrNode.getHdrNonVar()) {
-			return addrNode.getAddr();
+			return addr;
 		}
 		switch (locVarTyp) {
 		case NONVAR: 
@@ -106,11 +108,12 @@ class RunPushPop implements IConst, RunConst {
 			return rtnval;
 		case LOCVAR:
 		case GLBVAR:
-			varidx = addrNode.getAddr();
+			varidx = addr;
 			if (addrNode.getHdrLocVar()) {
 				varidx += locBaseIdx;
 			}
-			omsg("popIntStk: varidx, rtn = " + rtnval);
+			omsg("popIntStk: addr = " + addr + 
+				", varidx = " + varidx);
 			return varidx;
 		default: return BADINTVAL;
 		}
@@ -639,6 +642,7 @@ class RunPushPop implements IConst, RunConst {
 		int locVarTyp;
 		PageTyp pgtyp;
 		AddrNode addrNode;
+		int val;
 		
 		isLocal = (varidx >= 0);
 		if (isLocal) {
@@ -657,8 +661,10 @@ class RunPushPop implements IConst, RunConst {
 		if (pgtyp == PageTyp.KWD) {
 			omsg("pushVar: KWD stkidx = " + stkidx);
 		}
-		if (pushVal(varidx, pgtyp, locVarTyp)) {
-			omsg("pushVar: varidx = " + varidx + ", pgtyp = " + 
+		//val = addrNode.getAddr();
+		val = varidx;
+		if (pushVal(val, pgtyp, locVarTyp)) {
+			omsg("pushVar: val = " + val + ", pgtyp = " + 
 				pgtyp + ", locvartyp = " + locVarTyp);
 			return true;
 		}
@@ -730,9 +736,16 @@ class RunPushPop implements IConst, RunConst {
 			flag = false;
 			addr = node.getAddr();
 			omsg("popm: i = " + i + ", addr = " + addr);
-			page = store.getPage(addr);
-			idx = store.getElemIdx(addr);
-			pgtyp = node.getHdrPgTyp();
+			if (node.isInt()) {
+				pgtyp = PageTyp.INTVAL;
+				page = null;
+				idx = 0;
+			}
+			else {
+				page = store.getPage(addr);
+				idx = store.getElemIdx(addr);
+				pgtyp = node.getHdrPgTyp();
+			}
 			omsg("popm: pgtyp = " + pgtyp);
 			switch (pgtyp) {
 			case LONG:

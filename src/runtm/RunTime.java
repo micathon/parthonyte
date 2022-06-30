@@ -412,7 +412,9 @@ public class RunTime implements IConst, RunConst {
 
 		varidx = node.getDownp();
 		celltyp = node.getDownCellTyp();
-		omsg("htok: celltyp = " + celltyp + ", downp = " + varidx);
+		rightp = node.getRightp();
+		omsg("htok: celltyp = " + celltyp + ", downp = " + varidx +
+			", rightp = " + rightp);
 		if (isQuote) {
 			switch (celltyp) {
 			case ID:
@@ -420,7 +422,6 @@ public class RunTime implements IConst, RunConst {
 				if (!pushVarQuote(varidx)) {
 					return STKOVERFLOW;
 				}
-				rightp = node.getRightp();
 				return rightp;
 			default:
 				return BADCELLTYP;
@@ -729,6 +730,8 @@ public class RunTime implements IConst, RunConst {
 				break;
 			}
 			addr = addrNode.getAddr();
+			omsg("runMpyExpr: stkidx = " + stkidx +
+				", addr = " + addr);
 			isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
 			isLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
 			isNewFloat = isFloat && !isResFloat;
@@ -1259,7 +1262,7 @@ public class RunTime implements IConst, RunConst {
 			isExprLoop = true;
 			omsg("runRtnStmt: funcAddr = " + funcAddr);
 		}
-		locDepth = popVal(); // locBaseIdx
+		locDepth = popVal(); // ?locBaseIdx
 		omsg("runRtnStmt: locDepth = " + locDepth);
 		if (locDepth == NEGBASEVAL) {
 			return STKUNDERFLOW;
@@ -1319,7 +1322,7 @@ public class RunTime implements IConst, RunConst {
 		int rightp;
 		KeywordTyp kwtyp;
 		
-		omsg("pushSetStmt: top");
+		omsg("pushRtnStmt: top");
 		kwtyp = KeywordTyp.RETURN;
 		if (!pushOp(kwtyp)) {
 			return STKOVERFLOW;
