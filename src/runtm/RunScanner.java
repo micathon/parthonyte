@@ -23,6 +23,7 @@ public class RunScanner implements IConst {
 	private String scopeFuncName;
 	private int defunCount;
 	private int count;
+	private int glbVarListIdx;
 
 	public RunScanner(Store store, ScanSrc scanSrc, SynChk synChk, int rootNodep) {
 		this.store = store;
@@ -307,6 +308,7 @@ public class RunScanner implements IConst {
 		rt.glbFunMap.put(getGdefunWord(), defunCount);
 		rt.glbFunList.add(0);
 		defunCount++;
+		glbVarListIdx = 0;
 		upperp = rightp;
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
@@ -379,10 +381,11 @@ public class RunScanner implements IConst {
 		NodeCellTyp celltyp;
 		int downp;
 		String varName;
-		int varidx = 0;
+		int varidx;
 		int idx;
 		Page page;
 
+		varidx = glbVarListIdx;
 		while (rightp > 0) {
 			// scan decls. of global/local vars.
 			// save dict. w/ var names and var nos.
@@ -410,6 +413,7 @@ public class RunScanner implements IConst {
 				", idx = " + varidx);
 			omsg("Global public var/ivar count = " + varidx);
 		}
+		glbVarListIdx = varidx;
 		rt.glbLocVarList.add(-1);
 		return upperp;
 	}
