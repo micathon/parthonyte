@@ -1,21 +1,18 @@
 do (
 gdefun
-  (var a b c)
+  (var y) #H
+  (ivar x res) #B
 do (
-  println ">>>>>>>>>>>>>" (dbl-func);
+  set y 777; #H
+  set x 8100200; #BC
+  set res y;
+  #set res (dbl-func x); #BC
+  println "res =" res;
 );
-defun (dbl-func)
-  (var y y0)
+defun (dbl-func z)
 do (
-  set y0 3.14;
-  set y (triple-func 333 444 555 y0);
-  return y;
-);
-defun (triple-func u v w z)
-  (var y1 y10 y2)
-do (
-  set y2 (* z 3);
-  return y2;
+  println "y =" y; #G
+  return (+ (* 2 z) y); #F
 );
 )
 
