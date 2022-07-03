@@ -1,14 +1,17 @@
 do (
-gdefun
-  (var y2 y3 y res)
-do (
-  set y 1; 
-  set res (dbl-func 0 7 33 8100200); 
-  println "res =" res;
+gdefun do (
+  f 999;
+  println "fun-btm: post f1";
 );
-defun (dbl-func p p1 q z)
-do (
-  return (+ p1 y (* 2 z)); 
+defun (f m) do (
+  g;
+  println "f: btm";
+  return 333;
+); 
+defun (g)(var m) do (
+  set m 800L;
+  println ">>>>>>>>>>>>>>>> m =" m;
+  return m;
 );
 )
 
