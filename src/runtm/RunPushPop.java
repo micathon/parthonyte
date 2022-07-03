@@ -736,7 +736,7 @@ class RunPushPop implements IConst, RunConst {
 			flag = false;
 			addr = node.getAddr();
 			omsg("popm: i = " + i + ", addr = " + addr);
-			if (node.isInt()) {
+			if (node.isInt()) {  // set isInt for BOOLEAN too!
 				pgtyp = PageTyp.INTVAL;
 				page = null;
 				idx = 0;
@@ -749,7 +749,7 @@ class RunPushPop implements IConst, RunConst {
 			omsg("popm: pgtyp = " + pgtyp);
 			switch (pgtyp) {
 			case LONG:
-				omsg("popm: freeLong");
+				omsg("popm: freeLong, addr = " + addr);
 				flag = store.freeLong(page, idx);
 				break;
 			case FLOAT:

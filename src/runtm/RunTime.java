@@ -1262,7 +1262,7 @@ public class RunTime implements IConst, RunConst {
 			isExprLoop = true;
 			omsg("runRtnStmt: funcAddr = " + funcAddr);
 		}
-		locDepth = popVal(); // ?locBaseIdx
+		locDepth = popVal();
 		omsg("runRtnStmt: locDepth = " + locDepth);
 		if (locDepth == NEGBASEVAL) {
 			return STKUNDERFLOW;
@@ -1297,8 +1297,11 @@ public class RunTime implements IConst, RunConst {
 		}
 		// push func rtnval if locDepth > 0:
 		if (locDepth <= 0) { 
-			omsg("runRtnStmt: locDepth = " + locDepth);
+			omsg("runRtnStmt: locDepth(2) = " + locDepth);
 			isExprLoop = false;
+			if (isExpr) {
+				store.popNode();
+			}
 		}
 		else if (funcReturns == null) { 
 			return GENERR;
@@ -1312,6 +1315,7 @@ public class RunTime implements IConst, RunConst {
 		}
 		locDepth--;
 		setLocBaseIdx(currLocBase);
+		omsg("runRtnStmt: btm, rightp = " + rightp);
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		omsg("runRtnStmt: rtnval = " + rightp);
