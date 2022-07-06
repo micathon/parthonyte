@@ -1,9 +1,15 @@
 do (
 gdefun (var tot a b c x prod pi firstname) do (
+  println (color);
   set pi 3.14;
   set x (funh);
   println "x =" x;
   fun-btm;
+);
+defun (color)(var giga) do (
+  set giga 8100200300L;
+  println giga;
+  return "blue";
 );
 defun (funh)(var y) do (
   println "top of funh";
@@ -11,10 +17,10 @@ defun (funh)(var y) do (
   println "y =" y;
   return y;
 );
-defun (h x s)(var i y z w) do (
+defun (h x s)(var y z w) do (
   set y (* 2.0 x);
   println "y =" y;
-  set x "error!";
+  #set x "error!";
   set z 6.75;
   set w 44.49;
   println x s;
