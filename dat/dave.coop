@@ -1,0 +1,18 @@
+do (
+gdefun
+  (var y) #H
+  (ivar x res) #B
+do (
+  set y 777; #H
+  set x 8100200; #BC
+  set res y;
+  #set res (dbl-func x); #BC
+  println "res =" res;
+);
+defun (dbl-func z)
+do (
+  println "y =" y; #G
+  return (+ (* 2 z) y); #F
+);
+)
+
