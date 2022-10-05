@@ -537,6 +537,7 @@ class RunPushPop implements IConst, RunConst {
 			return GENERR;
 		}
 		rtnval = pushNonImmed(val, pgtyp, varCount);
+		omsg("pushFuncRtnVal: btm, rtnval = " + rtnval);
 		return rtnval;
 	}
 	
