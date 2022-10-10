@@ -7,6 +7,7 @@ public class coop {
 		String fileName = "";
 		boolean isUnitTest = false;
 		boolean isMain = false;
+		boolean isRunTest = false;
 
 		if (args.length > 2) {
 			System.out.println("Usage: java coop [filename]");
@@ -21,12 +22,17 @@ public class coop {
 				fileName = "../dat/test/" + args[0] + ".test";
 				isUnitTest = true;
 			}
+			else if (args[1].equals("-r")) {
+				fileName = "../dat/rt/" + args[0] + ".test";
+				isUnitTest = true;
+				isRunTest = true;
+			}
 			else {
 				System.out.println("Usage: java coop filename [-u]");
 				return;
 			}
 		}
-		initobj.runInit(fileName, isUnitTest, isMain);
+		initobj.runInit(fileName, isUnitTest, isMain, isRunTest);
 	}
 
 }
