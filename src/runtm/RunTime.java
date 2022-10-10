@@ -38,8 +38,6 @@ public class RunTime implements IConst, RunConst {
 	private boolean isNegInt;
 	private int lastErrCode;
 	private int utKeyValIdx;
-	private boolean isBadUtKey;
-	private boolean isBadUtVal;
 	private boolean isBadUtPair;
 	private static final char SP = ' ';
 	public HashMap<String, Integer> glbFunMap;
@@ -64,8 +62,6 @@ public class RunTime implements IConst, RunConst {
 		isTgtExpr = false;
 		isCalcExpr = false;
 		isExprLoop = false;
-		isBadUtKey = false;
-		isBadUtVal = false;
 		isBadUtPair = false;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
@@ -159,7 +155,7 @@ public class RunTime implements IConst, RunConst {
 				return false;
 			}
 		}
-		rtnval = (!isBadUtKey && !isBadUtVal);
+		rtnval = !isBadUtPair;
 		return rtnval;
 	}
 	
@@ -281,7 +277,7 @@ public class RunTime implements IConst, RunConst {
 		case BADSETSTMT: return "Malformed SET statement";
 		case BADPARMCT: return "Mismatched parameter count";
 		case RTNISEMPTY: return "Return stmt. lacks value";
-		case UTISEMPTY: return "Unit test stmt. lacks value";
+		case BADUTSTMT: return "Malformed unit test stmt.";
 		case BADTYPE: return "Unexpected data type";
 		case GENERR: return "General runtime error";
 		default: return "Error code = " + (-rightp);
@@ -548,9 +544,8 @@ public class RunTime implements IConst, RunConst {
 		case PRINTLN: return runPrintlnStmt(kwtyp);
 		case ZCALL: return runZcallStmt();
 		case RETURN: return runRtnStmt(true);
-		case UTPUSH: 
-		case UTSCAN:
-			return runUtPushStmt(kwtyp);
+		case UTPUSH: return runUtPushStmt();
+		case UTSCAN: return runUtScanStmt();
 		default:
 			return BADOP;
 		}
@@ -1050,16 +1045,56 @@ public class RunTime implements IConst, RunConst {
 		return rtnval;
 	}
 	
-	private int runUtPushStmt(KeywordTyp kwtyp) {
+	private int runUtPushStmt() {
 		AddrNode addrNode;
-		String s;
+		String skey;
+		String sval;
 		int addr;
+		KeywordTyp kwtyp = KeywordTyp.UTPUSH; 
 		Page page;
 		int idx;
 		int len;
 		int rtnval;
-		boolean isMatch;
-		boolean isKey;
+
+		addrNode = store.popNode();
+		if (addrNode == null) {
+			return STKUNDERFLOW;
+		}
+		sval = popStrFromNode(addrNode);
+		len = sval.length();
+		sval = sval.trim();
+		if (sval.equals("") && (len > 0)) {
+			sval = " ";
+		}
+		addrNode = store.popNode();
+		if (addrNode == null) {
+			return STKUNDERFLOW;
+		}
+		addr = addrNode.getAddr();
+		page = store.getPage(addr);
+		idx = store.getElemIdx(addr);
+		skey = page.getString(idx);
+		skey = skey.trim();
+		utKeyValList.add(skey);
+		utKeyValList.add(sval);
+		rtnval = popUntilKwd(kwtyp);
+		return rtnval;
+	}
+	
+	private int runUtScanStmt() {
+		AddrNode addrNode;
+		String skey;
+		String sval;
+		String lstkey;
+		String lstval;
+		int addr;
+		KeywordTyp kwtyp = KeywordTyp.UTSCAN; 
+		Page page;
+		int idx;
+		int len;
+		int rtnval;
+		boolean isBadUtKey;
+		boolean isBadUtVal;
 		int pairIdx;
 
 		addrNode = store.popNode();
@@ -1069,39 +1104,46 @@ public class RunTime implements IConst, RunConst {
 		addr = addrNode.getAddr();
 		page = store.getPage(addr);
 		idx = store.getElemIdx(addr);
-		s = page.getString(idx);
-		len = s.length();
-		s = s.trim();
-		if (s.equals("") && (len > 0)) {
-			s = " ";
+		sval = page.getString(idx);
+		len = sval.length();
+		sval = sval.trim();
+		if (sval.equals("") && (len > 0)) {
+			sval = " ";
 		}
-		if (kwtyp == KeywordTyp.UTPUSH) {
-			utKeyValList.add(s);
-			rtnval = popUntilKwd(kwtyp);
-			return rtnval;
+		addrNode = store.popNode();
+		if (addrNode == null) {
+			return STKUNDERFLOW;
 		}
-		if (isBadUtPair) {
-			rtnval = popUntilKwd(kwtyp);
-			return rtnval;
-		}
+		addr = addrNode.getAddr();
+		page = store.getPage(addr);
+		idx = store.getElemIdx(addr);
+		skey = page.getString(idx);
+		skey = skey.trim();
 		pairIdx = (utKeyValIdx / 2) + 1;
-		isMatch = s.equals(utKeyValList.get(utKeyValIdx));
-		isKey = (utKeyValIdx % 2) == 0;
-		if (!isMatch && !isBadUtKey && !isBadUtVal) {
+		lstkey = utKeyValList.get(utKeyValIdx);
+		isBadUtKey = !skey.equals(lstkey);
+		utKeyValIdx++;
+		lstval = utKeyValList.get(utKeyValIdx);
+		isBadUtVal = !sval.equals(lstval);
+		utKeyValIdx++;
+		isBadUtPair = (isBadUtKey || isBadUtVal);
+		if (isBadUtPair) {
 			oprn("UT Error: pair index = " + pairIdx);
 		}
-		if (!isMatch && isKey) {
-			isBadUtKey = true;
-			oprn("UT Error: bad key = " + s);
+		if (isBadUtKey) {
+			oprn("UT Error: bad key = " + lstkey);
+			oprn("UT Error: correct key = " + skey);
+			if (!isBadUtVal) {
+				oprn("UT Error: value = " + sval);
+			}
 		}
-		else if (!isMatch) {
-			isBadUtVal = true;
-			oprn("UT Error: bad value = " + s);
+		if (isBadUtVal) {
+			if (!isBadUtKey) {
+				oprn("UT Error: key = " + skey);
+			}
+			oprn("UT Error: bad value = " + lstval);
+			oprn("UT Error: correct value = " + sval);
 		}
-		else if (isBadUtKey || isBadUtVal) {
-			isBadUtPair = true;
-		}
-		utKeyValIdx++;
 		rtnval = popUntilKwd(kwtyp);
 		return rtnval;
 	}
@@ -1462,10 +1504,14 @@ public class RunTime implements IConst, RunConst {
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			return UTISEMPTY;  
+			return BADUTSTMT;  
 		}
 		node = store.getNode(rightp);
-		rightp = handleExprToken(rightp, true);
+		rightp = handleLeafToken(node);  // handle 1st expr.
+		if (rightp <= 0) {
+			return BADUTSTMT;
+		}
+		rightp = handleExprToken(rightp, true);  // handle 2nd expr.
 		return rightp;
 	}
 	
