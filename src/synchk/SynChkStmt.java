@@ -66,6 +66,8 @@ public class SynChkStmt {
 		case PRINT: return doPrintStmt(rightp, false);
 		case PRINTLN: return doPrintlnStmt(rightp);
 		case ECHO: return doEchoStmt(rightp);
+		case UTPUSH: return doUtPushStmt(rightp);
+		case UTSCAN: return doUtScanStmt(rightp);
 		case CALL: return doCallStmt(rightp);
 		case ZCALL: return doCallFunStmt(rightp);
 		case QUEST: return doBoolStmt(rightp);
@@ -834,6 +836,16 @@ public class SynChkStmt {
 
 	private boolean doEchoStmt(int rightp) {
 		return doPrintStmt(rightp, true);
+	}
+	
+	private boolean doUtPushStmt(int rightp) {
+		boolean rtnval = synExpr.doUnaryOp(rightp);
+		return rtnval;
+	}
+	
+	private boolean doUtScanStmt(int rightp) {
+		boolean rtnval = synExpr.doUnaryOp(rightp);
+		return rtnval;
 	}
 	
 	private boolean doCallStmt(int rightp) {
