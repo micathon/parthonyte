@@ -42,12 +42,14 @@ public class InitMain implements IConst {
 		store = new Store();
 	}
 	
-	public void runInit(String fileName, boolean isUnitTest, boolean isMain) {
+	public void runInit(String fileName, 
+		boolean isUnitTest, boolean isMain, boolean isRunTest)
+	{
 		if (isMain) {
 			doMasterFile(fileName);
 		}
 		else if (fileName.length() > 0) {
-			doSrcFile(fileName, isUnitTest);
+			doSrcFile(fileName, isUnitTest, isRunTest);
 		}
 		else {
 			doCmdLoop();
@@ -69,7 +71,7 @@ public class InitMain implements IConst {
 				}
 				omsg("Unit Test: " + fileName);
 				fileName = "../dat/test/" + fileName + ".test";
-				isFail = doSrcFile(fileName, true);
+				isFail = doSrcFile(fileName, true, false);
 				isGlbFail = isGlbFail || isFail;
 			}
 			showUnitTestVal(isGlbFail);
@@ -78,7 +80,9 @@ public class InitMain implements IConst {
 		}
 	}
 	
-	private boolean doSrcFile(String fileName, boolean isUnitTest) {
+	private boolean doSrcFile(String fileName, 
+		boolean isUnitTest, boolean isRunTest) 
+	{
 		String inbuf;
 		BufferedReader fbr;
 		ScanSrc scanSrc;
@@ -114,7 +118,7 @@ public class InitMain implements IConst {
 			}
 			else if (scanSrc.scanSummary(fatalErr)) {
 				//omsg("Stack idx: " + store.printStkIdxs());
-				runtm.run();
+				runtm.run(isRunTest);
 			}
 		} catch (IOException exc) {
 			System.out.println("I/O Error: " + exc);
@@ -319,25 +323,13 @@ public class InitMain implements IConst {
 		System.out.println("where i = " + n);
 		switch (pgtyp) {
 		case INTVAL:
-			success = page.freeInt(n);
-			break;
 		case LONG:
-			success = page.freeLong(n);
-			break;
 		case FLOAT:
-			success = page.freeFloat(n);
-			break;
 		case STRING:
-			success = page.freeString(n);
-			break;
 		case NODE:
-			success = page.freeNode(n);
-			break;
 		case LIST:
-			success = page.freeList(n);
-			break;
 		case MAP:
-			success = page.freeMap(n);
+			success = (page.freeNum(n) == 0);
 			break;
 		case BYTE:
 		case KWD:
