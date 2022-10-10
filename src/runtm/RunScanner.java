@@ -24,6 +24,7 @@ public class RunScanner implements IConst {
 	private int defunCount;
 	private int count;
 	private int glbVarListIdx;
+	private boolean isRunTest;
 
 	public RunScanner(Store store, ScanSrc scanSrc, SynChk synChk, int rootNodep) {
 		this.store = store;
@@ -35,7 +36,7 @@ public class RunScanner implements IConst {
 		count = 0;
 	}
 
-	public boolean run() {
+	public boolean run(boolean isRunTest) {
 		boolean rtnval;
 		
 		omsg("RunTime.run: rootNodep = " + rootNodep);
