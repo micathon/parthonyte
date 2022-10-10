@@ -449,7 +449,7 @@ public class SynChkExpr {
 		return true;
 	}
 	
-	private boolean doBinaryOp(int rightp) {
+	public boolean doBinaryOp(int rightp) {
 		Node node;
 		KeywordTyp kwtyp;
 		int rightq;

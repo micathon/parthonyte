@@ -839,12 +839,12 @@ public class SynChkStmt {
 	}
 	
 	private boolean doUtPushStmt(int rightp) {
-		boolean rtnval = synExpr.doUnaryOp(rightp);
+		boolean rtnval = synExpr.doBinaryOp(rightp);
 		return rtnval;
 	}
 	
 	private boolean doUtScanStmt(int rightp) {
-		boolean rtnval = synExpr.doUnaryOp(rightp);
+		boolean rtnval = synExpr.doBinaryOp(rightp);
 		return rtnval;
 	}
 	
