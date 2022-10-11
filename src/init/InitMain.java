@@ -48,11 +48,14 @@ public class InitMain implements IConst {
 		if (isMain) {
 			doMasterFile(fileName);
 		}
-		else if (fileName.length() > 0) {
-			doSrcFile(fileName, isUnitTest, isRunTest);
+		else if (fileName.length() == 0) {
+			doCmdLoop();
+		}
+		else if (isRunTest) {
+			doSrcUtFile(fileName);
 		}
 		else {
-			doCmdLoop();
+			doSrcFile(fileName, isUnitTest);
 		}
 	}
 	
@@ -71,7 +74,7 @@ public class InitMain implements IConst {
 				}
 				omsg("Unit Test: " + fileName);
 				fileName = "../dat/test/" + fileName + ".test";
-				isFail = doSrcFile(fileName, true, false);
+				isFail = doSrcFile(fileName, true);
 				isGlbFail = isGlbFail || isFail;
 			}
 			showUnitTestVal(isGlbFail);
@@ -80,8 +83,7 @@ public class InitMain implements IConst {
 		}
 	}
 	
-	private boolean doSrcFile(String fileName, 
-		boolean isUnitTest, boolean isRunTest) 
+	private boolean doSrcFile(String fileName, boolean isUnitTest) 
 	{
 		String inbuf;
 		BufferedReader fbr;
@@ -105,7 +107,7 @@ public class InitMain implements IConst {
 			fbr = new BufferedReader(new FileReader(fileName));
 			while ((inbuf = fbr.readLine()) != null) {
 				// read source file, scan current line of input
-				if (!scanSrc.scanCodeBuf(inbuf)) {
+				if (!scanSrc.scanCodeBuf(inbuf, false)) {
 					fatalErr = true;
 					break;
 				}
@@ -118,7 +120,48 @@ public class InitMain implements IConst {
 			}
 			else if (scanSrc.scanSummary(fatalErr)) {
 				//omsg("Stack idx: " + store.printStkIdxs());
-				runtm.run(isRunTest);
+				runtm.run(false);
+			}
+		} catch (IOException exc) {
+			System.out.println("I/O Error: " + exc);
+		}
+		return rtnval;
+	}
+	
+	private boolean doSrcUtFile(String fileName) 
+	{
+		String inbuf;
+		BufferedReader fbr;
+		ScanSrc scanSrc;
+		SynChk synchk;
+		RunScanner runtm;
+		int rootNodep;
+		boolean fatalErr = false;
+		boolean rtnval = true;
+
+		scanSrc = new ScanSrc(store);
+		synchk = new SynChk(scanSrc, store);
+		rootNodep = scanSrc.rootNodep;
+		runtm = new RunScanner(store, scanSrc, synchk, rootNodep);
+		scanSrc.setSynChk(synchk);
+		synchk.isUnitTest = false;
+		try {
+			fbr = new BufferedReader(new FileReader(fileName));
+			while ((inbuf = fbr.readLine()) != null) {
+				// read source file, scan current line of input
+				if (!scanSrc.scanCodeBuf(inbuf, true)) {
+					fatalErr = true;
+					break;
+				}
+				if (scanSrc.isEndFound()) {
+					//
+				}
+			}
+			if (scanSrc.inCmtBlk) {
+				scanSrc.putErr(TokenTyp.ERRINCMTEOF);
+			}
+			if (scanSrc.scanSummary(fatalErr)) {
+				runtm.run(true);
 			}
 		} catch (IOException exc) {
 			System.out.println("I/O Error: " + exc);
