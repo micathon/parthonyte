@@ -54,6 +54,7 @@ public class ScanSrc implements IConst {
 		"Invalid Symbols"
 	};
 	public int rootNodep;
+	private boolean endFound;
 	public boolean inCmtBlk;
 	private boolean inStrLit;
 	private boolean isAllWhiteSp;
@@ -94,6 +95,7 @@ public class ScanSrc implements IConst {
 		wasstmt = true;
 		wasfor = false;
 		isClean = true;
+		endFound = false;
 		dirtyLine = -1;
 		dirtyCol = -1;
 		rootNode = new Node(0, KeywordTyp.NULL.ordinal(), 0);
@@ -104,7 +106,7 @@ public class ScanSrc implements IConst {
 		currNodep = rootNodep;
 	}
 	
-	public boolean scanCodeBuf(String inbuf) {
+	public boolean scanCodeBuf(String inbuf, boolean isRunTest) {
 		char sp = ' ';
 		char ch = sp;
 		String t, outbuf;
@@ -117,6 +119,7 @@ public class ScanSrc implements IConst {
 		int rtnval;
 		boolean wasBackslash;
 		boolean wasWhiteSp, inWhiteSp;
+		boolean isProgSepFound;
 		boolean isAtEnd;
 		
 		lineCount++;
@@ -133,8 +136,14 @@ public class ScanSrc implements IConst {
 			printDetl(tabstr);
 			outDetl(inBufSqr);
 		}
+		isProgSepFound = inbuf.equals(UNITENDBUF) && !inCmtBlk; 
 		if (inbuf.length() == 0) { }
-		else if (inbuf.equals(UNITENDBUF) && !inCmtBlk) {
+		else if (isProgSepFound && isRunTest) {
+			endFound = true;
+			initScan();  // ??? re-initialize for next scan
+			return true;
+		}
+		else if (isProgSepFound) {
 			// unit test sentinel char detected
 			scanSummSynChk(false, false);
 			synchk.endBlkUnitTest();
@@ -388,6 +397,10 @@ public class ScanSrc implements IConst {
 	
 	private void outStructTok(char ch) {
 		printSumm("" + ch + ' ');
+	}
+	
+	public boolean isEndFound() {
+		return endFound;
 	}
 	
 	private void printSumm(String msg) {
