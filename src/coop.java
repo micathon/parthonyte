@@ -24,7 +24,6 @@ public class coop {
 			}
 			else if (args[1].equals("-r")) {
 				fileName = "../dat/rt/" + args[0] + ".test";
-				isUnitTest = true;
 				isRunTest = true;
 			}
 			else {
