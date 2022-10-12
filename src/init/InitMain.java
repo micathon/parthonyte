@@ -45,6 +45,8 @@ public class InitMain implements IConst {
 	public void runInit(String fileName, 
 		boolean isUnitTest, boolean isMain, boolean isRunTest)
 	{
+		boolean isSuccess;
+		
 		if (isMain) {
 			doMasterFile(fileName);
 		}
@@ -52,7 +54,8 @@ public class InitMain implements IConst {
 			doCmdLoop();
 		}
 		else if (isRunTest) {
-			doSrcUtFile(fileName);
+			isSuccess = doSrcUtFile(fileName);
+			displayRunResult(isSuccess);
 		}
 		else {
 			doSrcFile(fileName, isUnitTest);
@@ -119,8 +122,7 @@ public class InitMain implements IConst {
 				rtnval = synchk.showUnitTestVal();
 			}
 			else if (scanSrc.scanSummary(fatalErr)) {
-				//omsg("Stack idx: " + store.printStkIdxs());
-				runtm.run(false);
+				runtm.run(0);
 			}
 		} catch (IOException exc) {
 			System.out.println("I/O Error: " + exc);
@@ -136,8 +138,10 @@ public class InitMain implements IConst {
 		SynChk synchk;
 		RunScanner runtm;
 		int rootNodep;
+		int runidx = 0;
 		boolean fatalErr = false;
 		boolean rtnval = true;
+		boolean isGoodRun;
 
 		scanSrc = new ScanSrc(store);
 		synchk = new SynChk(scanSrc, store);
@@ -156,16 +160,22 @@ public class InitMain implements IConst {
 				if (scanSrc.isEndFound()) {
 					// process end of coop program
 					// endFound flag reset in prev call to scanCodeBuf
+					runidx++;
 				}
 			}
 			if (!fatalErr && scanSrc.isTextFound()) {
 				// process end of coop program
+				runidx++;
 			}
 			if (scanSrc.inCmtBlk) {
 				scanSrc.putErr(TokenTyp.ERRINCMTEOF);
 			}
 			if (scanSrc.scanSummary(fatalErr)) {
-				runtm.run(true);
+				isGoodRun = runtm.run(runidx);
+				rtnval = rtnval && isGoodRun;
+			}
+			else {
+				rtnval = false;
 			}
 		} catch (IOException exc) {
 			System.out.println("I/O Error: " + exc);
@@ -173,10 +183,25 @@ public class InitMain implements IConst {
 		return rtnval;
 	}
 	
+	private void displayRunResult(boolean isSuccess) {
+		String result;
+		if (isSuccess) {
+			result = "success";
+		}
+		else {
+			result = "failure";
+		}
+		oprn("Run result: " + result);
+	}
+	
 	private void omsg(String msg) {
 		if (!isSilent) {
 			System.out.println(msg);
 		}
+	}
+	
+	private void oprn(String msg) {
+		System.out.println(msg);
 	}
 	
 	private void showUnitTestVal(boolean isFail) {
