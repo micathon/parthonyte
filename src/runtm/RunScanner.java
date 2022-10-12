@@ -26,6 +26,7 @@ public class RunScanner implements IConst {
 	private int glbVarListIdx;
 	private int runidx;
 	private boolean isRunTest;
+	private boolean isBadUtPair;
 
 	public RunScanner(Store store, ScanSrc scanSrc, SynChk synChk, int rootNodep) {
 		this.store = store;
@@ -43,6 +44,7 @@ public class RunScanner implements IConst {
 		omsg("RunTime.run: rootNodep = " + rootNodep);
 		rt.setRscan(this);
 		this.runidx = runidx;
+		isBadUtPair = false;
 		rtnval = runRoot(rootNodep);
 		if (!rtnval) {
 			oprn("Runtime error detected!");
@@ -91,6 +93,7 @@ public class RunScanner implements IConst {
 		}
 		// run prog. using do-block of gdefun stmt.
 		rtnval = rt.runTopBlock(downp, runidx);
+		isBadUtPair = rt.isBadUpFlag();
 		omsg("runRoot: runTopBlock = " + rtnval);
 		return rtnval;
 	}
@@ -960,6 +963,10 @@ public class RunScanner implements IConst {
 	
 	private int scopeClassStmt(int rightp, KeywordTyp kwtyp) {
 		return rightp;
+	}
+	
+	public boolean isBadUpFlag() {
+		return isBadUtPair;
 	}
 	
 	private String getGdefunWord() {

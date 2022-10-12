@@ -63,7 +63,6 @@ public class RunTime implements IConst, RunConst {
 		isTgtExpr = false;
 		isCalcExpr = false;
 		isExprLoop = false;
-		isBadUtPair = false;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
 		glbFunList = new ArrayList<Integer>();
@@ -89,6 +88,10 @@ public class RunTime implements IConst, RunConst {
 	
 	public void oerr(String msg) {  
 		rscan.omsg(msg);
+	}
+	
+	public boolean isBadUpFlag() {
+		return isBadUtPair;
 	}
 	
 	public int getLocBaseIdx() {
@@ -131,6 +134,7 @@ public class RunTime implements IConst, RunConst {
 		boolean rtnval;
 
 		this.runidx = runidx;
+		isBadUtPair = false;
 		while (rightp != 0) {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
@@ -157,7 +161,8 @@ public class RunTime implements IConst, RunConst {
 				return false;
 			}
 		}
-		rtnval = !isBadUtPair;
+		//rtnval = !isBadUtPair;
+		rtnval = true;
 		return rtnval;
 	}
 	
@@ -1095,6 +1100,7 @@ public class RunTime implements IConst, RunConst {
 		int idx;
 		int len;
 		int rtnval;
+		boolean isBadPair;
 		boolean isBadUtKey;
 		boolean isBadUtVal;
 		int pairIdx;
@@ -1128,8 +1134,8 @@ public class RunTime implements IConst, RunConst {
 		lstval = utKeyValList.get(utKeyValIdx);
 		isBadUtVal = !sval.equals(lstval);
 		utKeyValIdx++;
-		isBadUtPair = (isBadUtKey || isBadUtVal);
-		if (isBadUtPair) {
+		isBadPair = (isBadUtKey || isBadUtVal);
+		if (isBadPair) {
 			oprn("UT Error: run index = " + runidx);
 			oprn("UT Error: pair index = " + pairIdx);
 		}
@@ -1147,6 +1153,7 @@ public class RunTime implements IConst, RunConst {
 			oprn("UT Error: bad value = " + lstval);
 			oprn("UT Error: correct value = " + sval);
 		}
+		isBadUtPair = isBadUtPair || isBadPair;
 		rtnval = popUntilKwd(kwtyp);
 		return rtnval;
 	}
