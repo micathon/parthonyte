@@ -55,6 +55,7 @@ public class ScanSrc implements IConst {
 	};
 	public int rootNodep;
 	private boolean endFound;
+	private boolean textFound;
 	public boolean inCmtBlk;
 	private boolean inStrLit;
 	private boolean isAllWhiteSp;
@@ -96,6 +97,7 @@ public class ScanSrc implements IConst {
 		wasfor = false;
 		isClean = true;
 		endFound = false;
+		textFound = false;
 		dirtyLine = -1;
 		dirtyCol = -1;
 		rootNode = new Node(0, KeywordTyp.NULL.ordinal(), 0);
@@ -117,6 +119,7 @@ public class ScanSrc implements IConst {
 		String tabstr = TABSTR;
 		int colIdx = 0;
 		int rtnval;
+		int bufLen;
 		boolean wasBackslash;
 		boolean wasWhiteSp, inWhiteSp;
 		boolean isProgSepFound;
@@ -127,6 +130,7 @@ public class ScanSrc implements IConst {
 		inWhiteSp = true;
 		t = inbuf;
 		inbuf = inbuf.trim();
+		bufLen = inbuf.length();
 		inBufSqr = "[" + inbuf + "]";
 		outSumm(inBufSqr);
 		lineNoBuf = padLineNo(lineCount);
@@ -140,7 +144,7 @@ public class ScanSrc implements IConst {
 		if (inbuf.length() == 0) { }
 		else if (isProgSepFound && isRunTest) {
 			endFound = true;
-			initScan();  // ??? re-initialize for next scan
+			initScan();  // re-initialize for next scan
 			return true;
 		}
 		else if (isProgSepFound) {
@@ -154,14 +158,15 @@ public class ScanSrc implements IConst {
 			printCmd("");
 			outCmd(outbuf);
 		}
+		textFound = textFound || (bufLen > 0);
 		colIdx = getLeadingBlCount(t);
-		for (int i=0; i < inbuf.length(); i++) {
+		for (int i=0; i < bufLen; i++) {
 			if (fatalRtnCode < 0) {
 				return false;
 			}
 			wasBackslash = (ch == '\\');
 			wasWhiteSp = getInWhiteSp(ch);
-			isAtEnd = (i >= inbuf.length() - 1);
+			isAtEnd = (i >= bufLen - 1);
 			colIdx++;
 			colCount = colIdx;
 			ch = inbuf.charAt(i);
@@ -401,6 +406,10 @@ public class ScanSrc implements IConst {
 	
 	public boolean isEndFound() {
 		return endFound;
+	}
+	
+	public boolean isTextFound() {
+		return textFound;
 	}
 	
 	private void printSumm(String msg) {
