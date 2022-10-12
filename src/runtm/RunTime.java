@@ -39,6 +39,7 @@ public class RunTime implements IConst, RunConst {
 	private int lastErrCode;
 	private int utKeyValIdx;
 	private boolean isBadUtPair;
+	private int runidx;
 	private static final char SP = ' ';
 	public HashMap<String, Integer> glbFunMap;
 	public HashMap<String, Integer> glbLocVarMap;
@@ -119,7 +120,7 @@ public class RunTime implements IConst, RunConst {
 		popMultiFreeCount++;
 	}
 	
-	public boolean runTopBlock(int rightp) {
+	public boolean runTopBlock(int rightp, int runidx) {
 		// process top-level stmts.:
 		// do ( stmt-1; .. stmt-n; )
 		Node node;
@@ -129,6 +130,7 @@ public class RunTime implements IConst, RunConst {
 		int phaseNo = 0;
 		boolean rtnval;
 
+		this.runidx = runidx;
 		while (rightp != 0) {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
@@ -1128,6 +1130,7 @@ public class RunTime implements IConst, RunConst {
 		utKeyValIdx++;
 		isBadUtPair = (isBadUtKey || isBadUtVal);
 		if (isBadUtPair) {
+			oprn("UT Error: run index = " + runidx);
 			oprn("UT Error: pair index = " + pairIdx);
 		}
 		if (isBadUtKey) {

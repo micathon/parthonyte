@@ -24,6 +24,7 @@ public class RunScanner implements IConst {
 	private int defunCount;
 	private int count;
 	private int glbVarListIdx;
+	private int runidx;
 	private boolean isRunTest;
 
 	public RunScanner(Store store, ScanSrc scanSrc, SynChk synChk, int rootNodep) {
@@ -36,11 +37,12 @@ public class RunScanner implements IConst {
 		count = 0;
 	}
 
-	public boolean run(boolean isRunTest) {
+	public boolean run(int runidx) {
 		boolean rtnval;
 		
 		omsg("RunTime.run: rootNodep = " + rootNodep);
 		rt.setRscan(this);
+		this.runidx = runidx;
 		rtnval = runRoot(rootNodep);
 		if (!rtnval) {
 			oprn("Runtime error detected!");
@@ -88,7 +90,7 @@ public class RunScanner implements IConst {
 			return false;
 		}
 		// run prog. using do-block of gdefun stmt.
-		rtnval = rt.runTopBlock(downp);
+		rtnval = rt.runTopBlock(downp, runidx);
 		omsg("runRoot: runTopBlock = " + rtnval);
 		return rtnval;
 	}
