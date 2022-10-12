@@ -154,8 +154,12 @@ public class InitMain implements IConst {
 					break;
 				}
 				if (scanSrc.isEndFound()) {
-					//
+					// process end of coop program
+					// endFound flag reset in prev call to scanCodeBuf
 				}
+			}
+			if (!fatalErr && scanSrc.isTextFound()) {
+				// process end of coop program
 			}
 			if (scanSrc.inCmtBlk) {
 				scanSrc.putErr(TokenTyp.ERRINCMTEOF);
