@@ -529,6 +529,8 @@ public class RunScanner implements IConst {
 		case PRINTLN: return scopePrintlnStmt(node);
 		case ZCALL: return scopeZcallStmt(rightp, false);
 		case RETURN: return scopeRtnStmt(node);
+		case UTPUSH: return scopeUtPushStmt(node);
+		case UTSCAN: return scopeUtScanStmt(node);
 		default: 
 			omsg("scopeStmt: invalid kwtyp = " + kwtyp);
 			return false;
@@ -566,6 +568,24 @@ public class RunScanner implements IConst {
 
 		rightp = node.getRightp();
 		while (rightp > 0) {
+			node = store.getNode(rightp);
+			rtnval = scopeExpr(rightp);
+			if (!rtnval) {
+				return false;
+			}
+			rightp = node.getRightp();
+		}
+		return true;
+	}
+	
+	private boolean scopeMultiStmt(Node node, int count) {
+		// perform scope oper. on multiple exprs.
+		int rightp;
+		int i;
+		boolean rtnval;
+
+		rightp = node.getRightp();
+		for (i = 0; i < count; i++) {
 			node = store.getNode(rightp);
 			rtnval = scopeExpr(rightp);
 			if (!rtnval) {
@@ -628,6 +648,30 @@ public class RunScanner implements IConst {
 			return true;
 		}
 		rtnval = scopePrintlnStmt(node);
+		return rtnval;
+	}
+	
+	private boolean scopeUtPushStmt(Node node) {
+		boolean rtnval;
+		
+		count++;
+		omsg("scopeUtPushStmt: top");
+		rtnval = scopeMultiStmt(node, 2);
+		if (!rtnval) {
+			omsg("scopeUtPushStmt: fail");
+		}
+		return rtnval;
+	}
+	
+	private boolean scopeUtScanStmt(Node node) {
+		boolean rtnval;
+		
+		count++;
+		omsg("scopeUtScanStmt: top");
+		rtnval = scopeMultiStmt(node, 2);
+		if (!rtnval) {
+			omsg("scopeUtScanStmt: fail");
+		}
 		return rtnval;
 	}
 	

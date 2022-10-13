@@ -1063,11 +1063,13 @@ public class RunTime implements IConst, RunConst {
 		int len;
 		int rtnval;
 
+		omsg("runUtPushStmt: top");
 		addrNode = store.popNode();
 		if (addrNode == null) {
 			return STKUNDERFLOW;
 		}
 		sval = popStrFromNode(addrNode);
+		omsg("runUtPushStmt: sval = " + sval);
 		len = sval.length();
 		sval = sval.trim();
 		if (sval.equals("") && (len > 0)) {
@@ -1084,7 +1086,11 @@ public class RunTime implements IConst, RunConst {
 		skey = skey.trim();
 		utKeyValList.add(skey);
 		utKeyValList.add(sval);
+		omsg("runUtPushStmt: skey = " + skey + ", sval = " + sval);
+		//##
+		oprn("runUtPushStmt: skey = " + skey + ", sval = " + sval); 
 		rtnval = popUntilKwd(kwtyp);
+		omsg("runUtPushStmt: btm, rtnval = " + rtnval);
 		return rtnval;
 	}
 	
@@ -1138,6 +1144,7 @@ public class RunTime implements IConst, RunConst {
 		if (isBadPair) {
 			oprn("UT Error: run index = " + runidx);
 			oprn("UT Error: pair index = " + pairIdx);
+			//oprn("UT Error: pair utKeyValIdx = " + utKeyValIdx);
 		}
 		if (isBadUtKey) {
 			oprn("UT Error: bad key = " + lstkey);
@@ -1149,6 +1156,7 @@ public class RunTime implements IConst, RunConst {
 		if (isBadUtVal) {
 			if (!isBadUtKey) {
 				oprn("UT Error: key = " + skey);
+				//oprn("UT Error: lstkey = " + lstkey);
 			}
 			oprn("UT Error: bad value = " + lstval);
 			oprn("UT Error: correct value = " + sval);
@@ -1508,8 +1516,8 @@ public class RunTime implements IConst, RunConst {
 	private int pushUtPushStmt(Node node, KeywordTyp kwtyp) {
 		int rightp;
 		
-		omsg("pushUtPushStmt: top");
-		if (!pushOp(kwtyp)) {
+		omsg("pushUtPushStmt: top, kwtyp = " + kwtyp);
+		if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp)) {
 			return STKOVERFLOW;
 		}
 		rightp = node.getRightp();
@@ -1522,6 +1530,7 @@ public class RunTime implements IConst, RunConst {
 			return BADUTSTMT;
 		}
 		rightp = handleExprToken(rightp, true);  // handle 2nd expr.
+		omsg("pushUtPushStmt: btm, rightp = " + rightp);
 		return rightp;
 	}
 	
