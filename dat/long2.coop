@@ -1,0 +1,23 @@
+do (
+gdefun
+do (
+  f;
+);
+defun (f)
+  (var res res2) 
+do (
+  set res (dbl-func 8100200300L); 
+  #set res (dbl-func 8100200); 
+  println "res =" res;
+  set res2 (dbl-func res);
+  println "res =" res;
+  #println "res2 =" res2;
+);
+defun (dbl-func z)
+  (var y)
+do (
+  set y 1; 
+  return (+ (* 2 z) y); 
+);
+)
+
