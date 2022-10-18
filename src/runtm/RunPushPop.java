@@ -330,7 +330,7 @@ class RunPushPop implements IConst, RunConst {
 		PageTyp pgtyp;
 		boolean isGlb = true;
 		
-		val = node.getAddr();
+		val = node.getAddr();  // wrong for long nonvar expr!!
 		pgtyp = node.getHdrPgTyp();
 		addrNode = store.popNode();
 		if (addrNode == null) {
@@ -363,8 +363,9 @@ class RunPushPop implements IConst, RunConst {
 	public int storeLocGlbInt(int varidx, int val, PageTyp pgtyp,
 		boolean isGlb) 
 	{
+		char ch = isGlb ? 'G' : 'L';
 		omsg("storeLocGlbInt: varidx = " + varidx + ", val = " +
-			val + ", pgtyp = " + pgtyp + ", lbidx = " + locBaseIdx);
+			val + ", pgtyp = " + pgtyp + ", lbidx = " + locBaseIdx + ch);
 		if (!isGlb) {
 			varidx += locBaseIdx;
 		}
