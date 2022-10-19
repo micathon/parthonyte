@@ -715,71 +715,6 @@ class RunPushPop implements IConst, RunConst {
 		return rtnval;
 	}
 
-	public int popMulti(int varCount) {
-		KeywordTyp kwtyp = KeywordTyp.ZCALL;
-		AddrNode node;
-		PageTyp pgtyp;
-		Page page;
-		int idx;
-		int addr;
-		int i;
-		int flagCount = 0;
-		boolean flag;
-		int rtnval;
-		
-		if (varCount < 0) {
-			return 0;
-		}
-		for (i = 0; i < varCount; i++) {
-			node = store.popNode();
-			if (node == null) {
-				return STKUNDERFLOW;
-			}
-			flag = false;
-			addr = node.getAddr();
-			omsg("popm: i = " + i + ", addr = " + addr);
-			if (node.isInt()) {  // set isInt for BOOLEAN too!
-				pgtyp = PageTyp.INTVAL;
-				page = null;
-				idx = 0;
-			}
-			else {
-				page = store.getPage(addr);
-				idx = store.getElemIdx(addr);
-				pgtyp = node.getHdrPgTyp();
-			}
-			omsg("popm: pgtyp = " + pgtyp);
-			switch (pgtyp) {
-			case LONG:
-				omsg("popm: freeLong, addr = " + addr);
-				flag = store.freeLong(page, idx);
-				break;
-			case FLOAT:
-				//flag = page.freeFloat(idx);
-				omsg("popm: freeFloat");
-				flag = store.freeFloat(page, idx);
-				break;
-			case STRING:
-				//flag = page.freeString(idx);
-				omsg("popm: freeString");
-				flag = store.freeString(page, idx);
-				break;
-			default:
-				continue;
-			}
-			if (flag && (rt.getPopMultiFreeCount() >= 0)) {
-				rt.incPopMultiFreeCount();
-				++flagCount;
-			}
-			else {
-				rt.setPopMultiFreeCount(-1);
-			}
-		}
-		omsg("popMulti: flagCount = " + flagCount);
-		rtnval = popUntilKwd(kwtyp);
-		return rtnval;
-	}
-	
 	public int popUntilKwd(KeywordTyp kwtyp) {
 		AddrNode addrNode;
 		PageTyp pgtyp;
@@ -803,6 +738,73 @@ class RunPushPop implements IConst, RunConst {
 		return 0;
 	}
 	
+	public int popMulti(int varCount) {
+		KeywordTyp kwtyp = KeywordTyp.ZCALL;
+		AddrNode node;
+		int i;
+		int rtnval;
+		
+		if (varCount < 0) {
+			return 0;
+		}
+		for (i = 0; i < varCount; i++) {
+			node = store.popNode();
+			if (node == null) {
+				return STKUNDERFLOW;
+			}
+			popFreeNode(node);
+		}
+		//omsg("popMulti: flagCount = " + flagCount);
+		rtnval = popUntilKwd(kwtyp);
+		return rtnval;
+	}
+	
+	public boolean popFreeNode(AddrNode node) {
+		PageTyp pgtyp;
+		Page page;
+		int idx;
+		int addr;
+		boolean flag;
+
+		addr = node.getAddr();
+		omsg("popFreeNode: addr = " + addr);
+		if (node.isInt()) {  // set isInt for BOOLEAN too!
+			pgtyp = PageTyp.INTVAL;
+			page = null;
+			idx = 0;
+		}
+		else {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			pgtyp = node.getHdrPgTyp();
+		}
+		omsg("popFreeNode: pgtyp = " + pgtyp);
+		switch (pgtyp) {
+		case LONG:
+			omsg("popFreeNode: freeLong, addr = " + addr);
+			flag = store.freeLong(page, idx);
+			break;
+		case FLOAT:
+			//flag = page.freeFloat(idx);
+			omsg("popFreeNode: freeFloat");
+			flag = store.freeFloat(page, idx);
+			break;
+		case STRING:
+			//flag = page.freeString(idx);
+			omsg("popFreeNode: freeString");
+			flag = store.freeString(page, idx);
+			break;
+		default:
+			return true;
+		}
+		if (flag && (rt.getPopMultiFreeCount() >= 0)) {
+			rt.incPopMultiFreeCount();
+		}
+		else {
+			rt.setPopMultiFreeCount(-1);
+		}
+		return flag;
+	}
 }
 /*
 private int fetchInt(AddrNode node) {
