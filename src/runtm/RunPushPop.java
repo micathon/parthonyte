@@ -728,6 +728,7 @@ class RunPushPop implements IConst, RunConst {
 			if (addrNode == null) {
 				return STKUNDERFLOW;
 			}
+			popFreeNode(addrNode, true);
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
 		} while (
@@ -752,14 +753,14 @@ class RunPushPop implements IConst, RunConst {
 			if (node == null) {
 				return STKUNDERFLOW;
 			}
-			popFreeNode(node);
+			popFreeNode(node, false);
 		}
 		//omsg("popMulti: flagCount = " + flagCount);
 		rtnval = popUntilKwd(kwtyp);
 		return rtnval;
 	}
 	
-	public boolean popFreeNode(AddrNode node) {
+	public boolean popFreeNode(AddrNode node, boolean isChkHdr) {
 		PageTyp pgtyp;
 		Page page;
 		int idx;
@@ -777,6 +778,9 @@ class RunPushPop implements IConst, RunConst {
 			page = store.getPage(addr);
 			idx = store.getElemIdx(addr);
 			pgtyp = node.getHdrPgTyp();
+		}
+		if (isChkHdr && !node.getHdrNonVar()) {
+			return true;
 		}
 		omsg("popFreeNode: pgtyp = " + pgtyp);
 		switch (pgtyp) {
