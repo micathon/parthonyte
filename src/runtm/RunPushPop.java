@@ -321,48 +321,6 @@ class RunPushPop implements IConst, RunConst {
 		return val;
 	}
 	
-	public int storeInt(AddrNode node) {
-		// assume set stmt. only handles integer vars/values
-		AddrNode addrNode;
-		int locVarTyp;
-		int addr;
-		int rtnval;
-		int val;
-		PageTyp pgtyp;
-		boolean isGlb = true;
-		boolean isInt;
-		
-		val = node.getAddr();  // wrong for long nonvar expr!!
-		pgtyp = node.getHdrPgTyp();
-		isInt = node.isInt();
-		addrNode = store.popNode();
-		if (addrNode == null) {
-			return STKUNDERFLOW;
-		}
-		addr = addrNode.getAddr();
-		/*
-		pgtyp = addrNode.getHdrPgTyp(); 
-		if (pgtyp != PageTyp.INTVAL) { 
-			return BADSTORE;  
-		}
-		*/
-		locVarTyp = addrNode.getHdrLocVarTyp();
-		switch (locVarTyp) {
-		case NONVAR: 
-			return KWDPOPPED;
-		case LOCVAR:
-			isGlb = false;
-		case GLBVAR:
-			rtnval = storeLocGlbInt(addr, val, pgtyp, isGlb);
-			if (rtnval < 0) {
-				return rtnval;
-			}
-			break;
-		default: return BADPOP;
-		}
-		return 0;
-	}
-
 	public int storeLocGlbInt(int varidx, int val, PageTyp pgtyp,
 		boolean isGlb) 
 	{
@@ -764,9 +722,6 @@ class RunPushPop implements IConst, RunConst {
 	}
 	
 	public boolean freePopNode(AddrNode node, boolean isChkHdr) {
-		PageTyp pgtyp;
-		Page page;
-		int idx;
 		int addr;
 		boolean flag;
 
@@ -778,23 +733,33 @@ class RunPushPop implements IConst, RunConst {
 		if (isChkHdr && !node.getHdrNonVar()) {
 			return true;
 		}
+		flag = freeInStore(node);
+		return flag;
+	}
+	
+	public boolean freeInStore(AddrNode node) {
+		PageTyp pgtyp;
+		Page page;
+		int idx;
+		int addr;
+		boolean flag;
+		
+		addr = node.getAddr();
 		page = store.getPage(addr);
 		idx = store.getElemIdx(addr);
 		pgtyp = node.getHdrPgTyp();
-		omsg("freePopNode: pgtyp = " + pgtyp);
+		omsg("freeInStore: pgtyp = " + pgtyp);
 		switch (pgtyp) {
 		case LONG:
-			omsg("freePopNode: freeLong, addr = " + addr);
+			omsg("freeInStore: freeLong, addr = " + addr);
 			flag = store.freeLong(page, idx);
 			break;
 		case FLOAT:
-			//flag = page.freeFloat(idx);
-			omsg("freePopNode: freeFloat");
+			omsg("freeInStore: freeFloat");
 			flag = store.freeFloat(page, idx);
 			break;
 		case STRING:
-			//flag = page.freeString(idx);
-			omsg("freePopNode: freeString");
+			omsg("freeInStore: freeString");
 			flag = store.freeString(page, idx);
 			break;
 		default:
@@ -809,6 +774,9 @@ class RunPushPop implements IConst, RunConst {
 		return flag;
 	}
 }
+
+
+
 /*
 private int fetchInt(AddrNode node) {
 	int varidx;
