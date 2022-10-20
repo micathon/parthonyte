@@ -991,7 +991,7 @@ public class RunTime implements IConst, RunConst {
 		if (destNode.getHdrNonVar()) {
 			return BADSETSTMT; 
 		}
-		if (!freeInStore(destNode)) {
+		if (!freeTarget(destNode, true, addr)) {
 			return BADFREE; 
 		}
 		stkidx = destNode.getAddr();
@@ -1001,6 +1001,7 @@ public class RunTime implements IConst, RunConst {
 		switch (pgtyp) {
 		case LONG:
 			longval = page.getLong(idx);
+			omsg("runSetStmt: longval = " + longval);
 			isLong = true;
 			break;
 		case FLOAT:
@@ -1025,6 +1026,8 @@ public class RunTime implements IConst, RunConst {
 			return BADALLOC;
 		}
 		store.writeNode(stkidx, addr, pgtyp);
+		omsg("runSetStmt: stk = " + stkidx + ", addr = " + addr +
+			", pgtyp = " + pgtyp);
 		return 0;
 	}
 	
@@ -1080,19 +1083,10 @@ public class RunTime implements IConst, RunConst {
 			if (addrNode == null) {
 				break;
 			}
-			/*
-			val = popIntFromNode(addrNode);
-			if (val < 0) {
-				omsg("runPrintlnStmt: rtn = " + val + ", count = " + count);
-				return val;
-			}
-			val = packIntSign(isNegInt, val);
-			*/
 			s = popStrFromNode(addrNode);
 			if (s.length() > 0) {
 				msg = msg + s + SP;
 			}
-			//msg = msg + val + SP;
 			omsg("runPrintlnStmt: msg = " + msg);
 			count++;
 		}
@@ -1745,8 +1739,10 @@ public class RunTime implements IConst, RunConst {
 		return pp.pushVarQuote(varidx);
 	}
 	
-	private boolean freeInStore(AddrNode node) {
-		return pp.freeInStore(node);
+	private boolean freeTarget(AddrNode node, 
+		boolean isChkTgt, int addr) 
+	{
+		return pp.freeTarget(node, isChkTgt, addr);
 	}
 }
 

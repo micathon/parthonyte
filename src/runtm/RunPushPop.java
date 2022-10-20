@@ -278,12 +278,14 @@ class RunPushPop implements IConst, RunConst {
 			//pgtyp = PageTyp.FLOAT;
 			isImmed = (pgtyp == PageTyp.INTVAL);
 			rtnval = addrNode.getAddr();
+			omsg("popStrFromNode: varidx = " + varidx + 
+				", pgtyp = " + pgtyp);
 			break;
 		default: 
 			return err;
 		}
 		if (isImmed) {
-			//oprn("popStrFromNode: rtnval = " + rtnval);
+			omsg("popStrFromNode: rtnval = " + rtnval);
 			s = "" + rtnval;
 			return s;
 		}
@@ -714,7 +716,7 @@ class RunPushPop implements IConst, RunConst {
 			if (node == null) {
 				return STKUNDERFLOW;
 			}
-			freePopNode(node, false);
+			freePopNode(node, true);
 		}
 		//omsg("popMulti: flagCount = " + flagCount);
 		rtnval = popUntilKwd(kwtyp);
@@ -733,16 +735,18 @@ class RunPushPop implements IConst, RunConst {
 		if (isChkHdr && !node.getHdrNonVar()) {
 			return true;
 		}
-		flag = freeInStore(node);
+		flag = freeTarget(node, false, 0);
 		return flag;
 	}
 	
-	public boolean freeInStore(AddrNode node) {
+	public boolean freeTarget(AddrNode node, 
+		boolean isChkTgt, int srcAddr) 
+	{
 		PageTyp pgtyp;
 		Page page;
 		int idx;
 		int addr;
-		boolean flag;
+		boolean flag = true;
 		
 		addr = node.getAddr();
 		page = store.getPage(addr);
@@ -760,7 +764,9 @@ class RunPushPop implements IConst, RunConst {
 			break;
 		case STRING:
 			omsg("freeInStore: freeString");
-			flag = store.freeString(page, idx);
+			if (isChkTgt && (addr != srcAddr)) {
+				flag = store.freeString(page, idx);
+			}
 			break;
 		default:
 			return true;
