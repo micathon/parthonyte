@@ -13,7 +13,7 @@ do (
   println "res =" res;
   set res2 (dbl-func res);
   println "res =" res;
-  #println "res2 =" res2;
+  println "res2 =" res2;
 );
 defun (dbl-func z)
 #  (var y)
