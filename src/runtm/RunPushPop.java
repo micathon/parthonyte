@@ -100,10 +100,11 @@ class RunPushPop implements IConst, RunConst {
 		addr = addrNode.getAddr();
 		omsg("popIntStk: ptrFlag = " + ptrFlag);
 		if (ptrFlag && addrNode.getHdrNonVar()) {
-			return addr;
+			return addr;  // redirection
 		}
 		switch (locVarTyp) {
 		case NONVAR: 
+			// ptrFlag: false
 			omsg("popIntStk: nonvar, rtn = " + rtnval);
 			return rtnval;
 		case LOCVAR:
@@ -329,9 +330,11 @@ class RunPushPop implements IConst, RunConst {
 		int val;
 		PageTyp pgtyp;
 		boolean isGlb = true;
+		boolean isInt;
 		
 		val = node.getAddr();  // wrong for long nonvar expr!!
 		pgtyp = node.getHdrPgTyp();
+		isInt = node.isInt();
 		addrNode = store.popNode();
 		if (addrNode == null) {
 			return STKUNDERFLOW;
@@ -728,7 +731,7 @@ class RunPushPop implements IConst, RunConst {
 			if (addrNode == null) {
 				return STKUNDERFLOW;
 			}
-			popFreeNode(addrNode, true);
+			freePopNode(addrNode, true);
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
 		} while (
@@ -753,14 +756,14 @@ class RunPushPop implements IConst, RunConst {
 			if (node == null) {
 				return STKUNDERFLOW;
 			}
-			popFreeNode(node, false);
+			freePopNode(node, false);
 		}
 		//omsg("popMulti: flagCount = " + flagCount);
 		rtnval = popUntilKwd(kwtyp);
 		return rtnval;
 	}
 	
-	public boolean popFreeNode(AddrNode node, boolean isChkHdr) {
+	public boolean freePopNode(AddrNode node, boolean isChkHdr) {
 		PageTyp pgtyp;
 		Page page;
 		int idx;
@@ -768,34 +771,30 @@ class RunPushPop implements IConst, RunConst {
 		boolean flag;
 
 		addr = node.getAddr();
-		omsg("popFreeNode: addr = " + addr);
+		omsg("freePopNode: addr = " + addr);
 		if (node.isInt()) {  // set isInt for BOOLEAN too!
-			pgtyp = PageTyp.INTVAL;
-			page = null;
-			idx = 0;
-		}
-		else {
-			page = store.getPage(addr);
-			idx = store.getElemIdx(addr);
-			pgtyp = node.getHdrPgTyp();
+			return true;
 		}
 		if (isChkHdr && !node.getHdrNonVar()) {
 			return true;
 		}
-		omsg("popFreeNode: pgtyp = " + pgtyp);
+		page = store.getPage(addr);
+		idx = store.getElemIdx(addr);
+		pgtyp = node.getHdrPgTyp();
+		omsg("freePopNode: pgtyp = " + pgtyp);
 		switch (pgtyp) {
 		case LONG:
-			omsg("popFreeNode: freeLong, addr = " + addr);
+			omsg("freePopNode: freeLong, addr = " + addr);
 			flag = store.freeLong(page, idx);
 			break;
 		case FLOAT:
 			//flag = page.freeFloat(idx);
-			omsg("popFreeNode: freeFloat");
+			omsg("freePopNode: freeFloat");
 			flag = store.freeFloat(page, idx);
 			break;
 		case STRING:
 			//flag = page.freeString(idx);
-			omsg("popFreeNode: freeString");
+			omsg("freePopNode: freeString");
 			flag = store.freeString(page, idx);
 			break;
 		default:

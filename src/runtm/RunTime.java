@@ -958,23 +958,66 @@ public class RunTime implements IConst, RunConst {
 	}
 	
 	private int runSetStmt() {
-		int val;
 		int stkidx;
+		AddrNode srcNode;
+		AddrNode destNode;
 		AddrNode addrNode;
 		PageTyp pgtyp;
+		Page page;
+		int idx;
+		int addr;
+		long longval = 0;
+		double dval = 0.0;
+		String sval = "";
+		boolean isLong = false;
+		boolean isDup = true;
 		
 		omsg("runSetStmt: top");
 		stkidx = popIntStk();
 		if (stkidx < 0) {
 			return stkidx;
 		}
-		//val = getIntOffStk(stkidx);
-		addrNode = store.fetchNode(stkidx);
-		val = addrNode.getAddr();
-		pgtyp = addrNode.getHdrPgTyp();
-		//oprn("runSetStmt: pgtyp of expr = " + pgtyp);
-		omsg("set stmt: value = " + val + ", stkidx = " + stkidx);
-		return storeInt(addrNode);
+		srcNode = store.fetchNode(stkidx);
+		addr = srcNode.getAddr();
+		page = store.getPage(addr);
+		idx = store.getElemIdx(addr);
+		
+		pgtyp = srcNode.getHdrPgTyp();
+		//return storeInt(addrNode);
+		omsg("set stmt: addr = " + addr + ", stkidx = " + stkidx);
+		destNode = store.popNode();
+		if (destNode == null) {
+			return STKUNDERFLOW;
+		}
+		//addr = destNode.getAddr();
+		switch (pgtyp) {
+		case LONG:
+			longval = page.getLong(idx);
+			isLong = true;
+			break;
+		case FLOAT:
+			dval = page.getFloat(idx);
+			break;
+		case STRING:
+			sval = page.getString(idx);
+			isDup = false;
+			break;
+		default:
+			isDup = false;
+		}
+		if (!isDup) { }
+		else if (isLong) {
+			addr = store.allocLong(longval);
+		}
+		else {
+			addr = store.allocFloat(dval);
+		}
+		if (addr < 0) {
+			return BADALLOC;
+		}
+		
+		store.writeNode(stkidx, addr, pgtyp);
+		return 0;
 	}
 	
 	private int pushSetStmt(Node node) {
