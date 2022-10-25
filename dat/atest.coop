@@ -32,8 +32,7 @@ defun (fun-btm)(var bprod) do (
   set firstname "Dave";
   println firstname "Hahn";
   set x (h (- 4.83 1.0) "foo");
-  println x;
-  
+  println x;  
   set pi 2.1416;
   println pi;
   set a 40;
@@ -74,6 +73,7 @@ defun (fun-btm)(var bprod) do (
 defun (f n m)(var x y) do (
   println n;
   set x 77;
+  println "x =" x;
   set y 99;
   set n 255;
   println x y m;

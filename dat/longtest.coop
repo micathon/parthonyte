@@ -7,28 +7,28 @@ gdefun
   #(var y) #H
   #(var y res) #AH
   #(var x) #C
-  #(var y x) #CH
+  (var y x) #CH
   (ivar res) #AC
   #(ivar x res) #B
 do (
-  #set y 1; #H
-  #set x 8100200300L; #BC
+  set y 1; #H
+  set x 8100200300L; #BC
   #### set x 8100200300.0; 
-  #set res (dbl-func x); #BC
-  set res (dbl-func 8100200300L); #A
+  set res (dbl-func x); #BC
+  #set res (dbl-func 8100200300L); #A
   println "res =" res;
-  #set y 1; #H
+  set y 1; #H
   println "res2 =" (dbl-func res);
 );
 defun (dbl-func z)
-  (var y) #DE 
+  #(var y) #DE 
 do (
-  set y 1; #D
+  #set y 1; #D
   #set y 1L; #E
-  #set y (+ (* 2 z) y); #G
-  #println "y =" y; #G
-  #return y; #G
-  return (+ (* 2 z) y); #F
+  set y (+ (* 2 z) y); #G
+  println "y =" y; #G
+  return y; #G
+  #return (+ (* 2 z) y); #F
 );
 )
 # Total no. of runs: 18
@@ -38,22 +38,22 @@ do (
 # y = 32400801203 # (9 runs)
 # res2 = 32400801203
 {
-  ADF Y
-  BDF Y
-  CDF Y
-  AEF Y
-  BEF Y
-  CEF Y
-  AHF Y
-  BHF Y
-  CHF Y
-  ADG Y
-  BDG Y
-  CDG Y
-  AEG Y
-  BEG Y
-  CEG Y
-  AHG Y
-  BHG Y
-  CHG Y
+  ADF 
+  BDF 
+  CDF 
+  AEF 
+  BEF 
+  CEF 
+  AHF 
+  BHF 
+  CHF 
+  ADG 
+  BDG 
+  CDG 
+  AEG 
+  BEG 
+  CEG 
+  AHG 
+  BHG 
+  CHG 
 }
