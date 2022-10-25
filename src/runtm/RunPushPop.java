@@ -748,6 +748,9 @@ class RunPushPop implements IConst, RunConst {
 		int addr;
 		boolean flag = true;
 		
+		if (node.isInt()) {
+			return true;
+		}
 		addr = node.getAddr();
 		page = store.getPage(addr);
 		idx = store.getElemIdx(addr);
@@ -759,7 +762,7 @@ class RunPushPop implements IConst, RunConst {
 			flag = store.freeLong(page, idx);
 			break;
 		case FLOAT:
-			omsg("freeInStore: freeFloat");
+			omsg("freeInStore: freeFloat, addr = " + addr);
 			flag = store.freeFloat(page, idx);
 			break;
 		case STRING:

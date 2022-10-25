@@ -981,8 +981,14 @@ public class RunTime implements IConst, RunConst {
 			srcNode = getVarNode(srcNode);
 		}
 		addr = srcNode.getAddr();
-		page = store.getPage(addr);
-		idx = store.getElemIdx(addr);
+		if (srcNode.isInt()) {
+			page = null;
+			idx = 0;
+		}
+		else {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+		}
 		pgtyp = srcNode.getHdrPgTyp();
 		destNode = store.popNode();
 		if (destNode == null) {
@@ -991,12 +997,13 @@ public class RunTime implements IConst, RunConst {
 		if (destNode.getHdrNonVar()) {
 			return BADSETSTMT; 
 		}
-		if (!freeTarget(destNode, true, addr)) {
-			return BADFREE; 
-		}
 		stkidx = destNode.getAddr();
 		if (destNode.getHdrLocVar()) {
 			stkidx += locBaseIdx;
+		}
+		destNode = getVarNode(destNode);
+		if (!freeTarget(destNode, true, addr)) {
+			return BADFREE; 
 		}
 		switch (pgtyp) {
 		case LONG:
@@ -1006,6 +1013,7 @@ public class RunTime implements IConst, RunConst {
 			break;
 		case FLOAT:
 			dval = page.getFloat(idx);
+			omsg("runSetStmt: dval = " + dval);
 			break;
 		case STRING:
 			sval = page.getString(idx);
@@ -1587,7 +1595,7 @@ public class RunTime implements IConst, RunConst {
 			return null;
 		}
 		varidx = node.getAddr();
-		if (node.getHdrGlbVar()) {
+		if (node.getHdrLocVar()) {
 			varidx += locBaseIdx;
 		}
 		varNode = store.fetchNode(varidx);
