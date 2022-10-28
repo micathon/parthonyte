@@ -144,7 +144,6 @@ public class ScanSrc implements IConst {
 		if (inbuf.length() == 0) { }
 		else if (isProgSepFound && isRunTest) {
 			endFound = true;
-			initScan();  // re-initialize for next scan
 			return true;
 		}
 		else if (isProgSepFound) {
