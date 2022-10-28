@@ -73,6 +73,7 @@ public class ScanSrc implements IConst {
 	public ScanSrc(Store store) {
 		this.store = store;
 		lineCount = 0;
+		endFound = false;
 		initScan();
 	}
 	
@@ -96,7 +97,6 @@ public class ScanSrc implements IConst {
 		wasstmt = true;
 		wasfor = false;
 		isClean = true;
-		endFound = false;
 		textFound = false;
 		dirtyLine = -1;
 		dirtyCol = -1;
@@ -406,6 +406,10 @@ public class ScanSrc implements IConst {
 	
 	public boolean isEndFound() {
 		return endFound;
+	}
+	
+	public void setEndFound(boolean flag) {
+		endFound = flag;
 	}
 	
 	public boolean isTextFound() {
