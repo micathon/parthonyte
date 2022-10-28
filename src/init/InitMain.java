@@ -137,17 +137,12 @@ public class InitMain implements IConst {
 		BufferedReader fbr;
 		ScanSrc scanSrc;
 		SynChk synchk;
-		RunScanner runtm;
-		int rootNodep;
 		int runidx = 0;
 		boolean fatalErr = false;
 		boolean rtnval = true;
-		boolean isGoodRun;
 
 		scanSrc = new ScanSrc(store);
 		synchk = new SynChk(scanSrc, store);
-		rootNodep = scanSrc.rootNodep;
-		runtm = new RunScanner(store, scanSrc, synchk, rootNodep);
 		scanSrc.setSynChk(synchk);
 		synchk.isUnitTest = false;
 		isBadUtPair = false;
@@ -163,8 +158,9 @@ public class InitMain implements IConst {
 					// process end of coop program
 					// endFound flag reset in prev call to scanCodeBuf
 					runidx++;
+					oprn("doSrcUtFile: runidx = " + runidx);
 					rtnval = rtnval && doEndProg(
-						scanSrc, runtm, runidx, fatalErr);
+						scanSrc, synchk, runidx, fatalErr);
 				}
 				if (!rtnval) {
 					fatalErr = true;
@@ -175,7 +171,7 @@ public class InitMain implements IConst {
 				// process end of coop program
 				runidx++;
 				rtnval = rtnval && doEndProg(
-					scanSrc, runtm, runidx, fatalErr);
+					scanSrc, synchk, runidx, fatalErr);
 			}
 		} catch (IOException exc) {
 			System.out.println("I/O Error: " + exc);
@@ -184,17 +180,24 @@ public class InitMain implements IConst {
 		return rtnval;
 	}
 	
-	private boolean doEndProg(ScanSrc scanSrc, RunScanner runtm,
+	private boolean doEndProg(ScanSrc scanSrc, SynChk synchk,
 		int runidx, boolean fatalErr) 
 	{
+		RunScanner runtm;
+		int rootNodep;
 		boolean isGoodRun;
 		boolean rtnval = true;
 		
+		scanSrc.setEndFound(false);
+		rootNodep = scanSrc.rootNodep;
+		runtm = new RunScanner(store, scanSrc, synchk, rootNodep);
 		if (scanSrc.inCmtBlk) {
 			scanSrc.putErr(TokenTyp.ERRINCMTEOF);
 		}
 		if (scanSrc.scanSummary(fatalErr)) {
+			oprn("doEndProg: pre, runidx = " + runidx);
 			isGoodRun = runtm.run(runidx);
+			oprn("doEndProg: post, runidx = " + runidx);
 			isBadUtPair = isBadUtPair || runtm.isBadUpFlag();
 			rtnval = rtnval && isGoodRun;
 		}
