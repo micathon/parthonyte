@@ -36,6 +36,7 @@ public class InitMain implements IConst {
 	
 	public Store store;
 	private int pageIdx = 0;
+	private int rootNodep;
 	private boolean isBadUtPair;
 	private static final boolean isSilent = false;
 
@@ -144,6 +145,7 @@ public class InitMain implements IConst {
 		scanSrc = new ScanSrc(store);
 		synchk = new SynChk(scanSrc, store);
 		scanSrc.setSynChk(synchk);
+		rootNodep = scanSrc.rootNodep;
 		synchk.isUnitTest = false;
 		isBadUtPair = false;
 		try {
@@ -184,12 +186,10 @@ public class InitMain implements IConst {
 		int runidx, boolean fatalErr) 
 	{
 		RunScanner runtm;
-		int rootNodep;
 		boolean isGoodRun;
 		boolean rtnval = true;
 		
 		scanSrc.setEndFound(false);
-		rootNodep = scanSrc.rootNodep;
 		runtm = new RunScanner(store, scanSrc, synchk, rootNodep);
 		if (scanSrc.inCmtBlk) {
 			scanSrc.putErr(TokenTyp.ERRINCMTEOF);
@@ -197,6 +197,8 @@ public class InitMain implements IConst {
 		if (scanSrc.scanSummary(fatalErr)) {
 			oprn("doEndProg: pre, runidx = " + runidx);
 			isGoodRun = runtm.run(runidx);
+			scanSrc.initScan();
+			rootNodep = scanSrc.rootNodep;
 			oprn("doEndProg: post, runidx = " + runidx);
 			isBadUtPair = isBadUtPair || runtm.isBadUpFlag();
 			rtnval = rtnval && isGoodRun;
