@@ -129,6 +129,7 @@ public class ScanSrc implements IConst {
 		colCount = 0;
 		inWhiteSp = true;
 		t = inbuf;
+		//oprn('<' + inbuf + '>');
 		inbuf = inbuf.trim();
 		bufLen = inbuf.length();
 		inBufSqr = "[" + inbuf + "]";
@@ -459,6 +460,10 @@ public class ScanSrc implements IConst {
 		if (debug) {
 			System.out.println(msg);
 		}
+	}
+	
+	public void oprn(String msg) {
+		System.out.println(msg);
 	}
 	
 	public void omsg(String msg) {  
