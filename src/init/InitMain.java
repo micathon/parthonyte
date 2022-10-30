@@ -39,6 +39,7 @@ public class InitMain implements IConst {
 	private int rootNodep;
 	private boolean isBadUtPair;
 	private static final boolean isSilent = false;
+	private static final boolean isVerbose = false;
 
 	public InitMain() {
 		store = new Store();
@@ -140,6 +141,7 @@ public class InitMain implements IConst {
 		SynChk synchk;
 		int runidx = 0;
 		boolean fatalErr = false;
+		boolean endPrgFinish;
 		boolean rtnval = true;
 
 		scanSrc = new ScanSrc(store);
@@ -154,6 +156,7 @@ public class InitMain implements IConst {
 				// read source file, scan current line of input
 				if (!scanSrc.scanCodeBuf(inbuf, true)) {
 					fatalErr = true;
+					//scanSrc.scanSummary(true);
 					break;
 				}
 				if (scanSrc.isEndFound()) {
@@ -161,19 +164,18 @@ public class InitMain implements IConst {
 					// endFound flag reset in prev call to scanCodeBuf
 					runidx++;
 					oprn("doSrcUtFile: runidx = " + runidx);
-					rtnval = rtnval && doEndProg(
-						scanSrc, synchk, runidx, fatalErr);
-				}
-				if (!rtnval) {
-					fatalErr = true;
-					break;
+					logRunIdx(runidx);
+					endPrgFinish = doEndProg(scanSrc, synchk, runidx);
+					rtnval = rtnval && endPrgFinish; 
 				}
 			}
 			if (!fatalErr && scanSrc.isTextFound()) {
 				// process end of coop program
 				runidx++;
-				rtnval = rtnval && doEndProg(
-					scanSrc, synchk, runidx, fatalErr);
+				oprn("doSrcUtFile: (2nd) runidx = " + runidx);
+				logRunIdx(runidx);
+				endPrgFinish = doEndProg(scanSrc, synchk, runidx);
+				rtnval = rtnval && endPrgFinish; 
 			}
 		} catch (IOException exc) {
 			System.out.println("I/O Error: " + exc);
@@ -183,7 +185,7 @@ public class InitMain implements IConst {
 	}
 	
 	private boolean doEndProg(ScanSrc scanSrc, SynChk synchk,
-		int runidx, boolean fatalErr) 
+		int runidx) 
 	{
 		RunScanner runtm;
 		boolean isGoodRun;
@@ -194,7 +196,7 @@ public class InitMain implements IConst {
 		if (scanSrc.inCmtBlk) {
 			scanSrc.putErr(TokenTyp.ERRINCMTEOF);
 		}
-		if (scanSrc.scanSummary(fatalErr)) {
+		if (scanSrc.scanSummary(false)) {
 			oprn("doEndProg: pre, runidx = " + runidx);
 			isGoodRun = runtm.run(runidx);
 			scanSrc.initScan();
@@ -204,9 +206,16 @@ public class InitMain implements IConst {
 			rtnval = rtnval && isGoodRun;
 		}
 		else {
+			oprn("doEndProg: FAIL!! runidx = " + runidx);
+			scanSrc.initScan();
+			rootNodep = scanSrc.rootNodep;
 			rtnval = false;
 		}
 		return rtnval;
+	}
+	
+	private void logRunIdx(int runidx) {
+		out("RUN # " + runidx);  // if not debug, log anyway
 	}
 	
 	private void displayRunResult(boolean isSuccess) {
@@ -217,7 +226,7 @@ public class InitMain implements IConst {
 		else {
 			result = "failure";
 		}
-		oprn("Run result: " + result);
+		out("Run result: " + result);
 	}
 	
 	private void omsg(String msg) {
@@ -227,6 +236,12 @@ public class InitMain implements IConst {
 	}
 	
 	private void oprn(String msg) {
+		if (isVerbose) {
+			System.out.println(msg);
+		}
+	}
+	
+	private void out(String msg) {
 		System.out.println(msg);
 	}
 	
