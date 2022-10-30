@@ -1140,8 +1140,7 @@ public class RunTime implements IConst, RunConst {
 		utKeyValList.add(skey);
 		utKeyValList.add(sval);
 		omsg("runUtPushStmt: skey = " + skey + ", sval = " + sval);
-		//##
-		oprn("runUtPushStmt: skey = " + skey + ", sval = " + sval); 
+		//oprn(ditto...); 
 		rtnval = popUntilKwd(kwtyp);
 		omsg("runUtPushStmt: btm, rtnval = " + rtnval);
 		return rtnval;
