@@ -56,6 +56,7 @@ public class ScanSrc implements IConst {
 	public int rootNodep;
 	private boolean endFound;
 	private boolean textFound;
+	private boolean tokFound;
 	public boolean inCmtBlk;
 	private boolean inStrLit;
 	private boolean isAllWhiteSp;
@@ -98,6 +99,7 @@ public class ScanSrc implements IConst {
 		wasfor = false;
 		isClean = true;
 		textFound = false;
+		tokFound = false;
 		dirtyLine = -1;
 		dirtyCol = -1;
 		rootNode = new Node(0, KeywordTyp.NULL.ordinal(), 0);
@@ -230,6 +232,7 @@ public class ScanSrc implements IConst {
 			}
 			// not inStrLit
 			inWhiteSp = getInWhiteSp(ch);
+			tokFound = tokFound || !inWhiteSp || isStructChar(ch);
 			if (wasWhiteSp && !inWhiteSp) {
 				if (ch == QUOTECH) {  // start string literal
 					// may be in middle of multi-line str. lit.
@@ -581,6 +584,17 @@ public class ScanSrc implements IConst {
 			(ch == OPENBRACECH) || (ch == CMTLINECH) ||
 			(ch == OPENPARCH) || (ch == CLOSEPARCH) || (ch == SEMICOLONCH);
 		return inWhiteSp;
+	}
+	
+	private boolean isStructChar(char ch) {
+		boolean isStruct;
+		isStruct = 
+			(ch == OPENPARCH) || (ch == CLOSEPARCH) || (ch == SEMICOLONCH);
+		return isStruct;
+	}
+	
+	public boolean isEmptyProg() {
+		return !tokFound;
 	}
 	
 	// all lower case letters
