@@ -169,12 +169,15 @@ public class InitMain implements IConst {
 					rtnval = rtnval && endPrgFinish; 
 				}
 			}
+			out("EOF found");
 			if (!fatalErr && scanSrc.isTextFound()) {
 				// process end of coop program
 				runidx++;
 				oprn("doSrcUtFile: (2nd) runidx = " + runidx);
 				logRunIdx(runidx);
+				out("pre doEndProg");
 				endPrgFinish = doEndProg(scanSrc, synchk, runidx);
+				out("post doEndProg");
 				rtnval = rtnval && endPrgFinish; 
 			}
 		} catch (IOException exc) {
@@ -195,6 +198,9 @@ public class InitMain implements IConst {
 		runtm = new RunScanner(store, scanSrc, synchk, rootNodep);
 		if (scanSrc.inCmtBlk) {
 			scanSrc.putErr(TokenTyp.ERRINCMTEOF);
+		}
+		if (scanSrc.isEmptyProg()) {
+			return true;
 		}
 		if (scanSrc.scanSummary(false)) {
 			oprn("doEndProg: pre, runidx = " + runidx);
