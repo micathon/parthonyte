@@ -85,6 +85,7 @@ public class Store implements IConst {
 		addr = addr >>> 12;
 		pageidx = addr & 0x3FF;
 		pgtabidx = addr >>> 10;
+		//omsg("getPage: pgtabidx = " + pgtabidx);
 		pgtab = getPageTab(pgtabidx);
 		page = pgtab.getPage(pageidx);
 		return page;
@@ -1071,6 +1072,7 @@ class AllocFree implements IConst {
 	private int currPageIdx;
 	private PageTab currPgTab;
 	private int currBookIdx;
+	private boolean zdebug;  //##
 	
 	public AllocFree(PageTyp pgtyp, Store store) {
 		pageTyp = pgtyp;
@@ -1078,6 +1080,7 @@ class AllocFree implements IConst {
 		this.store = store;
 		firstBookIdx = -1;
 		currBookIdx = -1;
+		zdebug = false;
 	}
 	// int bookLen;
 	// int firstFree;
@@ -1120,6 +1123,7 @@ class AllocFree implements IConst {
 						pgtyp);
 					return addr;
 				}
+				zdebug = true;
 				addr = allocInner();
 				if (addr >= 0) {
 					out("alloc: post Inner, addr = " + addr);
@@ -1179,8 +1183,11 @@ class AllocFree implements IConst {
 		while (true) {
 			page = pgtab.getPage(currPageIdx);
 			if (!page.isFullPage()) {
+				out("allocInner: isFullPage = N");
+				out("allocInner: currPageIdx = " + currPageIdx);
 				break;
 			}
+			out("allocInner: isFullPage = Y");
 			nextIdx = page.getNext();
 			// handle full page:
 			// append page to full list:
@@ -1203,6 +1210,7 @@ class AllocFree implements IConst {
 				currPageIdx = nextIdx;
 				page = pgtab.getPage(currPageIdx);
 				page.setPrev(prevIdx);
+				out("allocInner: continue");
 				continue;
 			}
 			firstFree = pgtab.getFirstFreeIdx();
@@ -1213,10 +1221,12 @@ class AllocFree implements IConst {
 				nextIdx = page.getNext();
 				pgtab.setFirstFreeIdx(nextIdx);
 				if (nextIdx < 0) {
+					out("allocInner: brk #1");
 					break;
 				}
 				pg = pgtab.getPage(nextIdx);
 				pg.setPrev(-1);
+				out("allocInner: brk #2");
 				break;
 			}
 			if (pgtab.getCount() >= INTPGLEN) {
@@ -1236,6 +1246,7 @@ class AllocFree implements IConst {
 			pg = pgtab.getPage(pgidx);
 			pg.setPrev(currPageIdx);
 			page.setPrev(-1);
+			out("allocInner: brk #3");
 			break;
 		}
 		page = pgtab.getPage(currPageIdx);
@@ -1478,10 +1489,14 @@ class AllocFree implements IConst {
 	}
 
 	public void out(String msg) {
-		if (debug) {
+		if (zdebug) {
 		//if (true) {
 			System.out.println(msg);
 		}
+	}
+
+	private void oprn(String msg) {
+		System.out.println(msg);
 	}
 
 }

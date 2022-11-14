@@ -82,6 +82,10 @@ public class Page implements IConst {
 		}
 	}
 	
+	private void oprn(String msg) {
+		System.out.println(msg);  //##
+	}
+	
 	public PageTyp getPageTyp() {
 		return pgtyp;
 	}
@@ -242,6 +246,7 @@ public class Page implements IConst {
 			return -1;
 		}
 		if (freeidx < 0) {
+			//oprn("allocNode: valcount = " + valcount);
 			setNode(valcount, node);
 			out("allocNode: rtns valcount = " + valcount);
 			return valcount++;
@@ -751,7 +756,7 @@ public class Page implements IConst {
 		case LIST: return INTPGLEN;
 		case MAP: return INTPGLEN;
 		case BYTE: return BYTPGLEN;
-		case NODE: return WRDPGLEN;
+		case NODE: return NODECOUNT;
 		default: return 0;
 		}
 	}
