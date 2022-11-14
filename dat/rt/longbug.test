@@ -175,6 +175,7 @@ do (
   utpush "res2" res2;
   utscan "res" "16200400601";
   utscan "res2" "32400801203";
+  println "gdefun: btm of BEF";
 );
 defun (dbl-func z)
   (var y) #DE 
@@ -213,6 +214,7 @@ do (
   utpush "res2" res2;
   utscan "res" "16200400601";
   utscan "res2" "32400801203";
+  println "gdefun: btm of CEF";
 );
 defun (dbl-func z)
   (var y) #DE 
