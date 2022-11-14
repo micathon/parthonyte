@@ -466,7 +466,7 @@ public class ScanSrc implements IConst {
 	}
 	
 	public void oprn(String msg) {
-		System.out.println(msg);
+		System.out.println(msg);  //##
 	}
 	
 	public void omsg(String msg) {  
@@ -939,7 +939,11 @@ public class ScanSrc implements IConst {
 		if (opstr.length() == 0) {
 			outbuf = TABSTR + "KWD" + sp + token;
 			outDetl(outbuf);
+			oprn("putKwd:" + outbuf);
 			return addNode(NodeCellTyp.KWD, kwtyp.ordinal(), 0.0, "");
+		}
+		else {
+			oprn("putKwd: op = " + opstr);
 		}
 		return putKwdOp(token, opstr, kwtyp);
 	}
