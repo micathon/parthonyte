@@ -939,11 +939,11 @@ public class ScanSrc implements IConst {
 		if (opstr.length() == 0) {
 			outbuf = TABSTR + "KWD" + sp + token;
 			outDetl(outbuf);
-			oprn("putKwd:" + outbuf);
+			out("putKwd:" + outbuf);
 			return addNode(NodeCellTyp.KWD, kwtyp.ordinal(), 0.0, "");
 		}
 		else {
-			oprn("putKwd: op = " + opstr);
+			out("putKwd: op = " + opstr);
 		}
 		return putKwdOp(token, opstr, kwtyp);
 	}
