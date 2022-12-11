@@ -462,6 +462,7 @@ class PageTab implements IConst {
 		pageTab[0] = page;
 		this.pgtyp = pgtyp;
 		pageTabLen = 1;
+		firstFreeIdx = -1;
 		isFree = true;
 	}
 	
@@ -1107,8 +1108,11 @@ class AllocFree implements IConst {
 		int addr;
 		int bookLen;
 		int firstFree;
+		int loopIdx = 0; // debug
 		
 		while (true) {
+			loopIdx++;
+			out("alloc: loop# = " + loopIdx);
 			if (!isFirstIter) {
 				currPgTab = store.getPageTab(currBookIdx);
 				currPageIdx = currPgTab.getFirstPageIdx();
@@ -1123,7 +1127,7 @@ class AllocFree implements IConst {
 						pgtyp);
 					return addr;
 				}
-				zdebug = true;
+				//zdebug = true;
 				addr = allocInner();
 				if (addr >= 0) {
 					out("alloc: post Inner, addr = " + addr);
@@ -1138,6 +1142,7 @@ class AllocFree implements IConst {
 				currBookIdx = currPgTab.getNextBookIdx();
 			}
 			if (currBookIdx >= 0) {
+				out("alloc: post allocInner, continue");
 				continue;
 			}
 			bookLen = store.getBookLen();
@@ -1187,7 +1192,7 @@ class AllocFree implements IConst {
 				out("allocInner: currPageIdx = " + currPageIdx);
 				break;
 			}
-			out("allocInner: isFullPage = Y");
+			out("allocInner: isFullPage = Y, cpi = " + currPageIdx);
 			nextIdx = page.getNext();
 			// handle full page:
 			// append page to full list:
@@ -1221,7 +1226,7 @@ class AllocFree implements IConst {
 				nextIdx = page.getNext();
 				pgtab.setFirstFreeIdx(nextIdx);
 				if (nextIdx < 0) {
-					out("allocInner: brk #1");
+					out("allocInner: brk #1, cpi = " + currPageIdx);
 					break;
 				}
 				pg = pgtab.getPage(nextIdx);
@@ -1238,13 +1243,16 @@ class AllocFree implements IConst {
 			page = pgtab.getPage(currPageIdx);
 			if (page == null) {
 				page = new Page(pageTyp);
+				pgtab.setPage(currPageIdx, page);
 			}
 			// append curr pg to page list:
 			pgidx = pgtab.getFirstPageIdx();
 			page.setNext(pgidx);
 			pgtab.setFirstPageIdx(currPageIdx);
-			pg = pgtab.getPage(pgidx);
-			pg.setPrev(currPageIdx);
+			if (pgidx >= 0) {
+				pg = pgtab.getPage(pgidx);
+				pg.setPrev(currPageIdx);
+			}
 			page.setPrev(-1);
 			out("allocInner: brk #3");
 			break;
