@@ -3,21 +3,20 @@ do (
 # D, E or H
 # F or G
 gdefun  # BHF
-  (var y) #H
+  (var y y2 y3) #H
   (ivar x res res2) #B
 do (
-  set y 1; #H
+  println "^^^^^^^^^^^^^^^^^^^^^^^^^";
   set x 8100200300L; #BC
   set res (dbl-func x); #BC
   println "res =" res;
-  set y 1; #H
   set res2 (dbl-func res);
   println "res2 =" res2;
   println "gdefun BHF: btm";
 );
 defun (dbl-func z)
 do (
-  return (+ (* 2 z) y); #F
+  return (+ (* 2 z) 1); #F
 );
 )
 
