@@ -253,6 +253,7 @@ public class RunTime implements IConst, RunConst {
 		omsg("Stmt count = " + stmtCount);
 		if (rightp < EXIT) {
 			handleErrToken(rightp);
+			return -1;
 		}
 		if (rightp == 0) {
 			omsg("handleDoBlock rtn = 0");  // done
@@ -575,6 +576,8 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtyp;
 		int rightp, rightq;
 		
+		omsg(":::::::::: pushStmt: stkidx = " + 
+			store.getStkIdx());
 		rightq = node.getRightp();
 		rightp = node.getDownp();
 		if (rightp <= 0) {
