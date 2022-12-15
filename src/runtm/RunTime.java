@@ -295,6 +295,7 @@ public class RunTime implements IConst, RunConst {
 	
 	private int handleDoBlock(Node node) {	
 		// currently only called once, in body of gdefun stmt.
+		AddrNode zeroNode;
 		KeywordTyp kwtyp;
 		int rightp;
 
@@ -306,6 +307,8 @@ public class RunTime implements IConst, RunConst {
 			return 0;
 		}
 		pushOp(KeywordTyp.NULL);
+		zeroNode = new AddrNode(0, 0);
+		store.pushNode(zeroNode);
 		while (rightp > 0) {
 			// handle stmt.
 			node = store.getNode(rightp);
