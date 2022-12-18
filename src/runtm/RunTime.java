@@ -1547,11 +1547,13 @@ public class RunTime implements IConst, RunConst {
 	
 	private int runGlbCall() {
 		int i, j;
+		int len;
 		
 		i = 0;
+		len = glbLocVarList.size();
 		setLocBaseIdx(store.getStkIdx());
 		omsg("runGlbCall: locBaseIdx = " + locBaseIdx);
-		while (true) {
+		while (len > 0) {
 			j = glbLocVarList.get(i);
 			if (j < 0) {
 				break;
