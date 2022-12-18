@@ -50,8 +50,11 @@ public class InitMain implements IConst {
 	{
 		boolean isSuccess;
 		
-		if (isMain) {
+		if (isMain && isUnitTest) {
 			doMasterFile(fileName);
+		}
+		else if (isMain) {
+			doMasterUtFile(fileName);
 		}
 		else if (fileName.length() == 0) {
 			doCmdLoop();
@@ -78,12 +81,38 @@ public class InitMain implements IConst {
 				if (fileName.equals("")) {
 					continue;
 				}
-				omsg("Unit Test: " + fileName);
+				omsg("Unit test: " + fileName);
 				fileName = "../dat/test/" + fileName + ".test";
 				isFail = doSrcFile(fileName, true);
 				isGlbFail = isGlbFail || isFail;
 			}
 			showUnitTestVal(isGlbFail);
+		} catch (IOException exc) {
+			System.out.println("I/O Error: " + exc);
+		}
+	}
+	
+	private void doMasterUtFile(String mainFileName) {
+		String fileName;
+		String filePath;
+		BufferedReader fbr;
+		boolean isGood;
+		boolean isGlbGood = true;
+		
+		try {
+			fbr = new BufferedReader(new FileReader(mainFileName));
+			while ((fileName = fbr.readLine()) != null) {
+				fileName = fileName.trim();
+				if (fileName.equals("")) {
+					continue;
+				}
+				omsg("Unit test: " + fileName);
+				filePath = "../dat/rt/" + fileName + ".test";
+				isGood = doSrcUtFile(filePath);
+				showSrcUtFileResult(fileName, isGood);
+				isGlbGood = isGlbGood && isGood;
+			}
+			showUnitTestVal(!isGlbGood);
 		} catch (IOException exc) {
 			System.out.println("I/O Error: " + exc);
 		}
@@ -169,15 +198,12 @@ public class InitMain implements IConst {
 					rtnval = rtnval && endPrgFinish; 
 				}
 			}
-			out("EOF found");
 			if (!fatalErr && scanSrc.isTextFound()) {
 				// process end of coop program
 				runidx++;
 				oprn("doSrcUtFile: (2nd) runidx = " + runidx);
 				logRunIdx(runidx);
-				out("pre doEndProg");
 				endPrgFinish = doEndProg(scanSrc, synchk, runidx);
-				out("post doEndProg");
 				rtnval = rtnval && endPrgFinish; 
 			}
 		} catch (IOException exc) {
@@ -200,6 +226,7 @@ public class InitMain implements IConst {
 			scanSrc.putErr(TokenTyp.ERRINCMTEOF);
 		}
 		if (scanSrc.isEmptyProg()) {
+			// scanned source file of entirely white space
 			return true;
 		}
 		if (scanSrc.scanSummary(false)) {
@@ -259,6 +286,12 @@ public class InitMain implements IConst {
 			omsg("Main unit test passed OK");
 		}
 		omsg("");
+	}
+	
+	private void showSrcUtFileResult(String fileName, boolean isGood) {
+		String result;
+		result = isGood ? "passed" : "failed";
+		omsg("Unit test (" + fileName + "): " + result);
 	}
 	
 	private void doCmdLoop() {
