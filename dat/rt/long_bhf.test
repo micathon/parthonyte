@@ -37,4 +37,9 @@ do (
 );
 )
 @
+do (
+gdefun do (
+  println "final run";
+);
+)
 
