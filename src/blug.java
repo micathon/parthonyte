@@ -27,7 +27,7 @@ public class blug {
 				isRunTest = true;
 			}
 			else {
-				System.out.println("Usage: java blug filename [-u]");
+				System.out.println("Usage: java blug filename [-u][-r]");
 				return;
 			}
 		}
