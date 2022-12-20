@@ -6,7 +6,7 @@
 # How to run Uniqrome
 * Install the Java SDK
 * `$ cd path/to/bin`
-* `$ java uniq atest > out.txt`
+* `$ java unq atest > out.txt`
 * text files:
   * `dat/atest.uniq`: sample Uniqrome source code
   * `bin/out.txt`: used for debugging and logging what my code is doing
