@@ -1,0 +1,26 @@
+do (
+gdefun do (
+  f1 999;
+  println "fun-btm: post f1";
+);
+defun (f1 m) do (
+  #println (f 881);
+  f 881;
+  println "f1: btm";
+  return 3331;
+); 
+defun (f m) do (
+  #g 88;  
+  println "g rtn =" (g 88);
+  #g;
+  println "f: btm";
+  return 333;
+); 
+defun (g n
+)(var m) do (
+  set m 800L;
+  println ">>>>>>>>>>>>>>>> n =" n ", m =" m;
+  return m;
+);
+)
+
