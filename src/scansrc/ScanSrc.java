@@ -932,18 +932,25 @@ public class ScanSrc implements IConst {
 	private int putKwd(String token, KeywordTyp kwtyp) {
 		String outbuf;
 		String opstr;
+		int ival;
 		char sp = ' ';
 		
 		token = token.toLowerCase();
 		opstr = getOpStr(kwtyp);
-		if (opstr.length() == 0) {
+		if (opstr.length() > 0) {
+			out("putKwd: op = " + opstr);
+		}
+		else if ((kwtyp == KeywordTyp.TRUE) ||
+			(kwtyp == KeywordTyp.FALSE)) 
+		{
+			ival = (kwtyp == KeywordTyp.TRUE) ? 1 : 0;
+			return addNode(NodeCellTyp.BOOLEAN, ival, 0.0, "");
+		}
+		else {
 			outbuf = TABSTR + "KWD" + sp + token;
 			outDetl(outbuf);
 			out("putKwd:" + outbuf);
 			return addNode(NodeCellTyp.KWD, kwtyp.ordinal(), 0.0, "");
-		}
-		else {
-			out("putKwd: op = " + opstr);
 		}
 		return putKwdOp(token, opstr, kwtyp);
 	}
@@ -1137,6 +1144,7 @@ public class ScanSrc implements IConst {
 			isDoBlock = (downp == KeywordTyp.DO.ordinal());
 			break;
 		case INT:
+		case BOOLEAN:
 			downp = (int) val;
 			break;
 		case LONG:
