@@ -33,8 +33,12 @@ public class AddrNode {
 	}
 	
 	public boolean isInt() {
-		PageTyp pgtyp = PageTyp.INTVAL;
-		return ((header & 0xF) == pgtyp.ordinal());
+		int hdrPgTyp = header & 0xF;
+		boolean rtnval;
+
+		rtnval = (hdrPgTyp == PageTyp.INTVAL.ordinal()) ||
+			(hdrPgTyp == PageTyp.BOOLEAN.ordinal());
+		return rtnval;
 	}
 	
 	public boolean hasValue() {
