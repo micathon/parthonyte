@@ -249,6 +249,7 @@ class RunPushPop implements IConst, RunConst {
 		String s;
 		String err = "";
 		boolean isImmed = true;
+		boolean isBool = false;
 		double dval;
 		long longval;
 		
@@ -265,6 +266,7 @@ class RunPushPop implements IConst, RunConst {
 		case NONVAR: 
 			omsg("popIntRtn: nonvar, addr = " + addr);
 			isImmed = (pgtyp == PageTyp.INTVAL);
+			isBool = (pgtyp == PageTyp.BOOLEAN);
 			rtnval = addr;
 			break;
 		case LOCVAR:
@@ -277,6 +279,7 @@ class RunPushPop implements IConst, RunConst {
 			pgtyp = addrNode.getHdrPgTyp(); 
 			//pgtyp = PageTyp.FLOAT;
 			isImmed = (pgtyp == PageTyp.INTVAL);
+			isBool = (pgtyp == PageTyp.BOOLEAN);
 			rtnval = addrNode.getAddr();
 			omsg("popStrFromNode: varidx = " + varidx + 
 				", pgtyp = " + pgtyp);
@@ -287,6 +290,11 @@ class RunPushPop implements IConst, RunConst {
 		if (isImmed) {
 			omsg("popStrFromNode: rtnval = " + rtnval);
 			s = "" + rtnval;
+			return s;
+		}
+		if (isBool) {
+			omsg("popStrFromNode: bool = " + rtnval);
+			s = (rtnval == 1) ? "true" : "false";
 			return s;
 		}
 		page = store.getPage(rtnval);
@@ -459,6 +467,17 @@ class RunPushPop implements IConst, RunConst {
 		return true;
 	}
 	
+	public boolean pushBoolStk(int val) {
+		AddrNode addrNode;
+		addrNode = store.newAddrNode(0, val);
+		addrNode.setHdrPgTyp(PageTyp.BOOLEAN);
+		addrNode.setHdrLocVarTyp(NONVAR);
+		if (!store.pushNode(addrNode)) {
+			return false;
+		}
+		return true;
+	}
+	
 	public int pushIntMulti(int val, int varCount) {
 		int rtnval;
 		boolean flag;
@@ -485,6 +504,10 @@ class RunPushPop implements IConst, RunConst {
 		if (isImmedTyp(pgtyp)) {
 			//rtnval = pushIntMulti(val, varCount);
 			flag = pushIntStk(val);
+			return flag ? 0 : STKOVERFLOW;
+		}
+		if (isBoolTyp(pgtyp)) {
+			flag = pushBoolStk(val);
 			return flag ? 0 : STKOVERFLOW;
 		}
 		locVarTyp = srcNode.getHdrLocVarTyp();
@@ -560,7 +583,8 @@ class RunPushPop implements IConst, RunConst {
 		}
 		pgtyp = addrNode.getHdrPgTyp();
 		locVarTyp = addrNode.getHdrLocVarTyp();
-		rtnval = (!isImmedTyp(pgtyp)) && (locVarTyp == LOCVAR);
+		rtnval = (locVarTyp == LOCVAR) && 
+			(!isImmedTyp(pgtyp)) && (!isBoolTyp(pgtyp));
 		return rtnval;
 	}
 	
@@ -578,6 +602,10 @@ class RunPushPop implements IConst, RunConst {
 	
 	public boolean isImmedTyp(PageTyp pgtyp) {
 		return (pgtyp == PageTyp.INTVAL);
+	}
+	
+	public boolean isBoolTyp(PageTyp pgtyp) {
+		return (pgtyp == PageTyp.BOOLEAN);
 	}
 	
 	public boolean pushOp(KeywordTyp kwtyp) {

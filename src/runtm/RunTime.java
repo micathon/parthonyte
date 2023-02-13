@@ -467,6 +467,13 @@ public class RunTime implements IConst, RunConst {
 				return STKOVERFLOW;
 			}
 			break;
+		case BOOLEAN:
+			ival = varidx;
+			omsg("htok: push BOOL = " + ival);
+			if (!pushBoolStk(ival)) {
+				return STKOVERFLOW;
+			}
+			break;
 		case LONG:	
 			downp = node.getDownp();
 			page = store.getPage(downp);
@@ -1710,6 +1717,10 @@ public class RunTime implements IConst, RunConst {
 	
 	private boolean pushIntVar(int val, int locVarTyp, boolean ptrFlag) {
 		return pp.pushIntVar(val, locVarTyp, ptrFlag);
+	}
+	
+	private boolean pushBoolStk(int val) {
+		return pp.pushBoolStk(val);
 	}
 	
 	private int pushIntMulti(int val, int varCount) {
