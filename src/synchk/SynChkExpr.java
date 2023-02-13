@@ -171,6 +171,7 @@ public class SynChkExpr {
 				break;
 			case INT:
 			case LONG:
+			case BOOLEAN:
 				isValid = doIntConst(rightp);
 				break;
 			case FLOAT: 
