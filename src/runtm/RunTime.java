@@ -54,7 +54,7 @@ public class RunTime implements IConst, RunConst {
 		this.synChk = synChk;
 		pp = new RunPushPop(store, this);
 		rc = new RunCall(store, this, pp);
-		runop = new RunOperators(store, pp);
+		runop = new RunOperators(store, this, pp);
 		locBaseIdx = 0;
 		varCountIdx = 0;
 		stmtCount = 0;
@@ -546,7 +546,9 @@ public class RunTime implements IConst, RunConst {
 	
 	private int handleStmtKwdRtn(KeywordTyp kwtyp) {
 		switch (kwtyp) {
-		case SET: return runSetStmt();
+		case ADDSET:
+		case SET: 
+			return runop.runSetStmt(kwtyp);
 		case PRINTLN: return runPrintlnStmt(kwtyp);
 		case ZCALL: return runZcallStmt();
 		case RETURN: return runRtnStmt(true);
@@ -567,7 +569,7 @@ public class RunTime implements IConst, RunConst {
 			return false;
 		}
 	}
-	
+
 	private int pushStmt(Node node) {
 		// scan stmt.
 		KeywordTyp kwtyp;
@@ -587,6 +589,7 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		switch (kwtyp) {
+		case ADDSET:
 		case SET: 
 			rightp = pushSetStmt(node);
 			break;
@@ -653,87 +656,6 @@ public class RunTime implements IConst, RunConst {
 		}
 		rightp = node.getRightp();
 		return rightp;
-	}
-	
-	private int runSetStmt() {
-		int stkidx;
-		AddrNode srcNode;
-		AddrNode destNode;
-		PageTyp pgtyp;
-		Page page;
-		int idx;
-		int addr;
-		long longval = 0;
-		double dval = 0.0;
-		String sval = "";
-		boolean isLong = false;
-		boolean isDup = true;
-		
-		omsg("runSetStmt: top");
-		srcNode = store.popNode(); 
-		if (srcNode == null){
-			return STKUNDERFLOW;
-		}
-		if (!srcNode.getHdrNonVar()) {
-			srcNode = getVarNode(srcNode);
-		}
-		addr = srcNode.getAddr();
-		if (srcNode.isInt()) {
-			page = null;
-			idx = 0;
-		}
-		else {
-			page = store.getPage(addr);
-			idx = store.getElemIdx(addr);
-		}
-		pgtyp = srcNode.getHdrPgTyp();
-		destNode = store.popNode();
-		if (destNode == null) {
-			return STKUNDERFLOW;
-		}
-		if (destNode.getHdrNonVar()) {
-			return BADSETSTMT; 
-		}
-		stkidx = destNode.getAddr();
-		if (destNode.getHdrLocVar()) {
-			stkidx += locBaseIdx;
-		}
-		destNode = getVarNode(destNode);
-		if (!freeTarget(destNode, true, addr)) {
-			return BADFREE; 
-		}
-		switch (pgtyp) {
-		case LONG:
-			longval = page.getLong(idx);
-			omsg("runSetStmt: longval = " + longval);
-			isLong = true;
-			break;
-		case FLOAT:
-			dval = page.getFloat(idx);
-			omsg("runSetStmt: dval = " + dval);
-			break;
-		case STRING:
-			sval = page.getString(idx);
-			omsg("runSetStmt: sval = " + sval);
-			isDup = false;
-			break;
-		default:
-			isDup = false;
-		}
-		if (!isDup) { }
-		else if (isLong) {
-			addr = store.allocLong(longval);
-		}
-		else {
-			addr = store.allocFloat(dval);
-		}
-		if (isDup && (addr < 0)) {
-			return BADALLOC;
-		}
-		store.writeNode(stkidx, addr, pgtyp);
-		omsg("runSetStmt: stk = " + stkidx + ", addr = " + addr +
-			", pgtyp = " + pgtyp);
-		return 0;
 	}
 	
 	private int pushSetStmt(Node node) {
@@ -1286,20 +1208,9 @@ public class RunTime implements IConst, RunConst {
 	}
 	
 	public AddrNode getVarNode(AddrNode node) {
-		int varidx;
-		AddrNode varNode;
-		
-		if (node.getHdrNonVar()) {
-			return null;
-		}
-		varidx = node.getAddr();
-		if (node.getHdrLocVar()) {
-			varidx += locBaseIdx;
-		}
-		varNode = store.fetchNode(varidx);
-		return varNode;
+		return pp.getVarNode(node);
 	}
-	
+		
 	private int popUntilKwd(KeywordTyp kwtyp) {
 		return pp.popUntilKwd(kwtyp);
 	}

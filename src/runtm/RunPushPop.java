@@ -706,6 +706,21 @@ class RunPushPop implements IConst, RunConst {
 		return rtnval;
 	}
 
+	public AddrNode getVarNode(AddrNode node) {
+		int varidx;
+		AddrNode varNode;
+		
+		if (node.getHdrNonVar()) {
+			return null;
+		}
+		varidx = node.getAddr();
+		if (node.getHdrLocVar()) {
+			varidx += locBaseIdx;
+		}
+		varNode = store.fetchNode(varidx);
+		return varNode;
+	}
+	
 	public int popUntilKwd(KeywordTyp kwtyp) {
 		AddrNode addrNode;
 		PageTyp pgtyp;

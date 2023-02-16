@@ -11,10 +11,12 @@ import page.Store;
 public class RunOperators implements IConst, RunConst {
 
 	private Store store;
+	private RunTime rt;
 	private RunPushPop pp;
 	
-	public RunOperators(Store store, RunPushPop pp) {
+	public RunOperators(Store store, RunTime rt, RunPushPop pp) {
 		this.store = store;
+		this.rt = rt;
 		this.pp = pp;
 	}
 	
@@ -36,6 +38,250 @@ public class RunOperators implements IConst, RunConst {
 		}
 	}
 
+	public int runSetStmt(KeywordTyp kwtyp) {
+		int stkidx;
+		AddrNode srcNode;
+		AddrNode destNode;
+		PageTyp pgtyp;
+		Page page;
+		int idx;
+		int addr;
+		boolean isOper = (kwtyp != KeywordTyp.SET);
+		long longval = 0;
+		double dval = 0.0;
+		String sval = "";
+		boolean isLong = false;
+		boolean isDup = true;
+		
+		omsg("runSetStmt: top");
+		if (isOper) {
+			return runOpSetStmt(kwtyp);
+		}
+		srcNode = store.popNode(); 
+		if (srcNode == null){
+			return STKUNDERFLOW;
+		}
+		if (!srcNode.getHdrNonVar()) {
+			srcNode = pp.getVarNode(srcNode);
+		}
+		addr = srcNode.getAddr();
+		if (srcNode.isInt()) {
+			page = null;
+			idx = 0;
+		}
+		else {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+		}
+		pgtyp = srcNode.getHdrPgTyp();
+		destNode = store.popNode();
+		if (destNode == null) {
+			return STKUNDERFLOW;
+		}
+		if (destNode.getHdrNonVar()) {
+			return BADSETSTMT; 
+		}
+		stkidx = destNode.getAddr();
+		if (destNode.getHdrLocVar()) {
+			stkidx += rt.getLocBaseIdx();
+		}
+		destNode = pp.getVarNode(destNode);
+		if (!pp.freeTarget(destNode, true, addr)) {
+			return BADFREE; 
+		}
+		switch (pgtyp) {
+		case LONG:
+			longval = page.getLong(idx);
+			omsg("runSetStmt: longval = " + longval);
+			isLong = true;
+			break;
+		case FLOAT:
+			dval = page.getFloat(idx);
+			omsg("runSetStmt: dval = " + dval);
+			break;
+		case STRING:
+			sval = page.getString(idx);
+			omsg("runSetStmt: sval = " + sval);
+			isDup = false;
+			break;
+		default:
+			isDup = false;
+		}
+		if (!isDup) { }
+		else if (isLong) {
+			addr = store.allocLong(longval);
+		}
+		else {
+			addr = store.allocFloat(dval);
+		}
+		if (isDup && (addr < 0)) {
+			return BADALLOC;
+		}
+		store.writeNode(stkidx, addr, pgtyp);
+		omsg("runSetStmt: stk = " + stkidx + ", addr = " + addr +
+			", pgtyp = " + pgtyp);
+		return 0;
+	}
+	
+	public int runOpSetStmt(KeywordTyp kwtyp) {
+		int stkidx;
+		AddrNode srcNode;
+		AddrNode destNode;
+		PageTyp pgtyp;
+		PageTyp pgtypdest;
+		Page page;
+		Page pagedest;
+		int idx;
+		int addr;
+		int addrdest;
+		int ival = 0;
+		long longval = 0;
+		double dval = 0.0;
+		String sval = "";
+		long longvaldest = 0;
+		double dvaldest = 0.0;
+		String svaldest;
+		boolean isLong = false;
+		boolean isIntExpr = false;
+		boolean isStrExpr = false;
+		boolean isAddrReady = false;
+		
+		omsg("runOpSetStmt: top");
+		srcNode = store.popNode(); 
+		if (srcNode == null){
+			return STKUNDERFLOW;
+		}
+		if (!srcNode.getHdrNonVar()) {
+			srcNode = pp.getVarNode(srcNode);
+		}
+		addr = srcNode.getAddr();
+		if (srcNode.isInt()) {
+			page = null;
+			idx = 0;
+		}
+		else {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+		}
+		pgtyp = srcNode.getHdrPgTyp();
+		destNode = store.popNode();
+		if (destNode == null) {
+			return STKUNDERFLOW;
+		}
+		if (destNode.getHdrNonVar()) {
+			return BADSETSTMT; 
+		}
+		pgtypdest = destNode.getHdrPgTyp();
+		stkidx = destNode.getAddr();
+		if (destNode.getHdrLocVar()) {
+			stkidx += rt.getLocBaseIdx();
+		}
+		destNode = pp.getVarNode(destNode);
+		if (!pp.freeTarget(destNode, true, addr)) {
+			return BADFREE; 
+		}
+		switch (pgtyp) {
+		case LONG:
+			longval = page.getLong(idx);
+			omsg("runOpSetStmt: longval = " + longval);
+			if ((kwtyp == KeywordTyp.DIVSET) && (longval == 0)) {
+				return ZERODIV;
+			}
+			dval = longval;
+			isIntExpr = true;
+			isLong = true;
+			break;
+		case FLOAT:
+			dval = page.getFloat(idx);
+			omsg("runOpSetStmt: dval = " + dval);
+			if ((kwtyp == KeywordTyp.DIVSET) && (dval == 0.0)) {
+				return ZERODIV;
+			}
+			break;
+		case STRING:
+			sval = page.getString(idx);
+			omsg("runOpSetStmt: sval = " + sval);
+			isStrExpr = true;
+			break;
+		default:
+			ival = addr;
+			if ((kwtyp == KeywordTyp.DIVSET) && (ival == 0)) {
+				return ZERODIV;
+			}
+			longval = ival;
+			dval = ival;
+			isIntExpr = true;
+		}
+		addrdest = destNode.getAddr();
+		pagedest = store.getPage(addrdest);
+		idx = store.getElemIdx(addrdest);
+		switch (pgtypdest) {
+		case LONG:
+			longvaldest = pagedest.getLong(idx);
+			if (!isIntExpr) {
+				return BADSETSTMT;
+			}
+			break;
+		case FLOAT:
+			if (isStrExpr) {
+				return BADSETSTMT;
+			}
+			dvaldest = pagedest.getFloat(idx);
+			switch (kwtyp) {
+			case ADDSET: dvaldest += dval; break;
+			case MINUSSET: dvaldest -= dval; break;
+			case MPYSET: dvaldest *= dval; break;
+			case DIVSET: dvaldest /= dval; break;
+			default:
+				return BADSETSTMT;
+			}
+			addr = store.allocFloat(dvaldest);
+			isAddrReady = true;
+			break;
+		case STRING:
+			svaldest = pagedest.getString(idx);
+			if (kwtyp != KeywordTyp.ADDSET) {
+				return BADSETSTMT;
+			}
+			switch (pgtyp) {
+			case LONG: sval = "" + longval; break;
+			case FLOAT: sval = "" + dval; break;
+			case STRING: break;
+			default: 
+				sval = "" + ival;
+			}
+			svaldest = svaldest + sval;
+			addr = store.allocString(svaldest);
+			isAddrReady = true;
+			break;
+		default:
+			longvaldest = addrdest;
+		}
+		if (isAddrReady) {
+			store.writeNode(stkidx, addr, pgtypdest);
+			return 0;
+		}
+		switch (kwtyp) {
+		case ADDSET: longvaldest += longval; break;
+		case MINUSSET: longvaldest -= longval; break; 
+		case MPYSET: longvaldest *= longval; break; 
+		case DIVSET: longvaldest /= longval; break; 
+		// more cases will follow...
+		default:
+			return BADSETSTMT;
+		}
+		if (isLong) {
+			addr = store.allocLong(longvaldest);
+		}
+		else {
+			addr = (int) longvaldest;
+		}
+		store.writeNode(stkidx, addr, pgtypdest);
+		omsg("runOpSetStmt: stk = " + stkidx + ", addr = " + addr +
+			", pgtyp = " + pgtypdest);
+		return 0;
+	}
+	
 	private int runAddExpr() {
 		long sum = 0L;
 		AddrNode addrNode;
