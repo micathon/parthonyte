@@ -1,0 +1,19 @@
+do (
+gdefun do (
+  f;
+);
+defun (f) (var m n k) do (
+  set m 6;
+  set n 2;
+  println "mn" m n;
+  += m n;
+  println "m += n:" m n;
+  -= m n;
+  println "m -= n:" m n;
+  *= m n;
+  println "m *= n:" m n;
+  /= m n;
+  println "m /= n:" m n;
+);
+)
+
