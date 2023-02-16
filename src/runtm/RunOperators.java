@@ -46,7 +46,6 @@ public class RunOperators implements IConst, RunConst {
 		Page page;
 		int idx;
 		int addr;
-		boolean isOper = (kwtyp != KeywordTyp.SET);
 		long longval = 0;
 		double dval = 0.0;
 		String sval = "";
@@ -54,7 +53,7 @@ public class RunOperators implements IConst, RunConst {
 		boolean isDup = true;
 		
 		omsg("runSetStmt: top");
-		if (isOper) {
+		if (kwtyp != KeywordTyp.SET) {
 			return runOpSetStmt(kwtyp);
 		}
 		srcNode = store.popNode(); 
@@ -142,9 +141,8 @@ public class RunOperators implements IConst, RunConst {
 		double dvaldest = 0.0;
 		String svaldest;
 		boolean isLong = false;
-		boolean isIntExpr = false;
+		boolean isFloat = false;
 		boolean isStrExpr = false;
-		boolean isAddrReady = false;
 		
 		omsg("runOpSetStmt: top");
 		srcNode = store.popNode(); 
@@ -188,7 +186,6 @@ public class RunOperators implements IConst, RunConst {
 				return ZERODIV;
 			}
 			dval = longval;
-			isIntExpr = true;
 			isLong = true;
 			break;
 		case FLOAT:
@@ -197,6 +194,7 @@ public class RunOperators implements IConst, RunConst {
 			if ((kwtyp == KeywordTyp.DIVSET) && (dval == 0.0)) {
 				return ZERODIV;
 			}
+			isFloat = true;
 			break;
 		case STRING:
 			sval = page.getString(idx);
@@ -210,33 +208,25 @@ public class RunOperators implements IConst, RunConst {
 			}
 			longval = ival;
 			dval = ival;
-			isIntExpr = true;
 		}
 		addrdest = destNode.getAddr();
 		pagedest = store.getPage(addrdest);
 		idx = store.getElemIdx(addrdest);
 		switch (pgtypdest) {
 		case LONG:
-			longvaldest = pagedest.getLong(idx);
-			if (!isIntExpr) {
+			if (isStrExpr) {
 				return BADSETSTMT;
 			}
+			longvaldest = pagedest.getLong(idx);
+			dvaldest = longvaldest;
+			isLong = true;
 			break;
 		case FLOAT:
 			if (isStrExpr) {
 				return BADSETSTMT;
 			}
 			dvaldest = pagedest.getFloat(idx);
-			switch (kwtyp) {
-			case ADDSET: dvaldest += dval; break;
-			case MINUSSET: dvaldest -= dval; break;
-			case MPYSET: dvaldest *= dval; break;
-			case DIVSET: dvaldest /= dval; break;
-			default:
-				return BADSETSTMT;
-			}
-			addr = store.allocFloat(dvaldest);
-			isAddrReady = true;
+			isFloat = true;
 			break;
 		case STRING:
 			svaldest = pagedest.getString(idx);
@@ -252,12 +242,22 @@ public class RunOperators implements IConst, RunConst {
 			}
 			svaldest = svaldest + sval;
 			addr = store.allocString(svaldest);
-			isAddrReady = true;
-			break;
+			store.writeNode(stkidx, addr, pgtypdest);
+			return 0;
 		default:
 			longvaldest = addrdest;
+			dvaldest = addrdest;
 		}
-		if (isAddrReady) {
+		if (isFloat) {
+			switch (kwtyp) {
+			case ADDSET: dvaldest += dval; break;
+			case MINUSSET: dvaldest -= dval; break;
+			case MPYSET: dvaldest *= dval; break;
+			case DIVSET: dvaldest /= dval; break;
+			default:
+				return BADSETSTMT;
+			}
+			addr = store.allocFloat(dvaldest);
 			store.writeNode(stkidx, addr, pgtypdest);
 			return 0;
 		}
