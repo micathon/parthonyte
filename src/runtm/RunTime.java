@@ -547,6 +547,9 @@ public class RunTime implements IConst, RunConst {
 	private int handleStmtKwdRtn(KeywordTyp kwtyp) {
 		switch (kwtyp) {
 		case ADDSET:
+		case MINUSSET: 
+		case MPYSET: 
+		case DIVSET: 
 		case SET: 
 			return runop.runSetStmt(kwtyp);
 		case PRINTLN: return runPrintlnStmt(kwtyp);
@@ -590,8 +593,11 @@ public class RunTime implements IConst, RunConst {
 		}
 		switch (kwtyp) {
 		case ADDSET:
+		case MINUSSET: 
+		case MPYSET: 
+		case DIVSET: 
 		case SET: 
-			rightp = pushSetStmt(node);
+			rightp = pushSetStmt(node, kwtyp);
 			break;
 		case PRINTLN: 
 			rightp = pushPrintlnStmt(node);
@@ -658,12 +664,11 @@ public class RunTime implements IConst, RunConst {
 		return rightp;
 	}
 	
-	private int pushSetStmt(Node node) {
+	private int pushSetStmt(Node node, KeywordTyp kwtyp) {
 		int rightp;
-		KeywordTyp kwtyp;
 		
 		omsg("pushSetStmt: top");
-		kwtyp = KeywordTyp.SET;
+		//kwtyp = KeywordTyp.SET;
 		if (!pushOp(kwtyp)) {
 			return STKOVERFLOW;
 		}

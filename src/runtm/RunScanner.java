@@ -525,7 +525,12 @@ public class RunScanner implements IConst {
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		switch (kwtyp) {
-		case SET: return scopeSetStmt(node);
+		case SET: 
+		case ADDSET:
+		case MINUSSET: 
+		case MPYSET: 
+		case DIVSET: 
+			return scopeSetStmt(node);
 		case PRINTLN: return scopePrintlnStmt(node);
 		case ZCALL: return scopeZcallStmt(rightp, false);
 		case RETURN: return scopeRtnStmt(node);

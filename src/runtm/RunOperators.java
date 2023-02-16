@@ -175,9 +175,6 @@ public class RunOperators implements IConst, RunConst {
 			stkidx += rt.getLocBaseIdx();
 		}
 		destNode = pp.getVarNode(destNode);
-		if (!pp.freeTarget(destNode, true, addr)) {
-			return BADFREE; 
-		}
 		switch (pgtyp) {
 		case LONG:
 			longval = page.getLong(idx);
@@ -210,13 +207,15 @@ public class RunOperators implements IConst, RunConst {
 			dval = ival;
 		}
 		addrdest = destNode.getAddr();
-		pagedest = store.getPage(addrdest);
-		idx = store.getElemIdx(addrdest);
+		omsg("runOpSetStmt: addrdest = " + addrdest +
+			", pgtypdest = " + pgtypdest);
 		switch (pgtypdest) {
 		case LONG:
 			if (isStrExpr) {
 				return BADSETSTMT;
 			}
+			pagedest = store.getPage(addrdest);
+			idx = store.getElemIdx(addrdest);
 			longvaldest = pagedest.getLong(idx);
 			dvaldest = longvaldest;
 			isLong = true;
@@ -225,10 +224,16 @@ public class RunOperators implements IConst, RunConst {
 			if (isStrExpr) {
 				return BADSETSTMT;
 			}
+			pagedest = store.getPage(addrdest);
+			idx = store.getElemIdx(addrdest);
 			dvaldest = pagedest.getFloat(idx);
+			omsg("runOpSetStmt: dvaldest = " + dvaldest +
+					", pgtypdest = " + pgtypdest);
 			isFloat = true;
 			break;
 		case STRING:
+			pagedest = store.getPage(addrdest);
+			idx = store.getElemIdx(addrdest);
 			svaldest = pagedest.getString(idx);
 			if (kwtyp != KeywordTyp.ADDSET) {
 				return BADSETSTMT;
@@ -257,6 +262,12 @@ public class RunOperators implements IConst, RunConst {
 			default:
 				return BADSETSTMT;
 			}
+			if (!pp.freeTarget(destNode, true, addr)) {
+				return BADFREE; 
+			}
+			pgtypdest = PageTyp.FLOAT;
+			omsg("runOpSetStmt (2): dvaldest = " + dvaldest +
+				", pgtypdest = " + pgtypdest);
 			addr = store.allocFloat(dvaldest);
 			store.writeNode(stkidx, addr, pgtypdest);
 			return 0;
@@ -271,10 +282,15 @@ public class RunOperators implements IConst, RunConst {
 			return BADSETSTMT;
 		}
 		if (isLong) {
+			if (!pp.freeTarget(destNode, true, addr)) {
+				return BADFREE; 
+			}
 			addr = store.allocLong(longvaldest);
+			pgtypdest = PageTyp.LONG;
 		}
 		else {
 			addr = (int) longvaldest;
+			pgtypdest = PageTyp.INTVAL;
 		}
 		store.writeNode(stkidx, addr, pgtypdest);
 		omsg("runOpSetStmt: stk = " + stkidx + ", addr = " + addr +
