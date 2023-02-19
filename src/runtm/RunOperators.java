@@ -32,6 +32,10 @@ public class RunOperators implements IConst, RunConst {
 		case MPY: return runMpyExpr();
 		case MINUS: return runMinusExpr();
 		case DIV: return runDivExpr();
+		case AND:
+		case OR:
+		case XOR:
+			return runLogicalExpr(kwtyp);
 		default:
 			omsg("handleExprKwdRtn: kwtyp = " + kwtyp);
 			return NEGBASEVAL - kwtyp.ordinal();
@@ -301,18 +305,22 @@ public class RunOperators implements IConst, RunConst {
 	private int runAddExpr() {
 		long sum = 0L;
 		AddrNode addrNode;
+		PageTyp pgtyp;
 		Page page;
-		int addr;
+		int addr = -1;
 		int idx;
 		double fsum = 0.0;
 		double dval = 0.0;
 		long longval = 0L;
 		int stkidx;
+		String str = "";
+		String s;
 		boolean isFloat;
 		boolean isLong;
 		boolean isResFloat = false;
 		boolean isResLong = false;
 		boolean isNewFloat;
+		boolean isConcat = false;
 		int rtnval;
 		
 		while (true) {
@@ -324,9 +332,21 @@ public class RunOperators implements IConst, RunConst {
 			if (isNullKwd(addrNode)) {
 				break;
 			}
+			pgtyp = addrNode.getHdrPgTyp();
+			if ((pgtyp == PageTyp.STRING) && (addr == -1)) {
+				isConcat = true;
+			}
+			if (!isConcat && !isNumeric(pgtyp)) {
+				return BADOPTYP;
+			}
+			if (isConcat) {
+				s = popStrFromNode(addrNode);
+				str = str + s;
+				continue;
+			}
 			addr = addrNode.getAddr();
-			isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
-			isLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
+			isFloat = (pgtyp == PageTyp.FLOAT);
+			isLong = (pgtyp == PageTyp.LONG);
 			isNewFloat = isFloat && !isResFloat;
 			isResFloat = isResFloat || isFloat;
 			isResLong = isResLong || isLong;
@@ -357,7 +377,10 @@ public class RunOperators implements IConst, RunConst {
 				sum += longval;
 			}
 		}
-		if (isResFloat) {
+		if (isConcat) {
+			rtnval = pushString(str);
+		}
+		else if (isResFloat) {
 			rtnval = pushFloat(fsum);
 		}
 		else if (isResLong) {
@@ -374,6 +397,7 @@ public class RunOperators implements IConst, RunConst {
 		double fproduct = 1.0;
 		long longval = 0L;
 		AddrNode addrNode;
+		PageTyp pgtyp;
 		Page page;
 		int addr;
 		int idx;
@@ -396,10 +420,14 @@ public class RunOperators implements IConst, RunConst {
 				break;
 			}
 			addr = addrNode.getAddr();
+			pgtyp = addrNode.getHdrPgTyp();
 			omsg("runMpyExpr: stkidx = " + stkidx +
 				", addr = " + addr);
-			isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
-			isLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
+			if (!isNumeric(pgtyp)) {
+				return BADOPTYP;
+			}
+			isFloat = (pgtyp == PageTyp.FLOAT);
+			isLong = (pgtyp == PageTyp.LONG);
 			isNewFloat = isFloat && !isResFloat;
 			isResFloat = isResFloat || isFloat;
 			isResLong = isResLong || isLong;
@@ -444,6 +472,7 @@ public class RunOperators implements IConst, RunConst {
 	
 	private int runDivExpr() {
 		AddrNode addrNode;
+		PageTyp pgtyp;
 		Page page;
 		int addr;
 		int idx;
@@ -461,9 +490,13 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if (!isNumeric(pgtyp)) {
+			return BADOPTYP;
+		}
 		addr = addrNode.getAddr();
-		isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
-		isLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
+		isFloat = (pgtyp == PageTyp.FLOAT);
+		isLong = (pgtyp == PageTyp.LONG);
 		if (isFloat) {
 			page = store.getPage(addr);
 			idx = store.getElemIdx(addr);
@@ -485,9 +518,13 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if (!isNumeric(pgtyp)) {
+			return BADOPTYP;
+		}
 		addr = addrNode.getAddr();
-		isFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
-		isLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
+		isFloat = (pgtyp == PageTyp.FLOAT);
+		isLong = (pgtyp == PageTyp.LONG);
 		if (isFloat) {
 			page = store.getPage(addr);
 			idx = store.getElemIdx(addr);
@@ -508,6 +545,7 @@ public class RunOperators implements IConst, RunConst {
 	
 	private int runMinusExpr() {
 		AddrNode addrNode;
+		PageTyp pgtyp;
 		Page page;
 		int addr;
 		int idx;
@@ -533,9 +571,13 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if (!isNumeric(pgtyp)) {
+			return BADOPTYP;
+		}
 		addr = addrNode.getAddr();
-		isDeltaFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
-		isDeltaLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
+		isDeltaFloat = (pgtyp == PageTyp.FLOAT);
+		isDeltaLong = (pgtyp == PageTyp.LONG);
 		if (isDeltaFloat) {
 			page = store.getPage(addr);
 			idx = store.getElemIdx(addr);
@@ -554,9 +596,13 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if (!isNumeric(pgtyp)) {
+			return BADOPTYP;
+		}
 		addr = addrNode.getAddr();
-		isBaseFloat = (addrNode.getHdrPgTyp() == PageTyp.FLOAT);
-		isBaseLong = (addrNode.getHdrPgTyp() == PageTyp.LONG);
+		isBaseFloat = (pgtyp == PageTyp.FLOAT);
+		isBaseLong = (pgtyp == PageTyp.LONG);
 		if (isBaseFloat) {
 			page = store.getPage(addr);
 			idx = store.getElemIdx(addr);
@@ -601,6 +647,76 @@ public class RunOperators implements IConst, RunConst {
 		return rtnval;
 	}
 	
+	private int runLogicalExpr(KeywordTyp kwtyp) {
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int addr;
+		int stkidx;
+		boolean initFlag = false;
+		boolean currFlag;
+		boolean done = false;
+		int ival;
+		int rtnval;
+
+		if (kwtyp == KeywordTyp.AND) {
+			initFlag = true;
+		}
+		while (!done) {
+			stkidx = popIntStk();
+			if (stkidx < 0) {
+				return stkidx;
+			}
+			addrNode = store.fetchNode(stkidx);
+			if (isNullKwd(addrNode)) {
+				break;
+			}
+			addr = addrNode.getAddr();
+			pgtyp = addrNode.getHdrPgTyp();
+			omsg("runLogicalExpr: stkidx = " + stkidx +
+				", addr = " + addr);
+			if (pgtyp != PageTyp.BOOLEAN) {
+				return BADOPTYP;
+			}
+			currFlag = (addr == 1);
+			switch (kwtyp) {
+			case AND:
+				initFlag = initFlag && currFlag;
+				done = !initFlag;
+				break;
+			case OR:
+				initFlag = initFlag || currFlag;
+				done = initFlag;
+				break;
+			case XOR:
+				initFlag = initFlag ^ currFlag;
+				break;
+			default:
+				return BADOP;
+			}
+		}
+		ival = initFlag ? 1 : 0;
+		currFlag = pushBoolStk(ival);
+		rtnval = currFlag ? 0 : STKOVERFLOW;
+		return rtnval;
+	}
+	
+	private boolean isNumNode(AddrNode node) {
+		PageTyp pgtyp;
+		boolean flag;
+		
+		pgtyp = node.getHdrPgTyp();
+		flag = isNumeric(pgtyp);
+		return flag;
+	}
+	
+	private boolean isNumeric(PageTyp pgtyp) {
+		boolean flag;
+		flag = (pgtyp == PageTyp.INTVAL) ||
+			(pgtyp == PageTyp.LONG) ||
+			(pgtyp == PageTyp.FLOAT);
+		return flag;
+	}
+	
 	private int getIntOffStk(int stkidx) {
 		return pp.getIntOffStk(stkidx);
 	}
@@ -639,6 +755,10 @@ public class RunOperators implements IConst, RunConst {
 	
 	private boolean pushBoolStk(int val) {
 		return pp.pushBoolStk(val);
+	}
+	
+	private String popStrFromNode(AddrNode addrNode) {
+		return pp.popStrFromNode(addrNode);
 	}
 	
 }

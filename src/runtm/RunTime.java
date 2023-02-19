@@ -290,6 +290,7 @@ public class RunTime implements IConst, RunConst {
 		case BADUTSTMT: return "Malformed unit test stmt.";
 		case BADTYPE: return "Unexpected data type";
 		case BADFREE: return "Memory free failure";
+		case BADOPTYP: return "Invalid operand type";
 		case GENERR: return "General runtime error";
 		default: return "Error code = " + (-rightp);
 		}
@@ -636,6 +637,9 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case ADD:
 		case MPY:
+		case AND:
+		case OR:
+		case XOR:
 			nullkwd = KeywordTyp.NULL; 
 			if (!pushOp(kwtyp) || !pushOpAsNode(nullkwd)) {
 				return STKOVERFLOW;
