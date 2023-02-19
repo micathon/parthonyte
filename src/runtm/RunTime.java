@@ -360,6 +360,7 @@ public class RunTime implements IConst, RunConst {
 	private int handleExprToken(int rightp, boolean isSingle) {	
 		// handle single/mult. expr(s).
 		KeywordTyp kwtyp;
+		KeywordTyp kwtop;
 		Node node;
 		boolean found = false;
 		
@@ -410,6 +411,20 @@ public class RunTime implements IConst, RunConst {
 			else {
 				rightp = handleLeafToken(node);
 				found = isSingle && (locDepth <= 0);
+			}
+			kwtop = topKwd();
+			switch (kwtop) {
+			case AND:
+				omsg("exprtok: AND");
+				break;
+			case OR:
+				omsg("exprtok: OR");
+				break;
+			case QUEST:
+				omsg("exprtok: QUEST");
+				break;
+			default:
+				break;
 			}
 		} 
 		return rightp;
@@ -621,6 +636,7 @@ public class RunTime implements IConst, RunConst {
 	private int pushExpr(Node node) {
 		KeywordTyp kwtyp;
 		KeywordTyp nullkwd;
+		int ival;
 		int rightp;
 		
 		rightp = node.getRightp();
@@ -638,6 +654,7 @@ public class RunTime implements IConst, RunConst {
 		case ADD:
 		case MPY:
 		case XOR:
+		case QUEST:
 			nullkwd = KeywordTyp.NULL; 
 			if (!pushOp(kwtyp) || !pushOpAsNode(nullkwd)) {
 				return STKOVERFLOW;
@@ -651,10 +668,12 @@ public class RunTime implements IConst, RunConst {
 			break;
 		case AND:
 		case OR:
-			// do something...
-			break;
-		case QUEST:
-			// do something...
+			//nullkwd = KeywordTyp.NULL; 
+			//if (!pushOp(kwtyp) || !pushOpAsNode(nullkwd)) {
+			ival = (kwtyp == KeywordTyp.AND) ? 1 : 0;
+			if (!pushOp(kwtyp) || !pushAddr(ival)) {  
+				return STKOVERFLOW;
+			}
 			break;
 		case ZCALL:
 			if (popVal() < 0) {
@@ -667,7 +686,8 @@ public class RunTime implements IConst, RunConst {
 			}
 			rightp = handleLeafToken(node);
 			return rightp;
-		default: return BADOP;
+		default: 
+			return BADOP;
 		}
 		rightp = node.getRightp();
 		return rightp;
@@ -1235,6 +1255,10 @@ public class RunTime implements IConst, RunConst {
 	
 	private KeywordTyp popKwd() {
 		return pp.popKwd();
+	}
+	
+	private KeywordTyp topKwd() {
+		return pp.topKwd();
 	}
 	
 	public int stripIntSign(int val) {

@@ -662,7 +662,7 @@ public class RunOperators implements IConst, RunConst {
 		if (kwtyp == KeywordTyp.AND) {
 			initFlag = true;
 		}
-		while (!done) {
+		while (true) {
 			stkidx = popIntStk();
 			if (stkidx < 0) {
 				return stkidx;
@@ -673,6 +673,10 @@ public class RunOperators implements IConst, RunConst {
 			}
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
+			if (pgtyp != PageTyp.INTVAL) { }
+			else if ((addr == 0) || (addr == 1)) {
+				break;
+			}
 			omsg("runLogicalExpr: stkidx = " + stkidx +
 				", addr = " + addr);
 			if (pgtyp != PageTyp.BOOLEAN) {

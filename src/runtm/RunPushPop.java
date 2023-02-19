@@ -45,6 +45,15 @@ class RunPushPop implements IConst, RunConst {
 		return kwtyp;
 	}
 	
+	public KeywordTyp topKwd() {
+		KeywordTyp kwtyp;
+		int ival;
+		
+		ival = (int)store.topByte();
+		kwtyp = KeywordTyp.values[ival];
+		return kwtyp;
+	}
+	
 	public int stripIntSign(int val) {
 		if (val == 0x80000000) {
 			return 0;
@@ -369,6 +378,7 @@ class RunPushPop implements IConst, RunConst {
 	public boolean pushAddr(int rightp) {
 		AddrNode addrNode;
 		addrNode = store.newAddrNode(0, rightp);
+		addrNode.setHdrPgTyp(PageTyp.INTVAL);  //##
 		if (!store.pushNode(addrNode)) {
 			return false;
 		}
