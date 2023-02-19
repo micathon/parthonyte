@@ -637,8 +637,6 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case ADD:
 		case MPY:
-		case AND:
-		case OR:
 		case XOR:
 			nullkwd = KeywordTyp.NULL; 
 			if (!pushOp(kwtyp) || !pushOpAsNode(nullkwd)) {
@@ -650,6 +648,13 @@ public class RunTime implements IConst, RunConst {
 			if (!pushOp(kwtyp)) {
 				return STKOVERFLOW;
 			}
+			break;
+		case AND:
+		case OR:
+			// do something...
+			break;
+		case QUEST:
+			// do something...
 			break;
 		case ZCALL:
 			if (popVal() < 0) {

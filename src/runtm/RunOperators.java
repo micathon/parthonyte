@@ -82,6 +82,7 @@ public class RunOperators implements IConst, RunConst {
 			return STKUNDERFLOW;
 		}
 		if (destNode.getHdrNonVar()) {
+			omsg("runSetStmt: BADSET, addr = " + addr);
 			return BADSETSTMT; 
 		}
 		stkidx = destNode.getAddr();

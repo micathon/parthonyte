@@ -468,10 +468,19 @@ class RunPushPop implements IConst, RunConst {
 	}
 	
 	public boolean pushBoolStk(int val) {
+		boolean rtnval;
+		rtnval = pushBoolVar(val, NONVAR, false);
+		return rtnval;
+	}
+		
+	public boolean pushBoolVar(int val, int locVarTyp, boolean ptrFlag) {
 		AddrNode addrNode;
 		addrNode = store.newAddrNode(0, val);
 		addrNode.setHdrPgTyp(PageTyp.BOOLEAN);
-		addrNode.setHdrLocVarTyp(NONVAR);
+		addrNode.setHdrLocVarTyp(locVarTyp);
+		if (ptrFlag) {
+			addrNode.setPtr();
+		}
 		if (!store.pushNode(addrNode)) {
 			return false;
 		}
@@ -698,6 +707,10 @@ class RunPushPop implements IConst, RunConst {
 			omsg("pushVarQuote: call pushPtrVar");
 			rtnval = pushPtrVar(varidx, locVarTyp, pgtyp);
 			break;
+		case BOOLEAN:
+			omsg("pushVarQuote: call pushBoolStk");
+			rtnval = pushBoolVar(varidx, locVarTyp, true);
+			return rtnval;
 		default:
 			omsg("pushVarQuote: default, pgtyp = " + pgtyp);
 			return false;
