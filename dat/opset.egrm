@@ -1,10 +1,12 @@
 do (
 gdefun do (
-  f;
+  #f;
+  #g;
+  logtest;
 );
 defun (f) (var m n k) do (
-  set m 6;
-  set n 2;
+  set m 6L;
+  set n 2.0;
   println "mn" m n;
   += m n;
   println "m += n:" m n;
@@ -14,6 +16,58 @@ defun (f) (var m n k) do (
   println "m *= n:" m n;
   /= m n;
   println "m /= n:" m n;
+);
+defun (g) (var x n s) do (
+  set s "foo";
+  set n 7;
+  println "ns:" n s;
+  set x (- n s);
+  println "xns:" x n s;
+);
+defun (logtest) (var a b c) do (
+  set a false;
+  set b false;
+  set c false;
+  println (xorfun a b c);
+  
+  set a false;
+  set b false;
+  set c true;
+  println (xorfun a b c);
+
+  set a false;
+  set b true;
+  set c false;
+  println (xorfun a b c);
+
+  set a false;
+  set b true;
+  set c true;
+  println (xorfun a b c);
+  
+  set a true;
+  set b false;
+  set c false;
+  println (xorfun a b c);
+  
+  set a true;
+  set b false;
+  set c true;
+  println (xorfun a b c);
+  
+  set a true;
+  set b true;
+  set c false;
+  println (xorfun a b c);
+  
+  set a true;
+  set b true;
+  set c true;
+  println (xorfun a b c);
+);
+defun (xorfun x y z) do (
+  println "xyz xor:" x y z; 
+  return (xor x y z);
 );
 )
 
