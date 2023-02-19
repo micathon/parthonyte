@@ -32,9 +32,9 @@ public class RunOperators implements IConst, RunConst {
 		case MPY: return runMpyExpr();
 		case MINUS: return runMinusExpr();
 		case DIV: return runDivExpr();
+		case XOR: return runXorExpr();
 		case AND:
 		case OR:
-		case XOR:
 			return runLogicalExpr(kwtyp);
 		default:
 			omsg("handleExprKwdRtn: kwtyp = " + kwtyp);
@@ -693,6 +693,41 @@ public class RunOperators implements IConst, RunConst {
 			default:
 				return BADOP;
 			}
+		}
+		ival = initFlag ? 1 : 0;
+		currFlag = pushBoolStk(ival);
+		rtnval = currFlag ? 0 : STKOVERFLOW;
+		return rtnval;
+	}
+	
+	private int runXorExpr() {
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int addr;
+		int stkidx;
+		boolean initFlag = false;
+		boolean currFlag;
+		int ival;
+		int rtnval;
+
+		while (true) {
+			stkidx = popIntStk();
+			if (stkidx < 0) {
+				return stkidx;
+			}
+			addrNode = store.fetchNode(stkidx);
+			if (isNullKwd(addrNode)) {
+				break;
+			}
+			addr = addrNode.getAddr();
+			pgtyp = addrNode.getHdrPgTyp();
+			omsg("runXorExpr: stkidx = " + stkidx +
+				", addr = " + addr);
+			if (pgtyp != PageTyp.BOOLEAN) {
+				return BADOPTYP;
+			}
+			currFlag = (addr == 1);
+			initFlag = initFlag ^ currFlag;
 		}
 		ival = initFlag ? 1 : 0;
 		currFlag = pushBoolStk(ival);
