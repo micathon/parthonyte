@@ -362,6 +362,8 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtyp;
 		KeywordTyp kwtop;
 		Node node;
+		AddrNode addrNode;
+		int ival;
 		boolean found = false;
 		
 		// currently isSingle on single expr. end of push set/return
@@ -403,6 +405,21 @@ public class RunTime implements IConst, RunConst {
 				return STMTINEXPR;
 			}
 			// handling expr.
+			kwtop = topKwd();
+			switch (kwtop) {
+			case AND:
+				omsg("exprtok: AND");
+				break;
+			case OR:
+				ival = topIntVal();
+				omsg("exprtok: OR, ival = " + ival);
+				break;
+			case QUEST:
+				omsg("exprtok: QUEST");
+				break;
+			default:
+				break;
+			}
 			if (kwtyp == KeywordTyp.ZPAREN) {
 				locDepth++;
 				currZexpr = rightp;
@@ -411,20 +428,6 @@ public class RunTime implements IConst, RunConst {
 			else {
 				rightp = handleLeafToken(node);
 				found = isSingle && (locDepth <= 0);
-			}
-			kwtop = topKwd();
-			switch (kwtop) {
-			case AND:
-				omsg("exprtok: AND");
-				break;
-			case OR:
-				omsg("exprtok: OR");
-				break;
-			case QUEST:
-				omsg("exprtok: QUEST");
-				break;
-			default:
-				break;
 			}
 		} 
 		return rightp;
@@ -670,8 +673,8 @@ public class RunTime implements IConst, RunConst {
 		case OR:
 			//nullkwd = KeywordTyp.NULL; 
 			//if (!pushOp(kwtyp) || !pushOpAsNode(nullkwd)) {
-			ival = (kwtyp == KeywordTyp.AND) ? 1 : 0;
-			if (!pushOp(kwtyp) || !pushAddr(ival)) {  
+			//ival = (kwtyp == KeywordTyp.AND) ? 1 : 0;
+			if (!pushOp(kwtyp) || !pushAddr(-1)) {  
 				return STKOVERFLOW;
 			}
 			break;
@@ -1275,6 +1278,10 @@ public class RunTime implements IConst, RunConst {
 	
 	private int getIntOffStk(int stkidx) {
 		return pp.getIntOffStk(stkidx);
+	}
+	
+	private int topIntVal() {
+		return pp.topIntVal();
 	}
 	
 	private int popIntStk() {

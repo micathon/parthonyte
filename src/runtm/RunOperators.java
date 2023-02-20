@@ -674,7 +674,7 @@ public class RunOperators implements IConst, RunConst {
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
 			if (pgtyp != PageTyp.INTVAL) { }
-			else if ((addr == 0) || (addr == 1)) {
+			else if (addr == -1) {
 				break;
 			}
 			omsg("runLogicalExpr: stkidx = " + stkidx +

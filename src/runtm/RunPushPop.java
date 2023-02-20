@@ -91,6 +91,28 @@ class RunPushPop implements IConst, RunConst {
 		return rtnval;
 	}
 	
+	public int topIntVal() {
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int ival;
+		int rtnval = NEGBASEVAL;
+		
+		addrNode = store.topNode();
+		if (addrNode == null) {
+			return rtnval;
+		}
+		ival = addrNode.getAddr();
+		pgtyp = addrNode.getHdrPgTyp();
+		switch (pgtyp) {
+		case BOOLEAN:
+			return ival;
+		case INTVAL:
+			return ival;
+		default:
+			return rtnval;
+		}
+	}
+	
 	public int popIntStk() {
 		AddrNode addrNode;
 		int locVarTyp;
@@ -378,7 +400,7 @@ class RunPushPop implements IConst, RunConst {
 	public boolean pushAddr(int rightp) {
 		AddrNode addrNode;
 		addrNode = store.newAddrNode(0, rightp);
-		addrNode.setHdrPgTyp(PageTyp.INTVAL);  //##
+		addrNode.setHdrPgTyp(PageTyp.INTVAL);  
 		if (!store.pushNode(addrNode)) {
 			return false;
 		}
