@@ -362,8 +362,6 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtyp;
 		KeywordTyp kwtop;
 		Node node;
-		AddrNode addrNode;
-		int ival;
 		boolean found = false;
 		
 		// currently isSingle on single expr. end of push set/return
@@ -406,32 +404,150 @@ public class RunTime implements IConst, RunConst {
 			}
 			// handling expr.
 			kwtop = topKwd();
-			switch (kwtop) {
-			case AND:
-				omsg("exprtok: AND");
-				break;
-			case OR:
-				ival = topIntVal();
-				omsg("exprtok: OR, ival = " + ival);
-				break;
-			case QUEST:
-				omsg("exprtok: QUEST");
-				break;
-			default:
-				break;
+			if (isLogicalKwd(kwtop)) {
+				rightp = handleLogicalKwd(kwtop, rightp);
 			}
-			if (kwtyp == KeywordTyp.ZPAREN) {
-				locDepth++;
-				currZexpr = rightp;
-				rightp = pushExpr(node);
-			}
-			else {
-				rightp = handleLeafToken(node);
+			if (rightp > 0) {
+				rightp = pushExprOrLeaf(node, rightp);
 				found = isSingle && (locDepth <= 0);
 			}
 		} 
 		return rightp;
 	}
+	
+	private int pushExprOrLeaf(Node node, int rightp) {
+		KeywordTyp kwtyp;
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp == KeywordTyp.ZPAREN) {
+			locDepth++;
+			currZexpr = rightp;
+			rightp = pushExpr(node);
+		}
+		else {
+			rightp = handleLeafToken(node);
+		}
+		return rightp;
+	}
+
+	private int handleLogicalKwd(KeywordTyp kwtop, int rightp) {
+		Node node;
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int ival, jval;
+		boolean isShortCircuit;
+		
+		isShortCircuit = false;
+		addrNode = store.topNode();
+		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp == PageTyp.KWD) {
+			ival = topIntVal();  // = -1
+			jval = 0;
+		}
+		else if (kwtop != KeywordTyp.QUEST) {
+			addrNode = store.popNode();
+			if (addrNode == null) {
+				return STKUNDERFLOW;
+			}
+			if (addrNode.getHdrPgTyp() != PageTyp.BOOLEAN) {
+				return BADOPTYP; 
+			}
+			jval = addrNode.getAddr();
+			ival = topIntVal();  // = 0 or 1
+		}
+		else {
+			addrNode = store.popNode();
+			if (addrNode == null) {
+				return STKUNDERFLOW;
+			}
+			ival = topIntVal(); 
+			if (ival < 0) {
+				if (store.popNode() == null) {  // pop -1
+					return STKUNDERFLOW;
+				}
+				else if (!pushKwdVal(0)) {
+					return STKOVERFLOW;
+				}
+				// about to push boolean of QUEST
+			}
+			else if (ival == 0) {  // discard boolean on top
+				if (addrNode.getHdrPgTyp() != PageTyp.BOOLEAN) {
+					return BADOPTYP; 
+				}
+				if (store.popNode() == null) {  // pop 0 kwd
+					return STKUNDERFLOW;
+				}
+				jval = addrNode.getAddr();  // 0 or 1
+				ival = jval + 1;
+				if (!pushKwdVal(ival)) {  // push 1 or 2 kwd
+					return STKOVERFLOW;
+				}
+				// about to push 1st expr
+			}
+			else if (ival == 1) {
+				// skip 1st expr of QUEST (discard 1st expr)
+				if (store.popNode() == null) {  // pop 1 kwd
+					return STKUNDERFLOW;
+				}
+				node = store.getNode(rightp);
+				rightp = node.getRightp();
+				return rightp;
+				// about to push 2nd expr
+			}
+			else {  // ival = 2
+				if (store.popNode() == null) {  // pop 2 kwd
+					return STKUNDERFLOW;
+				}
+				// push back 2nd expr
+				if (!store.pushNode(addrNode)) {  
+					return STKOVERFLOW;
+				}
+			}
+			return rightp;
+		}
+		switch (kwtop) {
+		case AND:
+			omsg("exprtok: AND");
+			if (ival >= 0) {
+				isShortCircuit = 
+					((ival == 0) || (jval == 0));
+			}
+			else if (store.popNode() == null) {
+				return STKUNDERFLOW;
+			}
+			else if (!pushKwdVal(1)) {
+				return STKOVERFLOW;
+			}
+			break;
+		case OR:
+			omsg("exprtok: OR, ival = " + ival);
+			if (ival >= 0) {
+				isShortCircuit = 
+					((ival == 1) || (jval == 1));
+			}
+			else if (store.popNode() == null) {
+				return STKUNDERFLOW;
+			}
+			else if (!pushKwdVal(0)) {
+				return STKOVERFLOW;
+			}
+			break;
+		default:
+			break;
+		}
+		if (pgtyp != PageTyp.KWD) {
+			if (!store.pushNode(addrNode)) {
+				return STKOVERFLOW;
+			}
+		}
+		if (isShortCircuit) {
+			// skip over calling getRightp until zero:
+			while (rightp > 0) {
+				node = store.getNode(rightp);
+				rightp = node.getRightp();
+			}
+		}
+		return rightp;
+	}		
 	
 	private int handleLeafToken(Node node) {
 		return handleLeafTokenRtn(node, false);
@@ -591,6 +707,17 @@ public class RunTime implements IConst, RunConst {
 			return false;
 		}
 	}
+	
+	private boolean isLogicalKwd(KeywordTyp kwtyp) {
+		switch (kwtyp) {
+		case AND:
+		case OR:
+		case QUEST:
+			return true;
+		default:
+			return false;
+		}
+	}
 
 	private int pushStmt(Node node) {
 		// scan stmt.
@@ -657,7 +784,6 @@ public class RunTime implements IConst, RunConst {
 		case ADD:
 		case MPY:
 		case XOR:
-		case QUEST:
 			nullkwd = KeywordTyp.NULL; 
 			if (!pushOp(kwtyp) || !pushOpAsNode(nullkwd)) {
 				return STKOVERFLOW;
@@ -671,10 +797,11 @@ public class RunTime implements IConst, RunConst {
 			break;
 		case AND:
 		case OR:
+		case QUEST:
 			//nullkwd = KeywordTyp.NULL; 
 			//if (!pushOp(kwtyp) || !pushOpAsNode(nullkwd)) {
 			//ival = (kwtyp == KeywordTyp.AND) ? 1 : 0;
-			if (!pushOp(kwtyp) || !pushAddr(-1)) {  
+			if (!pushOp(kwtyp) || !pushKwdVal(-1)) {  
 				return STKOVERFLOW;
 			}
 			break;
@@ -1329,6 +1456,10 @@ public class RunTime implements IConst, RunConst {
 	
 	private boolean pushVal(int val, PageTyp pgtyp, int locVarTyp) {
 		return pp.pushVal(val, pgtyp, locVarTyp);
+	}
+	
+	public boolean pushKwdVal(int ival) {
+		return pp.pushKwdVal(ival);
 	}
 	
 	private boolean pushAddr(int rightp) {

@@ -397,6 +397,16 @@ class RunPushPop implements IConst, RunConst {
 		return true;
 	}
 	
+	public boolean pushKwdVal(int ival) {
+		AddrNode addrNode;
+		addrNode = store.newAddrNode(0, ival);
+		addrNode.setHdrPgTyp(PageTyp.KWD);  
+		if (!store.pushNode(addrNode)) {
+			return false;
+		}
+		return true;
+	}
+	
 	public boolean pushAddr(int rightp) {
 		AddrNode addrNode;
 		addrNode = store.newAddrNode(0, rightp);

@@ -35,6 +35,7 @@ public class RunOperators implements IConst, RunConst {
 		case XOR: return runXorExpr();
 		case AND:
 		case OR:
+		case QUEST:
 			return runLogicalExpr(kwtyp);
 		default:
 			omsg("handleExprKwdRtn: kwtyp = " + kwtyp);
@@ -649,6 +650,10 @@ public class RunOperators implements IConst, RunConst {
 	}
 	
 	private int runLogicalExpr(KeywordTyp kwtyp) {
+		omsg("runLogicalExpr: kwtyp = " + kwtyp);
+		return 0;
+	}
+/*	
 		AddrNode addrNode;
 		PageTyp pgtyp;
 		int addr;
@@ -704,7 +709,7 @@ public class RunOperators implements IConst, RunConst {
 		rtnval = currFlag ? 0 : STKOVERFLOW;
 		return rtnval;
 	}
-	
+*/
 	private int runXorExpr() {
 		AddrNode addrNode;
 		PageTyp pgtyp;
