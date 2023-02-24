@@ -1,0 +1,14 @@
+do (
+gdefun do (
+  andop;
+);
+defun (andop) (var a x c d) do (
+  set a true;
+  set c false;
+  set d true;
+  println "cd:" c d;
+  set x (|| c d);
+  println "x:" x;
+);
+)
+
