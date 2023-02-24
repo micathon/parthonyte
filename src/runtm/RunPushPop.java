@@ -103,9 +103,10 @@ class RunPushPop implements IConst, RunConst {
 		}
 		ival = addrNode.getAddr();
 		pgtyp = addrNode.getHdrPgTyp();
+		omsg("topIntVal: pgtyp = " + pgtyp);
 		switch (pgtyp) {
+		case KWD: 
 		case BOOLEAN:
-			return ival;
 		case INTVAL:
 			return ival;
 		default:
@@ -115,13 +116,17 @@ class RunPushPop implements IConst, RunConst {
 	
 	public int popIntStk() {
 		AddrNode addrNode;
+		addrNode = store.popNode(); 
+		return popIntStkRtn(addrNode);  // undo this mod!!!
+	}
+		
+	public int popIntStkRtn(AddrNode addrNode) {
 		int locVarTyp;
 		int varidx;
 		int addr;
 		int rtnval;
 		boolean ptrFlag;
 
-		addrNode = store.popNode(); 
 		if (addrNode == null){
 			return rt.STKUNDERFLOW;
 		}

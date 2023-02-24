@@ -404,8 +404,10 @@ public class RunTime implements IConst, RunConst {
 			}
 			// handling expr.
 			kwtop = topKwd();
+			omsg("exprtok: kwtop = " + kwtop);
 			if (isLogicalKwd(kwtop)) {
 				rightp = handleLogicalKwd(kwtop, rightp);
+				omsg("exprtok: hlogkw-> rightp = " + rightp);
 			}
 			if (rightp > 0) {
 				rightp = pushExprOrLeaf(node, rightp);
@@ -442,6 +444,7 @@ public class RunTime implements IConst, RunConst {
 		if (pgtyp == PageTyp.KWD) {
 			ival = topIntVal();  // = -1
 			jval = 0;
+			omsg("hlogkw: KWD ival = " + ival);
 		}
 		else if (kwtop != KeywordTyp.QUEST) {
 			addrNode = store.popNode();
@@ -451,8 +454,9 @@ public class RunTime implements IConst, RunConst {
 			if (addrNode.getHdrPgTyp() != PageTyp.BOOLEAN) {
 				return BADOPTYP; 
 			}
-			jval = addrNode.getAddr();
+			jval = popIntStkRtn(addrNode);  // WRONG!!!!!
 			ival = topIntVal();  // = 0 or 1
+			omsg("hlogkw: top ival = " + ival + ", jval = " + jval);
 		}
 		else {
 			addrNode = store.popNode();
@@ -476,7 +480,7 @@ public class RunTime implements IConst, RunConst {
 				if (store.popNode() == null) {  // pop 0 kwd
 					return STKUNDERFLOW;
 				}
-				jval = addrNode.getAddr();  // 0 or 1
+				jval = addrNode.getAddr();  //!!!!!!! 0 or 1
 				ival = jval + 1;
 				if (!pushKwdVal(ival)) {  // push 1 or 2 kwd
 					return STKOVERFLOW;
@@ -506,7 +510,7 @@ public class RunTime implements IConst, RunConst {
 		}
 		switch (kwtop) {
 		case AND:
-			omsg("exprtok: AND");
+			omsg("hlogkw: AND");
 			if (ival >= 0) {
 				isShortCircuit = 
 					((ival == 0) || (jval == 0));
@@ -519,7 +523,7 @@ public class RunTime implements IConst, RunConst {
 			}
 			break;
 		case OR:
-			omsg("exprtok: OR, ival = " + ival);
+			omsg("hlogkw: OR, ival = " + ival);
 			if (ival >= 0) {
 				isShortCircuit = 
 					((ival == 1) || (jval == 1));
@@ -1414,7 +1418,11 @@ public class RunTime implements IConst, RunConst {
 	private int popIntStk() {
 		return pp.popIntStk();
 	}
-	
+
+	public int popIntStkRtn(AddrNode addrNode) {
+		return pp.popIntStkRtn(addrNode);
+	}
+		
 	private boolean isNullKwd(AddrNode addrNode) {
 		return pp.isNullKwd(addrNode);
 	}
