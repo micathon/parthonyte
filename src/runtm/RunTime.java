@@ -446,7 +446,11 @@ public class RunTime implements IConst, RunConst {
 			jval = 0;
 			omsg("hlogkw: KWD ival = " + ival);
 		}
-		else if (kwtop != KeywordTyp.QUEST) {
+		else if (kwtop == KeywordTyp.QUEST) { 
+			rightp = logicalQuestKwd(rightp);
+			return rightp;
+		}
+		else {
 			addrNode = store.popNode();
 			if (addrNode == null) {
 				return STKUNDERFLOW;
@@ -454,59 +458,9 @@ public class RunTime implements IConst, RunConst {
 			if (addrNode.getHdrPgTyp() != PageTyp.BOOLEAN) {
 				return BADOPTYP; 
 			}
-			jval = popIObjFromNode(addrNode, locBaseIdx);  
+			jval = nodeToIntVal(addrNode, locBaseIdx);  
 			ival = topIntVal();  // = 0 or 1
 			omsg("hlogkw: top ival = " + ival + ", jval = " + jval);
-		}
-		else {
-			addrNode = store.popNode();
-			if (addrNode == null) {
-				return STKUNDERFLOW;
-			}
-			ival = topIntVal(); 
-			if (ival < 0) {
-				if (store.popNode() == null) {  // pop -1
-					return STKUNDERFLOW;
-				}
-				else if (!pushKwdVal(0)) {
-					return STKOVERFLOW;
-				}
-				// about to push boolean of QUEST
-			}
-			else if (ival == 0) {  // discard boolean on top
-				if (addrNode.getHdrPgTyp() != PageTyp.BOOLEAN) {
-					return BADOPTYP; 
-				}
-				if (store.popNode() == null) {  // pop 0 kwd
-					return STKUNDERFLOW;
-				}
-				jval = popIObjFromNode(addrNode, locBaseIdx);  // 0 or 1
-				ival = jval + 1;
-				if (!pushKwdVal(ival)) {  // push 1 or 2 kwd
-					return STKOVERFLOW;
-				}
-				// about to push 1st expr
-			}
-			else if (ival == 1) {
-				// skip 1st expr of QUEST (discard 1st expr)
-				if (store.popNode() == null) {  // pop 1 kwd
-					return STKUNDERFLOW;
-				}
-				node = store.getNode(rightp);
-				rightp = node.getRightp();
-				return rightp;
-				// about to push 2nd expr
-			}
-			else {  // ival = 2
-				if (store.popNode() == null) {  // pop 2 kwd
-					return STKUNDERFLOW;
-				}
-				// push back 2nd expr
-				if (!store.pushNode(addrNode)) {  
-					return STKOVERFLOW;
-				}
-			}
-			return rightp;
 		}
 		switch (kwtop) {
 		case AND:
@@ -538,11 +492,11 @@ public class RunTime implements IConst, RunConst {
 		default:
 			break;
 		}
-		if (pgtyp != PageTyp.KWD) {
+		/* if (pgtyp != PageTyp.KWD) {
 			if (!store.pushNode(addrNode)) {
 				return STKOVERFLOW;
 			}
-		}
+		} */
 		if (isShortCircuit) {
 			// skip over calling getRightp until zero:
 			while (rightp > 0) {
@@ -553,6 +507,62 @@ public class RunTime implements IConst, RunConst {
 		return rightp;
 	}		
 	
+	private int logicalQuestKwd(int rightp) {
+		Node node;
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int ival, jval;
+
+		addrNode = store.popNode();
+		if (addrNode == null) {
+			return STKUNDERFLOW;
+		}
+		ival = topIntVal(); 
+		if (ival < 0) {
+			if (store.popNode() == null) {  // pop -1
+				return STKUNDERFLOW;
+			}
+			else if (!pushKwdVal(0)) {
+				return STKOVERFLOW;
+			}
+			// about to push boolean of QUEST
+		}
+		else if (ival == 0) {  // discard boolean on top
+			if (addrNode.getHdrPgTyp() != PageTyp.BOOLEAN) {
+				return BADOPTYP; 
+			}
+			if (store.popNode() == null) {  // pop 0 kwd
+				return STKUNDERFLOW;
+			}
+			jval = nodeToIntVal(addrNode, locBaseIdx);  // 0 or 1
+			ival = jval + 1;
+			if (!pushKwdVal(ival)) {  // push 1 or 2 kwd
+				return STKOVERFLOW;
+			}
+			// about to push 1st expr
+		}
+		else if (ival == 1) {
+			// skip 1st expr of QUEST (discard 1st expr)
+			if (store.popNode() == null) {  // pop 1 kwd
+				return STKUNDERFLOW;
+			}
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
+			return rightp;
+			// about to push 2nd expr
+		}
+		else {  // ival = 2
+			if (store.popNode() == null) {  // pop 2 kwd
+				return STKUNDERFLOW;
+			}
+			// push back 2nd expr
+			if (!store.pushNode(addrNode)) {  
+				return STKOVERFLOW;
+			}
+		}
+		return rightp;
+	}
+
 	private int handleLeafToken(Node node) {
 		return handleLeafTokenRtn(node, false);
 	}
@@ -1018,7 +1028,7 @@ public class RunTime implements IConst, RunConst {
 				return STKOVERFLOW;
 			}
 			pgtyp = addrNode.getHdrPgTyp();
-			val = popIObjFromNode(addrNode, lbidx);
+			val = nodeToIntVal(addrNode, lbidx);
 			if (val == null) {
 				omsg("runAltZcallStmt: rtn = " + lastErrCode + 
 					", i = " + i);
@@ -1228,7 +1238,7 @@ public class RunTime implements IConst, RunConst {
 			if (funcReturns == null) {
 				return STKUNDERFLOW;
 			}
-			val = popIObjFromNode(funcReturns, locBaseIdx);
+			val = nodeToIntVal(funcReturns, locBaseIdx);
 			if (val == null) {
 				omsg("runRtnStmt: isExpr, rtn = " + lastErrCode); 
 				return lastErrCode;
@@ -1435,8 +1445,8 @@ public class RunTime implements IConst, RunConst {
 		return pp.popIntRtn(addrNode, isKwd);
 	}
 	
-	private Integer popIObjFromNode(AddrNode addrNode, int lbidx) {
-		return pp.popIObjFromNode(addrNode, lbidx);
+	private Integer nodeToIntVal(AddrNode addrNode, int lbidx) {
+		return pp.nodeToIntVal(addrNode, lbidx);
 	}
 	
 	private Integer setErrCode(int errCode) {
