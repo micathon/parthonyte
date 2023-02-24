@@ -454,7 +454,7 @@ public class RunTime implements IConst, RunConst {
 			if (addrNode.getHdrPgTyp() != PageTyp.BOOLEAN) {
 				return BADOPTYP; 
 			}
-			jval = popIntStkRtn(addrNode);  // WRONG!!!!!
+			jval = popIObjFromNode(addrNode, locBaseIdx);  
 			ival = topIntVal();  // = 0 or 1
 			omsg("hlogkw: top ival = " + ival + ", jval = " + jval);
 		}
@@ -480,7 +480,7 @@ public class RunTime implements IConst, RunConst {
 				if (store.popNode() == null) {  // pop 0 kwd
 					return STKUNDERFLOW;
 				}
-				jval = addrNode.getAddr();  //!!!!!!! 0 or 1
+				jval = popIObjFromNode(addrNode, locBaseIdx);  // 0 or 1
 				ival = jval + 1;
 				if (!pushKwdVal(ival)) {  // push 1 or 2 kwd
 					return STKOVERFLOW;
@@ -1419,10 +1419,6 @@ public class RunTime implements IConst, RunConst {
 		return pp.popIntStk();
 	}
 
-	public int popIntStkRtn(AddrNode addrNode) {
-		return pp.popIntStkRtn(addrNode);
-	}
-		
 	private boolean isNullKwd(AddrNode addrNode) {
 		return pp.isNullKwd(addrNode);
 	}

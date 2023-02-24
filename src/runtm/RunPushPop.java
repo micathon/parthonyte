@@ -113,20 +113,16 @@ class RunPushPop implements IConst, RunConst {
 			return rtnval;
 		}
 	}
-	
+		
 	public int popIntStk() {
 		AddrNode addrNode;
-		addrNode = store.popNode(); 
-		return popIntStkRtn(addrNode);  // undo this mod!!!
-	}
-		
-	public int popIntStkRtn(AddrNode addrNode) {
 		int locVarTyp;
 		int varidx;
 		int addr;
 		int rtnval;
 		boolean ptrFlag;
 
+		addrNode = store.popNode(); 
 		if (addrNode == null){
 			return rt.STKUNDERFLOW;
 		}
