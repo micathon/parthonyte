@@ -362,6 +362,7 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtyp;
 		KeywordTyp kwtop;
 		Node node;
+		boolean isShortCircFail = false;
 		boolean found = false;
 		
 		// currently isSingle on single expr. end of push set/return
@@ -405,13 +406,23 @@ public class RunTime implements IConst, RunConst {
 			// handling expr.
 			kwtop = topKwd();
 			omsg("exprtok: kwtop = " + kwtop);
-			if (isLogicalKwd(kwtop)) {
+			if (isLogicalKwd(kwtop)) {  
 				rightp = handleLogicalKwd(kwtop, rightp);
 				omsg("exprtok: hlogkw-> rightp = " + rightp);
 			}
 			if (rightp > 0) {
 				rightp = pushExprOrLeaf(node, rightp);
 				found = isSingle && (locDepth <= 0);
+			}
+			if ((rightp == 0) && isLogicalKwd(kwtop) &&
+				!isShortCircFail) 
+			{  
+				rightp = handleLogicalKwd(kwtop, rightp);
+				omsg("exprtok: (2) hlogkw-> rightp = " + rightp);
+			}
+			if (rightp == EXIT) {
+				rightp = 0;
+				isShortCircFail = true;
 			}
 		} 
 		return rightp;
@@ -439,6 +450,7 @@ public class RunTime implements IConst, RunConst {
 		boolean isShortCircuit;
 		
 		isShortCircuit = false;
+		omsg("hlogkw: top, rightp = " + rightp);
 		addrNode = store.topNode();
 		pgtyp = addrNode.getHdrPgTyp();
 		if (pgtyp == PageTyp.KWD) {
@@ -494,11 +506,10 @@ public class RunTime implements IConst, RunConst {
 			else if (!pushKwdVal(kval)) {
 				return STKOVERFLOW;
 			}
-			omsg("hlogkw: OR, kval = " + kval);
 			break;
 		default:
 			break;
-		}  /* */
+		} 
 		if (isShortCircuit) {
 			// skip over calling getRightp until zero:
 			while (rightp > 0) {
@@ -506,13 +517,12 @@ public class RunTime implements IConst, RunConst {
 				rightp = node.getRightp();
 			}
 		}
+		else if (rightp == 0) {
+			return EXIT;  // got to end, no short circuit
+		}
 		return rightp;
 	}		
-	/* if (pgtyp != PageTyp.KWD) {
-		if (!store.pushNode(addrNode)) {
-			return STKOVERFLOW;
-		}
-	} */
+
 	private int logicalQuestKwd(int rightp) {
 		Node node;
 		AddrNode addrNode;
