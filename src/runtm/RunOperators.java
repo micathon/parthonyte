@@ -650,7 +650,16 @@ public class RunOperators implements IConst, RunConst {
 	}
 	
 	private int runLogicalExpr(KeywordTyp kwtyp) {
+		AddrNode node;
 		omsg("runLogicalExpr: kwtyp = " + kwtyp);
+		node = store.popNode();
+		if (node == null) {
+			return STKUNDERFLOW;
+		}
+		node.setHdrPgTyp(PageTyp.BOOLEAN);
+		if (!store.pushNode(node)) {
+			return STKOVERFLOW;
+		}
 		return 0;
 	}
 /*	

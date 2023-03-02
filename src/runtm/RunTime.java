@@ -435,7 +435,7 @@ public class RunTime implements IConst, RunConst {
 		Node node;
 		AddrNode addrNode;
 		PageTyp pgtyp;
-		int ival, jval;
+		int ival, jval, kval;
 		boolean isShortCircuit;
 		
 		isShortCircuit = false;
@@ -465,38 +465,40 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtop) {
 		case AND:
 			omsg("hlogkw: AND");
+			kval = 1;
 			if (ival >= 0) {
 				isShortCircuit = 
 					((ival == 0) || (jval == 0));
+				kval = isShortCircuit ? 0 : 1;
 			}
-			else if (store.popNode() == null) {
+			if (store.popNode() == null) {
 				return STKUNDERFLOW;
 			}
-			else if (!pushKwdVal(1)) {
+			else if (!pushKwdVal(kval)) {
 				return STKOVERFLOW;
 			}
 			break;
 		case OR:
 			omsg("hlogkw: OR, ival = " + ival);
+			kval = 0;
 			if (ival >= 0) {
 				isShortCircuit = 
 					((ival == 1) || (jval == 1));
+				kval = isShortCircuit ? 1 : 0;
+				omsg("hlogkw: OR ival = " + ival + 
+					", jval = " + jval + ", kval = " + kval);
 			}
-			else if (store.popNode() == null) {
+			if (store.popNode() == null) {
 				return STKUNDERFLOW;
 			}
-			else if (!pushKwdVal(0)) {
+			else if (!pushKwdVal(kval)) {
 				return STKOVERFLOW;
 			}
+			omsg("hlogkw: OR, kval = " + kval);
 			break;
 		default:
 			break;
-		}
-		/* if (pgtyp != PageTyp.KWD) {
-			if (!store.pushNode(addrNode)) {
-				return STKOVERFLOW;
-			}
-		} */
+		}  /* */
 		if (isShortCircuit) {
 			// skip over calling getRightp until zero:
 			while (rightp > 0) {
@@ -506,7 +508,11 @@ public class RunTime implements IConst, RunConst {
 		}
 		return rightp;
 	}		
-	
+	/* if (pgtyp != PageTyp.KWD) {
+		if (!store.pushNode(addrNode)) {
+			return STKOVERFLOW;
+		}
+	} */
 	private int logicalQuestKwd(int rightp) {
 		Node node;
 		AddrNode addrNode;
@@ -1472,7 +1478,7 @@ public class RunTime implements IConst, RunConst {
 		return pp.pushVal(val, pgtyp, locVarTyp);
 	}
 	
-	public boolean pushKwdVal(int ival) {
+	private boolean pushKwdVal(int ival) {
 		return pp.pushKwdVal(ival);
 	}
 	
