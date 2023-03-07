@@ -35,8 +35,9 @@ public class RunOperators implements IConst, RunConst {
 		case XOR: return runXorExpr();
 		case AND:
 		case OR:
-		case QUEST:
 			return runLogicalExpr(kwtyp);
+		case QUEST:
+			return runQuestExpr(kwtyp);
 		default:
 			omsg("handleExprKwdRtn: kwtyp = " + kwtyp);
 			return NEGBASEVAL - kwtyp.ordinal();
@@ -660,6 +661,21 @@ public class RunOperators implements IConst, RunConst {
 		if (!store.pushNode(node)) {
 			return STKOVERFLOW;
 		}
+		return 0;
+	}
+	
+	private int runQuestExpr(KeywordTyp kwtyp) {
+		AddrNode node;
+		omsg("runQuestExpr: kwtyp = " + kwtyp);
+		/*
+		node = store.popNode();
+		if (node == null) {
+			return STKUNDERFLOW;
+		}
+		node.setHdrPgTyp(PageTyp.BOOLEAN);
+		if (!store.pushNode(node)) {
+			return STKOVERFLOW;
+		} */
 		return 0;
 	}
 /*	

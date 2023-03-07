@@ -362,7 +362,7 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtyp;
 		KeywordTyp kwtop;
 		Node node;
-		boolean isShortCircFail = false;
+		boolean isShortCircSkip = false;
 		boolean found = false;
 		
 		// currently isSingle on single expr. end of push set/return
@@ -415,14 +415,14 @@ public class RunTime implements IConst, RunConst {
 				found = isSingle && (locDepth <= 0);
 			}
 			if ((rightp == 0) && isLogicalKwd(kwtop) &&
-				!isShortCircFail) 
+				!isShortCircSkip) 
 			{  
 				rightp = handleLogicalKwd(kwtop, rightp);
 				omsg("exprtok: (2) hlogkw-> rightp = " + rightp);
 			}
 			if (rightp == EXIT) {
 				rightp = 0;
-				isShortCircFail = true;
+				isShortCircSkip = true;
 			}
 		} 
 		return rightp;
@@ -526,7 +526,6 @@ public class RunTime implements IConst, RunConst {
 	private int logicalQuestKwd(int rightp) {
 		Node node;
 		AddrNode addrNode;
-		PageTyp pgtyp;
 		int ival, jval;
 
 		addrNode = store.popNode();
@@ -534,49 +533,43 @@ public class RunTime implements IConst, RunConst {
 			return STKUNDERFLOW;
 		}
 		ival = topIntVal(); 
+		omsg("logicalQuestKwd: top, ival = " + ival);
 		if (ival < 0) {
 			if (store.popNode() == null) {  // pop -1
 				return STKUNDERFLOW;
 			}
-			else if (!pushKwdVal(0)) {
-				return STKOVERFLOW;
-			}
-			// about to push boolean of QUEST
-		}
-		else if (ival == 0) {  // discard boolean on top
 			if (addrNode.getHdrPgTyp() != PageTyp.BOOLEAN) {
 				return BADOPTYP; 
 			}
-			if (store.popNode() == null) {  // pop 0 kwd
-				return STKUNDERFLOW;
-			}
-			jval = nodeToIntVal(addrNode, locBaseIdx);  // 0 or 1
-			ival = jval + 1;
-			if (!pushKwdVal(ival)) {  // push 1 or 2 kwd
+			jval = nodeToIntVal(addrNode, locBaseIdx);
+			/*
+			if (!pushKwdVal(jval)) {  // push 0 or 1 kwd
 				return STKOVERFLOW;
-			}
-			// about to push 1st expr
-		}
-		else if (ival == 1) {
-			// skip 1st expr of QUEST (discard 1st expr)
-			if (store.popNode() == null) {  // pop 1 kwd
-				return STKUNDERFLOW;
+			} */
+			omsg("logicalQuestKwd: jval = " + jval);
+			if (jval == 1) {
+				return GENERR;  // don't handle true case
 			}
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
+			if (rightp <= 0) {
+				return GENERR;
+			}
+			omsg("logicalQuestKwd: rightp = " + rightp);
+			
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				return GENERR;
+			}
+			
 			return rightp;
-			// about to push 2nd expr
 		}
-		else {  // ival = 2
-			if (store.popNode() == null) {  // pop 2 kwd
-				return STKUNDERFLOW;
-			}
-			// push back 2nd expr
-			if (!store.pushNode(addrNode)) {  
-				return STKOVERFLOW;
-			}
+		else {
+			omsg("logicalQuestKwd: bad ival = " + ival);
+			return GENERR;
 		}
-		return rightp;
+		//return rightp;
 	}
 
 	private int handleLeafToken(Node node) {
