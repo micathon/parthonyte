@@ -527,6 +527,7 @@ public class RunTime implements IConst, RunConst {
 		Node node;
 		AddrNode addrNode;
 		int ival, jval;
+		int rightq;
 
 		addrNode = store.popNode();
 		if (addrNode == null) {
@@ -558,9 +559,10 @@ public class RunTime implements IConst, RunConst {
 			omsg("logicalQuestKwd: rightp = " + rightp);
 			
 			node = store.getNode(rightp);
-			rightp = node.getRightp();
-			if (rightp <= 0) {
-				return GENERR;
+			rightq = node.getRightp();
+			omsg("logicalQuestKwd: rightq = " + rightq);
+			if (rightq <= 0) {
+				//return GENERR;
 			}
 			
 			return rightp;
