@@ -667,74 +667,9 @@ public class RunOperators implements IConst, RunConst {
 	private int runQuestExpr(KeywordTyp kwtyp) {
 		AddrNode node;
 		omsg("runQuestExpr: kwtyp = " + kwtyp);
-		/*
-		node = store.popNode();
-		if (node == null) {
-			return STKUNDERFLOW;
-		}
-		node.setHdrPgTyp(PageTyp.BOOLEAN);
-		if (!store.pushNode(node)) {
-			return STKOVERFLOW;
-		} */
 		return 0;
 	}
-/*	
-		AddrNode addrNode;
-		PageTyp pgtyp;
-		int addr;
-		int stkidx;
-		boolean initFlag = false;
-		boolean currFlag;
-		boolean done = false;
-		int ival;
-		int rtnval;
 
-		if (kwtyp == KeywordTyp.AND) {
-			initFlag = true;
-		}
-		while (true) {
-			stkidx = popIntStk();
-			if (stkidx < 0) {
-				return stkidx;
-			}
-			addrNode = store.fetchNode(stkidx);
-			if (isNullKwd(addrNode)) {
-				break;
-			}
-			addr = addrNode.getAddr();
-			pgtyp = addrNode.getHdrPgTyp();
-			if (pgtyp != PageTyp.INTVAL) { }
-			else if (addr == -1) {
-				break;
-			}
-			omsg("runLogicalExpr: stkidx = " + stkidx +
-				", addr = " + addr);
-			if (pgtyp != PageTyp.BOOLEAN) {
-				return BADOPTYP;
-			}
-			currFlag = (addr == 1);
-			switch (kwtyp) {
-			case AND:
-				initFlag = initFlag && currFlag;
-				done = !initFlag;
-				break;
-			case OR:
-				initFlag = initFlag || currFlag;
-				done = initFlag;
-				break;
-			case XOR:
-				initFlag = initFlag ^ currFlag;
-				break;
-			default:
-				return BADOP;
-			}
-		}
-		ival = initFlag ? 1 : 0;
-		currFlag = pushBoolStk(ival);
-		rtnval = currFlag ? 0 : STKOVERFLOW;
-		return rtnval;
-	}
-*/
 	private int runXorExpr() {
 		AddrNode addrNode;
 		PageTyp pgtyp;

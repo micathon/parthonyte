@@ -409,13 +409,16 @@ public class RunTime implements IConst, RunConst {
 			if (isLogicalKwd(kwtop)) {  
 				rightp = handleLogicalKwd(kwtop, rightp);
 				omsg("exprtok: hlogkw-> rightp = " + rightp);
+				if (rightp > 0) {
+					node = store.getNode(rightp);  //?
+				}
 			}
 			if (rightp > 0) {
 				rightp = pushExprOrLeaf(node, rightp);
 				found = isSingle && (locDepth <= 0);
 			}
 			if ((rightp == 0) && isLogicalKwd(kwtop) &&
-				!isShortCircSkip) 
+				(kwtop != KeywordTyp.QUEST) && !isShortCircSkip) 
 			{  
 				rightp = handleLogicalKwd(kwtop, rightp);
 				omsg("exprtok: (2) hlogkw-> rightp = " + rightp);
@@ -527,7 +530,6 @@ public class RunTime implements IConst, RunConst {
 		Node node;
 		AddrNode addrNode;
 		int ival, jval;
-		int rightq;
 
 		addrNode = store.popNode();
 		if (addrNode == null) {
@@ -543,13 +545,13 @@ public class RunTime implements IConst, RunConst {
 				return BADOPTYP; 
 			}
 			jval = nodeToIntVal(addrNode, locBaseIdx);
-			/*
-			if (!pushKwdVal(jval)) {  // push 0 or 1 kwd
-				return STKOVERFLOW;
-			} */
 			omsg("logicalQuestKwd: jval = " + jval);
-			if (jval == 1) {
-				return GENERR;  // don't handle true case
+			if (jval == 0) { }
+			else if (!pushKwdVal(0)) {
+				return STKOVERFLOW;
+			}
+			else {
+				return rightp;
 			}
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
@@ -557,21 +559,23 @@ public class RunTime implements IConst, RunConst {
 				return GENERR;
 			}
 			omsg("logicalQuestKwd: rightp = " + rightp);
-			
-			node = store.getNode(rightp);
-			rightq = node.getRightp();
-			omsg("logicalQuestKwd: rightq = " + rightq);
-			if (rightq <= 0) {
-				//return GENERR;
+			return rightp;
+		}
+		else if (ival == 0) {
+			if (store.popNode() == null) {  
+				return STKUNDERFLOW;
 			}
-			
+			if (!store.pushNode(addrNode)) {
+				return STKOVERFLOW;
+			}
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
 			return rightp;
 		}
 		else {
 			omsg("logicalQuestKwd: bad ival = " + ival);
 			return GENERR;
 		}
-		//return rightp;
 	}
 
 	private int handleLeafToken(Node node) {
