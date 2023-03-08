@@ -3,14 +3,16 @@ gdefun do (
   andop;
   #questop;
 );
-defun (andop) (var a x c d e) do (
-  set a false;
+defun (andop) (var a x c d) do (
   set c true;
   set d false;
-  set e false;
-  println "cde:" c d e;
-  set x (&& c d e);
+  println "cd:" c d;
+  set x (&& (f c 1) (f d 2));
   println "x:" x;
+);
+defun (f flag n) do (
+  println "n:" n;
+  return flag;
 );
 defun (questop) (var c d flag x a b) do (
   set flag false;
