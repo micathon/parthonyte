@@ -7,13 +7,15 @@ defun (andop) (var a x c d) do (
   set c true;
   set d false;
   println "cd:" c d;
-  set x (&& (f c 1) (f d 2));
+  #set x (&& c (|| d false));
+  set x (&& c (f d 7));
   println "x:" x;
 );
 defun (f flag n) do (
   println "n:" n;
   return flag;
 );
+{
 defun (questop) (var c d flag x a b) do (
   set flag false;
   set a 101;
@@ -25,5 +27,6 @@ defun (fun x) do (
   println "y:" (+ x 1);
   return x;
 );
+}
 )
 
