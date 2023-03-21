@@ -88,9 +88,6 @@ public class SynChkStmt {
 		case ANDBSET:
 		case XORBSET:
 		case ORBSET:
-		case ANDSET:
-		case XORSET:
-		case ORSET:
 			return doSetOpStmt(rightp);
 		default:
 			oerrd(rightp, "Invalid keyword: " + kwtyp.toString() +
@@ -129,9 +126,6 @@ public class SynChkStmt {
 		case ANDBSET:
 		case XORBSET:
 		case ORBSET:
-		case ANDSET:
-		case XORSET:
-		case ORSET:
 			return doSetOpStmt(rightp);
 		default:
 			return false;
