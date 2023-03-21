@@ -33,6 +33,9 @@ public class RunOperators implements IConst, RunConst {
 		case MINUS: return runMinusExpr();
 		case DIV: return runDivExpr();
 		case XOR: return runXorExpr();
+		case NOT:
+		case NOTBITZ:
+			return runUnaryExpr(kwtyp);
 		case ANDBITZ: 
 		case ORBITZ: 
 		case XORBITZ: 
@@ -563,6 +566,7 @@ public class RunOperators implements IConst, RunConst {
 		long diff = 0;
 		int stkidx;
 		int rtnval;
+		boolean isUnary;
 		boolean isDeltaFloat;
 		boolean isBaseFloat;
 		boolean isDeltaLong;
@@ -579,6 +583,7 @@ public class RunOperators implements IConst, RunConst {
 		if (stkidx < 0) {
 			return stkidx;
 		}
+		addrNode = store.topNode();
 		addrNode = store.fetchNode(stkidx);
 		pgtyp = addrNode.getHdrPgTyp();
 		if (!isNumeric(pgtyp)) {
@@ -605,6 +610,22 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		if (!isNullKwd(addrNode)) { }
+		else if (isDeltaFloat) {
+			fdiff = -fdelta;
+			rtnval = pushFloat(fdiff);
+			return rtnval;
+		}
+		else if (isDeltaLong) {
+			diff = -delta;
+			rtnval = pushLong(diff);
+			return rtnval;
+		}
+		else {
+			diff = -delta;
+			rtnval = pushIntStk((int)diff) ? 0 : STKOVERFLOW;
+			return rtnval;
+		}
 		pgtyp = addrNode.getHdrPgTyp();
 		if (!isNumeric(pgtyp)) {
 			return BADOPTYP;
@@ -782,6 +803,69 @@ public class RunOperators implements IConst, RunConst {
 		}
 		else { 
 			rtnval = pushIntStk((int)res) ? 0 : STKOVERFLOW;
+		}
+		return rtnval;
+	}
+	
+	private int runUnaryExpr(KeywordTyp kwtyp) {
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		Page page;
+		int addr;
+		int idx;
+		long delta = 0;
+		int stkidx;
+		int rtnval;
+		boolean isDeltaLong;
+		
+		omsg("runUnaryExpr: top");
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if ((kwtyp == KeywordTyp.NOT) && 
+			(pgtyp != PageTyp.BOOLEAN)) 
+		{ 
+			return BADOPTYP;
+		}
+		if ((kwtyp == KeywordTyp.NOTBITZ) &&
+			!isIntLong(pgtyp)) 
+		{
+			return BADOPTYP;
+		}
+		addr = addrNode.getAddr();
+		isDeltaLong = (pgtyp == PageTyp.LONG);
+		if (isDeltaLong) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			delta = page.getLong(idx);
+		}
+		else {
+			delta = getIntOffStk(stkidx);
+		}
+		switch (kwtyp) {
+		case NOT:
+			delta = 1 - delta;
+			break;
+		case NOTBITZ:
+			delta = ~delta;
+			break;
+		default:
+			return BADOPTYP;
+		}
+		if (isDeltaLong) {
+			rtnval = pushLong(delta);
+		}
+		else if (pgtyp == PageTyp.INTVAL) { 
+			rtnval = pushIntStk((int)delta) ? 0 : STKOVERFLOW;
+		}
+		else if (pgtyp == PageTyp.BOOLEAN) {
+			rtnval = pushBoolStk((int)delta) ? 0 : STKOVERFLOW;
+		}
+		else {
+			return BADOPTYP;
 		}
 		return rtnval;
 	}

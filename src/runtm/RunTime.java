@@ -822,13 +822,15 @@ public class RunTime implements IConst, RunConst {
 		case ANDBITZ:
 		case ORBITZ:
 		case XORBITZ:
+		case MINUS:
 			nullkwd = KeywordTyp.NULL; 
 			if (!pushOp(kwtyp) || !pushOpAsNode(nullkwd)) {
 				return STKOVERFLOW;
 			}
 			break;
-		case MINUS:
 		case DIV:
+		case NOT:
+		case NOTBITZ:
 			if (!pushOp(kwtyp)) {
 				return STKOVERFLOW;
 			}
