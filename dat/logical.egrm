@@ -1,21 +1,61 @@
 do (
 gdefun do (
-  andop;
+  bitzop;
+  #andop;
   #questop;
 );
+defun (bitzop) (var a b c d e f x y) do (
+  set a 1;
+  set b 2;
+  set c 4;
+  set x 0;
+  orbset x a;
+  println "x:" x;
+  set y 0;
+  |= y a;
+  |= y b;
+  |= y c;
+  println "y or:" y;
+  set d 8L;
+  set e 16L;
+  set f 32L;
+  set x (| a b c);
+  println "xabc:" x a b c;
+  set x (| a b);
+  println "xab:" x a b;
+  set x (| d e f);
+  println "xdef:" x d e f;
+  set y 0x7FFFFFFF;
+  println "y:" y;
+  set a (^ y a);
+  set b (^ y b);
+  set c (^ y c);
+  set x (& a b c);
+  println "xabc:" x a b c;
+  &= y a;
+  &= y b;
+  &= y c;
+  println "y and:" y;
+  set y 0x7FFFFFFF;
+  set d (^ y d);
+  set e (^ y e);
+  set f (^ y f);
+  set x (& a b c d e f);
+  println "xabcdef:" x a b c d e f;
+);
+{
 defun (andop) (var a x c d) do (
   set c true;
   set d false;
   println "cd:" c d;
-  #set x (&& c (|| d false));
-  set x (&& c (f d 7));
+  set x (&& c (|| d false));
+  #set x (&& c (f d 7));
   println "x:" x;
 );
 defun (f flag n) do (
   println "n:" n;
   return flag;
 );
-{
 defun (questop) (var c d flag x a b) do (
   set flag false;
   set a 101;
