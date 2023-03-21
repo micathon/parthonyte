@@ -530,6 +530,9 @@ public class RunScanner implements IConst {
 		case MINUSSET: 
 		case MPYSET: 
 		case DIVSET: 
+		case ANDBSET: 
+		case ORBSET: 
+		case XORBSET: 
 			return scopeSetStmt(node);
 		case PRINTLN: return scopePrintlnStmt(node);
 		case ZCALL: return scopeZcallStmt(rightp, false);

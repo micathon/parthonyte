@@ -33,6 +33,10 @@ public class RunOperators implements IConst, RunConst {
 		case MINUS: return runMinusExpr();
 		case DIV: return runDivExpr();
 		case XOR: return runXorExpr();
+		case ANDBITZ: 
+		case ORBITZ: 
+		case XORBITZ: 
+			return runBitwiseExpr(kwtyp);
 		case AND:
 		case OR:
 			return runLogicalExpr(kwtyp);
@@ -284,7 +288,9 @@ public class RunOperators implements IConst, RunConst {
 		case MINUSSET: longvaldest -= longval; break; 
 		case MPYSET: longvaldest *= longval; break; 
 		case DIVSET: longvaldest /= longval; break; 
-		// more cases will follow...
+		case ANDBSET: longvaldest &= longval; break;
+		case ORBSET: longvaldest |= longval; break;
+		case XORBSET: longvaldest ^= longval; break;
 		default:
 			return BADSETSTMT;
 		}
@@ -717,6 +723,69 @@ public class RunOperators implements IConst, RunConst {
 		return rtnval;
 	}
 	
+	private int runBitwiseExpr(KeywordTyp kwtyp) {
+		long res = 0L;
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		Page page;
+		int addr;
+		int idx;
+		long longval = 0L;
+		int stkidx;
+		boolean isLong;
+		boolean isResLong = false;
+		int rtnval;
+		
+		if (kwtyp == KeywordTyp.ANDBITZ) {
+			res = 0xFFFFFFFFFFFFFFFFL;
+		}
+		while (true) {
+			stkidx = popIntStk();
+			if (stkidx < 0) {
+				return stkidx;
+			}
+			addrNode = store.fetchNode(stkidx);
+			if (isNullKwd(addrNode)) {
+				break;
+			}
+			pgtyp = addrNode.getHdrPgTyp();
+			if (!isIntLong(pgtyp)) {
+				return BADOPTYP;
+			}
+			addr = addrNode.getAddr();
+			isLong = (pgtyp == PageTyp.LONG);
+			isResLong = isResLong || isLong;
+			if (isLong) {
+				page = store.getPage(addr);
+				idx = store.getElemIdx(addr);
+				longval = page.getLong(idx);
+			}
+			else {
+				longval = getIntOffStk(stkidx);
+			}
+			switch (kwtyp) {
+			case ANDBITZ:
+				res &= longval;
+				break;
+			case ORBITZ:
+				res |= longval;
+				break;
+			case XORBITZ:
+				res ^= longval;
+				break;
+			default:
+				return BADOPTYP;
+			}
+		}
+		if (isResLong) {
+			rtnval = pushLong(res);
+		}
+		else { 
+			rtnval = pushIntStk((int)res) ? 0 : STKOVERFLOW;
+		}
+		return rtnval;
+	}
+	
 	private boolean isNumNode(AddrNode node) {
 		PageTyp pgtyp;
 		boolean flag;
@@ -731,6 +800,13 @@ public class RunOperators implements IConst, RunConst {
 		flag = (pgtyp == PageTyp.INTVAL) ||
 			(pgtyp == PageTyp.LONG) ||
 			(pgtyp == PageTyp.FLOAT);
+		return flag;
+	}
+	
+	private boolean isIntLong(PageTyp pgtyp) {
+		boolean flag;
+		flag = (pgtyp == PageTyp.INTVAL) ||
+			(pgtyp == PageTyp.LONG);
 		return flag;
 	}
 	

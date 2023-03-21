@@ -410,7 +410,7 @@ public class RunTime implements IConst, RunConst {
 				rightp = handleLogicalKwd(kwtop, rightp);
 				omsg("exprtok: hlogkw-> rightp = " + rightp);
 				if (rightp > 0) {
-					node = store.getNode(rightp);  //?
+					node = store.getNode(rightp); 
 				}
 			}
 			if (rightp > 0) {
@@ -714,6 +714,9 @@ public class RunTime implements IConst, RunConst {
 		case MINUSSET: 
 		case MPYSET: 
 		case DIVSET: 
+		case ANDBSET:
+		case ORBSET:
+		case XORBSET:
 		case SET: 
 			return runop.runSetStmt(kwtyp);
 		case PRINTLN: return runPrintlnStmt(kwtyp);
@@ -771,6 +774,9 @@ public class RunTime implements IConst, RunConst {
 		case MINUSSET: 
 		case MPYSET: 
 		case DIVSET: 
+		case ANDBSET: 
+		case ORBSET: 
+		case XORBSET: 
 		case SET: 
 			rightp = pushSetStmt(node, kwtyp);
 			break;
@@ -813,6 +819,9 @@ public class RunTime implements IConst, RunConst {
 		case ADD:
 		case MPY:
 		case XOR:
+		case ANDBITZ:
+		case ORBITZ:
+		case XORBITZ:
 			nullkwd = KeywordTyp.NULL; 
 			if (!pushOp(kwtyp) || !pushOpAsNode(nullkwd)) {
 				return STKOVERFLOW;
