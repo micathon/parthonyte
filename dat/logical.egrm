@@ -1,7 +1,7 @@
 do (
 gdefun do (
-  bitzop;
-  #andop;
+  #bitzop;
+  andop;
   #questop;
 );
 defun (bitzop) (var a b c d e f u v x y z) do (
@@ -54,7 +54,6 @@ defun (bitzop) (var a b c d e f u v x y z) do (
   set x (& a b c d e f);
   println "xabcdef:" x a b c d e f;
 );
-{
 defun (andop) (var a x c d) do (
   set c true;
   set d false;
@@ -62,11 +61,17 @@ defun (andop) (var a x c d) do (
   set x (&& c (|| d false));
   #set x (&& c (f d 7));
   println "x:" x;
+  set x (xor c d);
+  println "xor x:" x;
+  set d true;
+  set x (^^ c d);
+  println "xor x:" x;
 );
 defun (f flag n) do (
   println "n:" n;
   return flag;
 );
+{
 defun (questop) (var c d flag x a b) do (
   set flag false;
   set a 101;
