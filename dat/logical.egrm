@@ -20,10 +20,13 @@ defun (bitzop) (var a b c d e f u v x y z) do (
   println "y:" y;
   set x (~ a);
   &= x y;
-  println "x:" x;
+  println "xa:" x a;
   set d 8L;
   set e 16L;
   set f 32L;
+  set x (~ d);
+  &= x y;
+  println "xd:" x d;
   set x (- a);
   set y (- 3.1416);
   set z (- d);
