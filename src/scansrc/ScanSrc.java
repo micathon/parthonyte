@@ -1744,9 +1744,6 @@ public class ScanSrc implements IConst {
 		case ANDBSET: return "&=";
 		case XORBSET: return "^=";
 		case ORBSET: return "|=";
-		case ANDSET: return "&&=";
-		case XORSET: return "^^=";
-		case ORSET: return "||=";
 		case QUEST: return "?";
 		case MINUS: return "-";
 		case NOTBITZ: return "~";
@@ -1943,30 +1940,6 @@ public class ScanSrc implements IConst {
 			}
 			if (ch3 == '=') {
 				return KeywordTyp.SHLSET;
-			}
-			break;
-		case '&':
-			if (ch2 != '&') {
-				return KeywordTyp.NULL;
-			}
-			if (ch3 == '=') {
-				return KeywordTyp.ANDSET;
-			}
-			break;
-		case '^':
-			if (ch2 != '^') {
-				return KeywordTyp.NULL;
-			}
-			if (ch3 == '=') {
-				return KeywordTyp.XORSET;
-			}
-			break;
-		case '|':
-			if (ch2 != '|') {
-				return KeywordTyp.NULL;
-			}
-			if (ch3 == '=') {
-				return KeywordTyp.ORSET;
 			}
 			break;
 		}
