@@ -45,6 +45,13 @@ public class RunOperators implements IConst, RunConst {
 			return runLogicalExpr(kwtyp);
 		case QUEST:
 			return runQuestExpr(kwtyp);
+		case EQ:
+		case NE:
+		case LT:
+		case LE:
+		case GE:
+		case GT:
+			return runComparExpr(kwtyp);
 		default:
 			omsg("handleExprKwdRtn: kwtyp = " + kwtyp);
 			return NEGBASEVAL - kwtyp.ordinal();
@@ -583,7 +590,6 @@ public class RunOperators implements IConst, RunConst {
 		if (stkidx < 0) {
 			return stkidx;
 		}
-		addrNode = store.topNode();
 		addrNode = store.fetchNode(stkidx);
 		pgtyp = addrNode.getHdrPgTyp();
 		if (!isNumeric(pgtyp)) {
@@ -867,6 +873,200 @@ public class RunOperators implements IConst, RunConst {
 		else {
 			return BADOPTYP;
 		}
+		return rtnval;
+	}
+	
+	private int runComparExpr(KeywordTyp kwtyp) {
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		Page page;
+		int addr;
+		int idx;
+		boolean isFloat;
+		boolean isLong;
+		boolean isBaseFloat;
+		boolean isBaseLong;
+		int stkidx;
+		int rtnval;
+		double afval = 0.0;
+		double bfval = 0.0;
+		long aval = 0;
+		long bval = 0;
+		int ival;
+		boolean flag;
+		
+		omsg("runComparExpr: top");
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp == PageTyp.STRING) {
+			return runStrCompExpr(kwtyp, addrNode);
+		}
+		if (!isNumeric(pgtyp)) {
+			return BADOPTYP;
+		}
+		addr = addrNode.getAddr();
+		isFloat = (pgtyp == PageTyp.FLOAT);
+		isLong = (pgtyp == PageTyp.LONG);
+		if (isFloat) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			bfval = page.getFloat(idx);
+		}
+		else if (isLong) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			bval = page.getLong(idx);
+		}
+		else {
+			bval = getIntOffStk(stkidx);
+		}
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if (!isNumeric(pgtyp)) {
+			return BADOPTYP;
+		}
+		addr = addrNode.getAddr();
+		isBaseFloat = (pgtyp == PageTyp.FLOAT);
+		isBaseLong = (pgtyp == PageTyp.LONG);
+		if (isBaseFloat) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			afval = page.getFloat(idx);
+		}
+		else if (isBaseLong) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			aval = page.getLong(idx);
+		}
+		else {
+			aval = getIntOffStk(stkidx);
+		}
+		if (isFloat && !isBaseFloat) {
+			afval = aval;
+		}
+		else if (!isFloat && isBaseFloat) {
+			bfval = bval;
+		}
+		if (isFloat || isBaseFloat) {
+			switch (kwtyp) {
+			case EQ: 
+				flag = (afval == bfval);
+				break;
+			case NE: 
+				flag = (afval != bfval);
+				break;
+			case LT: 
+				flag = (afval < bfval);
+				break;
+			case LE: 
+				flag = (afval <= bfval);
+				break;
+			case GE: 
+				flag = (afval >= bfval);
+				break;
+			case GT: 
+				flag = (afval > bfval);
+				break;
+			default:
+				return BADOPTYP;
+			}
+		}
+		else {
+			switch (kwtyp) {
+			case EQ: 
+				flag = (aval == bval);
+				break;
+			case NE: 
+				flag = (aval != bval);
+				break;
+			case LT: 
+				flag = (aval < bval);
+				break;
+			case LE: 
+				flag = (aval <= bval);
+				break;
+			case GE: 
+				flag = (aval >= bval);
+				break;
+			case GT: 
+				flag = (aval > bval);
+				break;
+			default:
+				return BADOPTYP;
+			}
+		}
+		ival = flag ? 1 : 0;
+		rtnval = pushBoolStk(ival) ? 0 : STKOVERFLOW;
+		return rtnval;
+	}
+	
+	private int runStrCompExpr(KeywordTyp kwtyp, AddrNode addrNode) {
+		PageTyp pgtyp;
+		Page page;
+		int addr;
+		int idx;
+		String sval;
+		String tval;
+		int stkidx;
+		int rtnval;
+		int ival;
+		boolean flag;
+
+		omsg("runStrCompExpr: top");
+		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp != PageTyp.STRING) {
+			return BADOPTYP;
+		}
+		addr = addrNode.getAddr();
+		page = store.getPage(addr);
+		idx = store.getElemIdx(addr);
+		tval = page.getString(idx);
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp != PageTyp.STRING) {
+			return BADOPTYP;
+		}
+		addr = addrNode.getAddr();
+		page = store.getPage(addr);
+		idx = store.getElemIdx(addr);
+		sval = page.getString(idx);
+		switch (kwtyp) {
+		case EQ:
+			flag = sval.equals(tval);
+			break;
+		case NE:
+			flag = !sval.equals(tval);
+			break;
+		case LT:
+			flag = (sval.compareTo(tval) < 0);
+			break;
+		case LE:
+			flag = (sval.compareTo(tval) <= 0);
+			break;
+		case GE:
+			flag = (sval.compareTo(tval) >= 0);
+			break;
+		case GT:
+			flag = (sval.compareTo(tval) > 0);
+			break;
+		default:
+			return BADOPTYP;
+		}
+		ival = flag ? 1 : 0;
+		omsg("runStrCompExpr: ival = " + ival);
+		rtnval = pushBoolStk(ival) ? 0 : STKOVERFLOW;
 		return rtnval;
 	}
 	

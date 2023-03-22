@@ -829,6 +829,12 @@ public class RunTime implements IConst, RunConst {
 			}
 			break;
 		case DIV:
+		case EQ:
+		case NE:
+		case LT:
+		case LE:
+		case GE:
+		case GT:
 		case NOT:
 		case NOTBITZ:
 			if (!pushOp(kwtyp)) {
