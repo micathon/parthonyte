@@ -291,6 +291,7 @@ public class RunTime implements IConst, RunConst {
 		case BADTYPE: return "Unexpected data type";
 		case BADFREE: return "Memory free failure";
 		case BADOPTYP: return "Invalid operand type";
+		case BADDOSTMT: return "Unexpected DO encountered";
 		case GENERR: return "General runtime error";
 		default: return "Error code = " + (-rightp);
 		}
@@ -438,6 +439,12 @@ public class RunTime implements IConst, RunConst {
 			locDepth++;
 			currZexpr = rightp;
 			rightp = pushExpr(node);
+		}
+		else if (kwtyp == KeywordTyp.DO) {
+			rightp = handleDoToken(node, rightp);
+		}
+		else if (isKwdSkipped(kwtyp)) {
+			rightp = handleSkipKwd(node, rightp);
 		}
 		else {
 			rightp = handleLeafToken(node);
@@ -724,6 +731,10 @@ public class RunTime implements IConst, RunConst {
 		case RETURN: return runRtnStmt(true);
 		case UTPUSH: return runUtPushStmt();
 		case UTSCAN: return runUtScanStmt();
+		case IF: 
+		case ELIF: 
+		case ELSE: 
+			return 0;  //
 		default:
 			return BADOP;
 		}
@@ -792,6 +803,9 @@ public class RunTime implements IConst, RunConst {
 		case UTPUSH:
 		case UTSCAN:
 			rightp = pushUtPushStmt(node, kwtyp);
+			break;
+		case IF:
+			rightp = pushIfStmt(node);
 			break;
 		default: return BADSTMT;
 		}
@@ -1414,6 +1428,75 @@ public class RunTime implements IConst, RunConst {
 		}
 		rightp = handleExprToken(rightp, true);  // handle 2nd expr.
 		omsg("pushUtPushStmt: btm, rightp = " + rightp);
+		return rightp;
+	}
+	
+	private int handleDoToken(Node node, int rightp) {
+		KeywordTyp kwtyp;
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int stkidx;
+		int ival;
+		
+		kwtyp = topKwd();
+		switch (kwtyp) {
+		case IF:
+		case ELIF:
+			stkidx = popIntStk();
+			if (stkidx < 0) {
+				return stkidx;
+			}
+			addrNode = store.fetchNode(stkidx);
+			pgtyp = addrNode.getHdrPgTyp();
+			if (pgtyp != PageTyp.BOOLEAN) { 
+				return BADOPTYP;
+			}
+			ival = addrNode.getAddr();
+			break;
+		case ELSE:
+			ival = 1;
+			break;
+		default:
+			return BADDOSTMT;
+		}
+		// if ival = 1 then do block is executed...
+		// else (ival = 0):
+		oprn("handleDoToken: bool as int = " + ival);
+		rightp = node.getRightp();
+		return rightp;
+	}
+	
+	private boolean isKwdSkipped(KeywordTyp kwtyp) {
+		switch (kwtyp) {
+		case ELIF:
+		case ELSE:
+			return true;
+		default:
+			return false;
+		}
+	}
+	
+	private int handleSkipKwd(Node node, int rightp) {
+		KeywordTyp kwtyp;
+		popKwd();
+		kwtyp = node.getKeywordTyp();
+		if (!pushOp(kwtyp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
+		return rightp;
+	}
+	
+	private int pushIfStmt(Node node) {
+		int rightp;
+		KeywordTyp kwtyp;
+
+		omsg("pushIfStmt: top");
+		kwtyp = KeywordTyp.IF;
+		if (!pushOp(kwtyp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
 		return rightp;
 	}
 	

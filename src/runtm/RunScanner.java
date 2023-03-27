@@ -539,6 +539,7 @@ public class RunScanner implements IConst {
 		case RETURN: return scopeRtnStmt(node);
 		case UTPUSH: return scopeUtPushStmt(node);
 		case UTSCAN: return scopeUtScanStmt(node);
+		case IF: return scopeIfStmt(node);
 		default: 
 			omsg("scopeStmt: invalid kwtyp = " + kwtyp);
 			return false;
@@ -680,6 +681,15 @@ public class RunScanner implements IConst {
 		if (!rtnval) {
 			omsg("scopeUtScanStmt: fail");
 		}
+		return rtnval;
+	}
+	
+	private boolean scopeIfStmt(Node node) {
+		boolean rtnval;
+		
+		count++;
+		omsg("scopeIfStmt: top");
+		rtnval = true;
 		return rtnval;
 	}
 	
