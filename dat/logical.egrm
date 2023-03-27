@@ -1,10 +1,24 @@
 do (
 gdefun do (
-  comparop;
-  strcomparop;
+  ifstmt;
+  #comparop;
+  #strcomparop;
   #bitzop;
   #andop;
   #questop;
+);
+defun (ifstmt) (var x) do (
+  println "top";
+  if true do (
+    println "blk1";
+  )
+  elif false do (
+    println "blk2";
+  )
+  else do (
+    println "blk3";
+  );
+  println "btm";
 );
 defun (comparop) (var x a b m n) do (
   set a 0.0;
