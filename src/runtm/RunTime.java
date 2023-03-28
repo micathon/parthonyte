@@ -731,6 +731,7 @@ public class RunTime implements IConst, RunConst {
 		case RETURN: return runRtnStmt(true);
 		case UTPUSH: return runUtPushStmt();
 		case UTSCAN: return runUtScanStmt();
+		case DO: return runDoStmt();
 		case IF: 
 		case ELIF: 
 		case ELSE: 
@@ -745,6 +746,7 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case ZCALL:
 		case RETURN:
+		case DO:
 			return true;
 		default:
 			return false;
@@ -1459,11 +1461,21 @@ public class RunTime implements IConst, RunConst {
 		default:
 			return BADDOSTMT;
 		}
-		// if ival = 1 then do block is executed...
+		// if ival = 1 then do block is executed
 		// else (ival = 0):
 		oprn("handleDoToken: bool as int = " + ival);
-		rightp = node.getRightp();
-		return rightp;
+		if (ival == 0) {
+			rightp = node.getRightp();
+			return rightp;
+		}
+		rightp = node.getDownp();
+		if (!pushAddr(rightp)) {
+			return STKOVERFLOW;
+		}
+		if (!pushOp(KeywordTyp.DO)) {
+			return STKOVERFLOW;
+		}
+		return 0;
 	}
 	
 	private boolean isKwdSkipped(KeywordTyp kwtyp) {
@@ -1497,6 +1509,18 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		rightp = node.getRightp();
+		return rightp;
+	}
+	
+	private int runDoStmt() {
+		KeywordTyp kwtyp;
+		int rightp;
+		/*
+		kwtyp = popKwd();
+		if (kwtyp != KeywordTyp.DO) {
+			return BADPOP;
+		} */
+		rightp = popVal(); 
 		return rightp;
 	}
 	
