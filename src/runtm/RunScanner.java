@@ -24,6 +24,7 @@ public class RunScanner implements IConst {
 	private int defunCount;
 	private int count;
 	private int glbVarListIdx;
+	private int stmtCount;
 	private int runidx;
 	private boolean isRunTest;
 	private boolean isBadUtPair;
@@ -36,6 +37,7 @@ public class RunScanner implements IConst {
 		rt = new RunTime(store, scanSrc, synChk);
 		defunCount = 0;
 		count = 0;
+		stmtCount = 0;
 	}
 
 	public boolean run(int runidx) {
@@ -951,7 +953,6 @@ public class RunScanner implements IConst {
 		NodeCellTyp celltyp;
 		int downp;
 		int savep = rightp;
-		int stmtCount = 0;
 		boolean rtnval;
 
 		omsg("Keyword (scope) defun detected.");
@@ -998,25 +999,42 @@ public class RunScanner implements IConst {
 			omsg("Missing DO");
 			return -1;
 		}
+		rtnval = scopeDoBlock(node);
+		if (!rtnval) {
+			return -1;
+		}
+		omsg("Stmt count = " + stmtCount + ", set count = " + count);
+		return savep;
+	}
+	
+	private boolean scopeDoBlock(Node node) {
+		KeywordTyp kwtyp;
+		int downp;
+		int rightp;
+		boolean rtnval;
+
 		rightp = node.getDownp();
 		while (rightp > 0) {
 			// for all stmts. in do-block, perform scope oper.
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp != KeywordTyp.ZSTMT) {
-				return -1;
+				return false;
 			}
 			omsg("Stmt count = " + stmtCount);
 			downp = node.getDownp();
 			rtnval = scopeStmt(downp);
 			if (!rtnval) {
-				return -1;
+				return false;
 			}
-			stmtCount++;
+			incStmtCount();
 			rightp = node.getRightp();
 		} 
-		omsg("Stmt count = " + stmtCount + ", set count = " + count);
-		return savep;
+		return true;
+	}
+	
+	private void incStmtCount() {
+		stmtCount++;
 	}
 	
 	private int scanClassStmt(int rightp, KeywordTyp kwtyp) {

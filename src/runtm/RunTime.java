@@ -348,8 +348,8 @@ public class RunTime implements IConst, RunConst {
 			} while (isExprLoop);  // keep going if return stmt...
 			// unless depth counter is zero, ends up here:
 			while (rightp == 0) {
-				omsg("handleDoBlock: btm, top of while loop");
 				kwtyp = topKwd();
+				oprn("handleDoBlock: btm, top-while, kwtyp = " + kwtyp);
 				if (isBranchKwd(kwtyp)) {
 					popKwd();
 					rightp = popVal();
