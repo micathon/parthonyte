@@ -1,0 +1,19 @@
+do (
+gdefun do (
+  ifstmt;
+);
+defun (ifstmt) (var x) do (
+  println "top";
+  if true do (
+    println "blk1";
+    g;
+    println "blk1: btm";
+  );
+  println "btm";
+);
+defun (g) (var y) do (
+  set y 1;
+  #println "f body";
+);
+)
+
