@@ -9,7 +9,7 @@ gdefun do (
 );
 defun (ifstmt) (var x) do (
   println "top";
-  if true do (
+  if false do (
     println "blk1";
   )
   elif false do (
