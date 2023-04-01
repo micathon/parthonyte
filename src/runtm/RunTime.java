@@ -348,6 +348,15 @@ public class RunTime implements IConst, RunConst {
 			} while (isExprLoop);  // keep going if return stmt...
 			// unless depth counter is zero, ends up here:
 			while (rightp == 0) {
+				kwtyp = topKwd();
+				if (!isBranchKwd(kwtyp)) {
+					break;
+				}
+				popKwd();
+				rightp = popVal();
+			}
+			while (rightp == 0) {
+				omsg("handleDoBlock: btm, top of while loop");
 				rightp = runRtnStmt(false);
 				omsg("handleDoBlock: btm, rightp = " + rightp);
 				if (rightp == EXIT) {
@@ -688,7 +697,6 @@ public class RunTime implements IConst, RunConst {
 	
 	private int handleExprKwd(KeywordTyp kwtyp) {
 		int rightp;
-		AddrNode addrNode;
 		
 		rightp = runop.handleExprKwdRtn(kwtyp);
 		if (rightp < 0) {
@@ -697,8 +705,7 @@ public class RunTime implements IConst, RunConst {
 		if (!store.swapNodes()) {
 			return STKUNDERFLOW;
 		}
-		addrNode = store.popNode();
-		rightp = addrNode.getAddr();
+		rightp = popVal();  //###
 		return rightp;
 	}
 	
@@ -764,6 +771,17 @@ public class RunTime implements IConst, RunConst {
 		}
 	}
 
+	private boolean isBranchKwd(KeywordTyp kwtyp) {
+		switch (kwtyp) {
+		case IF:
+		case ELIF:
+		case ELSE:
+			return true;
+		default:
+			return false;
+		}
+	}
+	
 	private int pushStmt(Node node) {
 		// scan stmt.
 		KeywordTyp kwtyp;
