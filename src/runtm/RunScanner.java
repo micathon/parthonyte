@@ -662,6 +662,53 @@ public class RunScanner implements IConst {
 		return rtnval;
 	}
 	
+	private boolean scopeIfStmt(Node node) {
+		int rightp;
+		KeywordTyp kwtyp;
+		boolean isElse = false;
+		boolean rtnval;
+		
+		omsg("scopeIfStmt: top");
+		do {
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				return false;
+			}
+			node = store.getNode(rightp);
+			if (!isElse) {
+				rtnval = scopeExpr(rightp);
+				if (!rtnval) {
+					return false;
+				}
+				rightp = node.getRightp();
+				if (rightp <= 0) {
+					return false;
+				}
+				node = store.getNode(rightp);
+			}
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp != KeywordTyp.DO) {
+				omsg("Missing DO");
+				return false;
+			}
+			rtnval = scopeDoBlock(node);
+			if (!rtnval) {
+				return false;
+			}
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				return true;
+			}
+			if (isElse) {
+				return false;
+			}
+			node = store.getNode(rightp);
+			kwtyp = node.getKeywordTyp();
+			isElse = (kwtyp == KeywordTyp.ELSE);
+		} while ((kwtyp == KeywordTyp.ELIF) || isElse);
+		return false;
+	}
+	
 	private boolean scopeUtPushStmt(Node node) {
 		boolean rtnval;
 		
@@ -683,15 +730,6 @@ public class RunScanner implements IConst {
 		if (!rtnval) {
 			omsg("scopeUtScanStmt: fail");
 		}
-		return rtnval;
-	}
-	
-	private boolean scopeIfStmt(Node node) {
-		boolean rtnval;
-		
-		count++;
-		omsg("scopeIfStmt: top");
-		rtnval = true;
 		return rtnval;
 	}
 	
