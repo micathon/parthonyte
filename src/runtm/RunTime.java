@@ -349,7 +349,7 @@ public class RunTime implements IConst, RunConst {
 			// unless depth counter is zero, ends up here:
 			while (rightp == 0) {
 				kwtyp = topKwd();
-				oprn("handleDoBlock: btm, top-while, kwtyp = " + kwtyp);
+				omsg("handleDoBlock: btm, top-while, kwtyp = " + kwtyp);
 				if (isBranchKwd(kwtyp)) {
 					popKwd();
 					rightp = popVal();
@@ -1206,6 +1206,9 @@ public class RunTime implements IConst, RunConst {
 		int rtnval;
 		
 		omsg("runZcallStmt: top");
+		if (!pushOp(KeywordTyp.DO)) {
+			return STKOVERFLOW;
+		}
 		currLocBase = locBaseIdx;
 		parmCount = getCountOfSpares(kwtyp) - 2;
 		returnp = getReturnpSpares();
@@ -1296,8 +1299,16 @@ public class RunTime implements IConst, RunConst {
 		boolean isDelayPops = false;
 		AddrNode funcReturns = null;
 		Node node;
+		KeywordTyp kwtyp;
 		
 		omsg("runRtnStmt: top");
+		kwtyp = topKwd();
+		if (kwtyp != KeywordTyp.DO) {
+			omsg("runRtnStmt: expecting DO, popped kwtyp = " + 
+				kwtyp);
+			//return GENERR;
+		}
+		popKwd();
 		if (isExpr) {
 			funcReturns = store.popNode(); 
 			if (funcReturns == null) {
@@ -1480,7 +1491,7 @@ public class RunTime implements IConst, RunConst {
 		}
 		// if ival = 1 then do block is executed
 		// else (ival = 0):
-		oprn("handleDoToken: bool as int = " + ival);
+		omsg("handleDoToken: bool as int = " + ival);
 		if (ival == 0) {
 			rightp = node.getRightp();
 			return rightp;
