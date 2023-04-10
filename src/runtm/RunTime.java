@@ -325,7 +325,7 @@ public class RunTime implements IConst, RunConst {
 			omsg("doblock: stmtCount = " + stmtCount);
 			currZstmt = rightp;
 			locDepth = 0;
-			rightp = pushStmt(node);  // scan stmt., push it
+			rightp = pushStmt(node, rightp);  // scan stmt., push it
 			do {
 				isExprLoop = false;
 				// handle mult. exprs.
@@ -353,6 +353,10 @@ public class RunTime implements IConst, RunConst {
 				if (isBranchKwd(kwtyp)) {
 					popKwd();
 					rightp = popVal();
+				}
+				else if (kwtyp == KeywordTyp.WHILE) {
+					popKwd();
+					rightp = topIntVal();
 				}
 				else {
 					rightp = runRtnStmt(false);
@@ -741,7 +745,8 @@ public class RunTime implements IConst, RunConst {
 		case IF: 
 		case ELIF: 
 		case ELSE: 
-			return 0;  //
+		case WHILE:
+			return 0;  
 		default:
 			return BADOP;
 		}
@@ -781,7 +786,7 @@ public class RunTime implements IConst, RunConst {
 		}
 	}
 	
-	private int pushStmt(Node node) {
+	private int pushStmt(Node node, int savep) {
 		// scan stmt.
 		KeywordTyp kwtyp;
 		int rightp, rightq;
@@ -825,6 +830,9 @@ public class RunTime implements IConst, RunConst {
 			break;
 		case IF:
 			rightp = pushIfStmt(node);
+			break;
+		case WHILE:
+			rightp = pushWhileStmt(node, savep);
 			break;
 		default: return BADSTMT;
 		}
@@ -1472,6 +1480,7 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case IF:
 		case ELIF:
+		case WHILE:
 			stkidx = popIntStk();
 			if (stkidx < 0) {
 				return stkidx;
@@ -1492,7 +1501,18 @@ public class RunTime implements IConst, RunConst {
 		// if ival = 1 then do block is executed
 		// else (ival = 0):
 		omsg("handleDoToken: bool as int = " + ival);
-		if (ival == 0) {
+		if (ival == 1) { }
+		else if (kwtyp == KeywordTyp.WHILE) {
+			//popKwd();
+			popVal();  // points to while stmt
+			omsg("handleDoToken: WHILE LOOP EXIT");
+			return 0;
+			/*
+			rightp = popVal();
+			return rightp;
+			*/
+		}
+		else {
 			rightp = node.getRightp();
 			return rightp;
 		}
@@ -1541,14 +1561,20 @@ public class RunTime implements IConst, RunConst {
 	}
 	
 	private int runDoStmt() {
-		KeywordTyp kwtyp;
 		int rightp;
-		/*
-		kwtyp = popKwd();
-		if (kwtyp != KeywordTyp.DO) {
-			return BADPOP;
-		} */
 		rightp = popVal(); 
+		return rightp;
+	}
+	
+	private int pushWhileStmt(Node node, int rightp) {
+		KeywordTyp kwtyp;
+
+		omsg("pushWhileStmt: top");
+		kwtyp = KeywordTyp.WHILE;
+		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
 		return rightp;
 	}
 	

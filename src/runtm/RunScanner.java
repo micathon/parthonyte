@@ -542,6 +542,7 @@ public class RunScanner implements IConst {
 		case UTPUSH: return scopeUtPushStmt(node);
 		case UTSCAN: return scopeUtScanStmt(node);
 		case IF: return scopeIfStmt(node);
+		case WHILE: return scopeWhileStmt(node);
 		default: 
 			omsg("scopeStmt: invalid kwtyp = " + kwtyp);
 			return false;
@@ -707,6 +708,35 @@ public class RunScanner implements IConst {
 			isElse = (kwtyp == KeywordTyp.ELSE);
 		} while ((kwtyp == KeywordTyp.ELIF) || isElse);
 		return false;
+	}
+	
+	private boolean scopeWhileStmt(Node node) {
+		int rightp;
+		KeywordTyp kwtyp;
+		boolean rtnval;
+		
+		omsg("scopeWhileStmt: top");
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return false;
+		}
+		node = store.getNode(rightp);
+		rtnval = scopeExpr(rightp);
+		if (!rtnval) {
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return false;
+		}
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.DO) {
+			omsg("Missing DO");
+			return false;
+		}
+		rtnval = scopeDoBlock(node);
+		return rtnval;
 	}
 	
 	private boolean scopeUtPushStmt(Node node) {
