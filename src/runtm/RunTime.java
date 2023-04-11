@@ -357,6 +357,8 @@ public class RunTime implements IConst, RunConst {
 				else if (kwtyp == KeywordTyp.WHILE) {
 					popKwd();
 					rightp = topIntVal();
+					popVal();
+					popVal();
 				}
 				else {
 					rightp = runRtnStmt(false);
@@ -1504,7 +1506,7 @@ public class RunTime implements IConst, RunConst {
 		if (ival == 1) { }
 		else if (kwtyp == KeywordTyp.WHILE) {
 			//popKwd();
-			popVal();  // points to while stmt
+			rightp = popVal();  // points to while stmt
 			omsg("handleDoToken: WHILE LOOP EXIT");
 			return 0;
 			/*
