@@ -353,11 +353,12 @@ public class RunTime implements IConst, RunConst {
 				if (isBranchKwd(kwtyp)) {
 					popKwd();
 					rightp = popVal();
+					node = store.getNode(rightp);
+					rightp = node.getRightp();
 				}
 				else if (kwtyp == KeywordTyp.WHILE) {
 					popKwd();
-					rightp = topIntVal();
-					popVal();
+					rightp = popVal();
 					popVal();
 				}
 				else {
@@ -717,6 +718,7 @@ public class RunTime implements IConst, RunConst {
 	private int handleStmtKwd(KeywordTyp kwtyp) {
 		int rightp;
 		AddrNode addrNode;
+		Node node;
 		
 		rightp = handleStmtKwdRtn(kwtyp);
 		if ((rightp < 0) || isJumpKwd(kwtyp)) {
@@ -724,6 +726,8 @@ public class RunTime implements IConst, RunConst {
 		}
 		addrNode = store.popNode();
 		rightp = addrNode.getAddr();
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
 		return rightp;
 	}
 	
@@ -795,7 +799,8 @@ public class RunTime implements IConst, RunConst {
 		
 		omsg(":::::::::: pushStmt: stkidx = " + 
 			store.getStkIdx());
-		rightq = node.getRightp();
+		//rightq = node.getRightp();
+		rightq = savep;
 		rightp = node.getDownp();
 		if (rightp <= 0) {
 			return NEGADDR;
@@ -865,12 +870,12 @@ public class RunTime implements IConst, RunConst {
 		case ANDBITZ:
 		case ORBITZ:
 		case XORBITZ:
-		case MINUS:
 			nullkwd = KeywordTyp.NULL; 
 			if (!pushOp(kwtyp) || !pushOpAsNode(nullkwd)) {
 				return STKOVERFLOW;
 			}
 			break;
+		case MINUS:
 		case DIV:
 		case EQ:
 		case NE:
@@ -1505,14 +1510,9 @@ public class RunTime implements IConst, RunConst {
 		omsg("handleDoToken: bool as int = " + ival);
 		if (ival == 1) { }
 		else if (kwtyp == KeywordTyp.WHILE) {
-			//popKwd();
 			rightp = popVal();  // points to while stmt
 			omsg("handleDoToken: WHILE LOOP EXIT");
 			return 0;
-			/*
-			rightp = popVal();
-			return rightp;
-			*/
 		}
 		else {
 			rightp = node.getRightp();
