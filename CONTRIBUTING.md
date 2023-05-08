@@ -1,8 +1,9 @@
 # Contributing to Cooperscript
 * Many thanks for your interest in being a Cooperscript contributor
-* I hope to begin accepting contributions probably not until 2024
-* If you wish to write detailed design specs or anything more ambitious, please contact me
-* At this point I don't have much documentation for coders, but feel free to email me with your questions for now
+* I hope to begin accepting contributions probably not until early 2024
+* Recruitment of contributors will commence after the console-mode version of the Cooperscript compiler is working
+* Confromat is the project which monetizes Cooperscript, and its development will be crowdsourced
+* No need to make use of the services or funding of an angel investor
 # How to run Cooperscript
 * Install the Java SDK
 * `$ cd path/to/bin`
