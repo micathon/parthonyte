@@ -3,7 +3,6 @@
 * I hope to begin accepting contributions probably not until early 2024
 * Recruitment of contributors will commence after the console-mode version of the Knodathon compiler is working
 * Knodemaker is the project which monetizes Knodathon, and its development will be crowdsourced
-* No need to make use of the services or funding of an angel investor
 # How to run Knodathon
 * Install the Java SDK
 * `$ cd path/to/bin`
