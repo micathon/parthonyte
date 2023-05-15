@@ -1,0 +1,9 @@
+do (
+gdefun (var a b) do (
+  set a (/ 8 0);
+  f 23 0;
+);
+defun (f x) do (
+  println "f, x:" x;
+)
+
