@@ -337,6 +337,7 @@ public class RunTime implements IConst, RunConst {
 					return 0;
 				}
 				if (rightp > NEGBASEVAL) {  // error
+					doRunTimeError(rightp);
 					return rightp;
 				}
 				// run stmt. using kwd. (encoded in -ve rightp)
@@ -370,6 +371,7 @@ public class RunTime implements IConst, RunConst {
 				omsg("handleDoBlock: btm, rightp = " + rightp);
 			}
 		} 
+		doRunTimeError(rightp);
 		return rightp;  // always -ve
 	}
 	
@@ -789,6 +791,16 @@ public class RunTime implements IConst, RunConst {
 			return true;
 		default:
 			return false;
+		}
+	}
+	
+	private void doRunTimeError(int errCode) {
+		switch (errCode) {
+		case ZERODIV:
+			oprn("Caught runtime error");
+			break;
+		default:
+			oprn("Uncaught runtime error");
 		}
 	}
 	
