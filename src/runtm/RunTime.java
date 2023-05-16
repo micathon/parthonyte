@@ -726,6 +726,7 @@ public class RunTime implements IConst, RunConst {
 		if ((rightp < 0) || isJumpKwd(kwtyp)) {
 			return rightp;
 		}
+		store.popNode();
 		addrNode = store.popNode();
 		rightp = addrNode.getAddr();
 		node = store.getNode(rightp);
@@ -795,13 +796,27 @@ public class RunTime implements IConst, RunConst {
 	}
 	
 	private void doRunTimeError(int errCode) {
-		switch (errCode) {
-		case ZERODIV:
-			oprn("Caught runtime error");
-			break;
-		default:
-			oprn("Uncaught runtime error");
+		int rightp;
+		AddrNode addrNode;
+		int val;
+		int lineno;
+		
+		val = popUntilKwd(KeywordTyp.ZSTMT);
+		if (val < 0) {
+			errCode = val;
+			handleErrToken(errCode);
+			lineno = 0;
 		}
+		else {
+			addrNode = store.popNode();
+			rightp = addrNode.getAddr();
+			lineno = store.lookupLineNo(rightp);
+		}
+		if (lineno == 0) {
+			oprn("Line number of error: unknown");
+			return;
+		}
+		oprn("Error on line number: " + lineno);
 	}
 	
 	private int pushStmt(Node node, int savep) {
@@ -820,7 +835,9 @@ public class RunTime implements IConst, RunConst {
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (isJumpKwd(kwtyp)) { }
-		else if (!pushAddr(rightq)) {
+		else if (!pushAddr(rightq) || 
+			!pushOpAsNode(KeywordTyp.ZSTMT)) 
+		{
 			return STKOVERFLOW;
 		}
 		switch (kwtyp) {
@@ -1595,7 +1612,11 @@ public class RunTime implements IConst, RunConst {
 	public AddrNode getVarNode(AddrNode node) {
 		return pp.getVarNode(node);
 	}
-		
+/*		
+	private int popUntilStmt() {
+		return pp.popUntilStmt();
+	}
+*/	
 	private int popUntilKwd(KeywordTyp kwtyp) {
 		return pp.popUntilKwd(kwtyp);
 	}

@@ -782,7 +782,34 @@ class RunPushPop implements IConst, RunConst {
 		varNode = store.fetchNode(varidx);
 		return varNode;
 	}
-	
+/*	
+	public int popUntilStmt() {
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		KeywordTyp kwtyp;
+		boolean done = false;
+		int addr;
+		int count;
+		
+		count = 0;
+		do {
+			count++;
+			addrNode = store.popNode();
+			if (addrNode == null) {
+				return STKUNDERFLOW;
+			}
+			freePopNode(addrNode, true);
+			addr = addrNode.getAddr();
+			pgtyp = addrNode.getHdrPgTyp();
+			if (pgtyp == PageTyp.KWD) {
+				kwtyp = KeywordTyp.values[addr];
+				done = isStmtKwd(kwtyp);
+			}
+		} while (!done);
+		omsg("popUntilStmt: btm, count = " + count);
+		return 0;
+	}
+*/	
 	public int popUntilKwd(KeywordTyp kwtyp) {
 		AddrNode addrNode;
 		PageTyp pgtyp;
@@ -886,6 +913,47 @@ class RunPushPop implements IConst, RunConst {
 			rt.setPopMultiFreeCount(-1);
 		}
 		return flag;
+	}
+
+	public boolean isStmtKwd(KeywordTyp kwtyp) {
+		switch (kwtyp) {
+		case SET:
+		case INCINT:
+		case DECINT:
+		case IF:
+		case WHILE:
+		case FOR: 
+		case TRY: 
+		case SWITCH:
+		case DEL: 
+		case PRINT: 
+		case PRINTLN:
+		case ECHO: 
+		case UTPUSH:
+		case UTSCAN:
+		case CALL: 
+		case ZCALL: 
+		//case DOT: 
+		case RAISE:
+		case CONTINUE:
+		case BREAK: 
+		case RETURN:
+		case ADDSET:
+		case MINUSSET:
+		case MPYSET:
+		case DIVSET:
+		case IDIVSET:
+		case MODSET:
+		case SHLSET:
+		case SHRSET:
+		case SHRUSET:
+		case ANDBSET:
+		case XORBSET:
+		case ORBSET:
+			return true;
+		default:
+			return false;
+		}
 	}
 }
 
