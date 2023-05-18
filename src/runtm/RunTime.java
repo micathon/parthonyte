@@ -353,6 +353,7 @@ public class RunTime implements IConst, RunConst {
 				omsg("handleDoBlock: btm, top-while, kwtyp = " + kwtyp);
 				if (isBranchKwd(kwtyp)) {
 					popKwd();
+					popVal();
 					rightp = popVal();
 					node = store.getNode(rightp);
 					rightp = node.getRightp();
@@ -360,6 +361,7 @@ public class RunTime implements IConst, RunConst {
 				else if (kwtyp == KeywordTyp.WHILE) {
 					popKwd();
 					rightp = popVal();
+					popVal();
 					popVal();
 				}
 				else {
@@ -803,6 +805,7 @@ public class RunTime implements IConst, RunConst {
 		
 		val = popUntilKwd(KeywordTyp.ZSTMT);
 		if (val < 0) {
+			// note that ZCALL ends up here...
 			errCode = val;
 			handleErrToken(errCode);
 			lineno = 0;
