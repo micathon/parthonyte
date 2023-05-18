@@ -4,9 +4,26 @@ gdefun (var a b) do (
   f 23;
   println "btm";
 );
-defun (f x) do (
+defun (f x) (var i) do (
   println "f, x:" x;
-  #set x (/ x 0);
+  set x (+ x 0);
+  if (ne x 23) do (
+    println "if";
+  )
+  elif (eq x 23) do (
+    println "elif";
+    #set x (/ x 0);
+  )
+  else do (
+    println "else";
+  );
+  set i 0;
+  while (< i 3) do (
+    += i 1;
+    println i;
+    #set x (/ x 0);
+  );
+  println "f: btm";
 );
 )
 
