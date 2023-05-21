@@ -1,5 +1,30 @@
 do (
 gdefun (var tot a b c c66 x prod pi firstname) do (
+  set a -500;
+  f a (g);
+  println "post f call";
+  endstuff;
+);
+defun (f n m)(var x y) do (
+  println n;
+  set x 77;
+  println "x =" x;
+  #println "f: calling g" (g);
+  g;
+  println "pre f return";
+  return 333;
+  {
+  set y 99;
+  set n 255;
+  println x y m;
+  }
+); 
+defun (g)(var m) do (
+  set m 800;
+  println m;
+  return m;
+);
+defun (endstuff) do (
   set x (- 100 97);
   println "x:" x;
   println (color);
@@ -63,6 +88,7 @@ defun (fun-btm)(var bprod) do (
   set a -500;
   println a;
   f a (g);
+  println "post (2) f call";
   set c (inc 100);
   set a (- 60 2);
   set b 747;
@@ -71,22 +97,7 @@ defun (fun-btm)(var bprod) do (
   g;
   f (+ 2 a (* c 2))(g);
   hello;
-  println a;
-);
-defun (f n m)(var x y) do (
-  println n;
-  set x 77;
-  println "x =" x;
-  set y 99;
-  set n 255;
-  println x y m;
-  g;
-  return 333;
-); 
-defun (g)(var m) do (
-  set m 800;
-  println m;
-  return m;
+  println "a:" a;
 );
 defun (inc x) do (
   return (+ x 1);
