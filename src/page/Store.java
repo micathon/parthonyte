@@ -327,6 +327,10 @@ public class Store implements IConst {
 		return stackTab.fetchSpare();
 	}
 	
+	public boolean popSafeSpare() {
+		return stackTab.popSafeSpare();
+	}
+	
 	public long topLong() {
 		return stackTab.topLong();
 	}
@@ -798,6 +802,10 @@ class PageTab implements IConst {
 			maxStkIdx = stkIdx;
 		}
 		return flag;
+	}
+	
+	public boolean popSafeSpare() {
+		return (popSpare() != null);
 	}
 	
 	@SuppressWarnings("unchecked")
