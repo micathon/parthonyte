@@ -800,15 +800,15 @@ public class RunTime implements IConst, RunConst {
 	private void doRunTimeError(int errCode) {
 		int rightp;
 		AddrNode addrNode;
-		int val;
-		int lineno;
+		int lineno = 0;
 		
-		val = popUntilKwd(KeywordTyp.ZSTMT);
-		if (val < 0) {
-			// note that ZCALL ends up here...
-			errCode = val;
+		rightp = popUntilBase();
+		if (rightp < 0) {
+			errCode = rightp;
 			handleErrToken(errCode);
-			lineno = 0;
+		}
+		else if (rightp > 0) {
+			lineno = store.lookupLineNo(rightp);
 		}
 		else {
 			addrNode = store.popNode();
@@ -839,8 +839,8 @@ public class RunTime implements IConst, RunConst {
 		kwtyp = node.getKeywordTyp();
 		//if (isJumpKwd(kwtyp)) { }
 		if (kwtyp == KeywordTyp.DO) { }
-		else if (kwtyp == KeywordTyp.RETURN) { }
 		else if (kwtyp == KeywordTyp.ZCALL) { }
+		//else if (kwtyp == KeywordTyp.RETURN) { }
 		else if (!pushAddr(rightq) || 
 			!pushOpAsNode(KeywordTyp.ZSTMT)) 
 		{
@@ -1373,10 +1373,9 @@ public class RunTime implements IConst, RunConst {
 			funcAddr = val;
 			isExprLoop = true;
 			omsg("runRtnStmt: funcAddr = " + funcAddr);
-			/*
 			if (!popSafeVal() || !popSafeVal()) {
 				return STKUNDERFLOW;
-			} */
+			}
 		}
 		locDepth = popVal();
 		omsg("runRtnStmt: locDepth = " + locDepth);
@@ -1623,11 +1622,11 @@ public class RunTime implements IConst, RunConst {
 	public AddrNode getVarNode(AddrNode node) {
 		return pp.getVarNode(node);
 	}
-/*		
-	private int popUntilStmt() {
-		return pp.popUntilStmt();
+
+	public int popUntilBase() {
+		return pp.popUntilBase();
 	}
-*/	
+	
 	private int popUntilKwd(KeywordTyp kwtyp) {
 		return pp.popUntilKwd(kwtyp);
 	}

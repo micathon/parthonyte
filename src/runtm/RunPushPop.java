@@ -816,6 +816,49 @@ class RunPushPop implements IConst, RunConst {
 		return 0;
 	}
 */	
+	public int popUntilBase() {
+		AddrNode addrNode = null;
+		AddrNode prevNode;
+		PageTyp pgtyp;
+		boolean isZcall;
+		int addr;
+		int count;
+		int rtnval;
+		
+		count = 0;
+		while (true) {
+			count++;
+			prevNode = addrNode;
+			addrNode = store.popNode();
+			if (addrNode == null) {
+				return STKUNDERFLOW;
+			}
+			addr = addrNode.getAddr();
+			pgtyp = addrNode.getHdrPgTyp();
+			if (pgtyp != PageTyp.KWD) {
+				continue;
+			}
+			isZcall = (addr == KeywordTyp.ZCALL.ordinal());
+			if (isZcall) {
+				break;
+			}
+			if (addr == KeywordTyp.ZSTMT.ordinal()) {
+				break;
+			}
+		} 
+		if (!isZcall) { 
+			rtnval = 0;
+		}
+		else if (prevNode == null) {
+			rtnval = GENERR;
+		}
+		else {
+			rtnval = prevNode.getAddr();
+		}
+		omsg("popUntilBase: btm, count = " + count);
+		return rtnval;
+	}
+	
 	public int popUntilKwd(KeywordTyp kwtyp) {
 		AddrNode addrNode;
 		PageTyp pgtyp;
