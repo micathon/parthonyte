@@ -837,7 +837,10 @@ public class RunTime implements IConst, RunConst {
 		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
-		if (isJumpKwd(kwtyp)) { }
+		//if (isJumpKwd(kwtyp)) { }
+		if (kwtyp == KeywordTyp.DO) { }
+		else if (kwtyp == KeywordTyp.RETURN) { }
+		else if (kwtyp == KeywordTyp.ZCALL) { }
 		else if (!pushAddr(rightq) || 
 			!pushOpAsNode(KeywordTyp.ZSTMT)) 
 		{
@@ -1162,6 +1165,7 @@ public class RunTime implements IConst, RunConst {
 		PageTyp pgtyp;
 		int addr;
 		int count = 0;
+		boolean isZcall = (kwtyp == KeywordTyp.ZCALL);
 		
 		store.initSpareStkIdx();
 		while (true) {
@@ -1369,6 +1373,10 @@ public class RunTime implements IConst, RunConst {
 			funcAddr = val;
 			isExprLoop = true;
 			omsg("runRtnStmt: funcAddr = " + funcAddr);
+			/*
+			if (!popSafeVal() || !popSafeVal()) {
+				return STKUNDERFLOW;
+			} */
 		}
 		locDepth = popVal();
 		omsg("runRtnStmt: locDepth = " + locDepth);
@@ -1691,6 +1699,10 @@ public class RunTime implements IConst, RunConst {
 	
 	private int popVal() {
 		return pp.popVal();
+	}
+
+	public boolean popSafeVal() {
+		return pp.popSafeVal();
 	}
 	
 	private int storeLocGlbInt(int varidx, int val, PageTyp pgtyp,

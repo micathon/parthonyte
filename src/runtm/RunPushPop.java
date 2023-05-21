@@ -367,6 +367,12 @@ class RunPushPop implements IConst, RunConst {
 		return val;
 	}
 	
+	public boolean popSafeVal() {
+		AddrNode node;
+		node = store.popNode();
+		return (node != null);
+	}
+	
 	public int storeLocGlbInt(int varidx, int val, PageTyp pgtyp,
 		boolean isGlb) 
 	{
