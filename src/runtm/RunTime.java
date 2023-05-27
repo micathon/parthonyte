@@ -254,7 +254,7 @@ public class RunTime implements IConst, RunConst {
 		rightp = handleDoBlock(node);
 		omsg("Stmt count = " + stmtCount);
 		if (rightp < EXIT) {
-			handleErrToken(rightp);
+			doRunTimeError(rightp);
 			return -1;
 		}
 		if (rightp == 0) {
@@ -305,7 +305,7 @@ public class RunTime implements IConst, RunConst {
 
 		// return 0 if done (anywhere in this fn)
 		// Note that a rightp value of zero means points to nothing,
-		//   everywhere in the coop project
+		//   everywhere in the xyn project
 		rightp = node.getDownp();
 		if (rightp <= 0) {
 			return 0;
@@ -337,7 +337,6 @@ public class RunTime implements IConst, RunConst {
 					return 0;
 				}
 				if (rightp > NEGBASEVAL) {  // error
-					doRunTimeError(rightp);
 					return rightp;
 				}
 				// run stmt. using kwd. (encoded in -ve rightp)
@@ -373,7 +372,6 @@ public class RunTime implements IConst, RunConst {
 				omsg("handleDoBlock: btm, rightp = " + rightp);
 			}
 		} 
-		doRunTimeError(rightp);
 		return rightp;  // always -ve
 	}
 	
@@ -805,7 +803,6 @@ public class RunTime implements IConst, RunConst {
 		rightp = popUntilBase();
 		if (rightp < 0) {
 			errCode = rightp;
-			handleErrToken(errCode);
 		}
 		else if (rightp > 0) {
 			lineno = store.lookupLineNo(rightp);
@@ -817,9 +814,11 @@ public class RunTime implements IConst, RunConst {
 		}
 		if (lineno == 0) {
 			oprn("Line number of error: unknown");
-			return;
 		}
-		oprn("Error on line number: " + lineno);
+		else {
+			oprn("Error on line number: " + lineno);
+		}
+		handleErrToken(errCode);
 	}
 	
 	private int pushStmt(Node node, int savep) {
