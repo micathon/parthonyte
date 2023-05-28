@@ -1,7 +1,7 @@
 do (
 gdefun (var a b) do (
   #set a (+ 6 (/ 8 0));
-  f 23;
+  #f 23;
   #g (/ 9 0);
   #println (g);
   #g 0;
@@ -10,6 +10,7 @@ gdefun (var a b) do (
 );
 defun (g) do (
   println "g: body";
+  f 72;
   #return (/ 9 0);
 );
 defun (f x) (var i) do (
@@ -29,9 +30,16 @@ defun (f x) (var i) do (
   while (< i 3) do (
     += i 1;
     println i;
-    #set x (/ x 0);
+    ###set x (/ x 0);
   );
   println "f: btm";
 );
 )
+{
+Error on line number: 33
+Runtime Error: Divide by zero
+at f(error.xyn:33)
+at g(error.xyn:13)
+at gdefun(error.xyn:8)
+}
 
