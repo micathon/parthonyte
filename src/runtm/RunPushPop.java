@@ -788,35 +788,8 @@ class RunPushPop implements IConst, RunConst {
 		varNode = store.fetchNode(varidx);
 		return varNode;
 	}
-/*	
-	public int popUntilStmt() {
-		AddrNode addrNode;
-		PageTyp pgtyp;
-		KeywordTyp kwtyp;
-		boolean done = false;
-		int addr;
-		int count;
-		
-		count = 0;
-		do {
-			count++;
-			addrNode = store.popNode();
-			if (addrNode == null) {
-				return STKUNDERFLOW;
-			}
-			freePopNode(addrNode, true);
-			addr = addrNode.getAddr();
-			pgtyp = addrNode.getHdrPgTyp();
-			if (pgtyp == PageTyp.KWD) {
-				kwtyp = KeywordTyp.values[addr];
-				done = isStmtKwd(kwtyp);
-			}
-		} while (!done);
-		omsg("popUntilStmt: btm, count = " + count);
-		return 0;
-	}
-*/	
-	public int popUntilBase() {
+
+	public int popUntilBase(boolean useZstmt) {
 		AddrNode addrNode = null;
 		AddrNode prevNode;
 		PageTyp pgtyp;
@@ -842,7 +815,7 @@ class RunPushPop implements IConst, RunConst {
 			if (isZcall) {
 				break;
 			}
-			if (addr == KeywordTyp.ZSTMT.ordinal()) {
+			if (useZstmt && (addr == KeywordTyp.ZSTMT.ordinal())) {
 				break;
 			}
 		} 

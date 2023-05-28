@@ -800,7 +800,7 @@ public class RunTime implements IConst, RunConst {
 		AddrNode addrNode;
 		int lineno = 0;
 		
-		rightp = popUntilBase();
+		rightp = popUntilBase(true);
 		if (rightp < 0) {
 			errCode = rightp;
 		}
@@ -819,6 +819,10 @@ public class RunTime implements IConst, RunConst {
 			oprn("Error on line number: " + lineno);
 		}
 		handleErrToken(errCode);
+		// output rest of stack trace...
+		//   call popUntilBase(false) in loop
+		//   popUntilBase(false) never returns 0
+		
 	}
 	
 	private int pushStmt(Node node, int savep) {
@@ -1622,8 +1626,8 @@ public class RunTime implements IConst, RunConst {
 		return pp.getVarNode(node);
 	}
 
-	public int popUntilBase() {
-		return pp.popUntilBase();
+	public int popUntilBase(boolean useZstmt) {
+		return pp.popUntilBase(useZstmt);
 	}
 	
 	private int popUntilKwd(KeywordTyp kwtyp) {
