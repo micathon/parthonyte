@@ -45,31 +45,35 @@ public class InitMain implements IConst {
 		store = new Store();
 	}
 	
-	public void runInit(String fileName, 
+	public void runInit(String filePath, String fileName,
 		boolean isUnitTest, boolean isMain, boolean isRunTest)
 	{
+		String fullFileName;
 		boolean isSuccess;
 		
+		fullFileName = filePath + fileName;
 		if (isMain && isUnitTest) {
-			doMasterFile(fileName);
+			doMasterFile(fullFileName);
 		}
 		else if (isMain) {
-			doMasterUtFile(fileName);
+			doMasterUtFile(fullFileName);
 		}
 		else if (fileName.length() == 0) {
 			doCmdLoop();
 		}
 		else if (isRunTest) {
-			isSuccess = doSrcUtFile(fileName);
+			isSuccess = doSrcUtFile(filePath, fileName);
 			displayRunResult(isSuccess);
 		}
 		else {
-			doSrcFile(fileName, isUnitTest);
+			doSrcFile(filePath, fileName, isUnitTest);
 		}
 	}
 	
 	private void doMasterFile(String mainFileName) {
 		String fileName;
+		String filePath;
+		String srcFileName;
 		BufferedReader fbr;
 		boolean isFail;
 		boolean isGlbFail = false;
@@ -82,8 +86,9 @@ public class InitMain implements IConst {
 					continue;
 				}
 				omsg("Unit test: " + fileName);
-				fileName = "../dat/test/" + fileName + ".test";
-				isFail = doSrcFile(fileName, true);
+				filePath = "../dat/test/";
+				srcFileName = fileName + ".test";
+				isFail = doSrcFile(filePath, srcFileName, true);
 				isGlbFail = isGlbFail || isFail;
 			}
 			showUnitTestVal(isGlbFail);
@@ -95,6 +100,7 @@ public class InitMain implements IConst {
 	private void doMasterUtFile(String mainFileName) {
 		String fileName;
 		String filePath;
+		String srcFileName;
 		BufferedReader fbr;
 		boolean isGood;
 		boolean isGlbGood = true;
@@ -107,8 +113,9 @@ public class InitMain implements IConst {
 					continue;
 				}
 				omsg("Unit test: " + fileName);
-				filePath = "../dat/rt/" + fileName + ".test";
-				isGood = doSrcUtFile(filePath);
+				filePath = "../dat/rt/";
+				srcFileName = fileName + ".test";
+				isGood = doSrcUtFile(filePath, srcFileName);
 				showSrcUtFileResult(fileName, isGood);
 				isGlbGood = isGlbGood && isGood;
 			}
@@ -118,7 +125,8 @@ public class InitMain implements IConst {
 		}
 	}
 	
-	private boolean doSrcFile(String fileName, boolean isUnitTest) 
+	private boolean doSrcFile(
+		String path, String fileName, boolean isUnitTest) 
 	{
 		String inbuf;
 		BufferedReader fbr;
@@ -129,8 +137,9 @@ public class InitMain implements IConst {
 		boolean fatalErr = false;
 		boolean rtnval = true;
 
-		scanSrc = new ScanSrc(store);
+		scanSrc = new ScanSrc(store, fileName);
 		synchk = new SynChk(scanSrc, store);
+		fileName = path + fileName;
 		rootNodep = scanSrc.rootNodep;
 		runtm = new RunScanner(store, scanSrc, synchk, rootNodep);
 		scanSrc.setSynChk(synchk);
@@ -162,7 +171,7 @@ public class InitMain implements IConst {
 		return rtnval;
 	}
 	
-	private boolean doSrcUtFile(String fileName) 
+	private boolean doSrcUtFile(String path, String fileName) 
 	{
 		String inbuf;
 		BufferedReader fbr;
@@ -173,10 +182,11 @@ public class InitMain implements IConst {
 		boolean endPrgFinish;
 		boolean rtnval = true;
 
-		scanSrc = new ScanSrc(store);
+		scanSrc = new ScanSrc(store, fileName);
 		synchk = new SynChk(scanSrc, store);
 		scanSrc.setSynChk(synchk);
 		rootNodep = scanSrc.rootNodep;
+		fileName = path + fileName;
 		synchk.isUnitTest = false;
 		isBadUtPair = false;
 		try {
