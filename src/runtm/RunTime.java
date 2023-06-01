@@ -799,6 +799,7 @@ public class RunTime implements IConst, RunConst {
 		int rightp;
 		AddrNode addrNode;
 		int lineno = 0;
+		String fileName;
 		
 		rightp = popUntilBase(true);
 		if (rightp < 0) {
@@ -822,7 +823,20 @@ public class RunTime implements IConst, RunConst {
 		// output rest of stack trace...
 		//   call popUntilBase(false) in loop
 		//   popUntilBase(false) never returns 0
-		
+		fileName = scanSrc.getSrcFileName();
+		while (true) {
+			rightp = popUntilBase(false);
+			if (rightp < 0) {
+				break;
+			}
+			oprn("Source File: " + fileName);  // debug
+			// find name of func...
+			
+			
+			lineno = store.lookupLineNo(rightp);
+			return;
+		}
+		handleErrToken(rightp);
 	}
 	
 	private int pushStmt(Node node, int savep) {
