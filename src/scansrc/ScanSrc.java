@@ -61,6 +61,7 @@ public class ScanSrc implements IConst {
 	private boolean inStrLit;
 	private boolean isAllWhiteSp;
 	private String strLitBuf;
+	private String srcFileName;
 	private boolean wasdo;
 	private boolean wasparen;
 	private boolean wassemicln;
@@ -71,10 +72,11 @@ public class ScanSrc implements IConst {
 	private int dirtyCol;
 	private int fatalRtnCode = 0;
 	
-	public ScanSrc(Store store) {
+	public ScanSrc(Store store, String fileName) {
 		this.store = store;
 		lineCount = 0;
 		endFound = false;
+		srcFileName = fileName;
 		initScan();
 	}
 	
@@ -487,6 +489,10 @@ public class ScanSrc implements IConst {
 		idx = s.length() - 4;  // return 4-digit string
 		s = s.substring(idx);
 		return s;
+	}
+	
+	public String getSrcFileName() {
+		return srcFileName;
 	}
 	
 	public boolean scanSummary(boolean fatalErr) {
