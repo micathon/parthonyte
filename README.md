@@ -1,6 +1,6 @@
 # Xyanode
 * Python-like scripting language, has Lisp/Java/Pascal qualities
-* Sister language called XYML is like HTML, also used for config files
+* Sister language called XyML is like HTML, also used for config files
 * In a nutshell, Xyanode mimics the functionality of Python, minus several advanced features, plus a simpler syntax
 * Only Lisp has a simpler syntax than Xyanode, which is straightforward unlike Lisp and other oddball languages like SNOBOL and Forth
 # Info for contributors
