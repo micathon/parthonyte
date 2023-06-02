@@ -307,14 +307,16 @@ public class RunScanner implements IConst {
 	private int scanGlbDefStmt(int rightp) {
 		Node node;
 		KeywordTyp kwtyp;
-		String fname = getGdefunWord();
+		String fname;
 		char prefix;
 		int savep = rightp;
 		int upperp;
 
 		omsg("Keyword gdefun detected.");
-		rt.glbFunMap.put(getGdefunWord(), defunCount);
+		fname = getGdefunWord();
+		rt.glbFunMap.put(fname, defunCount);
 		rt.glbFunList.add(0);
+		rt.glbFuncNames.add(fname);
 		defunCount++;
 		glbVarListIdx = 0;
 		upperp = rightp;
@@ -906,6 +908,7 @@ public class RunScanner implements IConst {
 		rt.glbFunMap.put(funcName, defunCount);
 		glbLocIdx = rt.glbLocVarList.size();
 		rt.glbLocVarMap.put(funcName, glbLocIdx);
+		rt.glbFuncNames.add(funcName);
 		rightp = node.getRightp();
 		while (rightp > 0) {
 			// scan var decls. of parm. list
@@ -1119,6 +1122,10 @@ public class RunScanner implements IConst {
 	
 	private String getGdefunWord() {
 		return "defun";
+	}
+	
+	public String getGdefunKwd() {
+		return "gdefun";
 	}
 	
 	public String getFunVar(String funcName) {

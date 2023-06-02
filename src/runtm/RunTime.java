@@ -46,6 +46,7 @@ public class RunTime implements IConst, RunConst {
 	public HashMap<String, Integer> glbLocVarMap;
 	public ArrayList<Integer> glbFunList;
 	public ArrayList<Integer> glbLocVarList;
+	public ArrayList<String> glbFuncNames;
 	public ArrayList<String> utKeyValList;
 
 	public RunTime(Store store, ScanSrc scanSrc, SynChk synChk) {
@@ -69,6 +70,7 @@ public class RunTime implements IConst, RunConst {
 		glbLocVarMap = new HashMap<String, Integer>();
 		glbFunList = new ArrayList<Integer>();
 		glbLocVarList = new ArrayList<Integer>();
+		glbFuncNames = new ArrayList<String>();
 		utKeyValList = new ArrayList<String>();
 	}
 	
@@ -798,8 +800,15 @@ public class RunTime implements IConst, RunConst {
 	private void doRunTimeError(int errCode) {
 		int rightp;
 		AddrNode addrNode;
+		Node node;
 		int lineno = 0;
+		int varidx;
+		int downp;
+		String msg;
 		String fileName;
+		String funcName;
+		//NodeCellTyp celltyp;
+		boolean foundZeroLines = false;
 		
 		rightp = popUntilBase(true);
 		if (rightp < 0) {
@@ -815,28 +824,55 @@ public class RunTime implements IConst, RunConst {
 		}
 		if (lineno == 0) {
 			oprn("Line number of error: unknown");
+			foundZeroLines = true;
 		}
 		else {
 			oprn("Error on line number: " + lineno);
 		}
 		handleErrToken(errCode);
-		// output rest of stack trace...
+		// output rest of stack trace:
 		//   call popUntilBase(false) in loop
 		//   popUntilBase(false) never returns 0
 		fileName = scanSrc.getSrcFileName();
 		while (true) {
 			rightp = popUntilBase(false);
-			if (rightp < 0) {
+			if (rightp <= 0) {
 				break;
 			}
-			oprn("Source File: " + fileName);  // debug
-			// find name of func...
-			
-			
+			// find name of func:
+			node = store.getNode(rightp);
+			downp = node.getDownp();
+			node = store.getNode(downp);
+			//celltyp = node.getDownCellTyp();
+			varidx = node.getDownp();
+			funcName = glbFuncNames.get(varidx);
+			msg = getStkTrcLine(funcName, fileName, lineno);
+			oprn(msg);
 			lineno = store.lookupLineNo(rightp);
+			if (lineno == 0) {
+				foundZeroLines = true;
+			}
+		}
+		if (rightp != STKUNDERFLOW) {
+			handleErrToken(rightp);
 			return;
 		}
-		handleErrToken(rightp);
+		funcName = rscan.getGdefunKwd();
+		msg = getStkTrcLine(funcName, fileName, lineno);
+		oprn(msg);
+		if (foundZeroLines) {
+			oprn("Note: If line number is zero, it could not " +
+				"be determined.");
+		}
+	}
+	
+	private String getStkTrcLine(String funcName, String fileName,
+		int lineno) 
+	{
+		String rtnval;
+		rtnval = "at " + funcName + "(" + fileName +
+			":" + lineno + ")";
+		return rtnval;
 	}
 	
 	private int pushStmt(Node node, int savep) {
