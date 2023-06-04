@@ -1250,6 +1250,9 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW; 
 		}
 		addr = addrNode.getAddr();
+		if (addr < 0) {
+			addr = -addr;
+		}
 		omsg("getReturnpSpares: rtn addr = " + addr);
 		return addr;
 	}
@@ -1273,7 +1276,7 @@ public class RunTime implements IConst, RunConst {
 		
 		omsg("pushZcallStmt: top");
 		kwtyp = KeywordTyp.ZCALL;
-		if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp) || !pushInt(currZstmt)) {
+		if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp) || !pushInt(-currZstmt)) {
 			return STKOVERFLOW;
 		}
 		rightp = handleLeafToken(node);
@@ -1435,9 +1438,8 @@ public class RunTime implements IConst, RunConst {
 		if (locDepth == NEGBASEVAL) {
 			return STKUNDERFLOW;
 		}
-		rightp = popIdxVal(); // currZstmt/Zexpr
-		omsg("runRtnStmt: returnp = " + rightp);
-		if (rightp < 0) {
+		rightp = popAbsVal(); // currZstmt/Zexpr
+		if (rightp == -1) {
 			return STKUNDERFLOW;
 		}
 		if (rightp == 0) {
@@ -1497,7 +1499,6 @@ public class RunTime implements IConst, RunConst {
 		omsg("runRtnStmt: btm, rightp = " + rightp);
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
-		omsg("runRtnStmt: rtnval = " + rightp);
 		return rightp;
 	}
 	
@@ -1706,6 +1707,10 @@ public class RunTime implements IConst, RunConst {
 	
 	private int popIdxVal() {
 		return pp.popIdxVal();
+	}
+	
+	private int popAbsVal() {
+		return pp.popAbsVal();
 	}
 	
 	private int getIntOffStk(int stkidx) {

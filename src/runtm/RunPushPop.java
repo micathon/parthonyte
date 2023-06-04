@@ -85,6 +85,22 @@ class RunPushPop implements IConst, RunConst {
 		return rtnval;
 	}
 	
+	public int popAbsVal() {
+		AddrNode addrNode;
+		int rtnval;
+		
+		addrNode = store.popNode();
+		if (addrNode == null) {
+			return -1;
+		}
+		rtnval = addrNode.getAddr();
+		if (rtnval < 0) {
+			out("popAbsVal: rtnval = " + rtnval);
+			rtnval = -rtnval;
+		}
+		return rtnval;
+	}
+	
 	public int getIntOffStk(int stkidx) {
 		AddrNode addrNode;
 		int rtnval;
