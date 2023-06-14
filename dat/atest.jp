@@ -1,0 +1,109 @@
+do (
+gdefun (var tot a b c c66 x prod pi firstname) do (
+  set a -500;
+  f a (g);
+  println "post f call";
+  endstuff;
+);
+defun (f n m)(var x y) do (
+  println n;
+  set x 77;
+  println "x =" x;
+  #println "f: calling g" (g);
+  g;
+  println "pre f return";
+  return 333;
+  {
+  set y 99;
+  set n 255;
+  println x y m;
+  }
+); 
+defun (g)(var m) do (
+  set m 800;
+  println m;
+  return m;
+);
+defun (endstuff) do (
+  set x (- 100 97);
+  println "x:" x;
+  println (color);
+  set pi 3.14;
+  set x (funh);
+  println "x =" x;
+  fun-btm;
+);
+defun (color)(var giga) do (
+  set giga 8100200300L;
+  println giga;
+  return "blue";
+);
+defun (funh)(var y) do (
+  println "top of funh";
+  set y pi;
+  println "y =" y;
+  return y;
+);
+defun (h x s)(var y z w) do (
+  println "h: top";
+  set y (* 2.0 x);
+  println "y =" y;
+  #set x "error!";
+  set z 6.75;
+  set w 44.49;
+  println x s;
+  #return (* 2.0 n);
+  #return pi;
+  return 4054;
+);
+defun (fun-btm)(var bprod) do (
+  set firstname "Dave";
+  println firstname "Hahn";
+  set x (h (- 4.83 1.0) "foo");
+  println x;  
+  set pi 2.1416;
+  println pi;
+  set a 40;
+  set b 30;
+  set c (- a b);
+  println a b c;
+  set a 40.5;
+  set b 30.5;
+  set c (- a b);
+  println a b c;
+  set a 1.0;
+  set b 4.0;
+  set c (/ a b);
+  println a b c;
+  set b 0.0;
+  #set c (/ a b);
+  set a 0.5;
+  set b 20;
+  set c 30;
+  set tot (+ a b c);
+  println a b c tot;
+  set prod (* a b c);
+  println prod;
+  
+  set a -500;
+  println a;
+  f a (g);
+  println "post (2) f call";
+  set c (inc 100);
+  set a (- 60 2);
+  set b 747;
+  println a (/ a 2) b c;
+  println b (f 0 61);
+  g;
+  f (+ 2 a (* c 2))(g);
+  hello;
+  println "a:" a;
+);
+defun (inc x) do (
+  return (+ x 1);
+);
+defun (hello) do (
+  println -9999;
+);
+)
+

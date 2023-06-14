@@ -1,0 +1,20 @@
+do (
+gdefun (var ga gb) do (
+  f;
+);
+defun (f) (var x) do (
+  println "f: top";
+  set x (g (h (p (/ 75 0))));
+  println "f: btm";
+);
+defun (g a) do (
+  println a;
+);
+defun (h a) do (
+  println a;
+);
+defun (p a) do (
+  println a;
+);
+)
+
