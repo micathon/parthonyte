@@ -8,7 +8,7 @@
 * `$ cd path/to/bin`
 * `$ java joop atest > out.txt`
 * text files:
-  * `dat/atest.xyn`: sample Jooperscript source code
+  * `dat/atest.jp`: sample Jooperscript source code
   * `bin/out.txt`: used for debugging and logging what my code is doing
   * both `atest` and `out.txt` file names can be any valid Linux file name (or Windows/Mac)
 # Roadmap
