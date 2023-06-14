@@ -12,7 +12,7 @@ public class joop {
 
 		if (args.length == 1) {
 			filePath = "../dat/";
-			fileName = args[0] + ".joop";
+			fileName = args[0] + ".jp";
 		}
 		else if (args.length == 2) {
 			isMain = args[0].equals("main");
