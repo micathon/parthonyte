@@ -914,7 +914,7 @@ public class RunTime implements IConst, RunConst {
 			rightp = pushPrintlnStmt(node);
 			break;
 		case ZCALL:
-			rightp = pushZcallStmt(node);  // prepare to scan call
+			rightp = pushZcallStmt(node, rightq);  // prepare to scan call
 			break;
 		case RETURN:
 			rightp = pushRtnStmt(node);
@@ -991,8 +991,13 @@ public class RunTime implements IConst, RunConst {
 			if (popVal() < 0) {
 				return STKUNDERFLOW;
 			}
-			if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp) ||
+			/* if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp) ||
 				!pushInt(currZexpr)) 
+			{
+				return STKOVERFLOW;
+			} {1} */
+			if (!pushOp(kwtyp) || !pushAddr(currZexpr) ||
+				!pushOpAsNode(kwtyp)) 
 			{
 				return STKOVERFLOW;
 			}
@@ -1048,7 +1053,7 @@ public class RunTime implements IConst, RunConst {
 		String s;
 		PageTyp pgtyp;
 
-		count = getCountOfSpares(kwtyp);
+		count = getCountOfPrintSpares(kwtyp);
 		omsg("runPrintlnStmt: count of spares = " + count);
 		count = 0;
 		while (true) {
@@ -1213,12 +1218,11 @@ public class RunTime implements IConst, RunConst {
 		return 0;
 	}
 	
-	private int getCountOfSpares(KeywordTyp kwtyp) {
+	private int getCountOfPrintSpares(KeywordTyp kwtyp) {
 		AddrNode addrNode;
 		PageTyp pgtyp;
 		int addr;
 		int count = 0;
-		boolean isZcall = (kwtyp == KeywordTyp.ZCALL);
 		
 		store.initSpareStkIdx();
 		while (true) {
@@ -1228,15 +1232,43 @@ public class RunTime implements IConst, RunConst {
 			}
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
-			omsg("getCountOfSpares: addr = " + addr + ", pgtyp = " + pgtyp);
+			omsg("getCountOfPrintSpares: addr = " + addr + 
+				", pgtyp = " + pgtyp);
 			if ((addr == kwtyp.ordinal()) && (pgtyp == PageTyp.KWD)) {
 				break;
 			}
 			count++;
 		}
-		addrNode = store.fetchSpare();  // pop the PRINTLN/ZCALL
+		addrNode = store.fetchSpare();  // pop the PRINTLN
 		if (addrNode == null) { 
 			return STKOVERFLOW; 
+		}
+		return count;
+	}
+	
+	private int getCountOfSpares() {
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int addr;
+		int count = 0;
+		boolean isZkwd;
+		
+		store.initSpareStkIdx();
+		while (true) {
+			addrNode = store.popSpare();
+			if (addrNode == null) {
+				return STKUNDERFLOW;
+			}
+			addr = addrNode.getAddr();
+			pgtyp = addrNode.getHdrPgTyp();
+			isZkwd = 
+				(addr == KeywordTyp.ZCALL.ordinal()) ||
+				(addr == KeywordTyp.ZSTMT.ordinal());
+			oprn("getCountOfSpares: addr = " + addr + ", pgtyp = " + pgtyp);
+			if (isZkwd && (pgtyp == PageTyp.KWD)) {
+				break;
+			}
+			count++;
 		}
 		return count;
 	}
@@ -1245,7 +1277,7 @@ public class RunTime implements IConst, RunConst {
 		AddrNode addrNode;
 		int addr;
 	
-		addrNode = store.fetchSpare();  // pop the returnp
+		addrNode = store.popSpare();  // pop the returnp
 		if (addrNode == null) {
 			return STKOVERFLOW; 
 		}
@@ -1254,6 +1286,14 @@ public class RunTime implements IConst, RunConst {
 			addr = -addr;
 		}
 		omsg("getReturnpSpares: rtn addr = " + addr);
+		addrNode = store.fetchSpare();  // pop the returnp again
+		if (addrNode == null) { 
+			return STKOVERFLOW; 
+		}
+		addrNode = store.fetchSpare();  // pop the ZSTMT/ZCALL
+		if (addrNode == null) { 
+			return STKOVERFLOW; 
+		}
 		return addr;
 	}
 			
@@ -1270,13 +1310,17 @@ public class RunTime implements IConst, RunConst {
 		return addr;
 	}
 			
-	private int pushZcallStmt(Node node) {
+	private int pushZcallStmt(Node node, int rightp) {
 		KeywordTyp kwtyp;
-		int rightp;
 		
 		omsg("pushZcallStmt: top");
-		kwtyp = KeywordTyp.ZCALL;
-		if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp) || !pushInt(-currZstmt)) {
+		kwtyp = KeywordTyp.ZSTMT;
+		/*
+		if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp) || !pushInt(-rightp)) {
+		{1} */
+		if (!pushOp(KeywordTyp.ZCALL) || 
+			!pushAddr(rightp) || !pushOpAsNode(kwtyp)) 
+		{
 			return STKOVERFLOW;
 		}
 		rightp = handleLeafToken(node);
@@ -1303,7 +1347,7 @@ public class RunTime implements IConst, RunConst {
 		int currLocBase;
 		Node node = null;
 		Node upNode;
-		KeywordTyp kwtyp = KeywordTyp.ZCALL;
+		//KeywordTyp kwtyp = KeywordTyp.ZCALL;
 		String funcName;
 		String varName;
 		int varCount = 0;  // includes parms, loc vars
@@ -1317,7 +1361,9 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		currLocBase = locBaseIdx;
-		parmCount = getCountOfSpares(kwtyp) - 2;
+		//parmCount = getCountOfSpares(kwtyp) - 2;
+		parmCount = getCountOfSpares() - 1;
+		oprn("runZcallStmt: parmCount = " + parmCount);
 		returnp = getReturnpSpares();
 		if (returnp < 0) {
 			return STKUNDERFLOW;
@@ -1464,6 +1510,7 @@ public class RunTime implements IConst, RunConst {
 			if (rtnval < 0) {
 				return rtnval;
 			}
+			popVal();
 		}
 		// push func rtnval if locDepth > 0:
 		if (locDepth < 0) {
@@ -1478,6 +1525,7 @@ public class RunTime implements IConst, RunConst {
 				if (rtnval < 0) {
 					return rtnval;
 				}
+				popVal();
 			}
 			/*if (isExpr) {
 				store.popNode();
