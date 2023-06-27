@@ -872,35 +872,8 @@ class RunPushPop implements IConst, RunConst {
 		return 0;
 	}
 	
-	public int popUntilZkwd() {
-		AddrNode addrNode;
-		PageTyp pgtyp;
-		int addr;
-		int count;
-		boolean isZkwd;
-		
-		count = 0;
-		do {
-			count++;
-			addrNode = store.popNode();
-			if (addrNode == null) {
-				return STKUNDERFLOW;
-			}
-			freePopNode(addrNode, true);
-			addr = addrNode.getAddr();
-			pgtyp = addrNode.getHdrPgTyp();
-			isZkwd =
-				(addr == KeywordTyp.ZCALL.ordinal()) ||
-				(addr == KeywordTyp.ZSTMT.ordinal());
-		} while (
-			!(isZkwd && (pgtyp == PageTyp.KWD))
-		);
-		omsg("popUntilZkwd: btm, count = " + count);
-		return 0;
-	}
-	
 	public int popMulti(int varCount) {
-		//KeywordTyp kwtyp = KeywordTyp.ZCALL;
+		KeywordTyp kwtyp = KeywordTyp.ZCALL;
 		AddrNode node;
 		int i;
 		int rtnval;
@@ -916,7 +889,7 @@ class RunPushPop implements IConst, RunConst {
 			freePopNode(node, true);
 		}
 		//omsg("popMulti: flagCount = " + flagCount);
-		rtnval = popUntilZkwd();
+		rtnval = popUntilKwd(kwtyp);
 		return rtnval;
 	}
 	
