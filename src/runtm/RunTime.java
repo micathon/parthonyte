@@ -759,6 +759,7 @@ public class RunTime implements IConst, RunConst {
 		case WHILE:
 			return 0;  
 		default:
+			oprn("handleStmtKwdRtn: kwtyp = " + kwtyp);
 			return BADOP;
 		}
 	}
@@ -1047,7 +1048,7 @@ public class RunTime implements IConst, RunConst {
 		String s;
 		PageTyp pgtyp;
 
-		count = getCountOfSpares(kwtyp);
+		count = getCountOfPrintSpares(kwtyp);
 		omsg("runPrintlnStmt: count of spares = " + count);
 		count = 0;
 		while (true) {
@@ -1212,12 +1213,11 @@ public class RunTime implements IConst, RunConst {
 		return 0;
 	}
 	
-	private int getCountOfSpares(KeywordTyp kwtyp) {
+	private int getCountOfPrintSpares(KeywordTyp kwtyp) {
 		AddrNode addrNode;
 		PageTyp pgtyp;
 		int addr;
 		int count = 0;
-		boolean isZcall = (kwtyp == KeywordTyp.ZCALL);
 		
 		store.initSpareStkIdx();
 		while (true) {
@@ -1227,8 +1227,40 @@ public class RunTime implements IConst, RunConst {
 			}
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
-			omsg("getCountOfSpares: addr = " + addr + ", pgtyp = " + pgtyp);
+			omsg("getCountOfPrintSpares: addr = " + addr + 
+				", pgtyp = " + pgtyp);
 			if ((addr == kwtyp.ordinal()) && (pgtyp == PageTyp.KWD)) {
+				break;
+			}
+			count++;
+		}
+		addrNode = store.fetchSpare();  // pop the PRINTLN
+		if (addrNode == null) { 
+			return STKOVERFLOW; 
+		}
+		return count;
+	}
+	
+	private int getCountOfSpares(KeywordTyp kwtyp) {
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int addr;
+		int count = 0;
+		boolean isZkwd;
+		
+		store.initSpareStkIdx();
+		while (true) {
+			addrNode = store.popSpare();
+			if (addrNode == null) {
+				return STKUNDERFLOW;
+			}
+			addr = addrNode.getAddr();
+			pgtyp = addrNode.getHdrPgTyp();
+			isZkwd = 
+				(addr == KeywordTyp.ZCALL.ordinal()) ||
+				(addr == KeywordTyp.ZSTMT.ordinal());
+			omsg("getCountOfSpares: addr = " + addr + ", pgtyp = " + pgtyp);
+			if (isZkwd && (pgtyp == PageTyp.KWD)) {
 				break;
 			}
 			count++;
@@ -1274,8 +1306,10 @@ public class RunTime implements IConst, RunConst {
 		int rightp;
 		
 		omsg("pushZcallStmt: top");
-		kwtyp = KeywordTyp.ZCALL;
-		if (!pushOp(kwtyp) || !pushOpAsNode(kwtyp) || !pushInt(-currZstmt)) {
+		kwtyp = KeywordTyp.ZSTMT;
+		if (!pushOp(KeywordTyp.ZCALL) || 
+			!pushOpAsNode(kwtyp) || !pushInt(-currZstmt)) 
+		{
 			return STKOVERFLOW;
 		}
 		rightp = handleLeafToken(node);
