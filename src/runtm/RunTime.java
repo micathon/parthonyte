@@ -354,8 +354,8 @@ public class RunTime implements IConst, RunConst {
 				omsg("handleDoBlock: btm, top-while, kwtyp = " + kwtyp);
 				if (isBranchKwd(kwtyp)) {
 					popKwd();
-					popVal();
 					rightp = popVal();
+					popVal();
 					node = store.getNode(rightp);
 					rightp = node.getRightp();
 				}
