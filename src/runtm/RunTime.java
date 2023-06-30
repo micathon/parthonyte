@@ -800,7 +800,6 @@ public class RunTime implements IConst, RunConst {
 	
 	private void doRunTimeError(int errCode) {
 		int rightp;
-		AddrNode addrNode;
 		Node node;
 		int lineno = 0;
 		int varidx;
@@ -808,20 +807,17 @@ public class RunTime implements IConst, RunConst {
 		String msg;
 		String fileName;
 		String funcName;
-		//NodeCellTyp celltyp;
 		boolean foundZeroLines = false;
 		
-		rightp = popUntilBase(true);
+		rightp = popUntilZstmt();
 		if (rightp < 0) {
 			errCode = rightp;
 		}
 		else if (rightp > 0) {
 			lineno = store.lookupLineNo(rightp);
 		}
-		else {
-			addrNode = store.popNode();
-			rightp = addrNode.getAddr();
-			lineno = store.lookupLineNo(rightp);
+		else {  
+			errCode = NEGADDR;
 		}
 		if (lineno == 0) {
 			oprn("Line number of error: unknown");
@@ -832,11 +828,10 @@ public class RunTime implements IConst, RunConst {
 		}
 		handleErrToken(errCode);
 		// output rest of stack trace:
-		//   call popUntilBase(false) in loop
-		//   popUntilBase(false) never returns 0
+		//   call popUntilBase in loop
 		fileName = scanSrc.getSrcFileName();
 		while (true) {
-			rightp = popUntilBase(false);
+			rightp = popUntilBase();
 			if (rightp <= 0) {
 				break;
 			}
@@ -844,7 +839,6 @@ public class RunTime implements IConst, RunConst {
 			node = store.getNode(rightp);
 			downp = node.getDownp();
 			node = store.getNode(downp);
-			//celltyp = node.getDownCellTyp();
 			varidx = node.getDownp();
 			funcName = glbFuncNames.get(varidx);
 			msg = getStkTrcLine(funcName, fileName, lineno);
@@ -1710,8 +1704,12 @@ public class RunTime implements IConst, RunConst {
 		return pp.getVarNode(node);
 	}
 
-	public int popUntilBase(boolean useZstmt) {
-		return pp.popUntilBase(useZstmt);
+	public int popUntilZstmt() {
+		return pp.popUntilZstmt();
+	}
+	
+	public int popUntilBase() {
+		return pp.popUntilBase();
 	}
 	
 	private int popUntilKwd(KeywordTyp kwtyp) {

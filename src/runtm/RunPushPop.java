@@ -805,11 +805,10 @@ class RunPushPop implements IConst, RunConst {
 		return varNode;
 	}
 
-	public int popUntilBase(boolean useZstmt) {
+	public int popUntilZstmt() {
 		AddrNode addrNode = null;
 		AddrNode prevNode;
 		PageTyp pgtyp;
-		boolean isZcall;
 		int addr;
 		int count;
 		int rtnval;
@@ -827,17 +826,60 @@ class RunPushPop implements IConst, RunConst {
 			if (pgtyp != PageTyp.KWD) {
 				continue;
 			}
-			isZcall = (addr == KeywordTyp.ZCALL.ordinal());
-			if (isZcall) {
-				break;
-			}
-			if (useZstmt && (addr == KeywordTyp.ZSTMT.ordinal())) {
+			if (addr == KeywordTyp.ZSTMT.ordinal()) {
 				break;
 			}
 		} 
-		if (!isZcall) { 
-			rtnval = 0;
+		if (prevNode == null) {
+			rtnval = GENERR;
 		}
+		else {
+			rtnval = prevNode.getAddr();
+		}
+		omsg("popUntilZstmt: btm, count = " + count);
+		return rtnval;
+	}
+	
+	public int popUntilBase() {
+		AddrNode addrNode = null;
+		AddrNode prevNode;
+		PageTyp pgtyp;
+		boolean isZcall = false;
+		int addr;
+		int count;
+		int rtnval = 0;
+		
+		count = 0;
+		while (true) {
+			count++;
+			prevNode = addrNode;
+			addrNode = store.popNode();
+			if (addrNode == null) {
+				return STKUNDERFLOW;
+			}
+			addr = addrNode.getAddr();
+			pgtyp = addrNode.getHdrPgTyp();
+			if (pgtyp != PageTyp.KWD) {
+				continue;
+			}
+			if (addr == KeywordTyp.ZCALL.ordinal()) {
+				isZcall = true;
+				break;
+			}
+			if (addr != KeywordTyp.ZSTMT.ordinal()) {
+				continue;
+			}
+			if (prevNode == null) {
+				continue;
+			}
+			rtnval = prevNode.getAddr();
+			if (rtnval >= 0) {
+				continue;
+			}
+			rtnval = -rtnval;
+			break;
+		} 
+		if (!isZcall) { }
 		else if (prevNode == null) {
 			rtnval = GENERR;
 		}
