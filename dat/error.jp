@@ -30,7 +30,7 @@ defun (f x) (var i) do (
   while (< i 3) do (
     += i 1;
     println i;
-    #set x (/ x 0);
+    set x (/ x 0);
   );
   println "f: btm";
 );
