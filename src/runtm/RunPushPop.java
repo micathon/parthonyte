@@ -826,7 +826,9 @@ class RunPushPop implements IConst, RunConst {
 			if (pgtyp != PageTyp.KWD) {
 				continue;
 			}
-			if (addr == KeywordTyp.ZSTMT.ordinal()) {
+			if ((addr == KeywordTyp.ZSTMT.ordinal()) ||
+				(addr == KeywordTyp.ZPROC.ordinal())) 
+			{
 				break;
 			}
 		} 
@@ -866,17 +868,17 @@ class RunPushPop implements IConst, RunConst {
 				isZcall = true;
 				break;
 			}
-			if (addr != KeywordTyp.ZSTMT.ordinal()) {
+			if (addr != KeywordTyp.ZPROC.ordinal()) {
 				continue;
 			}
 			if (prevNode == null) {
 				continue;
 			}
 			rtnval = prevNode.getAddr();
-			if (rtnval >= 0) {
+			/* if (rtnval >= 0) {
 				continue;
 			}
-			rtnval = -rtnval;
+			rtnval = -rtnval; */
 			break;
 		} 
 		if (!isZcall) { }
@@ -933,7 +935,7 @@ class RunPushPop implements IConst, RunConst {
 			pgtyp = addrNode.getHdrPgTyp();
 			isZkwd =
 				(addr == KeywordTyp.ZCALL.ordinal()) ||
-				(addr == KeywordTyp.ZSTMT.ordinal());
+				(addr == KeywordTyp.ZPROC.ordinal());
 		} while (
 			!(isZkwd && (pgtyp == PageTyp.KWD))
 		);

@@ -1252,7 +1252,7 @@ public class RunTime implements IConst, RunConst {
 			pgtyp = addrNode.getHdrPgTyp();
 			isZkwd = 
 				(addr == KeywordTyp.ZCALL.ordinal()) ||
-				(addr == KeywordTyp.ZSTMT.ordinal());
+				(addr == KeywordTyp.ZPROC.ordinal());
 			omsg("getCountOfSpares: addr = " + addr + ", pgtyp = " + pgtyp);
 			if (isZkwd && (pgtyp == PageTyp.KWD)) {
 				break;
@@ -1300,9 +1300,9 @@ public class RunTime implements IConst, RunConst {
 		int rightp;
 		
 		omsg("pushZcallStmt: top");
-		kwtyp = KeywordTyp.ZSTMT;
+		kwtyp = KeywordTyp.ZPROC;
 		if (!pushOp(KeywordTyp.ZCALL) || 
-			!pushOpAsNode(kwtyp) || !pushInt(-currZstmt)) 
+			!pushOpAsNode(kwtyp) || !pushInt(currZstmt)) 
 		{
 			return STKOVERFLOW;
 		}
