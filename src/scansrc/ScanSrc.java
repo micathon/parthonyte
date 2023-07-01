@@ -664,7 +664,7 @@ public class ScanSrc implements IConst {
 		
 		token = token.toUpperCase();
 		startsWithZed = (token.charAt(0) == 'Z'); //...
-		//znull,zparen,zstmt,zcall: internal use
+		//znull,zparen,zstmt,zcall,zproc: internal use
 		try {
 			kwtyp = KeywordTyp.valueOf(token);
 		} catch (IllegalArgumentException exc) {
