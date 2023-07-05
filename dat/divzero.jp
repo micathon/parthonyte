@@ -15,9 +15,11 @@ defun (g a) do (
 defun (h a) do (
   println (p a);
 );
-defun (p a) do (
+defun (p a)(var b) do (
   #println (/ a 0);
   println (q (/ a 0));
+  #println b;
+  #set a b;
 );
 defun (q a) do (
   println a;
