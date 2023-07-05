@@ -412,15 +412,24 @@ class RunPushPop implements IConst, RunConst {
 	}
 	
 	public boolean pushVal(int val, PageTyp pgtyp, int locVarTyp) {
+		return pushValRtn(val, pgtyp, locVarTyp, false);
+	}
+	
+	public boolean pushValRtn(int val, PageTyp pgtyp, 
+		int locVarTyp, boolean isInz) 
+	{
 		AddrNode addrNode;
 		addrNode = store.newAddrNode(0, val);
 		//addrNode = new AddrNode(0, val);
 		addrNode.setHdrPgTyp(pgtyp);
 		if (pgtyp == PageTyp.KWD) {
-			omsg("pushVal: pushing KWD!!!");
+			omsg("pushValRtn: pushing KWD!!!");
 		}
 		addrNode.setHdrLocVarTyp(locVarTyp);
 		addrNode.setPtr();
+		if (isInz) {
+			addrNode.setInz();
+		}
 		if (!store.pushNode(addrNode)) {
 			return false;
 		}
@@ -718,6 +727,7 @@ class RunPushPop implements IConst, RunConst {
 		int locVarTyp;
 		PageTyp pgtyp;
 		AddrNode addrNode;
+		boolean isInz = false;
 		int val;
 		
 		isLocal = (varidx >= 0);
@@ -732,6 +742,10 @@ class RunPushPop implements IConst, RunConst {
 			omsg("pushVar: in varidx < 0"); 
 		}
 		addrNode = store.fetchNode(stkidx);
+		if (addrNode.isInz()) {
+			isInz = true;
+			omsg("pushVar: isInz"); 
+		}
 		pgtyp = addrNode.getHdrPgTyp();
 		//oprn("pushVar: pgtyp = " + pgtyp);
 		if (pgtyp == PageTyp.KWD) {
@@ -739,7 +753,7 @@ class RunPushPop implements IConst, RunConst {
 		}
 		//val = addrNode.getAddr();
 		val = varidx;
-		if (pushVal(val, pgtyp, locVarTyp)) {
+		if (pushValRtn(val, pgtyp, locVarTyp, isInz)) {
 			omsg("pushVar: val = " + val + ", pgtyp = " + 
 				pgtyp + ", locvartyp = " + locVarTyp);
 			return true;
