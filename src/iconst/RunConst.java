@@ -25,6 +25,8 @@ public interface RunConst {
 	int BADTYPE = -21;
 	int BADFREE = -22;
 	int BADOPTYP = -23;
+	int BADDOSTMT = -24;
+	int NOVARINZ = -25;
 	int GENERR = -99;
 	int NEGBASEVAL = -1000;
 	int NONVAR = 0; // same as AddrNode
