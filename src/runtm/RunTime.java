@@ -1036,12 +1036,10 @@ public class RunTime implements IConst, RunConst {
 	
 	private int runPrintlnStmt(KeywordTyp kwtyp) {
 		AddrNode addrNode;
-		int val;
 		int count;
 		int rtnval;
 		String msg = "";
 		String s;
-		PageTyp pgtyp;
 
 		count = getCountOfPrintSpares(kwtyp);
 		omsg("runPrintlnStmt: count of spares = " + count);
@@ -1052,11 +1050,11 @@ public class RunTime implements IConst, RunConst {
 				break;
 			}
 			s = popStrFromNode(addrNode);
-			if (s == null) {
-				return NOVARINZ;
-			}
 			if (s.length() > 0) {
 				msg = msg + s + SP;
+			}
+			else if (lastErrCode != 0) {
+				return lastErrCode;
 			}
 			omsg("runPrintlnStmt: msg = " + msg);
 			count++;

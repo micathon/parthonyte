@@ -330,7 +330,8 @@ class RunPushPop implements IConst, RunConst {
 			addrNode = store.fetchNode(varidx);
 			pgtyp = addrNode.getHdrPgTyp(); 
 			if (!addrNode.isInz()) {
-				return null;
+				setLastErrCode(NOVARINZ);
+				return err;
 			}
 			//pgtyp = PageTyp.FLOAT;
 			isImmed = (pgtyp == PageTyp.INTVAL);
