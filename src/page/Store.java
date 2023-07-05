@@ -299,6 +299,12 @@ public class Store implements IConst {
 		stackTab.writeNode(stkidx, val, pgtyp);
 	}
 	
+	public void writeNodeRtn(int stkidx, int val, PageTyp pgtyp,
+		boolean isInz) 
+	{
+		stackTab.writeNodeRtn(stkidx, val, pgtyp, isInz);
+	}
+	
 	public void writeRelNode(int depth, int val, PageTyp pgtyp) {
 		stackTab.writeRelNode(depth, val, pgtyp);
 	}
@@ -729,8 +735,14 @@ class PageTab implements IConst {
 		return fetchNode(stkidx);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void writeNode(int stkidx, int val, PageTyp pgtyp) {
+		writeNodeRtn(stkidx, val, pgtyp, false);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void writeNodeRtn(int stkidx, int val, PageTyp pgtyp,
+		boolean isInz) 
+	{
 		AddrNode node;
 		ArrayList<AddrNode> list;
 		int myStkIdx, myStkLstIdx;
@@ -741,6 +753,9 @@ class PageTab implements IConst {
 		node = list.get(myStkIdx);
 		node.setAddr(val);
 		node.setValue();
+		if (isInz) {
+			node.setInz();
+		}
 		node.setHdrPgTyp(pgtyp);
 	}
 	

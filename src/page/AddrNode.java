@@ -57,6 +57,18 @@ public class AddrNode {
 		header |= 0x0200;
 	}
 	
+	public boolean isInz() {
+		return ((header & 0x0400) != 0);
+	}
+	
+	public void setInz() {
+		header |= 0x0400;
+	}
+	
+	public boolean isInzValid() {
+		return (isInz() || getHdrNonVar());
+	}
+	
 	public void setHdrPgTyp(PageTyp pgtyp) {
 		short mask = (short)(pgtyp.ordinal());
 		header = (short)((header & 0xFFF0) | mask);
