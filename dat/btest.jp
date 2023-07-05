@@ -1,0 +1,12 @@
+do (
+gdefun (var pi) do (
+  set pi 3;
+  println "pi =" pi;
+  f;
+);
+defun (f)(var x) do (
+  set x pi;
+  println "x =" x;
+); 
+)
+

@@ -1,5 +1,5 @@
 do (
-gdefun (var tot a b c c66 x prod pi firstname) do (
+gdefun (var tot b c a c66 x prod pi firstname) do (
   set a -500;
   f a (g);
   println "post f call";
@@ -28,7 +28,7 @@ defun (endstuff) do (
   set x (- 100 97);
   println "x:" x;
   println (color);
-  set pi 3.14;
+  set pi 3; #########3.14;
   set x (funh);
   println "x =" x;
   fun-btm;
