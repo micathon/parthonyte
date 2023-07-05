@@ -294,6 +294,7 @@ public class RunTime implements IConst, RunConst {
 		case BADFREE: return "Memory free failure";
 		case BADOPTYP: return "Invalid operand type";
 		case BADDOSTMT: return "Unexpected DO encountered";
+		case NOVARINZ: return "Variable not initialized";
 		case GENERR: return "General runtime error";
 		default: return "Error code = " + (-rightp);
 		}
@@ -1051,6 +1052,9 @@ public class RunTime implements IConst, RunConst {
 				break;
 			}
 			s = popStrFromNode(addrNode);
+			if (s == null) {
+				return NOVARINZ;
+			}
 			if (s.length() > 0) {
 				msg = msg + s + SP;
 			}
@@ -1248,6 +1252,7 @@ public class RunTime implements IConst, RunConst {
 			if (addrNode == null) {
 				return STKUNDERFLOW;
 			}
+			addrNode.setInz();
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
 			isZkwd = 

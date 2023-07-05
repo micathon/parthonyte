@@ -26,6 +26,10 @@ public class RunOperators implements IConst, RunConst {
 		}
 	}
 	
+	private void oprn(String msg) {
+		System.out.println(msg);
+	}
+	
 	public int handleExprKwdRtn(KeywordTyp kwtyp) {
 		switch (kwtyp) {
 		case ADD: return runAddExpr();
@@ -80,8 +84,12 @@ public class RunOperators implements IConst, RunConst {
 		if (srcNode == null){
 			return STKUNDERFLOW;
 		}
-		if (!srcNode.getHdrNonVar()) {
-			srcNode = pp.getVarNode(srcNode);
+		if (!srcNode.getHdrNonVar()) { 
+			srcNode = pp.getVarInzNode(srcNode);
+			if (srcNode == null) {
+				//oprn("runSetStmt: NOVARINZ");
+				return NOVARINZ;
+			}
 		}
 		addr = srcNode.getAddr();
 		if (srcNode.isInt()) {
@@ -137,7 +145,7 @@ public class RunOperators implements IConst, RunConst {
 		if (isDup && (addr < 0)) {
 			return BADALLOC;
 		}
-		store.writeNode(stkidx, addr, pgtyp);
+		store.writeNodeRtn(stkidx, addr, pgtyp, true);
 		omsg("runSetStmt: stk = " + stkidx + ", addr = " + addr +
 			", pgtyp = " + pgtyp);
 		return 0;
@@ -170,8 +178,11 @@ public class RunOperators implements IConst, RunConst {
 		if (srcNode == null){
 			return STKUNDERFLOW;
 		}
-		if (!srcNode.getHdrNonVar()) {
-			srcNode = pp.getVarNode(srcNode);
+		if (!srcNode.getHdrNonVar()) { 
+			srcNode = pp.getVarInzNode(srcNode);
+			if (srcNode == null) {
+				return NOVARINZ;
+			}
 		}
 		addr = srcNode.getAddr();
 		if (srcNode.isInt()) {
@@ -268,7 +279,7 @@ public class RunOperators implements IConst, RunConst {
 			}
 			svaldest = svaldest + sval;
 			addr = store.allocString(svaldest);
-			store.writeNode(stkidx, addr, pgtypdest);
+			store.writeNodeRtn(stkidx, addr, pgtypdest, true);
 			return 0;
 		default:
 			longvaldest = addrdest;
@@ -290,7 +301,7 @@ public class RunOperators implements IConst, RunConst {
 			omsg("runOpSetStmt (2): dvaldest = " + dvaldest +
 				", pgtypdest = " + pgtypdest);
 			addr = store.allocFloat(dvaldest);
-			store.writeNode(stkidx, addr, pgtypdest);
+			store.writeNodeRtn(stkidx, addr, pgtypdest, true);
 			return 0;
 		}
 		switch (kwtyp) {
@@ -315,7 +326,7 @@ public class RunOperators implements IConst, RunConst {
 			addr = (int) longvaldest;
 			pgtypdest = PageTyp.INTVAL;
 		}
-		store.writeNode(stkidx, addr, pgtypdest);
+		store.writeNodeRtn(stkidx, addr, pgtypdest, true);
 		omsg("runOpSetStmt: stk = " + stkidx + ", addr = " + addr +
 			", pgtyp = " + pgtypdest);
 		return 0;
@@ -350,6 +361,9 @@ public class RunOperators implements IConst, RunConst {
 			addrNode = store.fetchNode(stkidx);
 			if (isNullKwd(addrNode)) {
 				break;
+			}
+			if (!addrNode.isInzValid()) {
+				return NOVARINZ;
 			}
 			pgtyp = addrNode.getHdrPgTyp();
 			if ((pgtyp == PageTyp.STRING) && (addr == -1)) {
@@ -438,6 +452,9 @@ public class RunOperators implements IConst, RunConst {
 			if (isNullKwd(addrNode)) {
 				break;
 			}
+			if (!addrNode.isInzValid()) {
+				return NOVARINZ;
+			}
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
 			omsg("runMpyExpr: stkidx = " + stkidx +
@@ -509,6 +526,9 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
 		pgtyp = addrNode.getHdrPgTyp();
 		if (!isNumeric(pgtyp)) {
 			return BADOPTYP;
@@ -537,6 +557,9 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
 		pgtyp = addrNode.getHdrPgTyp();
 		if (!isNumeric(pgtyp)) {
 			return BADOPTYP;
@@ -591,6 +614,9 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
 		pgtyp = addrNode.getHdrPgTyp();
 		if (!isNumeric(pgtyp)) {
 			return BADOPTYP;
@@ -616,6 +642,9 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
 		if (!isNullKwd(addrNode)) { }
 		else if (isDeltaFloat) {
 			fdiff = -fdelta;
@@ -775,6 +804,9 @@ public class RunOperators implements IConst, RunConst {
 			if (isNullKwd(addrNode)) {
 				break;
 			}
+			if (!addrNode.isInzValid()) {
+				return NOVARINZ;
+			}
 			pgtyp = addrNode.getHdrPgTyp();
 			if (!isIntLong(pgtyp)) {
 				return BADOPTYP;
@@ -830,6 +862,9 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
 		pgtyp = addrNode.getHdrPgTyp();
 		if ((kwtyp == KeywordTyp.NOT) && 
 			(pgtyp != PageTyp.BOOLEAN)) 
@@ -901,6 +936,9 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
 		pgtyp = addrNode.getHdrPgTyp();
 		if (pgtyp == PageTyp.STRING) {
 			return runStrCompExpr(kwtyp, addrNode);
@@ -929,6 +967,9 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
 		pgtyp = addrNode.getHdrPgTyp();
 		if (!isNumeric(pgtyp)) {
 			return BADOPTYP;
@@ -1034,6 +1075,9 @@ public class RunOperators implements IConst, RunConst {
 			return stkidx;
 		}
 		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
 		pgtyp = addrNode.getHdrPgTyp();
 		if (pgtyp != PageTyp.STRING) {
 			return BADOPTYP;

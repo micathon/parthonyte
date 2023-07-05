@@ -329,6 +329,9 @@ class RunPushPop implements IConst, RunConst {
 			}
 			addrNode = store.fetchNode(varidx);
 			pgtyp = addrNode.getHdrPgTyp(); 
+			if (!addrNode.isInz()) {
+				return null;
+			}
 			//pgtyp = PageTyp.FLOAT;
 			isImmed = (pgtyp == PageTyp.INTVAL);
 			isBool = (pgtyp == PageTyp.BOOLEAN);
@@ -795,6 +798,21 @@ class RunPushPop implements IConst, RunConst {
 		AddrNode varNode;
 		
 		if (node.getHdrNonVar()) {
+			return null;
+		}
+		varidx = node.getAddr();
+		if (node.getHdrLocVar()) {
+			varidx += locBaseIdx;
+		}
+		varNode = store.fetchNode(varidx);
+		return varNode;
+	}
+
+	public AddrNode getVarInzNode(AddrNode node) {
+		int varidx;
+		AddrNode varNode;
+		
+		if (node.getHdrNonVar() || !node.isInz()) {
 			return null;
 		}
 		varidx = node.getAddr();
