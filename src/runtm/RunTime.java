@@ -1250,6 +1250,9 @@ public class RunTime implements IConst, RunConst {
 			if (addrNode == null) {
 				return STKUNDERFLOW;
 			}
+			if (!addrNode.isInzValid()) {
+				return NOVARINZ;
+			}
 			addrNode.setInz();
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
@@ -1339,7 +1342,7 @@ public class RunTime implements IConst, RunConst {
 		int varCount = 0;  // includes parms, loc vars
 		int parmCount;
 		int parmFixedCount;
-		int i, j;
+		int i, j, k;
 		int rtnval;
 		
 		omsg("runZcallStmt: top");
@@ -1347,7 +1350,11 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		currLocBase = locBaseIdx;
-		parmCount = getCountOfSpares(kwtyp) - 2;
+		k = getCountOfSpares(kwtyp);
+		if (k < 0) {
+			return k;
+		}
+		parmCount = k - 2;
 		returnp = getReturnpSpares();
 		if (returnp < 0) {
 			return STKUNDERFLOW;
