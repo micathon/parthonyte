@@ -1,16 +1,20 @@
 do (
 gdefun (var a b) do (
   #set a (+ 6 (/ 8 0));
-  #f 23;
+  h a;
   #g (/ 9 0);
   #println (g);
   #g 0;
-  g;
+  #g;
   println "btm";
+);
+defun (h x) do (
+  #return 0;
+  println "h: body";
 );
 defun (g) do (
   println "g: body";
-  f 72;
+  f 23;
   #return (/ 9 0);
 );
 defun (f x) (var i y) do (
@@ -19,18 +23,25 @@ defun (f x) (var i y) do (
   if (ne x 23) do (
     println "if";
   )
-  elif (eq x 23) do (
+  elif (eq x 24) do (
     println "elif";
     #set x (/ x 0);
   )
   else do (
     println "else";
+    if (eq x 23) do (
+      println "eq x 23";
+    );
   );
   set i 0;
   while (< i 3) do (
     += i 1;
     println i;
-    println y;
+    set a 99;
+    if (eq a 99) do (
+      println "eq a 99";
+    );
+    #println a;
     #set x y;
     #set x (/ x 0);
   );
