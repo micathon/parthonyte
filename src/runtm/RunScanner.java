@@ -1,12 +1,14 @@
 package runtm;
 
 import iconst.IConst;
+import iconst.RunConst;
 import iconst.KeywordTyp;
 import iconst.NodeCellTyp;
 import page.Node;
 import page.AddrNode;
 import page.Store;
 import page.Page;
+import java.util.ArrayList;
 import scansrc.ScanSrc;
 import synchk.SynChk;
 
@@ -24,6 +26,8 @@ public class RunScanner implements IConst {
 	private int defunCount;
 	private int count;
 	private int glbVarListIdx;
+	private ArrayList<Integer> gvarList;
+	private int lastErrCode;
 	private int stmtCount;
 	private int runidx;
 	private boolean isRunTest;
@@ -35,6 +39,7 @@ public class RunScanner implements IConst {
 		this.synChk = synChk;
 		this.rootNodep = rootNodep;
 		rt = new RunTime(store, scanSrc, synChk);
+		gvarList = new ArrayList<Integer>();
 		defunCount = 0;
 		count = 0;
 		stmtCount = 0;
@@ -562,7 +567,7 @@ public class RunScanner implements IConst {
 		}
 		node = store.getNode(rightp);
 		// perform scope oper. on single var. ref.
-		if (!scopeLocVar(rightp)) {
+		if (!scopeLocVarRtn(rightp, true)) {
 			omsg("scopeSetStmt: scopeLocVar fail");
 			return false;
 		}
@@ -766,6 +771,10 @@ public class RunScanner implements IConst {
 	}
 	
 	private boolean scopeLocVar(int rightp) {
+		return scopeLocVarRtn(rightp, false);
+	}
+	
+	private boolean scopeLocVarRtn(int rightp, boolean isTgt) {
 		// replace downp of glb/loc var ref. w/ var idx no.
 		// (it was pointing to var name)
 		// glb var idx nos. are -ve
@@ -773,7 +782,6 @@ public class RunScanner implements IConst {
 		Node node;
 		NodeCellTyp celltyp;
 		boolean isGlb;
-		boolean isGlbVar;
 		String varName, name;
 		String gname;
 		Integer value;
@@ -800,6 +808,12 @@ public class RunScanner implements IConst {
 		if (value != null) {
 			varidx = (int)value;
 			if (isGlb) {
+				// check if varidx not in gvar list...
+				if (!gvarList.contains(varidx)) {
+					// error: attempt to modify unlisted glbvar
+					lastErrCode = BADSTMT;
+					return false;
+				}
 				varidx = -1 - varidx;
 			}
 			doScopeLocVar(node, rightp, varidx);
@@ -948,6 +962,23 @@ public class RunScanner implements IConst {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp == KeywordTyp.ZPAREN) {  // (gvar ...)
+				upNode = node;
+				rightp = node.getDownp();
+				node = store.getNode(rightp);
+				kwtyp = node.getKeywordTyp();
+				if (kwtyp != KeywordTyp.GVAR) {
+					return -1;
+				}
+				gvarList.clear();
+				rightp = node.getRightp();
+				while (rightp > 0) {
+					// scan var decls. of gvar list
+					rightp = scanGvarList(rightp);
+				}
+				if (rightp < 0) {
+					return rightp;
+				}
+				node = upNode;
 				rightp = node.getRightp();
 				if (rightp <= 0) {
 					return -1;
@@ -1014,6 +1045,39 @@ public class RunScanner implements IConst {
 		return rightp;
 	}
 	
+	private int scanGvarList(int rightp) {
+		// scan decl. in gvar list
+		Node node;
+		NodeCellTyp celltyp;
+		int downp;
+		String funcName;
+		String varName;
+		int varidx;
+		Integer value;
+		int idx;
+		Page page;
+
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		node = page.getNode(idx);
+		celltyp = node.getDownCellTyp();
+		if (celltyp != NodeCellTyp.ID) {
+			return -1;
+		}
+		downp = node.getDownp();
+		funcName = getGdefunKwd();
+		varName = funcName + ' ';
+		varName += store.getVarName(downp);
+		value = rt.glbLocVarMap.get(varName);
+		if (value == null) {
+			return -1;
+		}
+		varidx = (int)value;
+		gvarList.add(varidx);
+		rightp = node.getRightp();
+		return rightp;
+	}
+	
 	private int scopeDefunStmt(int rightp) {
 		// scope operation:
 		// replace downp of glb/loc var refs. w/ var idx nos.
@@ -1058,6 +1122,14 @@ public class RunScanner implements IConst {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp == KeywordTyp.ZPAREN) {  // (gvar ...)
+				upNode = node;
+				rightp = node.getDownp();
+				node = store.getNode(rightp);
+				kwtyp = node.getKeywordTyp();
+				if (kwtyp != KeywordTyp.GVAR) {
+					return -1;
+				}
+				node = upNode;
 				rightp = node.getRightp();
 				if (rightp <= 0) {
 					return -1;

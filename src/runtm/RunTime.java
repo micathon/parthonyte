@@ -295,6 +295,7 @@ public class RunTime implements IConst, RunConst {
 		case BADOPTYP: return "Invalid operand type";
 		case BADDOSTMT: return "Unexpected DO encountered";
 		case NOVARINZ: return "Variable not initialized";
+		case BADGVAR: return "Invalid attempt to modify global var.";
 		case GENERR: return "General runtime error";
 		default: return "Error code = " + (-rightp);
 		}
