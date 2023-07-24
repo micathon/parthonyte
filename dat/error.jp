@@ -1,11 +1,12 @@
 do (
 gdefun (var a b) do (
   #set a (+ 6 (/ 8 0));
+  set a 0;
   h a;
   #g (/ 9 0);
   #println (g);
   #g 0;
-  #g;
+  g;
   println "btm";
 );
 defun (h x) do (
@@ -17,7 +18,7 @@ defun (g) do (
   f 23;
   #return (/ 9 0);
 );
-defun (f x) (var i y) do (
+defun (f x) (var i y) (gvar a) do (
   println "f, x:" x;
   set x (+ x 0);
   if (ne x 23) do (
