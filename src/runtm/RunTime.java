@@ -271,7 +271,7 @@ public class RunTime implements IConst, RunConst {
 		oprn("Runtime Error: " + convertErrToken(rightp));
 	}
 	
-	private String convertErrToken(int rightp) {
+	public String convertErrToken(int rightp) {
 		switch (rightp) {
 		case NEGADDR: return "Nonpositive pointer encountered";
 		case STKOVERFLOW: return "Stack overflow";

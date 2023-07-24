@@ -14,7 +14,7 @@ import synchk.SynChk;
 
 // Setup Code Execution
 
-public class RunScanner implements IConst {
+public class RunScanner implements IConst, RunConst {
 
 	private Store store;
 	private ScanSrc scanSrc;
@@ -40,6 +40,7 @@ public class RunScanner implements IConst {
 		this.rootNodep = rootNodep;
 		rt = new RunTime(store, scanSrc, synChk);
 		gvarList = new ArrayList<Integer>();
+		lastErrCode = 0;
 		defunCount = 0;
 		count = 0;
 		stmtCount = 0;
@@ -75,6 +76,13 @@ public class RunScanner implements IConst {
 		System.out.println(msg);
 	}
 	
+	private void handleErrToken(int rightp) {
+		if (rightp == 0) {
+			return;
+		}
+		oprn("Syntax Error: " + rt.convertErrToken(rightp));
+	}
+	
 	private boolean runRoot(int rightp) {
 		int downp;
 		Node node;
@@ -96,6 +104,7 @@ public class RunScanner implements IConst {
 		rtnval = scopeTopBlock(downp);
 		if (!rtnval) {
 			omsg("err: scopeTopBlock");
+			handleErrToken(lastErrCode);
 			return false;
 		}
 		// run prog. using do-block of gdefun stmt.
@@ -811,7 +820,7 @@ public class RunScanner implements IConst {
 				// check if varidx not in gvar list...
 				if (!gvarList.contains(varidx)) {
 					// error: attempt to modify unlisted glbvar
-					lastErrCode = BADSTMT;
+					lastErrCode = BADGVAR;
 					return false;
 				}
 				varidx = -1 - varidx;
