@@ -27,7 +27,9 @@ public class RunScanner implements IConst, RunConst {
 	private int count;
 	private int glbVarListIdx;
 	private ArrayList<Integer> gvarList;
+	private int lastRightp;
 	private int lastErrCode;
+	private boolean isSyntaxError;
 	private int stmtCount;
 	private int runidx;
 	private boolean isRunTest;
@@ -40,7 +42,9 @@ public class RunScanner implements IConst, RunConst {
 		this.rootNodep = rootNodep;
 		rt = new RunTime(store, scanSrc, synChk);
 		gvarList = new ArrayList<Integer>();
+		lastRightp = 0;
 		lastErrCode = 0;
+		isSyntaxError = false;
 		defunCount = 0;
 		count = 0;
 		stmtCount = 0;
@@ -55,7 +59,7 @@ public class RunScanner implements IConst, RunConst {
 		isBadUtPair = false;
 		rtnval = runRoot(rootNodep);
 		if (!rtnval) {
-			oprn("Runtime error detected!");
+			oprn(getRTorSyntax() + " error detected!");
 		}
 		return rtnval;
 	}
@@ -76,16 +80,10 @@ public class RunScanner implements IConst, RunConst {
 		System.out.println(msg);
 	}
 	
-	private void handleErrToken(int rightp) {
-		if (rightp == 0) {
-			return;
-		}
-		oprn("Syntax Error: " + rt.convertErrToken(rightp));
-	}
-	
 	private boolean runRoot(int rightp) {
 		int downp;
 		Node node;
+		int lineno;
 		boolean rtnval;
 		
 		node = store.getNode(rightp);
@@ -104,7 +102,12 @@ public class RunScanner implements IConst, RunConst {
 		rtnval = scopeTopBlock(downp);
 		if (!rtnval) {
 			omsg("err: scopeTopBlock");
+			lineno = store.lookupLineNo(lastRightp);
+			if (lineno != 0) {
+				oprn("Error on line number: " + lineno);
+			}
 			handleErrToken(lastErrCode);
+			isSyntaxError = true;
 			return false;
 		}
 		// run prog. using do-block of gdefun stmt.
@@ -821,6 +824,7 @@ public class RunScanner implements IConst, RunConst {
 				if (isTgt && !gvarList.contains(varidx)) {
 					// error: attempt to modify unlisted glbvar
 					lastErrCode = BADGVAR;
+					lastRightp = rightp;
 					return false;
 				}
 				varidx = -1 - varidx;
@@ -1199,6 +1203,26 @@ public class RunScanner implements IConst, RunConst {
 	
 	public boolean isBadUpFlag() {
 		return isBadUtPair;
+	}
+	
+	public boolean getSyntaxErrorFlag() {
+		return isSyntaxError;
+	}
+	
+	public String getRTorSyntax() {
+		if (isSyntaxError) {
+			return "Syntax";
+		}
+		else {
+			return "Runtime";
+		}
+	}
+	
+	private void handleErrToken(int rightp) {
+		if (rightp == 0) {
+			return;
+		}
+		oprn("Syntax Error: " + rt.convertErrToken(rightp));
 	}
 	
 	private String getGdefunWord() {
