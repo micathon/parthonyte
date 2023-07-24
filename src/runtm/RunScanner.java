@@ -818,7 +818,7 @@ public class RunScanner implements IConst, RunConst {
 			varidx = (int)value;
 			if (isGlb) {
 				// check if varidx not in gvar list...
-				if (!gvarList.contains(varidx)) {
+				if (isTgt && !gvarList.contains(varidx)) {
 					// error: attempt to modify unlisted glbvar
 					lastErrCode = BADGVAR;
 					return false;
