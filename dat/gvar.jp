@@ -1,0 +1,11 @@
+do (
+gdefun (var x y a) do (
+  set a 88;
+  f;
+);
+defun (f) do (
+  set a 99;
+  println "a:" a;
+);
+)
+
