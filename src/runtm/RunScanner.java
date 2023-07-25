@@ -820,13 +820,6 @@ public class RunScanner implements IConst, RunConst {
 		if (value != null) {
 			varidx = (int)value;
 			if (isGlb) {
-				// check if varidx not in gvar list...
-				if (isTgt && !gvarList.contains(varidx)) {
-					// error: attempt to modify unlisted glbvar
-					lastErrCode = BADGVAR;
-					lastRightp = rightp;
-					return false;
-				}
 				varidx = -1 - varidx;
 			}
 			doScopeLocVar(node, rightp, varidx);
@@ -847,6 +840,14 @@ public class RunScanner implements IConst, RunConst {
 		value = rt.glbLocVarMap.get(name);
 		if (value != null) {
 			varidx = (int)value;
+			omsg("scopeLocVar: varidx = " + varidx);
+			// check if varidx not in gvar list...
+			if (isTgt && !gvarList.contains(varidx)) {
+				// error: attempt to modify unlisted glbvar
+				lastErrCode = BADGVAR;
+				lastRightp = rightp;
+				return false;
+			}
 			varidx = -1 - varidx;
 			doScopeLocVar(node, rightp, varidx);
 			return true;
@@ -914,6 +915,7 @@ public class RunScanner implements IConst, RunConst {
 		int idx;
 		int glbLocIdx;
 		Page page;
+		boolean gvarFound = false;
 
 		omsg("Keyword defun detected.");
 		node = store.getNode(rightp);
@@ -957,31 +959,42 @@ public class RunScanner implements IConst, RunConst {
 			rightp = node.getDownp();
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
-			if (kwtyp != KeywordTyp.VAR) {
+			if ((kwtyp != KeywordTyp.VAR) && 
+				(kwtyp != KeywordTyp.GVAR)) 
+			{
 				return -1;
 			}
-			rightp = node.getRightp();
-			while (rightp > 0) {
-				// scan var decls. of local vars.
-				rightp = scanParmVarList(rightp, varidx, funcName);
-				varidx++;
-			}
-			if (rightp < 0) {
-				return rightp;
-			}
-			node = upNode;
-			rightp = node.getRightp();
-			omsg("Global/local var count = " + varidx);
-			node = store.getNode(rightp);
-			kwtyp = node.getKeywordTyp();
-			if (kwtyp == KeywordTyp.ZPAREN) {  // (gvar ...)
-				upNode = node;
-				rightp = node.getDownp();
+			if (kwtyp == KeywordTyp.VAR) {
+				rightp = node.getRightp();
+				while (rightp > 0) {
+					// scan var decls. of local vars.
+					rightp = scanParmVarList(rightp, varidx, funcName);
+					varidx++;
+				}
+				if (rightp < 0) {
+					return rightp;
+				}
+				node = upNode;
+				rightp = node.getRightp();
+				omsg("Global/local var count = " + varidx);
 				node = store.getNode(rightp);
 				kwtyp = node.getKeywordTyp();
-				if (kwtyp != KeywordTyp.GVAR) {
-					return -1;
+				if (kwtyp == KeywordTyp.ZPAREN) {  // (gvar ...) 
+					omsg("scanDefunStmt: var, go into gvar list");
+					upNode = node;
+					rightp = node.getDownp();
+					node = store.getNode(rightp);
+					kwtyp = node.getKeywordTyp();
+					if (kwtyp != KeywordTyp.GVAR) {
+						return -1;
+					}
+					gvarFound = true;
 				}
+			}
+			else {
+				gvarFound = true;
+			}
+			if (gvarFound) {
 				gvarList.clear();
 				rightp = node.getRightp();
 				while (rightp > 0) {
@@ -997,8 +1010,8 @@ public class RunScanner implements IConst, RunConst {
 					return -1;
 				}
 				node = store.getNode(rightp);
+				kwtyp = node.getKeywordTyp();
 			}
-			kwtyp = node.getKeywordTyp();
 		}
 		rt.glbLocVarList.add(-1);
 		if (kwtyp != KeywordTyp.DO) {
@@ -1101,6 +1114,7 @@ public class RunScanner implements IConst, RunConst {
 		NodeCellTyp celltyp;
 		int downp;
 		int savep = rightp;
+		boolean gvarFound = false;
 		boolean rtnval;
 
 		omsg("Keyword (scope) defun detected.");
@@ -1127,29 +1141,39 @@ public class RunScanner implements IConst, RunConst {
 			rightp = node.getDownp();
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
-			if (kwtyp != KeywordTyp.VAR) {
+			if ((kwtyp != KeywordTyp.VAR) && 
+				(kwtyp != KeywordTyp.GVAR)) 
+			{
 				return -1;
 			}
-			node = upNode;
-			rightp = node.getRightp();
-			node = store.getNode(rightp);
-			kwtyp = node.getKeywordTyp();
-			if (kwtyp == KeywordTyp.ZPAREN) {  // (gvar ...)
-				upNode = node;
-				rightp = node.getDownp();
+			if (kwtyp == KeywordTyp.VAR) {
+				node = upNode;
+				rightp = node.getRightp();
 				node = store.getNode(rightp);
 				kwtyp = node.getKeywordTyp();
-				if (kwtyp != KeywordTyp.GVAR) {
-					return -1;
+				if (kwtyp == KeywordTyp.ZPAREN) {  // (gvar ...)
+					upNode = node;
+					rightp = node.getDownp();
+					node = store.getNode(rightp);
+					kwtyp = node.getKeywordTyp();
+					if (kwtyp != KeywordTyp.GVAR) {
+						return -1;
+					}
+					gvarFound = true;
 				}
+			}
+			else {
+				gvarFound = true;
+			}
+			if (gvarFound) {
 				node = upNode;
 				rightp = node.getRightp();
 				if (rightp <= 0) {
 					return -1;
 				}
 				node = store.getNode(rightp);
+				kwtyp = node.getKeywordTyp();
 			}
-			kwtyp = node.getKeywordTyp();
 		}
 		if (kwtyp != KeywordTyp.DO) {
 			omsg("Missing DO");
