@@ -1,11 +1,20 @@
 do (
-gdefun (var x y a) do (
-  set a 88;
+gdefun (var x y w z a) do (
+  set x 0L;
+  ++ x;
+  set y 10L;
+  -- y;
+  println "x, y:" x y;
   f;
 );
-defun (f) do (
-  set a 99;
-  println "a:" a;
+defun (f) (var x y) do (
+  set x 0L;
+  ++ x;
+  set y 10L;
+  -- y;
+  println "x, y:" x y;
+  set x 1.0;
+  #++ (+ x 0);
 );
 )
 
