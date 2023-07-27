@@ -287,6 +287,7 @@ public class RunTime implements IConst, RunConst {
 		case STMTINEXPR: return "Statement encountered in expression";
 		case BADZSTMT: return "Expression encountered at stmt. level";
 		case BADSETSTMT: return "Malformed SET statement";
+		case BADINCDECSTMT: return "Malformed INC/DEC statement";
 		case BADPARMCT: return "Mismatched parameter count";
 		case RTNISEMPTY: return "Return stmt. lacks value";
 		case BADUTSTMT: return "Malformed unit test stmt.";
@@ -749,6 +750,9 @@ public class RunTime implements IConst, RunConst {
 		case XORBSET:
 		case SET: 
 			return runop.runSetStmt(kwtyp);
+		case INCINT:
+		case DECINT:
+			return runop.runIncDecStmt(kwtyp);
 		case PRINTLN: return runPrintlnStmt(kwtyp);
 		case ZCALL: return runZcallStmt();
 		case RETURN: return runRtnStmt(true);
@@ -906,6 +910,10 @@ public class RunTime implements IConst, RunConst {
 		case SET: 
 			rightp = pushSetStmt(node, kwtyp);
 			break;
+		case INCINT:
+		case DECINT:
+			rightp = pushIncDecStmt(node, kwtyp);
+			break;
 		case PRINTLN: 
 			rightp = pushPrintlnStmt(node);
 			break;
@@ -1020,6 +1028,25 @@ public class RunTime implements IConst, RunConst {
 		}
 		rightp = handleExprToken(rightp, true);  // handle expr.
 		return rightp;
+	}
+	
+	private int pushIncDecStmt(Node node, KeywordTyp kwtyp) {
+		int rightp;
+		
+		omsg("pushIncDecStmt: top");
+		if (!pushOp(kwtyp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {  // naked inc/dec kwd.
+			return BADINCDECSTMT;
+		}
+		node = store.getNode(rightp);
+		rightp = handleLeafTokenQuote(node);  // handle target expr.
+		if (rightp != 0) {
+			return BADINCDECSTMT;
+		}
+		return 0;
 	}
 	
 	private int pushPrintlnStmt(Node node) {

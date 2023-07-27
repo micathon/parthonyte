@@ -555,6 +555,9 @@ public class RunScanner implements IConst, RunConst {
 		case ORBSET: 
 		case XORBSET: 
 			return scopeSetStmt(node);
+		case INCINT:
+		case DECINT:
+			return scopeIncDecStmt(node);
 		case PRINTLN: return scopePrintlnStmt(node);
 		case ZCALL: return scopeZcallStmt(rightp, false);
 		case RETURN: return scopeRtnStmt(node);
@@ -590,6 +593,28 @@ public class RunScanner implements IConst, RunConst {
 		// perform scope oper. on single expr.
 		omsg("scopeSetStmt: call scopeExpr");
 		return scopeExpr(rightp);
+	}
+	
+	private boolean scopeIncDecStmt(Node node) {
+		int rightp;
+		
+		count++;
+		omsg("scopeIncDecStmt: top");
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return false;
+		}
+		node = store.getNode(rightp);
+		// perform scope oper. on single var. ref.
+		if (!scopeLocVarRtn(rightp, true)) {
+			omsg("scopeIncDecStmt: scopeLocVar fail");
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp > 0) {
+			return false;
+		}
+		return true;
 	}
 	
 	private boolean scopePrintlnStmt(Node node) {
