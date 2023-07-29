@@ -37,6 +37,7 @@ public class RunTime implements IConst, RunConst {
 	private boolean isCalcExpr;
 	private boolean isExprLoop;
 	private boolean isNegInt;
+	private boolean afterStmtKwd;
 	private int lastErrCode;
 	private int utKeyValIdx;
 	private boolean isBadUtPair;
@@ -66,6 +67,7 @@ public class RunTime implements IConst, RunConst {
 		isTgtExpr = false;
 		isCalcExpr = false;
 		isExprLoop = false;
+		afterStmtKwd = false;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
 		glbFunList = new ArrayList<Integer>();
@@ -456,6 +458,8 @@ public class RunTime implements IConst, RunConst {
 	
 	private int pushExprOrLeaf(Node node, int rightp) {
 		KeywordTyp kwtyp;
+
+		afterStmtKwd = false;
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp == KeywordTyp.ZPAREN) {
 			locDepth++;
@@ -626,6 +630,7 @@ public class RunTime implements IConst, RunConst {
 		double dval;
 		String sval;
 
+		afterStmtKwd = false;
 		varidx = node.getDownp();
 		celltyp = node.getDownCellTyp();
 		rightp = node.getRightp();
@@ -740,6 +745,7 @@ public class RunTime implements IConst, RunConst {
 	}
 	
 	private int handleStmtKwdRtn(KeywordTyp kwtyp) {
+		afterStmtKwd = true;
 		switch (kwtyp) {
 		case ADDSET:
 		case MINUSSET: 
@@ -1640,12 +1646,18 @@ public class RunTime implements IConst, RunConst {
 		PageTyp pgtyp;
 		int stkidx;
 		int ival;
+		boolean isWhile;
 		
 		kwtyp = topKwd();
+		isWhile = (kwtyp == KeywordTyp.WHILE);
 		switch (kwtyp) {
 		case IF:
 		case ELIF:
 		case WHILE:
+			if (isWhile && afterStmtKwd) {
+				ival = 0;
+				break;
+			}
 			stkidx = popIntStk();
 			if (stkidx < 0) {
 				return stkidx;
@@ -1667,7 +1679,7 @@ public class RunTime implements IConst, RunConst {
 		// else (ival = 0):
 		omsg("handleDoToken: bool as int = " + ival);
 		if (ival == 1) { }
-		else if (kwtyp == KeywordTyp.WHILE) {
+		else if (isWhile && !afterStmtKwd) {
 			rightp = popVal();  // points to while stmt
 			omsg("handleDoToken: WHILE LOOP EXIT");
 			return 0;
