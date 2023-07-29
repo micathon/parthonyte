@@ -765,6 +765,28 @@ public class RunScanner implements IConst, RunConst {
 			return false;
 		}
 		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp == KeywordTyp.DO) {
+			if (!scopeDoBlock(node)) {
+				return false;
+			}
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				return false;
+			}
+			node = store.getNode(rightp);
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp != KeywordTyp.UNTIL) {
+				omsg("Missing UNTIL");
+				return false;
+			}
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				return false;
+			}
+			rtnval = scopeExpr(rightp);
+			return rtnval;
+		}
 		rtnval = scopeExpr(rightp);
 		if (!rtnval) {
 			return false;

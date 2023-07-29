@@ -770,6 +770,9 @@ public class RunTime implements IConst, RunConst {
 		case ELSE: 
 		case WHILE:
 			return 0;  
+		case UNTIL:
+			oprn("Keyword: UNTIL detected.");
+			return BADOP;
 		default:
 			oprn("handleStmtKwdRtn: kwtyp = " + kwtyp);
 			return BADOP;
