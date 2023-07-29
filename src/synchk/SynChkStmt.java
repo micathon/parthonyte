@@ -27,6 +27,10 @@ public class SynChkStmt {
 		scan.out(msg);
 	}
 	
+	private void oprn(String msg) {
+		scan.oprn(msg);
+	}
+	
 	@SuppressWarnings("unused")
 	private void omsg(String msg) {
 		scan.omsg(msg);
@@ -333,6 +337,7 @@ public class SynChkStmt {
 		String msg = "Error in while stmt.: ";
 		int savep = rightp;
 
+		oprn("doWhileStmt: chk syntax at top");
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
@@ -391,6 +396,7 @@ public class SynChkStmt {
 			oerrd(savep, msg + "invalid text after expression", 90.9);
 			return false;
 		}
+		oprn("doWhileStmt: chk syntax of while-until");
 		return true;
 	}
 	
