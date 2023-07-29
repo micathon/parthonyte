@@ -1,25 +1,26 @@
 do (
 gdefun do (
-  ifstmt;
+  #ifstmt;
   wloop;
 );
 defun (wloop) (var i n) do (
   println "top wloop";
-  set n 3;
-  set i 0;
   
   while do (
     println "body of while-do";
   )
   until true;
   {
+  set n 3;
+  set i 0;
   while (< i n) do (
     println "i:" i;
     set i (+ i 1);
   );
-  println "btm wloop";
   }
+  println "btm wloop";
 );
+{
 defun (ifstmt) (var x) do (
   println "top if";
   if true do (
@@ -33,5 +34,6 @@ defun (g) (var a b c y) do (
   set y 1;
   println "g body, y:" y;
 );
+}
 )
 
