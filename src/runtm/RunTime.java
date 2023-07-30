@@ -38,6 +38,7 @@ public class RunTime implements IConst, RunConst {
 	private boolean isExprLoop;
 	private boolean isNegInt;
 	private boolean afterStmtKwd;
+	private boolean isWhileUntil;
 	private int lastErrCode;
 	private int utKeyValIdx;
 	private boolean isBadUtPair;
@@ -68,6 +69,7 @@ public class RunTime implements IConst, RunConst {
 		isCalcExpr = false;
 		isExprLoop = false;
 		afterStmtKwd = false;
+		isWhileUntil = false;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
 		glbFunList = new ArrayList<Integer>();
@@ -459,7 +461,6 @@ public class RunTime implements IConst, RunConst {
 	private int pushExprOrLeaf(Node node, int rightp) {
 		KeywordTyp kwtyp;
 
-		afterStmtKwd = false;
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp == KeywordTyp.ZPAREN) {
 			locDepth++;
@@ -953,6 +954,7 @@ public class RunTime implements IConst, RunConst {
 		int ival;
 		int rightp;
 		
+		afterStmtKwd = false;
 		rightp = node.getRightp();
 		if (!pushAddr(rightp)) {  
 			return STKOVERFLOW;
@@ -1653,11 +1655,14 @@ public class RunTime implements IConst, RunConst {
 		
 		kwtyp = topKwd();
 		isWhile = (kwtyp == KeywordTyp.WHILE);
+		isWhileUntil = false;
 		switch (kwtyp) {
 		case IF:
 		case ELIF:
 		case WHILE:
+			oprn("handleDoToken: afterStmtKwd = " + afterStmtKwd);
 			if (isWhile && afterStmtKwd) {
+				isWhileUntil = true;
 				ival = 0;
 				break;
 			}
@@ -1668,6 +1673,7 @@ public class RunTime implements IConst, RunConst {
 			addrNode = store.fetchNode(stkidx);
 			pgtyp = addrNode.getHdrPgTyp();
 			if (pgtyp != PageTyp.BOOLEAN) { 
+				oprn("handleDoToken: BADOPTYP");
 				return BADOPTYP;
 			}
 			ival = addrNode.getAddr();
@@ -1737,6 +1743,9 @@ public class RunTime implements IConst, RunConst {
 	
 	private int runDoStmt() {
 		int rightp;
+		if (isWhileUntil) {
+			oprn("runDoStmt: isWhileUntil");
+		}
 		rightp = popVal(); 
 		return rightp;
 	}
@@ -1745,6 +1754,7 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtyp;
 
 		omsg("pushWhileStmt: top");
+		afterStmtKwd = true;
 		kwtyp = KeywordTyp.WHILE;
 		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
 			return STKOVERFLOW;
