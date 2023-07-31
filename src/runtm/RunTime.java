@@ -367,10 +367,30 @@ public class RunTime implements IConst, RunConst {
 					rightp = node.getRightp();
 				}
 				else if (kwtyp == KeywordTyp.WHILE) {
+					omsg("handleDoBlock: btm, WHILE");
 					popKwd();
 					rightp = popVal();
 					popVal();
 					popVal();
+				}
+				else if (kwtyp == KeywordTyp.UNTIL) {
+					oprn("handleDoBlock: btm, UNTIL");
+					rightp = popVal();
+					node = store.getNode(rightp);
+					rightp = node.getDownp();
+					node = store.getNode(rightp);
+					kwtyp = node.getKeywordTyp();
+					oprn("handleDoBlock: btm, UNTIL, kwd1 = " + kwtyp);
+					rightp = node.getRightp();
+					node = store.getNode(rightp);
+					kwtyp = node.getKeywordTyp();
+					oprn("handleDoBlock: btm, UNTIL, kwd2 = " + kwtyp);
+					rightp = node.getRightp();
+					node = store.getNode(rightp);
+					kwtyp = node.getKeywordTyp();
+					oprn("handleDoBlock: btm, UNTIL, kwd3 = " + kwtyp);
+					//rightp = node.getRightp();
+					return 0;
 				}
 				else {
 					rightp = runRtnStmt(false);
@@ -1663,7 +1683,9 @@ public class RunTime implements IConst, RunConst {
 			oprn("handleDoToken: afterStmtKwd = " + afterStmtKwd);
 			if (isWhile && afterStmtKwd) {
 				isWhileUntil = true;
-				ival = 0;
+				popKwd();
+				pushOp(KeywordTyp.UNTIL);
+				ival = 1;
 				break;
 			}
 			stkidx = popIntStk();
@@ -1688,7 +1710,8 @@ public class RunTime implements IConst, RunConst {
 		// else (ival = 0):
 		omsg("handleDoToken: bool as int = " + ival);
 		if (ival == 1) { }
-		else if (isWhile && !afterStmtKwd) {
+		//else if (isWhile && !afterStmtKwd) {
+		else if (isWhile) {
 			rightp = popVal();  // points to while stmt
 			omsg("handleDoToken: WHILE LOOP EXIT");
 			return 0;
@@ -1743,6 +1766,7 @@ public class RunTime implements IConst, RunConst {
 	
 	private int runDoStmt() {
 		int rightp;
+		oprn("runDoStmt: top");
 		if (isWhileUntil) {
 			oprn("runDoStmt: isWhileUntil");
 		}
