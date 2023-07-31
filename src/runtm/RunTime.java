@@ -374,23 +374,8 @@ public class RunTime implements IConst, RunConst {
 					popVal();
 				}
 				else if (kwtyp == KeywordTyp.UNTIL) {
-					oprn("handleDoBlock: btm, UNTIL");
-					rightp = popVal();
-					node = store.getNode(rightp);
-					rightp = node.getDownp();
-					node = store.getNode(rightp);
-					kwtyp = node.getKeywordTyp();
-					oprn("handleDoBlock: btm, UNTIL, kwd1 = " + kwtyp);
-					rightp = node.getRightp();
-					node = store.getNode(rightp);
-					kwtyp = node.getKeywordTyp();
-					oprn("handleDoBlock: btm, UNTIL, kwd2 = " + kwtyp);
-					rightp = node.getRightp();
-					node = store.getNode(rightp);
-					kwtyp = node.getKeywordTyp();
-					oprn("handleDoBlock: btm, UNTIL, kwd3 = " + kwtyp);
-					//rightp = node.getRightp();
-					return 0;
+					omsg("handleDoBlock: btm, UNTIL");
+					rightp = doBtmUntilLoop();
 				}
 				else {
 					rightp = runRtnStmt(false);
@@ -1680,7 +1665,7 @@ public class RunTime implements IConst, RunConst {
 		case IF:
 		case ELIF:
 		case WHILE:
-			oprn("handleDoToken: afterStmtKwd = " + afterStmtKwd);
+			omsg("handleDoToken: afterStmtKwd = " + afterStmtKwd);
 			if (isWhile && afterStmtKwd) {
 				isWhileUntil = true;
 				popKwd();
@@ -1766,9 +1751,9 @@ public class RunTime implements IConst, RunConst {
 	
 	private int runDoStmt() {
 		int rightp;
-		oprn("runDoStmt: top");
+		omsg("runDoStmt: top");
 		if (isWhileUntil) {
-			oprn("runDoStmt: isWhileUntil");
+			omsg("runDoStmt: isWhileUntil");
 		}
 		rightp = popVal(); 
 		return rightp;
@@ -1784,6 +1769,49 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		rightp = node.getRightp();
+		return rightp;
+	}
+	
+	private int doBtmUntilLoop() {
+		int rightp;
+		Node node;
+		int stkidx;
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int ival;
+		
+		rightp = popVal();
+		node = store.getNode(rightp);
+		rightp = node.getDownp();
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		rightp = handleExprToken(rightp, true);
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp != PageTyp.BOOLEAN) { 
+			omsg("doBtmUntilLoop: BADOPTYP");
+			return BADOPTYP;
+		}
+		ival = addrNode.getAddr();
+		omsg("doBtmUntilLoop: ival = " + ival);
+		popKwd();
+		rightp = popVal();
+		if (ival == 0) {
+			popVal();
+			popVal();
+		}
+		else {
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
+		}
 		return rightp;
 	}
 	
