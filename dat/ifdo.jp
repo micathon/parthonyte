@@ -6,10 +6,12 @@ gdefun do (
 defun (wloop) (var i n) do (
   println "top wloop";
   
+  set i 1;
   while do (
-    println "body of while-do";
+    println "i:" i;
+    ++ i;
   )
-  until true;
+  until (> i 3);
   {
   set n 3;
   set i 0;
