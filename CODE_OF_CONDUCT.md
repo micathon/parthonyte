@@ -10,4 +10,4 @@
   if Christians are considered superior to Muslims, that's not kosher
 * When comparing the following 2 pairs of sub-groups within able/disabled: mainstream (able) with either 
   intellectual disabilities or mental health-related disabilities, both comparisons are equal, full stop
-* Some topics such as politics can be sensitive, so try not to be "in-your-face" for topics like these
+* Some topics such as politics can be sensitive, so try not to be "in-your-face" for those topics
