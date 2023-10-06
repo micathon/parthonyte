@@ -94,7 +94,7 @@ public class SynChkExpr {
 		case IS:
 		case IN:
 			return doBinaryOp(rightp);
-		case JIST:
+		case LYST:
 		case TUPLE:
 			return doListOp(rightp);
 		case QUOTE:
