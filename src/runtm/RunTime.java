@@ -830,6 +830,7 @@ public class RunTime implements IConst, RunConst {
 		String funcName;
 		boolean foundZeroLines = false;
 		
+		omsg("doRunTimeError: errCode = " + errCode);
 		rightp = popUntilZstmt();
 		if (rightp < 0) {
 			errCode = rightp;
