@@ -565,6 +565,7 @@ public class RunScanner implements IConst, RunConst {
 		case UTSCAN: return scopeUtScanStmt(node);
 		case IF: return scopeIfStmt(node);
 		case WHILE: return scopeWhileStmt(node);
+		case FOR: return scopeForStmt(node);
 		default: 
 			omsg("scopeStmt: invalid kwtyp = " + kwtyp);
 			return false;
@@ -789,6 +790,37 @@ public class RunScanner implements IConst, RunConst {
 		}
 		rtnval = scopeExpr(rightp);
 		if (!rtnval) {
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return false;
+		}
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.DO) {
+			omsg("Missing DO");
+			return false;
+		}
+		rtnval = scopeDoBlock(node);
+		return rtnval;
+	}
+	
+	private boolean scopeForStmt(Node node) {
+		int rightp;
+		KeywordTyp kwtyp;
+		boolean rtnval;
+		
+		omsg("scopeForStmt: top");
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return false;
+		}
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		rtnval = scopeExpr(rightp);
+		if (!rtnval) {
+			omsg("scopeForStmt: scopeExpr failed");
 			return false;
 		}
 		rightp = node.getRightp();

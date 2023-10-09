@@ -301,6 +301,7 @@ public class RunTime implements IConst, RunConst {
 		case BADDOSTMT: return "Unexpected DO encountered";
 		case NOVARINZ: return "Variable not initialized";
 		case BADGVAR: return "Invalid attempt to modify global var.";
+		case BADFORSTMT: return "Malformed for stmt";
 		case GENERR: return "General runtime error";
 		default: return "Error code = " + (-rightp);
 		}
@@ -955,6 +956,9 @@ public class RunTime implements IConst, RunConst {
 			break;
 		case WHILE:
 			rightp = pushWhileStmt(node, savep);
+			break;
+		case FOR:
+			rightp = pushForStmt(node, savep);
 			break;
 		default: return BADSTMT;
 		}
@@ -1696,6 +1700,8 @@ public class RunTime implements IConst, RunConst {
 		case ELSE:
 			ival = 1;
 			break;
+		case FOR:
+			return BADFORSTMT;
 		default:
 			return BADDOSTMT;
 		}
@@ -1773,6 +1779,19 @@ public class RunTime implements IConst, RunConst {
 		omsg("pushWhileStmt: top");
 		afterStmtKwd = true;
 		kwtyp = KeywordTyp.WHILE;
+		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
+		return rightp;
+	}
+	
+	private int pushForStmt(Node node, int rightp) {
+		KeywordTyp kwtyp;
+
+		omsg("pushForStmt: top");
+		afterStmtKwd = true;
+		kwtyp = KeywordTyp.FOR;
 		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
 			return STKOVERFLOW;
 		}
