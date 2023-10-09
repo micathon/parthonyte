@@ -394,6 +394,7 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtyp;
 		KeywordTyp kwtop;
 		Node node;
+		int oldLocDepth;
 		boolean isShortCircSkip = false;
 		boolean found = false;
 		
@@ -435,6 +436,8 @@ public class RunTime implements IConst, RunConst {
 			if (kwtyp == KeywordTyp.ZSTMT) {
 				return STMTINEXPR;
 			}
+			oldLocDepth = locDepth;
+			//omsg("exprtok: locDepth = " + locDepth);
 			// handling expr.
 			kwtop = topKwd();
 			omsg("exprtok: kwtop = " + kwtop);
@@ -449,8 +452,10 @@ public class RunTime implements IConst, RunConst {
 				rightp = pushExprOrLeaf(node, rightp);
 				found = isSingle && (locDepth <= 0);
 			}
+			//omsg("exprtok: locDepth (2) = " + locDepth);
 			if ((rightp == 0) && isLogicalKwd(kwtop) &&
-				(kwtop != KeywordTyp.QUEST) && !isShortCircSkip) 
+				(kwtop != KeywordTyp.QUEST) && !isShortCircSkip &&
+				(locDepth <= oldLocDepth))
 			{  
 				rightp = handleLogicalKwd(kwtop, rightp);
 				omsg("exprtok: (2) hlogkw-> rightp = " + rightp);
@@ -509,7 +514,9 @@ public class RunTime implements IConst, RunConst {
 			if (addrNode == null) {
 				return STKUNDERFLOW;
 			}
-			if (addrNode.getHdrPgTyp() != PageTyp.BOOLEAN) {
+			pgtyp = addrNode.getHdrPgTyp();
+			omsg("hlogkw: pgtyp = " + pgtyp);
+			if (pgtyp != PageTyp.BOOLEAN) {
 				return BADOPTYP; 
 			}
 			jval = nodeToIntVal(addrNode, locBaseIdx);  
