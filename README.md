@@ -6,5 +6,5 @@
 # Info for contributors
 * For detailed info, see [Contributing](CONTRIBUTING.md) file, also if desired check out [Code of Conduct](CODE_OF_CONDUCT.md)
 * Not quite ready yet to accept contributions (currently developing code execution of Cympathon compiler)
-* I work part-time in a perfume store. On January 31, 2024 I will quit my job so I can concentrate on Parithony development
-* I hope to begin accepting contributions in late 2024 or 2025
+* I work part-time in a perfume store. On January 31, 2024 I will quit my job so I can concentrate on Cympathon development
+* I hope to begin accepting contributions in 2025 or late 2024
