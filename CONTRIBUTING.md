@@ -1,6 +1,6 @@
 # Contributing to Cympathon
 * Many thanks for your interest in being a Cympathon contributor
-* I hope to begin accepting contributions in late 2024 or 2025
+* I hope to begin accepting contributions in 2025 or late 2024
 * Recruitment of contributors will commence after the console-mode version of the Cympathon compiler is working
 # How to run Cympathon
 * Install the Java SDK
