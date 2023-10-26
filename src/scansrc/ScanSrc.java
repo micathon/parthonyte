@@ -58,6 +58,7 @@ public class ScanSrc implements IConst {
 	private boolean textFound;
 	private boolean tokFound;
 	public boolean inCmtBlk;
+	private boolean isCmtHalf;
 	private boolean inStrLit;
 	private boolean isAllWhiteSp;
 	private String strLitBuf;
@@ -91,6 +92,7 @@ public class ScanSrc implements IConst {
 		}
 		tokCatgLen = CATGNAME.length;
 		inCmtBlk = false;
+		isCmtHalf = false;
 		inStrLit = false;
 		isAllWhiteSp = false;
 		strLitBuf = "";
@@ -126,6 +128,7 @@ public class ScanSrc implements IConst {
 		int bufLen;
 		boolean wasBackslash;
 		boolean wasWhiteSp, inWhiteSp;
+		boolean wasCmtHalf;
 		boolean isProgSepFound;
 		boolean isAtEnd;
 		
@@ -162,6 +165,7 @@ public class ScanSrc implements IConst {
 			printCmd("");
 			outCmd(outbuf);
 		}
+		isCmtHalf = false;
 		textFound = textFound || (bufLen > 0);
 		colIdx = getLeadingBlCount(t);
 		for (int i=0; i < bufLen; i++) {
@@ -174,9 +178,6 @@ public class ScanSrc implements IConst {
 			colIdx++;
 			colCount = colIdx;
 			ch = inbuf.charAt(i);
-			// non-functional '}' recommended to always be escaped with '\',
-			//   in string lit or line comment,
-			//   in case surrounding code is a block comment
 			if (!inCmtBlk) { 
 				if (inStrLit) { }
 				else if (ch == CLOSEBRACECH) {
@@ -186,17 +187,24 @@ public class ScanSrc implements IConst {
 					continue;
 				}
 			}
-			else if (ch != CLOSEBRACECH) { 
+			else if (ch == CMTLINECH) {
+				isCmtHalf = true;
 				continue;
 			}
-			else if (!wasBackslash) {
+			else if (ch != CLOSEBRACECH) { 
+				isCmtHalf = false;
+				continue;
+			}
+			else if (isCmtHalf) {
 				putCmt(2);  // 2nd of 3 chars.: { } #
 				incTokCount(TokenTyp.CMTBLK);
 				inCmtBlk = false;
+				isCmtHalf = false;
 				continue;
 			}
 			else {
-				// '}' was escaped with '\'
+				// ignore } not preceded by # in blk comment
+				isCmtHalf = false;
 				continue;
 			}
 			// not inCmtBlk
@@ -263,7 +271,9 @@ public class ScanSrc implements IConst {
 				token = "" + ch;  // first char. in token
 				continue;
 			}
+			// !wasWhiteSp || inWhiteSp...
 			else if (!inWhiteSp) {
+				// !wasWhiteSp
 				token += ch;  // middle char. in token
 				continue;
 			}
@@ -273,9 +283,15 @@ public class ScanSrc implements IConst {
 				doToken(token);
 				token = "";
 			}
+			// inWhiteSp...
+			
 			// handle various special chars.
-			if (ch == OPENBRACECH) {
+			// now handle: { #
+			wasCmtHalf = isCmtHalf;
+			isCmtHalf = !isCmtHalf && (ch == OPENBRACECH);
+			if (isCmtHalf && (ch == CMTLINECH)) {
 				inCmtBlk = true;
+				isCmtHalf = false;
 				inWhiteSp = true;
 				if (token.length() > 0) {
 					doToken(token);
@@ -284,11 +300,37 @@ public class ScanSrc implements IConst {
 				putCmt(1);  // 1st of 3 chars.: { } #
 				continue;
 			}
-			if (ch == CMTLINECH) {
+			// (ch != '#') || !isCmtHalf...
+			else if (ch == CMTLINECH) {
+				// !isCmtHalf: 
 				putCmt(3);  // 3rd of 3 chars.: { } #
 				incTokCount(TokenTyp.CMTLINE);
+				isCmtHalf = false;
 				break;
 			}
+			// ch != '#'
+			else if (ch != OPENBRACECH) {
+				isCmtHalf = false;
+			}
+			else if (wasCmtHalf) {
+				// error: {{
+				putErr(TokenTyp.ERROPENBRACE);
+				incTokCount(TokenTyp.ERROPENBRACE);
+				isCmtHalf = false;
+				continue;
+			}
+			else {
+				// { not preceded by { 
+				continue;
+			}
+			if (wasCmtHalf) {
+				// error: { not followed by #
+				putErr(TokenTyp.ERROPENBRACE);
+				incTokCount(TokenTyp.ERROPENBRACE);
+				isCmtHalf = false;
+				continue;
+			}
+			// ch != { #
 			rtnval = 0;
 			if (ch == OPENPARCH) {
 				if (wasfor) {  // convert "for (" to "for do ("
@@ -1954,6 +1996,8 @@ public class ScanSrc implements IConst {
 
 	public String getTokErrStr(TokenTyp toktyp) {
 		switch (toktyp) {
+		case ERROPENBRACE:
+			return "Misuse of open brace in block comment";
 		case ERRCLOSEBRACE:
 			return "Missing open brace";
 		case ERRSYM:
