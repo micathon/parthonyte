@@ -243,7 +243,8 @@ public class ScanSrc implements IConst {
 			// not inStrLit
 			inWhiteSp = getInWhiteSp(ch);
 			tokFound = tokFound || !inWhiteSp || isStructChar(ch);
-			if (wasWhiteSp && !inWhiteSp) {
+			if (isCmtHalf) { }
+			else if (wasWhiteSp && !inWhiteSp) {
 				if (ch == QUOTECH) {  // start string literal
 					// may be in middle of multi-line str. lit.
 					inStrLit = true;
@@ -289,7 +290,7 @@ public class ScanSrc implements IConst {
 			// now handle: { #
 			wasCmtHalf = isCmtHalf;
 			isCmtHalf = !isCmtHalf && (ch == OPENBRACECH);
-			if (isCmtHalf && (ch == CMTLINECH)) {
+			if (wasCmtHalf && (ch == CMTLINECH)) {
 				inCmtBlk = true;
 				isCmtHalf = false;
 				inWhiteSp = true;
@@ -320,7 +321,7 @@ public class ScanSrc implements IConst {
 				continue;
 			}
 			else {
-				// { not preceded by { 
+				// OK: { not preceded by { 
 				continue;
 			}
 			if (wasCmtHalf) {
@@ -519,6 +520,10 @@ public class ScanSrc implements IConst {
 		if (!isSilent) {
 			System.out.println(msg);
 		}
+	}
+	
+	public void otmp(String msg) {
+		//System.out.println(msg);  
 	}
 	
 	private String padLineNo(int lineNo) {
@@ -1999,7 +2004,7 @@ public class ScanSrc implements IConst {
 		case ERROPENBRACE:
 			return "Misuse of open brace in block comment";
 		case ERRCLOSEBRACE:
-			return "Missing open brace";
+			return "Close brace found not in block comment";
 		case ERRSYM:
 			return "Invalid character";
 		case ERRCLOSEQUOTE:
