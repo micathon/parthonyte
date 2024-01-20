@@ -1,6 +1,6 @@
 # Cympathon
 * Python-like scripting language, has Lisp/Java/Pascal qualities
-* Sister language called CYML is like HTML, also used for config files
+* Sister language called Cympatags is like HTML, also used for config files
 * In a nutshell, Cympathon mimics the functionality of Python, minus several advanced features, plus a simpler syntax
 * Only Lisp has a simpler syntax than Cympathon, which is straightforward unlike Lisp and other oddball languages like SNOBOL and Forth
 # Info for contributors
