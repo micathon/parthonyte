@@ -1,7 +1,7 @@
 # Contributing to DefunScript
 * Many thanks for your interest in being a DefunScript contributor
 * I hope to begin accepting contributions in 2025
-* Recruitment of contributors will commence after the console-mode version of the Cympathon compiler is working
+* Recruitment of contributors will commence after the console-mode version of the DefunScript compiler is working
 # How to run DefunScript
 * Install the Java SDK
 * `$ cd path/to/bin`
