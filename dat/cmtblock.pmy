@@ -1,0 +1,22 @@
+do (
+gdefun do (
+  p;
+);
+defun (p) (var i n sum) do ( 
+  set sum 0; # Mike Hahn
+  set i 44;
+  set n 10;
+  {# println "in a cmt blk"; #}
+  println {# "ghost" #} "p1: n =" n;
+  {#
+  println "p2: n =" n;
+  #} println "pre: for loop";
+  # for loop syntax errors out:
+  #for (= i 1; ? (<= i n); ++ i) do (
+    += sum i;
+  #);
+  println "sum1:" sum;
+  #println "sum2:" sum; 
+);
+)
+
