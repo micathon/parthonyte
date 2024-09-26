@@ -6,5 +6,5 @@
 # Info for contributors
 * For detailed info, see [Contributing](CONTRIBUTING.md) file, also if desired check out [Code of Conduct](CODE_OF_CONDUCT.md)
 * Not quite ready yet to accept contributions (currently developing code execution of Parthonyte compiler)
-* I work part-time in a perfume store. In Spring 2024 I will quit my job so I can concentrate on Parthonyte development
-* I hope to begin accepting contributions in 2025
+* I work part-time in a perfume store. In January 2025 I will quit my job so I can concentrate on Parthonyte development
+* I hope to begin accepting contributions in late 2025 or maybe 2026
