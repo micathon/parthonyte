@@ -7,7 +7,7 @@
 * `$ cd path/to/bin`
 * `$ java pthy atest > out.txt`
 * text files:
-  * `dat/atest.pthy`: sample Chatrithon source code
+  * `dat/atest.pthy`: sample Parthonyte source code
   * `bin/out.txt`: used for debugging and logging what my code is doing
   * both `atest` and `out.txt` file names can be any valid Linux file name (or Windows/Mac)
 # Roadmap
