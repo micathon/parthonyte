@@ -1,6 +1,6 @@
 # Contributing to Parthonyte
 * Many thanks for your interest in being a Parthonyte contributor
-* I hope to begin accepting contributions in late 2025 or maybe 2026
+* I hope to begin accepting contributions in 2026
 * Recruitment of contributors will commence after the console-mode version of the Parthonyte compiler is working
 # How to run Parthonyte
 * Install the Java SDK
