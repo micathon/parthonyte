@@ -378,6 +378,14 @@ public class RunTime implements IConst, RunConst {
 					omsg("handleDoBlock: btm, UNTIL");
 					rightp = doBtmUntilLoop();
 				}
+				else if (kwtyp == KeywordTyp.FOR) {
+					omsg("handleDoBlock: btm, FOR");
+					popKwd();
+					rightp = popVal();
+					popVal();
+					node = store.getNode(rightp);
+					rightp = node.getRightp();
+				}
 				else {
 					rightp = runRtnStmt(false);
 					if (rightp == EXIT) {
@@ -783,6 +791,7 @@ public class RunTime implements IConst, RunConst {
 		case ELIF: 
 		case ELSE: 
 		case WHILE:
+		case FOR:
 			return 0;  
 		case UNTIL:
 			oprn("Keyword: UNTIL detected.");
@@ -1108,6 +1117,7 @@ public class RunTime implements IConst, RunConst {
 			s = popStrFromNode(addrNode);
 			if (s.length() > 0) {
 				msg = msg + s + SP;
+				//msg = msg + s + "_";
 			}
 			else if (lastErrCode != 0) {
 				return lastErrCode;
@@ -1701,7 +1711,9 @@ public class RunTime implements IConst, RunConst {
 			ival = 1;
 			break;
 		case FOR:
-			return BADFORSTMT;
+			oprn("handleDoToken: FOR");
+			ival = 1;
+			break;
 		default:
 			return BADDOSTMT;
 		}
@@ -1795,6 +1807,9 @@ public class RunTime implements IConst, RunConst {
 		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
 			return STKOVERFLOW;
 		}
+		rightp = node.getRightp();
+		node = store.getNode(rightp);
+		// skip header
 		rightp = node.getRightp();
 		return rightp;
 	}
