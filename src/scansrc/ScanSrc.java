@@ -1152,6 +1152,45 @@ public class ScanSrc implements IConst {
 		outDetl(outbuf);
 		return addNode(NodeCellTyp.STRING, 0, 0.0, stripTok);
 	}
+
+	public int addDoNode(int nodep) {
+		int downp;
+		int rightp;
+		AddrNode addrNode;
+		Node node;
+		Page page;
+		int idx;
+		KeywordTyp kwtyp;
+		NodeCellTyp celltyp = NodeCellTyp.KWD;
+		
+		downp = KeywordTyp.DO.ordinal();
+		page = store.getPage(nodep);
+		idx = store.getElemIdx(nodep);
+		kwtyp = KeywordTyp.DO;
+		node = new Node(0, downp, 0);  // node of new token
+		node.setKeywordTyp(kwtyp);
+		node.setDownCellTyp(celltyp.ordinal());
+		node.setRightCell(false);
+		out("addDoNode: nodep = " + nodep + ", idx = " + idx);
+		rightp = store.allocNode(node);
+		out("rightp = " + rightp + ", celltyp = " + celltyp +
+			", kwd = " + node.getKeywordTyp());
+		page.setPtrNode(idx, rightp);
+		node.setOpenPar(true);
+		node.setDownp(0);
+		addrNode = store.newAddrNode(0, rightp);
+		if (!store.pushNode(addrNode)) {
+			return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
+		}
+		if (!store.pushByte((byte) downp)) {
+			return getNegErrCode(TokenTyp.ERRSTKOVRFLW);
+		}
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		page.setNode(idx, node);
+		nodep = rightp;
+		return nodep;
+	}
 	
 	private int addNode(NodeCellTyp celltyp, long val, double dval,
 		String sval)
