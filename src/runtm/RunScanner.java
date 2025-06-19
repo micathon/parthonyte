@@ -808,7 +808,16 @@ public class RunScanner implements IConst, RunConst {
 	
 	private boolean scopeForStmt(Node node) {
 		int rightp;
+		int firstp;
+		int midp;
+		int exprp;
+		int thirdp;
+		int savep;
+		int downp;
 		KeywordTyp kwtyp;
+		Page page;
+		Node midNode;
+		int idx;
 		boolean rtnval;
 		
 		omsg("scopeForStmt: top");
@@ -816,14 +825,50 @@ public class RunScanner implements IConst, RunConst {
 		if (rightp <= 0) {
 			return false;
 		}
+		firstp = rightp;
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
-		rtnval = scopeExpr(rightp);
-		if (!rtnval) {
-			omsg("scopeForStmt: scopeExpr failed");
+		omsg("scopeForStmt: kwtyp = " + kwtyp);
+		if (kwtyp != KeywordTyp.DO) {
+			omsg("Missing DO before header");
 			return false;
 		}
-		rightp = node.getRightp();
+		rtnval = scopeDoBlock(node);
+		if (!rtnval) {
+			omsg("scopeForStmt: header scope failed");
+			return false;
+		}
+		savep = node.getRightp();
+		// handle massage of header here:
+		// insert do node in between both do nodes
+		// middle do node points to 3rd stmt in header
+		// 3rd stmt in header points to 2nd stmt in header
+		// 2nd stmt in header points to null
+		
+		midp = scanSrc.addDoNode(firstp);
+		midNode = store.getNode(midp);
+		downp = node.getDownp();
+		node = store.getNode(downp); // 1st stmt in header (doesn't change)
+		exprp = node.getRightp();
+		node = store.getNode(exprp); // 2nd (expr) stmt in header
+		thirdp = node.getRightp();
+		node.setRightp(0); 
+		page = store.getPage(exprp);
+		idx = store.getElemIdx(exprp);
+		page.setNode(idx, node);
+		
+		node = store.getNode(thirdp); // 3rd stmt in header
+		midNode.setDownp(thirdp);
+		midNode.setRightp(savep);
+		page = store.getPage(midp);
+		idx = store.getElemIdx(midp);
+		page.setNode(idx, midNode);
+
+		node.setRightp(exprp);
+		page = store.getPage(exprp);
+		idx = store.getElemIdx(exprp);
+		page.setNode(idx, node);
+		rightp = savep;
 		if (rightp <= 0) {
 			return false;
 		}
