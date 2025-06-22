@@ -74,7 +74,7 @@ public class SynChkStmt {
 		case UTSCAN: return doUtScanStmt(rightp);
 		case CALL: return doCallStmt(rightp);
 		case ZCALL: return doCallFunStmt(rightp);
-		case QUEST: return doBoolStmt(rightp);
+		//case QUEST: return doBoolStmt(rightp);
 		case DOT: return doDotStmt(rightp);
 		case RAISE: return doRaiseStmt(rightp);
 		case CONTINUE: return doContinueStmt(rightp);
@@ -100,11 +100,12 @@ public class SynChkStmt {
 		}
 	}
 	
-	public boolean doLoopStmt(int rightp) {
+	public boolean doLoopStmt(int rightp, boolean isBoolStmt) {
 		// one of 3 stmts. in for-loop header
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
+		boolean rtnval;
 
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
@@ -113,11 +114,14 @@ public class SynChkStmt {
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
 		out("Loop Statement kwd = " + kwtyp);
 		switch (kwtyp) {
-		case SET: return doSetStmt(rightp);
+		case QUEST: return (isBoolStmt && doBoolStmt(rightp));
+		case SET: 
+			rtnval = doSetStmt(rightp);
+			break;
 		case INCINT:
 		case DECINT:
-			return doIncDecStmt(rightp);
-		case QUEST: return doBoolStmt(rightp);
+			rtnval = doIncDecStmt(rightp);
+			break;
 		case ADDSET:
 		case MINUSSET:
 		case MPYSET:
@@ -130,10 +134,13 @@ public class SynChkStmt {
 		case ANDBSET:
 		case XORBSET:
 		case ORBSET:
-			return doSetOpStmt(rightp);
+			rtnval = doSetOpStmt(rightp);
+			break;
 		default:
 			return false;
 		}
+		rtnval = (rtnval && !isBoolStmt);
+		return rtnval;
 	}
 	
 	private boolean doIfStmt(int rightp) {
@@ -521,7 +528,7 @@ public class SynChkStmt {
 			if (downp <= 0) {
 				return -1;
 			}
-			if (!doLoopStmt(downp)) {
+			if (!doLoopStmt(downp, i == 1)) {
 				return -2;  // invalid loop control stmt. found
 			}
 			rightp = node.getRightp();
@@ -539,8 +546,8 @@ public class SynChkStmt {
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			//oerrd(savep, "Missing BOOL expression", 120.1);
-			return true;
+			oerrd(savep, "Missing BOOL expression", 120.1);
+			return false;
 		}
 		node = store.getNode(rightp);
 		if (!synExpr.doExpr(rightp)) {
