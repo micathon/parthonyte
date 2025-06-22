@@ -558,6 +558,8 @@ public class RunScanner implements IConst, RunConst {
 		case INCINT:
 		case DECINT:
 			return scopeIncDecStmt(node);
+		case QUEST:
+			return scopeBoolStmt(node);
 		case PRINTLN: return scopePrintlnStmt(node);
 		case ZCALL: return scopeZcallStmt(rightp, false);
 		case RETURN: return scopeRtnStmt(node);
@@ -616,6 +618,20 @@ public class RunScanner implements IConst, RunConst {
 			return false;
 		}
 		return true;
+	}
+	
+	private boolean scopeBoolStmt(Node node) {
+		int rightp;
+		
+		count++;
+		omsg("scopeBoolStmt: top");
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return false;
+		}
+		// perform scope oper. on single expr.
+		omsg("scopeBoolStmt: call scopeExpr");
+		return scopeExpr(rightp);
 	}
 	
 	private boolean scopePrintlnStmt(Node node) {

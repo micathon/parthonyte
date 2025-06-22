@@ -947,6 +947,9 @@ public class RunTime implements IConst, RunConst {
 		case DECINT:
 			rightp = pushIncDecStmt(node, kwtyp);
 			break;
+		case QUEST: 
+			rightp = pushBoolStmt(node);
+			break;
 		case PRINTLN: 
 			rightp = pushPrintlnStmt(node);
 			break;
@@ -1084,6 +1087,18 @@ public class RunTime implements IConst, RunConst {
 			return BADINCDECSTMT;
 		}
 		return 0;
+	}
+	
+	private int pushBoolStmt(Node node) {
+		int rightp;
+		
+		omsg("pushBoolStmt: top");
+		rightp = node.getRightp();
+		if (rightp <= 0) {  // naked quest kwd.
+			return BADFORSTMT;
+		}
+		rightp = handleExprToken(rightp, true);  // handle expr.
+		return rightp;
 	}
 	
 	private int pushPrintlnStmt(Node node) {
@@ -1809,7 +1824,10 @@ public class RunTime implements IConst, RunConst {
 		}
 		rightp = node.getRightp();
 		node = store.getNode(rightp);
-		// skip header
+		// skip header do #1
+		rightp = node.getRightp();
+		node = store.getNode(rightp);
+		// skip header do #2
 		rightp = node.getRightp();
 		return rightp;
 	}
