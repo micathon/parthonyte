@@ -368,7 +368,7 @@ public class RunTime implements IConst, RunConst {
 					rightp = node.getRightp();
 				}
 				else if (kwtyp == KeywordTyp.WHILE) {
-					omsg("handleDoBlock: btm, WHILE");
+					omsg("(4) handleDoBlock: btm, WHILE");
 					popKwd();
 					rightp = popVal();
 					popVal();
@@ -404,6 +404,7 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtop;
 		Node node;
 		int oldLocDepth;
+		String numstr;
 		boolean isShortCircSkip = false;
 		boolean found = false;
 		
@@ -421,7 +422,8 @@ public class RunTime implements IConst, RunConst {
 				if (kwtyp == KeywordTyp.NULL && store.isOpStkEmpty()) {
 					return EXIT;
 				}
-				omsg("exprtok: kwtyp popped = " + kwtyp);
+				numstr = getWhileDoKwd(kwtyp);
+				omsg(numstr + "exprtok: kwtyp popped = " + kwtyp);
 				if (kwtyp == KeywordTyp.ZCALL && locDepth > 0) {  
 					omsg("exprtok: function call, locDepth = " + locDepth);
 				}
@@ -449,7 +451,8 @@ public class RunTime implements IConst, RunConst {
 			//omsg("exprtok: locDepth = " + locDepth);
 			// handling expr.
 			kwtop = topKwd();
-			omsg("exprtok: kwtop = " + kwtop);
+			numstr = getWhileDoKwd(kwtop);
+			omsg(numstr + "exprtok: kwtop = " + kwtop);
 			if (isLogicalKwd(kwtop)) {  
 				rightp = handleLogicalKwd(kwtop, rightp);
 				omsg("exprtok: hlogkw-> rightp = " + rightp);
@@ -498,6 +501,15 @@ public class RunTime implements IConst, RunConst {
 		return rightp;
 	}
 
+	private String getWhileDoKwd(KeywordTyp kwtyp) {
+		String numstr;
+		numstr = "";
+		if ((kwtyp == KeywordTyp.WHILE) || (kwtyp == KeywordTyp.DO)) {
+			numstr = "(1) ";
+		}
+		return numstr;
+	}
+	
 	private int handleLogicalKwd(KeywordTyp kwtop, int rightp) {
 		Node node;
 		AddrNode addrNode;
@@ -800,6 +812,122 @@ public class RunTime implements IConst, RunConst {
 			oprn("handleStmtKwdRtn: kwtyp = " + kwtyp);
 			return BADOP;
 		}
+	}
+	
+	private int pushWhileStmt(Node node, int rightp) {
+		KeywordTyp kwtyp;
+
+		omsg("(2) pushWhileStmt: top");
+		afterStmtKwd = true;
+		kwtyp = KeywordTyp.WHILE;
+		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
+		return rightp;
+	}
+	
+	private int pushForStmt(Node node, int rightp) {
+		KeywordTyp kwtyp;
+
+		omsg("pushForStmt: top");
+		afterStmtKwd = true;
+		kwtyp = KeywordTyp.FOR;
+		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
+		node = store.getNode(rightp);
+		// skip header do #1
+		rightp = node.getRightp();
+		node = store.getNode(rightp);
+		// skip header do #2
+		rightp = node.getRightp();
+		return rightp;
+	}
+	
+	private int handleDoToken(Node node, int rightp) {
+		KeywordTyp kwtyp;
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int stkidx;
+		int ival;
+		boolean isWhile;
+		
+		kwtyp = topKwd();
+		isWhile = (kwtyp == KeywordTyp.WHILE);
+		isWhileUntil = false;
+		switch (kwtyp) {
+		case IF:
+		case ELIF:
+		case WHILE:
+			omsg("handleDoToken: afterStmtKwd = " + afterStmtKwd);
+			if (isWhile && afterStmtKwd) {
+				isWhileUntil = true;
+				popKwd();
+				pushOp(KeywordTyp.UNTIL);
+				ival = 1;
+				break;
+			}
+			stkidx = popIntStk();
+			if (stkidx < 0) {
+				return stkidx;
+			}
+			addrNode = store.fetchNode(stkidx);
+			pgtyp = addrNode.getHdrPgTyp();
+			if (pgtyp != PageTyp.BOOLEAN) { 
+				omsg("handleDoToken: BADOPTYP");
+				return BADOPTYP;
+			}
+			ival = addrNode.getAddr();
+			if (isWhile) {
+				omsg("(3) handleDoToken: ival = " + ival);
+			}
+			break;
+		case ELSE:
+			ival = 1;
+			break;
+		case FOR:
+			omsg("handleDoToken: FOR");
+			//ival = 1;
+			stkidx = popIntStk();
+			if (stkidx < 0) {
+				return stkidx;
+			}
+			addrNode = store.fetchNode(stkidx);
+			pgtyp = addrNode.getHdrPgTyp();
+			if (pgtyp != PageTyp.BOOLEAN) { 
+				omsg("handleDoToken: BADOPTYP");
+				return BADOPTYP;
+			}
+			ival = addrNode.getAddr();
+			
+			break;
+		default:
+			return BADDOSTMT;
+		}
+		// if ival = 1 then do block is executed
+		// else (ival = 0):
+		omsg("handleDoToken: bool as int = " + ival);
+		if (ival == 1) { }
+		//else if (isWhile && !afterStmtKwd) {
+		else if (isWhile) {
+			rightp = popVal();  // points to while stmt
+			omsg("handleDoToken: WHILE LOOP EXIT");
+			return 0;
+		}
+		else {
+			rightp = node.getRightp();
+			return rightp;
+		}
+		rightp = node.getDownp();
+		if (!pushAddr(rightp)) {
+			return STKOVERFLOW;
+		}
+		if (!pushOp(KeywordTyp.DO)) {
+			return STKOVERFLOW;
+		}
+		return 0;
 	}
 	
 	private boolean isJumpKwd(KeywordTyp kwtyp) {
@@ -1687,75 +1815,6 @@ public class RunTime implements IConst, RunConst {
 		return rightp;
 	}
 	
-	private int handleDoToken(Node node, int rightp) {
-		KeywordTyp kwtyp;
-		AddrNode addrNode;
-		PageTyp pgtyp;
-		int stkidx;
-		int ival;
-		boolean isWhile;
-		
-		kwtyp = topKwd();
-		isWhile = (kwtyp == KeywordTyp.WHILE);
-		isWhileUntil = false;
-		switch (kwtyp) {
-		case IF:
-		case ELIF:
-		case WHILE:
-			omsg("handleDoToken: afterStmtKwd = " + afterStmtKwd);
-			if (isWhile && afterStmtKwd) {
-				isWhileUntil = true;
-				popKwd();
-				pushOp(KeywordTyp.UNTIL);
-				ival = 1;
-				break;
-			}
-			stkidx = popIntStk();
-			if (stkidx < 0) {
-				return stkidx;
-			}
-			addrNode = store.fetchNode(stkidx);
-			pgtyp = addrNode.getHdrPgTyp();
-			if (pgtyp != PageTyp.BOOLEAN) { 
-				oprn("handleDoToken: BADOPTYP");
-				return BADOPTYP;
-			}
-			ival = addrNode.getAddr();
-			break;
-		case ELSE:
-			ival = 1;
-			break;
-		case FOR:
-			oprn("handleDoToken: FOR");
-			ival = 1;
-			break;
-		default:
-			return BADDOSTMT;
-		}
-		// if ival = 1 then do block is executed
-		// else (ival = 0):
-		omsg("handleDoToken: bool as int = " + ival);
-		if (ival == 1) { }
-		//else if (isWhile && !afterStmtKwd) {
-		else if (isWhile) {
-			rightp = popVal();  // points to while stmt
-			omsg("handleDoToken: WHILE LOOP EXIT");
-			return 0;
-		}
-		else {
-			rightp = node.getRightp();
-			return rightp;
-		}
-		rightp = node.getDownp();
-		if (!pushAddr(rightp)) {
-			return STKOVERFLOW;
-		}
-		if (!pushOp(KeywordTyp.DO)) {
-			return STKOVERFLOW;
-		}
-		return 0;
-	}
-	
 	private boolean isKwdSkipped(KeywordTyp kwtyp) {
 		switch (kwtyp) {
 		case ELIF:
@@ -1797,38 +1856,6 @@ public class RunTime implements IConst, RunConst {
 			omsg("runDoStmt: isWhileUntil");
 		}
 		rightp = popVal(); 
-		return rightp;
-	}
-	
-	private int pushWhileStmt(Node node, int rightp) {
-		KeywordTyp kwtyp;
-
-		omsg("pushWhileStmt: top");
-		afterStmtKwd = true;
-		kwtyp = KeywordTyp.WHILE;
-		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
-			return STKOVERFLOW;
-		}
-		rightp = node.getRightp();
-		return rightp;
-	}
-	
-	private int pushForStmt(Node node, int rightp) {
-		KeywordTyp kwtyp;
-
-		omsg("pushForStmt: top");
-		afterStmtKwd = true;
-		kwtyp = KeywordTyp.FOR;
-		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
-			return STKOVERFLOW;
-		}
-		rightp = node.getRightp();
-		node = store.getNode(rightp);
-		// skip header do #1
-		rightp = node.getRightp();
-		node = store.getNode(rightp);
-		// skip header do #2
-		rightp = node.getRightp();
 		return rightp;
 	}
 	
