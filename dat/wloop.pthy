@@ -1,0 +1,28 @@
+do (
+gdefun do (
+  p;
+);
+defun (p) (var x y z) do (
+  set z 777;
+  # (2) pushWhileStmt: top
+  # (1) exprtok: kwtop = WHILE
+  # ----------------
+  # (2) pushWhileStmt: top
+  # (1) exprtok: kwtop = WHILE
+  while (> z 444) do (
+    # (1) exprtok: kwtop = WHILE
+	# (3) handleDoToken: ival = 1
+	# (1) exprtok: kwtyp popped = DO
+	# runDoStmt: top
+	# ------------------
+    # (1) exprtok: kwtop = WHILE
+	# (3) handleDoToken: ival = 0
+    # (1) exprtok: kwtop = WHILE
+    set z 333;
+	println "while: z =" z;
+	# (4) hsndleDoBlock: btm, WHILE
+  );
+  println "p: btm";
+);
+)
+
