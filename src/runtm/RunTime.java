@@ -404,7 +404,7 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtop;
 		Node node;
 		int oldLocDepth;
-		String numstr;
+		String numstr = "";
 		boolean isShortCircSkip = false;
 		boolean found = false;
 		
@@ -928,6 +928,16 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		return 0;
+	}
+	
+	private int runDoStmt() {
+		int rightp;
+		omsg("runDoStmt: top");
+		if (isWhileUntil) {
+			omsg("runDoStmt: isWhileUntil");
+		}
+		rightp = popVal(); 
+		return rightp;
 	}
 	
 	private boolean isJumpKwd(KeywordTyp kwtyp) {
@@ -1846,16 +1856,6 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		rightp = node.getRightp();
-		return rightp;
-	}
-	
-	private int runDoStmt() {
-		int rightp;
-		omsg("runDoStmt: top");
-		if (isWhileUntil) {
-			omsg("runDoStmt: isWhileUntil");
-		}
-		rightp = popVal(); 
 		return rightp;
 	}
 	
