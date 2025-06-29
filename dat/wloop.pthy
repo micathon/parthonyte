@@ -56,5 +56,12 @@ defun (p) (var x y z) do (
 	  # goto while zstmt addr
   );
   println "p: btm";
+  set z 999;
+  # pushSetStmt:
+    # ZSTMT, set zstmt addr
+    # [SET]
+  # handleStmtKwd
+    # pop set zstmt addr, ZSTMT
+	# goto (next) set zstmt addr
 );
 )
