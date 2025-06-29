@@ -386,6 +386,12 @@ public class RunTime implements IConst, RunConst {
 					node = store.getNode(rightp);
 					rightp = node.getRightp();
 				}
+				else if (kwtyp == KeywordTyp.QUEST) {
+					// end of for loop header reached
+					// loop control flag on stack
+					// ...
+					
+				}
 				else {
 					rightp = runRtnStmt(false);
 					if (rightp == EXIT) {
@@ -798,6 +804,7 @@ public class RunTime implements IConst, RunConst {
 		case RETURN: return runRtnStmt(true);
 		case UTPUSH: return runUtPushStmt();
 		case UTSCAN: return runUtScanStmt();
+		case QUEST: return runBoolStmt();
 		case DO: return runDoStmt();
 		case IF: 
 		case ELIF: 
@@ -836,6 +843,9 @@ public class RunTime implements IConst, RunConst {
 		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
 			return STKOVERFLOW;
 		}
+		// replace temp code below here...
+		
+		
 		rightp = node.getRightp();
 		node = store.getNode(rightp);
 		// skip header do #1
@@ -945,6 +955,7 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case ZCALL:
 		case RETURN:
+		case QUEST:
 		case DO:
 			return true;
 		default:
@@ -972,6 +983,11 @@ public class RunTime implements IConst, RunConst {
 		default:
 			return false;
 		}
+	}
+	
+	private int runBoolStmt() {
+		omsg("runBoolStmt: top");
+		return 0;
 	}
 	
 	private void doRunTimeError(int errCode) {
@@ -1229,8 +1245,12 @@ public class RunTime implements IConst, RunConst {
 	
 	private int pushBoolStmt(Node node) {
 		int rightp;
+		KeywordTyp kwtyp = KeywordTyp.QUEST;
 		
 		omsg("pushBoolStmt: top");
+		if (!pushOp(kwtyp)) {
+			return STKOVERFLOW;
+		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {  // naked quest kwd.
 			return BADFORSTMT;
