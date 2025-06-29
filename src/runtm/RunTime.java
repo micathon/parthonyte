@@ -358,52 +358,63 @@ public class RunTime implements IConst, RunConst {
 			} while (isExprLoop);  // keep going if return stmt...
 			// unless depth counter is zero, ends up here:
 			while (rightp == 0) {
-				kwtyp = topKwd();
-				omsg("handleDoBlock: btm, top-while, kwtyp = " + kwtyp);
-				if (isBranchKwd(kwtyp)) {
-					popKwd();
-					rightp = popVal();
-					popVal();
-					node = store.getNode(rightp);
-					rightp = node.getRightp();
+				rightp = handleBtmZeroAddr(node);
+				if (rightp == EXIT) {
+					return 0;
 				}
-				else if (kwtyp == KeywordTyp.WHILE) {
-					omsg("(4) handleDoBlock: btm, WHILE");
-					popKwd();
-					rightp = popVal();
-					popVal();
-					popVal();
-				}
-				else if (kwtyp == KeywordTyp.UNTIL) {
-					omsg("handleDoBlock: btm, UNTIL");
-					rightp = doBtmUntilLoop();
-				}
-				else if (kwtyp == KeywordTyp.FOR) {
-					omsg("handleDoBlock: btm, FOR");
-					popKwd();
-					rightp = popVal();
-					popVal();
-					node = store.getNode(rightp);
-					rightp = node.getRightp();
-				}
-				else if (kwtyp == KeywordTyp.QUEST) {
-					// end of for loop header reached
-					// loop control flag on stack
-					// ...
-					
-				}
-				else {
-					rightp = runRtnStmt(false);
-					if (rightp == EXIT) {
-						return 0;
-					}
-				}
-				omsg("handleDoBlock: btm, rightp = " + rightp);
 			}
 		} 
 		return rightp;  // always -ve
 	}
 	
+	private int handleBtmZeroAddr(Node node) {
+		KeywordTyp kwtyp;
+		int rightp = 0;
+		
+		kwtyp = topKwd();
+		omsg("handleBtmZeroAddr: top-while, kwtyp = " + kwtyp);
+		if (isBranchKwd(kwtyp)) {
+			popKwd();
+			rightp = popVal();
+			popVal();
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
+		}
+		else if (kwtyp == KeywordTyp.WHILE) {
+			omsg("(4) handleBtmZeroAddr: WHILE");
+			popKwd();
+			rightp = popVal();
+			popVal();
+			popVal();
+		}
+		else if (kwtyp == KeywordTyp.UNTIL) {
+			omsg("handleBtmZeroAddr: UNTIL");
+			rightp = doBtmUntilLoop();
+		}
+		else if (kwtyp == KeywordTyp.FOR) {
+			omsg("handleBtmZeroAddr: FOR");
+			// replace temp code below...
+			
+			
+			// this code is invalid now:
+			popKwd();
+			rightp = popVal();
+			popVal();
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
+		}
+		else if (kwtyp == KeywordTyp.QUEST) {
+			// end of for loop header reached
+			// loop control flag on stack
+			rightp = runForStmt(node);
+		}
+		else {
+			rightp = runRtnStmt(false);
+		}
+		omsg("handleBtmZeroAddr: btm, rightp = " + rightp);
+		return rightp;
+	}
+
 	private int handleExprToken(int rightp, boolean isSingle) {	
 		// handle single/mult. expr(s).
 		KeywordTyp kwtyp;
@@ -843,16 +854,12 @@ public class RunTime implements IConst, RunConst {
 		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
 			return STKOVERFLOW;
 		}
-		// replace temp code below here...
-		
-		
 		rightp = node.getRightp();
 		node = store.getNode(rightp);
-		// skip header do #1
-		rightp = node.getRightp();
-		node = store.getNode(rightp);
-		// skip header do #2
-		rightp = node.getRightp();
+		// now we're at do #1
+		// add code here...
+		
+		
 		return rightp;
 	}
 	
@@ -899,18 +906,8 @@ public class RunTime implements IConst, RunConst {
 			break;
 		case FOR:
 			omsg("handleDoToken: FOR");
-			//ival = 1;
-			stkidx = popIntStk();
-			if (stkidx < 0) {
-				return stkidx;
-			}
-			addrNode = store.fetchNode(stkidx);
-			pgtyp = addrNode.getHdrPgTyp();
-			if (pgtyp != PageTyp.BOOLEAN) { 
-				omsg("handleDoToken: BADOPTYP");
-				return BADOPTYP;
-			}
-			ival = addrNode.getAddr();
+			ival = 1;
+			// need to add code here...
 			
 			break;
 		default:
@@ -938,6 +935,44 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		return 0;
+	}
+
+	private int runForStmt(Node node) {  
+		// end of for loop header reached
+		// loop control flag on stack
+		int rightp;
+		int stkidx;
+		int ival;
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp != PageTyp.BOOLEAN) { 
+			omsg("handleDoToken: BADOPTYP");
+			return BADOPTYP;
+		}
+		ival = addrNode.getAddr();
+		// handle pops if needed...
+		
+		if (ival == 0) {
+			rightp = node.getRightp();
+			return rightp;
+		}
+		rightp = node.getDownp();
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		node = store.getNode(rightp);
+		rightp = node.getDownp();
+		return rightp; 
 	}
 	
 	private int runDoStmt() {
