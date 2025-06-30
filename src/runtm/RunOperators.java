@@ -387,7 +387,7 @@ public class RunOperators implements IConst, RunConst {
 		store.writeNodeRtn(stkidx, addr, pgtyp, true);
 		omsg("runIncDecStmt: stk = " + stkidx + ", addr = " + addr +
 			", pgtyp = " + pgtyp);
-		return 0;
+		return 0;  
 	}
 /* duplicate:
 	
@@ -860,8 +860,8 @@ public class RunOperators implements IConst, RunConst {
 		
 		omsg("runQuestExpr: kwtyp = " + kwtyp);
 		kwtop = pp.topKwd();
-		if (kwtop != KeywordTyp.DO) {
-			omsg("runQuestExpr: kwtop != DO");
+		if (kwtop != KeywordTyp.FOR) {
+			omsg("runQuestExpr: FOR != kwtop = " + kwtop);
 			return BADFORSTMT; 
 		}
 		return NEGBASEVAL - kwtyp.ordinal();

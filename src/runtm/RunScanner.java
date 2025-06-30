@@ -881,9 +881,9 @@ public class RunScanner implements IConst, RunConst {
 		page.setNode(idx, midNode);
 
 		node.setRightp(exprp);
-		page = store.getPage(exprp);
-		idx = store.getElemIdx(exprp);
-		page.setNode(idx, node);
+		page = store.getPage(thirdp);
+		idx = store.getElemIdx(thirdp);
+		page.setNode(idx, node); 
 		rightp = savep;
 		if (rightp <= 0) {
 			return false;

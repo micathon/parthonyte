@@ -393,7 +393,8 @@ public class RunTime implements IConst, RunConst {
 		}
 		else if (kwtyp == KeywordTyp.FOR) {
 			omsg("handleBtmZeroAddr: FOR");
-			// replace temp code below...
+			popVal();  // ??? = 1
+			// err: returns 0
 			rightp = popVal(); // zstmt of for
 			node = store.getNode(rightp);
 			rightp = node.getDownp();
@@ -779,6 +780,7 @@ public class RunTime implements IConst, RunConst {
 	
 	private int handleStmtKwd(KeywordTyp kwtyp) {
 		int rightp;
+		int temp;
 		AddrNode addrNode;
 		Node node;
 		
@@ -789,6 +791,7 @@ public class RunTime implements IConst, RunConst {
 		addrNode = store.popNode();
 		store.popNode();
 		rightp = addrNode.getAddr();
+		temp = rightp;
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		return rightp;
@@ -856,6 +859,7 @@ public class RunTime implements IConst, RunConst {
 		rightp = node.getRightp();
 		node = store.getNode(rightp);
 		// now we're at do #1
+		//rightp = EXIT;
 		return rightp;
 	}
 	
@@ -903,6 +907,7 @@ public class RunTime implements IConst, RunConst {
 		case FOR:
 			omsg("handleDoToken: FOR");
 			ival = 1;
+			//return EXIT; 
 			break;
 		default:
 			return BADDOSTMT;
@@ -989,12 +994,12 @@ public class RunTime implements IConst, RunConst {
 	}
 	
 	private boolean isJumpKwd(KeywordTyp kwtyp) {
-		omsg("isJumpKwd: kwtyp = " + kwtyp);
 		switch (kwtyp) {
 		case ZCALL:
 		case RETURN:
 		case QUEST:
 		case DO:
+			omsg("isJumpKwd: kwtyp = " + kwtyp);
 			return true;
 		default:
 			return false;
@@ -1005,7 +1010,7 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case AND:
 		case OR:
-		case QUEST:
+		//case QUEST:
 			return true;
 		default:
 			return false;
@@ -1025,7 +1030,7 @@ public class RunTime implements IConst, RunConst {
 	
 	private int runBoolStmt() {
 		omsg("runBoolStmt: top");
-		return 0;
+		return 0; 
 	}
 	
 	private void doRunTimeError(int errCode) {
