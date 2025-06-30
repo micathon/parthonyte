@@ -394,19 +394,18 @@ public class RunTime implements IConst, RunConst {
 		else if (kwtyp == KeywordTyp.FOR) {
 			omsg("handleBtmZeroAddr: FOR");
 			// replace temp code below...
-			
-			
-			// this code is invalid now:
-			popKwd();
-			rightp = popVal();
-			popVal();
+			rightp = popVal(); // zstmt of for
+			node = store.getNode(rightp);
+			rightp = node.getDownp();
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
 		else if (kwtyp == KeywordTyp.QUEST) {
 			// end of for loop header reached
 			// loop control flag on stack
-			rightp = runForStmt(node);
+			rightp = runForStmt();
 		}
 		else {
 			rightp = runRtnStmt(false);
@@ -851,15 +850,12 @@ public class RunTime implements IConst, RunConst {
 		omsg("pushForStmt: top");
 		afterStmtKwd = true;
 		kwtyp = KeywordTyp.FOR;
-		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
+		if (!pushOp(kwtyp)) { // || !pushAddr(rightp)) {
 			return STKOVERFLOW;
 		}
 		rightp = node.getRightp();
 		node = store.getNode(rightp);
 		// now we're at do #1
-		// add code here...
-		
-		
 		return rightp;
 	}
 	
@@ -907,8 +903,6 @@ public class RunTime implements IConst, RunConst {
 		case FOR:
 			omsg("handleDoToken: FOR");
 			ival = 1;
-			// need to add code here...
-			
 			break;
 		default:
 			return BADDOSTMT;
@@ -937,12 +931,13 @@ public class RunTime implements IConst, RunConst {
 		return 0;
 	}
 
-	private int runForStmt(Node node) {  
+	private int runForStmt() {  
 		// end of for loop header reached
 		// loop control flag on stack
-		int rightp;
+		int rightp; 
 		int stkidx;
 		int ival;
+		Node node;
 		AddrNode addrNode;
 		PageTyp pgtyp;
 		
@@ -957,11 +952,19 @@ public class RunTime implements IConst, RunConst {
 			return BADOPTYP;
 		}
 		ival = addrNode.getAddr();
-		// handle pops if needed...
-		
+		popVal(); // 1st zstmt in header
+		rightp = popVal(); // zstmt of for  
+		node = store.getNode(rightp);
 		if (ival == 0) {
+			popVal(); // ZSTMT
+			popKwd(); // DO
+			popKwd(); // FOR
 			rightp = node.getRightp();
 			return rightp;
+		}
+		popKwd(); // DO
+		if (!pushAddr(rightp)) {  // zstmt of for
+			return STKOVERFLOW;
 		}
 		rightp = node.getDownp();
 		node = store.getNode(rightp);
