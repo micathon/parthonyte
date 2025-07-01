@@ -372,7 +372,7 @@ public class RunTime implements IConst, RunConst {
 		int rightp = 0;
 		
 		kwtyp = topKwd();
-		omsg("handleBtmZeroAddr: top-while, kwtyp = " + kwtyp);
+		omsg("handleBtmZeroAddr: top, kwtyp = " + kwtyp);
 		if (isBranchKwd(kwtyp)) {
 			popKwd();
 			rightp = popVal();
@@ -393,15 +393,16 @@ public class RunTime implements IConst, RunConst {
 		}
 		else if (kwtyp == KeywordTyp.FOR) {
 			omsg("handleBtmZeroAddr: FOR");
-			popVal();  // ??? = 1
-			// err: returns 0
 			rightp = popVal(); // zstmt of for
+			popVal();  // ZSTMT
 			node = store.getNode(rightp);
 			rightp = node.getDownp();
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
+			node = store.getNode(rightp);
+			rightp = node.getDownp();
 		}
 		else if (kwtyp == KeywordTyp.QUEST) {
 			// end of for loop header reached
@@ -521,7 +522,7 @@ public class RunTime implements IConst, RunConst {
 	private String getWhileDoKwd(KeywordTyp kwtyp) {
 		String numstr;
 		numstr = "";
-		if ((kwtyp == KeywordTyp.WHILE) || (kwtyp == KeywordTyp.DO)) {
+		if ((kwtyp == KeywordTyp.FOR) || (kwtyp == KeywordTyp.DO)) {
 			numstr = "(1) ";
 		}
 		return numstr;
@@ -850,7 +851,7 @@ public class RunTime implements IConst, RunConst {
 	private int pushForStmt(Node node, int rightp) {
 		KeywordTyp kwtyp;
 
-		omsg("pushForStmt: top");
+		omsg("(2) pushForStmt: top");
 		afterStmtKwd = true;
 		kwtyp = KeywordTyp.FOR;
 		if (!pushOp(kwtyp)) { // || !pushAddr(rightp)) {
@@ -907,13 +908,13 @@ public class RunTime implements IConst, RunConst {
 		case FOR:
 			omsg("handleDoToken: FOR");
 			ival = 1;
-			//return EXIT; 
 			break;
 		default:
 			return BADDOSTMT;
 		}
 		// if ival = 1 then do block is executed
 		// else (ival = 0):
+		omsg("(3) handleDoToken: ival = " + ival);
 		omsg("handleDoToken: bool as int = " + ival);
 		if (ival == 1) { }
 		//else if (isWhile && !afterStmtKwd) {
@@ -946,6 +947,7 @@ public class RunTime implements IConst, RunConst {
 		AddrNode addrNode;
 		PageTyp pgtyp;
 		
+		omsg("runForStmt: top");
 		stkidx = popIntStk();
 		if (stkidx < 0) {
 			return stkidx;
@@ -957,17 +959,25 @@ public class RunTime implements IConst, RunConst {
 			return BADOPTYP;
 		}
 		ival = addrNode.getAddr();
-		popVal(); // 1st zstmt in header
-		rightp = popVal(); // zstmt of for  
-		node = store.getNode(rightp);
 		if (ival == 0) {
-			popVal(); // ZSTMT
-			popKwd(); // DO
+			// wrong...
+			popVal(); // 2nd zstmt in header
+			popVal(); // 0 ??
+			popVal(); // 1st zstmt in header
+			popVal(); // 0 ??
+			popVal(); // 0 ??
+			rightp = popVal(); // zstmt of for  
+			node = store.getNode(rightp);
+			popVal(); // ZSTMT = 1 ??
+			popKwd(); // QUEST
 			popKwd(); // FOR
 			rightp = node.getRightp();
 			return rightp;
 		}
-		popKwd(); // DO
+		popVal(); // 2nd zstmt in header
+		rightp = popVal(); // zstmt of for  
+		node = store.getNode(rightp);
+		popKwd(); // QUEST
 		if (!pushAddr(rightp)) {  // zstmt of for
 			return STKOVERFLOW;
 		}
@@ -1291,7 +1301,9 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtyp = KeywordTyp.QUEST;
 		
 		omsg("pushBoolStmt: top");
-		if (!pushOp(kwtyp)) {
+		rightp = popVal(); 
+		popVal(); // ZSTMT
+		if (!pushOp(kwtyp) || !pushAddr(rightp)) {
 			return STKOVERFLOW;
 		}
 		rightp = node.getRightp();

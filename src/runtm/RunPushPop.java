@@ -46,6 +46,7 @@ class RunPushPop implements IConst, RunConst {
 		
 		ival = (int)store.popByte();
 		kwtyp = KeywordTyp.values[ival];
+		omsg("popKwd [" + kwtyp + "]");
 		return kwtyp;
 	}
 	
@@ -706,6 +707,7 @@ class RunPushPop implements IConst, RunConst {
 		if (!store.pushByte(byt)) {
 			return false;
 		}
+		omsg("pushOp [" + kwtyp + "]");
 		return true;
 	}
 	

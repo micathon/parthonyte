@@ -864,6 +864,7 @@ public class RunOperators implements IConst, RunConst {
 			omsg("runQuestExpr: FOR != kwtop = " + kwtop);
 			return BADFORSTMT; 
 		}
+		pp.pushOp(kwtyp);
 		return NEGBASEVAL - kwtyp.ordinal();
 	}
 
