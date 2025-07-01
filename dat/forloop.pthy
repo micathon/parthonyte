@@ -1,15 +1,146 @@
 do (
 gdefun do (
+  println "gdefun: top";
   p;
 );
-defun (p) (var i n sum) do (
+{#
+defun (proc) (var a b c d e i n sum) do (
   set sum 0;
   set n 10;
-  println "p: n =" n;
-  for (= i 1; ? (<= i n); ++ i) do (
-    += sum i;
+  ++ n;
+  println "proc: n =" n;
+  for (= i 100; ? (< i 101); ++ i) do (
+    println "for-loop: btm";
   );
   println "sum:" sum;
+);
+#}
+defun (p) (var j x y z i) do (
+  set z 777;
+  # for loop executes do block just once
+  # operations:
+    # push: default operation
+	# pop
+	# goto: modify rightp
+	# return
+	# [KWD]: keyword stack push or pop
+  # ---------------- 1st pass ----------
+  # (2) pushForStmt: top
+    # ZSTMT, ZF zstmt addr
+    # [FOR]
+  # (1) exprtok: kwtop = FOR
+  # ---------------- 2nd pass ----------
+  # (2) pushWhileStmt: top
+    # ZSTMT, while zstmt addr
+    # [WHILE], while zstmt addr
+  # (1) exprtok: kwtop = WHILE
+
+  for (= i 100; ? (< i 101); ++ i) do (
+    # -------------- 1st pass ----------
+	# (3) handleDoToken: ival = 1
+	  # ZA zstmt addr, [DO]
+	  # return 0
+	# (1) exprtok: kwtyp popped = DO
+	  # pop [DO]
+	# runDoStmt: top
+	  # pop ZA zstmt addr: rightp is +ve
+	# handleStmtKwd
+	  # goto ZA zstmt addr
+	# pushSetStmt: top
+	  # ZSTMT, ZA stmt addr
+	  # [SET]
+	# runSetStmt: top
+	  # pop [SET]
+	  # pop ZA zstmt addr, ZSTMT
+	# pushBoolStmt: top
+	  # ZSTMT, ZB zstmt addr
+	  # pop ZB, ZSTMT
+	  # ZB zstmt addr
+	  # [QUEST]
+	  # 0
+	  # [LT]
+	  # i, 101
+	  # pop [LT]
+	  # pop 101, i
+	  # end LT:
+	  # pop 0
+	  # push 1 (flag)
+	  # pop [QUEST]
+	# runQuestExpr
+	  # [QUEST]
+	# runBoolStmt: top
+	# handleBtmZeroAddr: top = QUEST
+	# runForStmt
+	  # pop 1 (flag)
+	  # pop ZB zstmt addr
+	  # pop ZF zstmt addr
+	  # pop [QUEST]
+	  # ZF zstmt addr
+	  # goto...
+	  # return Z1 zstmt addr
+	# handleBtmZeroAddr: top = FOR
+	  # pop ZF zstmt addr
+	  # pop ZSTMT
+	  # goto ZC zstmt addr
+    # pushIncDecStmt: top
+	  # ZSTMT, ZC zstmt addr
+	  # [INCINT]
+	  # i
+	  # pop [INCINT]
+	# runIncDecStmt: top
+	  # pop i, ZC zstmt addr, ZSTMT
+	# pushBoolStmt: top
+	  # [QUEST]
+	  # ZB zstmt addr
+	  # 0
+	  # [LT]
+	  # i, 101
+	  # pop [LT]
+	  # pop 101, i
+	  # pop [QUEST]
+	# runQuestExpr
+	  # [QUEST]
+	# runBoolStmt: top
+	# handleBtmZeroAddr: top, QUEST
+	# runForStmt: top
+	  # pop 0 (flag)
+	  # pop ZB zstmt addr
+	  # pop 0
+	  # pop != ZC zstmt addr ??
+	  # pop 1
+	  # pop 5
+	  # pop 101
+	
+	
+
+    # -------------- 2nd pass ----------
+      # false
+    # (1) exprtok: kwtop = WHILE
+	# (3) handleDoToken: ival = 0
+	  # pop false
+	  # pop while zstmt addr
+	  # return 0
+    # (1) exprtok: kwtyp popped = WHILE
+	# handleStmtKwd
+	  # pop while zstmt addr, ZSTMT
+	  # goto println zstmt "p: btm"
+
+    set z 333;
+	println "for: i =" i;
+	# (4) handleDoBlock: btm, WHILE
+	  # pop [WHILE], while zstmt addr
+	  # pop while zstmt addr
+	  # pop ZSTMT
+	  # goto while zstmt addr
+  );
+  println "p: btm";
+  set z 999;
+  # pushSetStmt:
+    # ZSTMT, set zstmt addr
+    # [SET]
+  # handleStmtKwd
+    # pop set zstmt addr, ZSTMT
+	# goto (next) set zstmt addr
 );
 )
 
