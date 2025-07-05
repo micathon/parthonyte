@@ -3,20 +3,8 @@ gdefun do (
   println "gdefun: top";
   p;
 );
-{#
-defun (proc) (var a b c d e i n sum) do (
-  set sum 0;
-  set n 10;
-  ++ n;
-  println "proc: n =" n;
-  for (= i 100; ? (< i 101); ++ i) do (
-    println "for-loop: btm";
-  );
-  println "sum:" sum;
-);
-#}
 defun (p) (var j x y z i) do (
-  set z 777;
+  #set z 777;
   # for loop executes do block just once
   # operations:
     # push: default operation
@@ -35,8 +23,7 @@ defun (p) (var j x y z i) do (
     # ??? [WHILE], while zstmt addr
   # (1) ??? exprtok: kwtop = WHILE
 
-  # for (= i 100; ? (< i 101); ++ i) do (
-  for (= i 100; ? (< i 102); ++ i) do (
+  for (= i 100; ? (< i 103); ++ i) do (
     # -------------- 1st pass ----------
 	# (3) handleDoToken: ival = 1
 	  # ZA zstmt addr, [DO]
@@ -124,7 +111,7 @@ defun (p) (var j x y z i) do (
 	  # pop while zstmt addr, ZSTMT
 	  # goto println zstmt "p: btm"
 
-    set z 333;
+    #set z 333;
 	println "for: i =" i;
 	# (4) handleDoBlock: btm, WHILE
 	  # pop [WHILE], while zstmt addr
@@ -133,7 +120,7 @@ defun (p) (var j x y z i) do (
 	  # goto while zstmt addr
   );
   println "p: btm";
-  set z 999;
+  #set z 999;
   # pushSetStmt:
     # ZSTMT, set zstmt addr
     # [SET]

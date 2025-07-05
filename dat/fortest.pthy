@@ -1,0 +1,17 @@
+do (
+gdefun do (
+  println "gdefun: top";
+  p;
+);
+defun (p) (var w x y z i j) do (
+  for (= i 100; ? (< i 101); ++ i) do (
+	println "for: i =" i;
+	for (= j 0; ? (< j 1); ++ j) do (
+      println "__for: j =" j;
+	);
+	println "for: btm loop";
+  );
+  println "p: btm";
+);
+)
+
