@@ -394,10 +394,10 @@ public class RunTime implements IConst, RunConst {
 		else if (kwtyp == KeywordTyp.FOR) {
 			omsg("handleBtmZeroAddr: FOR");
 			rightp = popVal(); // zstmt of for
-			popVal();  // ZSTMT
 			if (!pushAddr(rightp)) {
 				return STKOVERFLOW;
 			}
+			omsg("handleBtmZeroAddr: FOR, ZF = " + rightp);
 			node = store.getNode(rightp);
 			rightp = node.getDownp();
 			node = store.getNode(rightp);
@@ -940,6 +940,79 @@ public class RunTime implements IConst, RunConst {
 		return 0;
 	}
 
+	private int handleDoToken(Node node, int rightp) {
+		KeywordTyp kwtyp;
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int stkidx;
+		int ival;
+		boolean isWhile;
+		
+		kwtyp = topKwd();
+		isWhile = (kwtyp == KeywordTyp.WHILE);
+		isWhileUntil = false;
+		switch (kwtyp) {
+		case IF:
+		case ELIF:
+		case WHILE:
+			omsg("handleDoToken: afterStmtKwd = " + afterStmtKwd);
+			if (isWhile && afterStmtKwd) {
+				isWhileUntil = true;
+				popKwd();
+				pushOp(KeywordTyp.UNTIL);
+				ival = 1;
+				break;
+			}
+			stkidx = popIntStk();
+			if (stkidx < 0) {
+				return stkidx;
+			}
+			addrNode = store.fetchNode(stkidx);
+			pgtyp = addrNode.getHdrPgTyp();
+			if (pgtyp != PageTyp.BOOLEAN) { 
+				omsg("handleDoToken: BADOPTYP");
+				return BADOPTYP;
+			}
+			ival = addrNode.getAddr();
+			if (isWhile) {
+				omsg("(3) handleDoToken: ival = " + ival);
+			}
+			break;
+		case ELSE:
+			ival = 1;
+			break;
+		case FOR:
+			omsg("handleDoToken: FOR");
+			ival = 1;
+			break;
+		default:
+			return BADDOSTMT;
+		}
+		// if ival = 1 then do block is executed
+		// else (ival = 0):
+		omsg("(3) handleDoToken: ival = " + ival);
+		omsg("handleDoToken: bool as int = " + ival);
+		if (ival == 1) { }
+		//else if (isWhile && !afterStmtKwd) {
+		else if (isWhile) {
+			rightp = popVal();  // points to while stmt
+			omsg("handleDoToken: WHILE LOOP EXIT");
+			return 0;
+		}
+		else {
+			rightp = node.getRightp();
+			return rightp;
+		}
+		rightp = node.getDownp();
+		if (!pushAddr(rightp)) {
+			return STKOVERFLOW;
+		}
+		if (!pushOp(KeywordTyp.DO)) {
+			return STKOVERFLOW;
+		}
+		return 0;
+	}
+
 	private int runForStmt() {  
 		// end of for loop header reached
 		// loop control flag on stack
@@ -975,8 +1048,8 @@ public class RunTime implements IConst, RunConst {
 		rightp = popVal(); // zstmt of for  
 		node = store.getNode(rightp);
 		popKwd(); // QUEST
-		if (!pushAddr(rightp)) {  // zstmt of for
-			return STKOVERFLOW;
+		if (!pushAddr(rightp)) { // zstmt of for
+			return STKOVERFLOW; 
 		}
 		rightp = node.getDownp();
 		node = store.getNode(rightp);
