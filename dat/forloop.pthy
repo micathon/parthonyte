@@ -30,12 +30,13 @@ defun (p) (var j x y z i) do (
     # [FOR]
   # (1) exprtok: kwtop = FOR
   # ---------------- 2nd pass ----------
-  # (2) pushWhileStmt: top
-    # ZSTMT, while zstmt addr
-    # [WHILE], while zstmt addr
-  # (1) exprtok: kwtop = WHILE
+  # (2) ??? pushWhileStmt: top
+    # ??? ZSTMT, while zstmt addr
+    # ??? [WHILE], while zstmt addr
+  # (1) ??? exprtok: kwtop = WHILE
 
-  for (= i 100; ? (< i 101); ++ i) do (
+  # for (= i 100; ? (< i 101); ++ i) do (
+  for (= i 100; ? (< i 102); ++ i) do (
     # -------------- 1st pass ----------
 	# (3) handleDoToken: ival = 1
 	  # ZA zstmt addr, [DO]
@@ -81,6 +82,7 @@ defun (p) (var j x y z i) do (
 	# handleBtmZeroAddr: top = FOR
 	  # pop ZF zstmt addr
 	  # pop ZSTMT
+	  # ZF zstmt addr  *********************
 	  # goto ZC zstmt addr
     # pushIncDecStmt: top
 	  # ZSTMT, ZC zstmt addr
@@ -90,6 +92,8 @@ defun (p) (var j x y z i) do (
 	# runIncDecStmt: top
 	  # pop i, ZC zstmt addr, ZSTMT
 	# pushBoolStmt: top
+	  # ZSTMT, ZB zstmt addr
+	  # pop ZB zstmt addr, ZSTMT
 	  # [QUEST]
 	  # ZB zstmt addr
 	  # 0
@@ -105,13 +109,8 @@ defun (p) (var j x y z i) do (
 	# runForStmt: top
 	  # pop 0 (flag)
 	  # pop ZB zstmt addr
-	  # pop 0
-	  # pop != ZC zstmt addr ??
-	  # pop 1
-	  # pop 5
-	  # pop 101
-	
-	
+      # pop ZF zstmt addr
+	  # pop [QUEST], [FOR]
 
     # -------------- 2nd pass ----------
       # false
