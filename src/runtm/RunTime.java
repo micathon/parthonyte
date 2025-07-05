@@ -395,6 +395,9 @@ public class RunTime implements IConst, RunConst {
 			omsg("handleBtmZeroAddr: FOR");
 			rightp = popVal(); // zstmt of for
 			popVal();  // ZSTMT
+			if (!pushAddr(rightp)) {
+				return STKOVERFLOW;
+			}
 			node = store.getNode(rightp);
 			rightp = node.getDownp();
 			node = store.getNode(rightp);
@@ -940,7 +943,7 @@ public class RunTime implements IConst, RunConst {
 	private int runForStmt() {  
 		// end of for loop header reached
 		// loop control flag on stack
-		int rightp; 
+		int rightp;
 		int stkidx;
 		int ival;
 		Node node;
@@ -960,18 +963,12 @@ public class RunTime implements IConst, RunConst {
 		}
 		ival = addrNode.getAddr();
 		if (ival == 0) {
-			// wrong...
 			popVal(); // 2nd zstmt in header
-			popVal(); // 0 ??
-			popVal(); // 1st zstmt in header
-			popVal(); // 0 ??
-			popVal(); // 0 ??
-			rightp = popVal(); // zstmt of for  
+			rightp = popVal(); // zstmt of for
 			node = store.getNode(rightp);
-			popVal(); // ZSTMT = 1 ??
+			rightp = node.getRightp();
 			popKwd(); // QUEST
 			popKwd(); // FOR
-			rightp = node.getRightp();
 			return rightp;
 		}
 		popVal(); // 2nd zstmt in header
