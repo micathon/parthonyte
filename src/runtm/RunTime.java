@@ -1038,6 +1038,7 @@ public class RunTime implements IConst, RunConst {
 		if (ival == 0) {
 			popVal(); // 2nd zstmt in header
 			rightp = popVal(); // zstmt of for
+			popVal(); // ZSTMT
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 			popKwd(); // QUEST
