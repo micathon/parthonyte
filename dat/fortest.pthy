@@ -13,12 +13,17 @@ defun (p) (var w x y z i j k) do (
 	    println "  __for: k =" k;
       );
 	  for (= k 0; ? (< k 3); ++ k) do (
-	    println "  __for: ke =" k;
+	    set x (f);
+	    println "  __for: ke =" k ": x =" x;
       );
 	);
     println "for: btm loop";
   );
   println "p: btm";
+);
+defun (f) do (
+  #println "f: top";
+  return 7;
 );
 )
 
