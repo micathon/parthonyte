@@ -357,8 +357,8 @@ public class Store implements IConst {
 		return stackTab.popByte();
 	}
 	
-	public byte digByte(int idx) {
-		return stackTab.digByte(idx);
+	public byte pickByte(int idx) {
+		return stackTab.pickByte(idx);
 	}
 	
 	public boolean pushByte(byte byteval) {
@@ -1061,7 +1061,7 @@ class PageTab implements IConst {
 		return true;
 	}
 
-	public byte digByte(int idx) {
+	public byte pickByte(int idx) {
 		byte byteval;
 		Page page = pageTab[opStkPgIdx];
 		int myStkIdx = opStkIdx;
