@@ -59,11 +59,11 @@ class RunPushPop implements IConst, RunConst {
 		return kwtyp;
 	}
 	
-	public KeywordTyp digKwd(int idx) {
+	public KeywordTyp pickKwd(int idx) {
 		KeywordTyp kwtyp;
 		int ival;
 		
-		ival = (int)store.digByte(idx);
+		ival = (int)store.pickByte(idx);
 		kwtyp = KeywordTyp.values[ival];
 		return kwtyp;
 	}

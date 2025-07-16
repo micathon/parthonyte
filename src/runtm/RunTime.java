@@ -1037,6 +1037,16 @@ public class RunTime implements IConst, RunConst {
 		}
 	}
 	
+	private boolean isLoopKwd(KeywordTyp kwtyp) {
+		switch (kwtyp) {
+		case WHILE:
+		case FOR:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	private int runBoolStmt() {
 		omsg("runBoolStmt: top");
 		return 0; 
@@ -1331,7 +1341,7 @@ public class RunTime implements IConst, RunConst {
 		if (rightp > 0) {  // naked brk kwd expected
 			return BADBRKSTMT;
 		}
-		if (!isBrkInLoop(node)) {
+		if (!isBrkInLoop()) {
 			return BADBRKSTMT;
 		}
 		rightp = 0;
@@ -1350,16 +1360,34 @@ public class RunTime implements IConst, RunConst {
 		if (rightp > 0) {  // naked continue kwd expected
 			return BADBRKSTMT;
 		}
-		if (!isBrkInLoop(node)) {
+		if (!isBrkInLoop()) {
 			return BADBRKSTMT;
 		}
 		rightp = 0;
 		return rightp;
 	}
 	
-	private boolean isBrkInLoop(Node node) {
+	private boolean isBrkInLoop() {
+		KeywordTyp kwtyp;
+		int i = 0;
+		boolean isDoKwd = false;
+		boolean wasDoKwd;
 		
-		return true;
+		while (true) {
+			kwtyp = pickKwd(i);
+			if (kwtyp == KeywordTyp.ZNULL) {
+				return false;
+			}
+			if (isLoopKwd(kwtyp)) {
+				return true;
+			}
+			wasDoKwd = isDoKwd;
+			isDoKwd = (kwtyp == KeywordTyp.DO);
+			if (isDoKwd && wasDoKwd) {
+				return false; // bottom of function
+			}
+			i++;
+		}
 	}
 	
 	private int pushPrintlnStmt(Node node) {
@@ -2063,8 +2091,8 @@ public class RunTime implements IConst, RunConst {
 		return pp.topKwd();
 	}
 	
-	private KeywordTyp digKwd(int idx) {
-		return pp.digKwd(idx);
+	private KeywordTyp pickKwd(int idx) {
+		return pp.pickKwd(idx);
 	}
 	
 	public int stripIntSign(int val) {
