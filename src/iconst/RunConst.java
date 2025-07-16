@@ -1,7 +1,6 @@
 package iconst;
 
 public interface RunConst {
-
 	int EXIT = -1;
 	int NEGADDR = -2;
 	int STKOVERFLOW = -3;
@@ -28,6 +27,9 @@ public interface RunConst {
 	int BADDOSTMT = -24;
 	int NOVARINZ = -25;
 	int BADGVAR = -26;
+	int BADINCDECSTMT = -27;
+	int BADFORSTMT = -28;
+	int BADBRKSTMT = -29;
 	int GENERR = -99;
 	int NEGBASEVAL = -1000;
 	int NONVAR = 0; // same as AddrNode
