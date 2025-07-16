@@ -302,6 +302,7 @@ public class RunTime implements IConst, RunConst {
 		case NOVARINZ: return "Variable not initialized";
 		case BADGVAR: return "Invalid attempt to modify global var.";
 		case BADFORSTMT: return "Malformed for stmt";
+		case BADBRKSTMT: return "Error in break or continue stmt";
 		case GENERR: return "General runtime error";
 		default: return "Error code = " + (-rightp);
 		}
@@ -1164,6 +1165,12 @@ public class RunTime implements IConst, RunConst {
 		case RETURN:
 			rightp = pushRtnStmt(node);
 			break;
+		case BREAK:
+			rightp = pushBrkStmt(node);
+			break;
+		case CONTINUE:
+			rightp = pushContinueStmt(node);
+			break;
 		case UTPUSH:
 		case UTSCAN:
 			rightp = pushUtPushStmt(node, kwtyp);
@@ -1310,6 +1317,49 @@ public class RunTime implements IConst, RunConst {
 		}
 		rightp = handleExprToken(rightp, true);  // handle expr.
 		return rightp;
+	}
+	
+	private int pushBrkStmt(Node node) {
+		int rightp;
+		KeywordTyp kwtyp = KeywordTyp.BREAK;
+		
+		omsg("pushBrkStmt: top");
+		if (!pushOp(kwtyp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
+		if (rightp > 0) {  // naked brk kwd expected
+			return BADBRKSTMT;
+		}
+		if (!isBrkInLoop(node)) {
+			return BADBRKSTMT;
+		}
+		rightp = 0;
+		return rightp;
+	}
+	
+	private int pushContinueStmt(Node node) {
+		int rightp;
+		KeywordTyp kwtyp = KeywordTyp.CONTINUE;
+		
+		omsg("pushContinueStmt: top");
+		if (!pushOp(kwtyp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
+		if (rightp > 0) {  // naked continue kwd expected
+			return BADBRKSTMT;
+		}
+		if (!isBrkInLoop(node)) {
+			return BADBRKSTMT;
+		}
+		rightp = 0;
+		return rightp;
+	}
+	
+	private boolean isBrkInLoop(Node node) {
+		
+		return true;
 	}
 	
 	private int pushPrintlnStmt(Node node) {
@@ -2011,6 +2061,10 @@ public class RunTime implements IConst, RunConst {
 	
 	private KeywordTyp topKwd() {
 		return pp.topKwd();
+	}
+	
+	private KeywordTyp digKwd(int idx) {
+		return pp.digKwd(idx);
 	}
 	
 	public int stripIntSign(int val) {
