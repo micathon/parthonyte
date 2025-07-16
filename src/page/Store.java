@@ -357,6 +357,10 @@ public class Store implements IConst {
 		return stackTab.popByte();
 	}
 	
+	public byte digByte(int idx) {
+		return stackTab.digByte(idx);
+	}
+	
 	public boolean pushByte(byte byteval) {
 		return stackTab.pushByte(byteval);
 	}
@@ -1057,6 +1061,43 @@ class PageTab implements IConst {
 		return true;
 	}
 
+	public byte digByte(int idx) {
+		byte byteval;
+		Page page = pageTab[opStkPgIdx];
+		int myStkIdx = opStkIdx;
+		int myStkPgIdx = opStkPgIdx;
+
+		if (myStkIdx == 0) {
+			--myStkPgIdx;
+			if (myStkPgIdx < 0) {
+				return 0; // empty stack
+			}
+			myStkIdx = BYTPGLEN - 1;
+		}
+		// (A) is true
+		while (idx >= BYTPGLEN) {
+			--myStkPgIdx;
+			if (myStkPgIdx < 0) {
+				return 0;
+			}
+			idx -= BYTPGLEN;
+		}
+		// 0 <= idx <= 1023
+		// 1 <= myStkIdx <= 1024 (A)
+		myStkIdx -= (idx + 1);
+		if (myStkIdx >= 0) { // was: myStkIdx > idx 
+			byteval = page.getByte(myStkIdx);
+			return byteval; 
+		}
+		--myStkPgIdx;
+		if (myStkPgIdx < 0) {
+			return 0;
+		}
+		myStkIdx += BYTPGLEN;
+		byteval = page.getByte(myStkIdx);
+		return byteval;
+	}
+	
 	@SuppressWarnings("unused")
 	private void out(boolean flag, String msg) {
 		if (flag) {
