@@ -568,6 +568,9 @@ public class RunScanner implements IConst, RunConst {
 		case IF: return scopeIfStmt(node);
 		case WHILE: return scopeWhileStmt(node);
 		case FOR: return scopeForStmt(node);
+		case BREAK:
+		case CONTINUE:
+			return true;
 		default: 
 			omsg("scopeStmt: invalid kwtyp = " + kwtyp);
 			return false;

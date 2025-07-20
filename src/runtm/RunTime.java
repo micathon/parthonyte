@@ -820,6 +820,10 @@ public class RunTime implements IConst, RunConst {
 		case PRINTLN: return runPrintlnStmt(kwtyp);
 		case ZCALL: return runZcallStmt();
 		case RETURN: return runRtnStmt(true);
+		case BREAK:
+			return runBrkStmt();
+		case CONTINUE:
+			return runContinueStmt(); 
 		case UTPUSH: return runUtPushStmt();
 		case UTSCAN: return runUtScanStmt();
 		case QUEST: return runBoolStmt();
@@ -864,7 +868,6 @@ public class RunTime implements IConst, RunConst {
 		rightp = node.getRightp();
 		node = store.getNode(rightp);
 		// now we're at do #1
-		//rightp = EXIT;
 		return rightp;
 	}
 	
@@ -1006,6 +1009,8 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case ZCALL:
 		case RETURN:
+		case BREAK:
+		case CONTINUE:
 		case QUEST:
 		case DO:
 			omsg("isJumpKwd: kwtyp = " + kwtyp);
@@ -1387,6 +1392,77 @@ public class RunTime implements IConst, RunConst {
 				return false; // bottom of function
 			}
 			i++;
+		}
+	}
+	
+	private int runBrkStmt() {
+		KeywordTyp kwtyp;
+		int addr;
+		int rightp;
+		Node node;
+		
+		while (true) {
+			kwtyp = popKwd();
+			while (kwtyp == KeywordTyp.DO) { 
+				kwtyp = popKwd();
+			}
+			switch (kwtyp) {
+			case IF:
+			case ELIF:
+			case ELSE:
+				popVal(); // addr
+				popVal(); // ZSTMT
+				break;
+			case WHILE:
+			case FOR:
+				popVal(); // points to while-loop control expr.
+				popVal(); // ZSTMT
+				addr = popVal();
+				popVal(); // ZSTMT
+				node = store.getNode(addr);
+				rightp = node.getRightp();
+				return rightp;
+			default:
+				return BADBRKSTMT;
+			}
+		}
+	}
+	
+	private int runContinueStmt() {
+		KeywordTyp kwtyp;
+		int addr;
+		int rightp;
+		Node node;
+		// currently behaves same as break stmt.
+		
+		while (true) {
+			kwtyp = popKwd();
+			while (kwtyp == KeywordTyp.DO) { 
+				kwtyp = popKwd();
+			}
+			switch (kwtyp) {
+			case IF:
+			case ELIF:
+			case ELSE:
+				popVal(); // addr
+				popVal(); // ZSTMT
+				break;
+			case WHILE:
+				popVal(); // points to while-loop control expr.
+				addr = popVal();
+				popVal(); // ZSTMT
+				node = store.getNode(addr);
+				rightp = node.getRightp();
+				return rightp;
+			case FOR:
+				addr = popVal();
+				popVal(); // ZSTMT
+				node = store.getNode(addr);
+				rightp = node.getRightp();
+				return rightp;
+			default:
+				return BADBRKSTMT;
+			}
 		}
 	}
 	
