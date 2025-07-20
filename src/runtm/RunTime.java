@@ -39,6 +39,7 @@ public class RunTime implements IConst, RunConst {
 	private boolean isNegInt;
 	private boolean afterStmtKwd;
 	private boolean isWhileUntil;
+	private boolean isForContinue;
 	private int lastErrCode;
 	private int utKeyValIdx;
 	private boolean isBadUtPair;
@@ -70,6 +71,7 @@ public class RunTime implements IConst, RunConst {
 		isExprLoop = false;
 		afterStmtKwd = false;
 		isWhileUntil = false;
+		isForContinue = false;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
 		glbFunList = new ArrayList<Integer>();
@@ -868,6 +870,14 @@ public class RunTime implements IConst, RunConst {
 		rightp = node.getRightp();
 		node = store.getNode(rightp);
 		// now we're at do #1
+		if (isForContinue) {
+			rightp = node.getRightp();
+			// debug:
+			node = store.getNode(rightp);
+			kwtyp = node.getKeywordTyp();
+			omsg("pushForStmt: kwtyp = " + kwtyp);
+			isForContinue = false;
+		}
 		return rightp;
 	}
 	
@@ -1201,6 +1211,7 @@ public class RunTime implements IConst, RunConst {
 			break;
 		default: return BADSTMT;
 		}
+		isForContinue = false;
 		return rightp;
 	}
 	
@@ -1415,7 +1426,7 @@ public class RunTime implements IConst, RunConst {
 				break;
 			case WHILE:
 			case FOR:
-				popVal(); // points to while-loop control expr.
+				popVal(); // 
 				popVal(); // ZSTMT
 				addr = popVal();
 				popVal(); // ZSTMT
@@ -1433,8 +1444,8 @@ public class RunTime implements IConst, RunConst {
 		int addr;
 		int rightp;
 		Node node;
-		// currently behaves same as break stmt.
 		
+		omsg("runContinueStmt: top");
 		while (true) {
 			kwtyp = popKwd();
 			while (kwtyp == KeywordTyp.DO) { 
@@ -1448,17 +1459,28 @@ public class RunTime implements IConst, RunConst {
 				popVal(); // ZSTMT
 				break;
 			case WHILE:
-				popVal(); // points to while-loop control expr.
-				addr = popVal();
+				popVal(); // 
 				popVal(); // ZSTMT
+				addr = popVal();
+				popVal(); 
+				popVal(); // ZSTMT
+				rightp = addr;
+				// debug:
 				node = store.getNode(addr);
-				rightp = node.getRightp();
+				kwtyp = node.getKeywordTyp();
+				omsg("runContinueStmt, while kwtyp = " + kwtyp);
 				return rightp;
 			case FOR:
+				isForContinue = true;
+				popVal(); // 
+				popVal(); // ZSTMT
 				addr = popVal();
 				popVal(); // ZSTMT
-				node = store.getNode(addr);
-				rightp = node.getRightp();
+				rightp = addr;
+				// debug:
+				node = store.getNode(rightp);
+				kwtyp = node.getKeywordTyp();
+				omsg("runContinueStmt, for kwtyp = " + kwtyp);
 				return rightp;
 			default:
 				return BADBRKSTMT;
