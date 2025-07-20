@@ -1,0 +1,43 @@
+do (
+gdefun do (
+  println "gdefun: top";
+  q;
+  println "gdefun: btm";
+);
+defun (q) (var flag n i) do (
+  println "q: top";
+  set n 3;
+  #while flag do (
+  for (= i 0; ? (< i n); ++ i) do (
+    println "q, loop: top, i =" i;
+	if (>= i 1) do (
+      set n 0;
+	);
+	if true do (
+	  continue;
+	);
+	println "q, loop: btm";
+  );
+  println "q: btm";
+);
+{#
+defun (p) (var i) do (
+  println "p: top";
+  #for (= i 0; ? (< i 3); ++ i) do (
+  while true do (
+    println "p, loop: top";
+	# if true do (
+	{ # if false do (
+      println "p, loop: if false";
+	)# }
+	#if true do (
+	  println "p, if: top";
+      break;
+	  println "p, if: btm";
+	#);
+	println "p, loop: btm";
+  );
+  println "p: btm";
+);
+#}
+)
