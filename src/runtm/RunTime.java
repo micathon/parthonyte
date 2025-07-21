@@ -1157,7 +1157,9 @@ public class RunTime implements IConst, RunConst {
 		kwtyp = node.getKeywordTyp();
 		//if (isJumpKwd(kwtyp)) { }
 		if (kwtyp == KeywordTyp.DO) { }
-		else if (kwtyp == KeywordTyp.ZCALL) { }
+		else if (kwtyp == KeywordTyp.ZCALL) { 
+			omsg("pushStmt: kwd = zcall");
+		}
 		//else if (kwtyp == KeywordTyp.RETURN) { }
 		else if (!pushOpAsNode(KeywordTyp.ZSTMT) || !pushAddr(rightq)) 
 		{
@@ -1888,7 +1890,7 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		// EDBF:
-		if (!pushOpAsNode(KeywordTyp.ZSTMT)) { 
+		if (!pushOpAsNode(KeywordTyp.ZSTMT) || !pushOpAsNode(KeywordTyp.NULL)) { 
 			return STKOVERFLOW;
 		}
 		omsg("Zcall: btm, firstp = " + firstp);
@@ -1896,7 +1898,7 @@ public class RunTime implements IConst, RunConst {
 	}
 	
 	private int runRtnStmt(boolean isExpr) {
-		// - pop return value if any
+		// - pop return value, pop null if none
 		// - pop local depth
 		// - pop returnp (go back here)
 		// - if returnp=0 then done
@@ -1917,7 +1919,7 @@ public class RunTime implements IConst, RunConst {
 		boolean isDelayPops = false;
 		AddrNode funcReturns = null;
 		Node node;
-		KeywordTyp kwtyp;
+		KeywordTyp kwtyp, kwd;
 		
 		omsg("runRtnStmt: top");
 		kwtyp = topKwd();
@@ -1946,8 +1948,13 @@ public class RunTime implements IConst, RunConst {
 			if (!popSafeVal() || !popSafeVal()) {
 				return STKUNDERFLOW;
 			}
+			popVal(); // EDBF: pop ZSTMT
 		}
-		popVal(); // EDBF: pop ZSTMT
+		else {
+			popVal(); // EDBF: pop ZSTMT
+			rightp = popVal(); // NULL
+			omsg("runRtnStmt: null kwd = " + rightp);
+		}
 		locDepth = popVal();
 		omsg("runRtnStmt: locDepth = " + locDepth);
 		if (locDepth == NEGBASEVAL) {
@@ -2027,8 +2034,9 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		rightp = node.getRightp();
-		if (rightp <= 0) {
-			return RTNISEMPTY;  
+		if (rightp > 0) { }
+		else if (!pushOpAsNode(KeywordTyp.NULL)) {
+			return STKOVERFLOW;
 		}
 		node = store.getNode(rightp);
 		rightp = handleExprToken(rightp, true);

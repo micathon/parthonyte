@@ -674,13 +674,13 @@ public class RunScanner implements IConst, RunConst {
 	
 	private boolean scopeRtnStmt(Node node) {
 		// perform scope oper. on single expr.
-		// fails if no expr. found
+		// does not fail if no expr. found
 		int rightp;
 		boolean rtnval;
 		
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			return false;
+			return true;
 		}
 		rtnval = scopeExpr(rightp);
 		if (!rtnval) {
