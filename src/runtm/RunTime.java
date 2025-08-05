@@ -1948,12 +1948,13 @@ public class RunTime implements IConst, RunConst {
 			if (!popSafeVal() || !popSafeVal()) {
 				return STKUNDERFLOW;
 			}
+			popVal(); // EDBF: pop NULL
 			popVal(); // EDBF: pop ZSTMT
 		}
 		else {
 			popVal(); // EDBF: pop ZSTMT
-			rightp = popVal(); // NULL
-			omsg("runRtnStmt: null kwd = " + rightp);
+			popVal(); // NULL
+			//omsg("runRtnStmt: null kwd = " + rightp);
 		}
 		locDepth = popVal();
 		omsg("runRtnStmt: locDepth = " + locDepth);
