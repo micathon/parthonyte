@@ -1431,6 +1431,9 @@ public class RunTime implements IConst, RunConst {
 				popVal(); // 
 				popVal(); // ZSTMT
 				addr = popVal();
+				if (kwtyp == KeywordTyp.WHILE) {
+				  popVal(); // addr again 
+				}
 				popVal(); // ZSTMT
 				node = store.getNode(addr);
 				rightp = node.getRightp();
