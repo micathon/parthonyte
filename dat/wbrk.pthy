@@ -5,14 +5,28 @@ gdefun do (
   #println "gdefun: btm";
 );
 defun (q) (var flag n i) do (
-  println "q: top";
-  set n (p);
+  #println "q: top";
+  set n 99; # (p);
+  p;
   println "q: n =" n;
-  println "q: btm";
+  #println "q: btm";
 );
 defun (p) (var i j k) do (
-  #set k 77;
-  return 77;
+  println "p: top";
+  #set k 88;
+  if true do (
+  #for (= i 0; ? (< i 3); ++ i) do (
+  while true do (
+    println "p, loop: top";
+	if true do (
+	  break;
+	);
+	println "p, loop: btm";
+  );
+  );
+  #println "p: k =" k;
+  #println "p: btm";
+  #return 88;
 );
 # zstmt set, ZSTMT
 # [SET]
@@ -45,8 +59,8 @@ defun (p) (var i j k) do (
 # pop 2 ZSTMT
 # pop 5 NULL
 # pop 2 ZSTMT
-# pop 2 (locDepth)
-# pop 1 (currZstmt)
+# pop 1 (locDepth)
+# pop ( (locBaseIdx)
 # pop 11 (varCount)
 
 
