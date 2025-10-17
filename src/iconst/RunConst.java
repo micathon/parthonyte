@@ -30,6 +30,7 @@ public interface RunConst {
 	int BADINCDECSTMT = -27;
 	int BADFORSTMT = -28;
 	int BADBRKSTMT = -29;
+	int FNCALLNORTNVAL = -30;
 	int GENERR = -99;
 	int NEGBASEVAL = -1000;
 	int NONVAR = 0; // same as AddrNode
