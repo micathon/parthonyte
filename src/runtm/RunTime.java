@@ -305,6 +305,7 @@ public class RunTime implements IConst, RunConst {
 		case BADGVAR: return "Invalid attempt to modify global var.";
 		case BADFORSTMT: return "Malformed for stmt";
 		case BADBRKSTMT: return "Error in break or continue stmt";
+		case FNCALLNORTNVAL : return "Function call has no return value";
 		case GENERR: return "General runtime error";
 		default: return "Error code = " + (-rightp);
 		}
@@ -2009,8 +2010,9 @@ public class RunTime implements IConst, RunConst {
 				store.popNode();
 			}*/
 		}
-		else if (funcReturns == null) { 
-			return GENERR;
+		else if (funcReturns == null) {
+			omsg("runRtnStmt: funrtn is null");
+			return FNCALLNORTNVAL;
 		}
 		else {  
 			rtnval = pushFuncRtnVal(funcAddr, funcReturns, isDelayPops,
@@ -2042,6 +2044,8 @@ public class RunTime implements IConst, RunConst {
 		else if (!pushOpAsNode(KeywordTyp.NULL)) {
 			return STKOVERFLOW;
 		}
+		// missing feature: return kwd w/o rtn val
+		//...
 		node = store.getNode(rightp);
 		rightp = handleExprToken(rightp, true);
 		return rightp;
