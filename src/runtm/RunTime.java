@@ -1386,65 +1386,6 @@ public class RunTime implements IConst, RunConst {
 		return rightp;
 	}
 	
-	private boolean isBrkInLoop() {
-		KeywordTyp kwtyp;
-		int i = 0;
-		boolean isDoKwd = false;
-		boolean wasDoKwd;
-		
-		while (true) {
-			kwtyp = pickKwd(i);
-			if (kwtyp == KeywordTyp.ZNULL) {
-				return false;
-			}
-			if (isLoopKwd(kwtyp)) {
-				return true;
-			}
-			wasDoKwd = isDoKwd;
-			isDoKwd = (kwtyp == KeywordTyp.DO);
-			if (isDoKwd && wasDoKwd) {
-				return false; // bottom of function
-			}
-			i++;
-		}
-	}
-	
-	private int runBrkStmt() {
-		KeywordTyp kwtyp;
-		int addr;
-		int rightp;
-		Node node;
-		
-		while (true) {
-			kwtyp = popKwd();
-			while (kwtyp == KeywordTyp.DO) { 
-				kwtyp = popKwd();
-			}
-			switch (kwtyp) {
-			case IF:
-			case ELIF:
-			case ELSE:
-				popVal(); // addr
-				popVal(); // ZSTMT
-				break;
-			case WHILE:
-			case FOR:
-				popVal(); // 
-				popVal(); // ZSTMT
-				addr = popVal();
-				if (kwtyp == KeywordTyp.WHILE) {
-				  popVal(); // addr again 
-				}
-				popVal(); // ZSTMT
-				node = store.getNode(addr);
-				rightp = node.getRightp();
-				return rightp;
-			default:
-				return BADBRKSTMT;
-			}
-		}
-	}
-	
 	private int runContinueStmt() {
 		KeywordTyp kwtyp;
 		int addr;
@@ -1491,6 +1432,65 @@ public class RunTime implements IConst, RunConst {
 			default:
 				return BADBRKSTMT;
 			}
+		}
+	}
+	
+	private int runBrkStmt() {
+		KeywordTyp kwtyp;
+		int addr;
+		int rightp;
+		Node node;
+		
+		while (true) {
+			kwtyp = popKwd();
+			while (kwtyp == KeywordTyp.DO) { 
+				kwtyp = popKwd();
+			}
+			switch (kwtyp) {
+			case IF:
+			case ELIF:
+			case ELSE:
+				popVal(); // addr
+				popVal(); // ZSTMT
+				break;
+			case WHILE:
+			case FOR:
+				popVal(); // 
+				popVal(); // ZSTMT
+				addr = popVal();
+				if (kwtyp == KeywordTyp.WHILE) {
+				  popVal(); // addr again 
+				}
+				popVal(); // ZSTMT
+				node = store.getNode(addr);
+				rightp = node.getRightp();
+				return rightp;
+			default:
+				return BADBRKSTMT;
+			}
+		}
+	}
+	
+	private boolean isBrkInLoop() {
+		KeywordTyp kwtyp;
+		int i = 0;
+		boolean isDoKwd = false;
+		boolean wasDoKwd;
+		
+		while (true) {
+			kwtyp = pickKwd(i);
+			if (kwtyp == KeywordTyp.ZNULL) {
+				return false;
+			}
+			if (isLoopKwd(kwtyp)) {
+				return true;
+			}
+			wasDoKwd = isDoKwd;
+			isDoKwd = (kwtyp == KeywordTyp.DO);
+			if (isDoKwd && wasDoKwd) {
+				return false; // bottom of function
+			}
+			i++;
 		}
 	}
 	
@@ -1821,7 +1821,7 @@ public class RunTime implements IConst, RunConst {
 		
 		omsg("runZcallStmt: top");
 		// EDBF: enable detection of bottom of current function in stack
-		// pop an extra DO:
+		//   push an extra DO:
 		if (!pushOp(KeywordTyp.DO) || !pushOp(KeywordTyp.DO)) {
 			return STKOVERFLOW;
 		}
@@ -1894,7 +1894,10 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		// EDBF:
-		if (!pushOpAsNode(KeywordTyp.ZSTMT) || !pushOpAsNode(KeywordTyp.NULL)) { 
+		if (!pushOpAsNode(KeywordTyp.ZNULL) || 
+			!pushOpAsNode(KeywordTyp.ZSTMT) || 
+			!pushOpAsNode(KeywordTyp.NULL)) 
+		{ 
 			return STKOVERFLOW;
 		}
 		omsg("Zcall: btm, firstp = " + firstp);
@@ -1926,16 +1929,10 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtyp, kwd;
 		
 		omsg("runRtnStmt: top");
-		kwtyp = topKwd();
-		if (kwtyp != KeywordTyp.DO) {
-			omsg("runRtnStmt: expecting DO, popped kwtyp = " + 
-				kwtyp);
-			//return GENERR;
+		rtnval = pp.popUntilDoRepeats();
+		if (rtnval < 0) {
+			return rtnval;
 		}
-		popKwd();
-		// EDBF
-		// pop an extra DO:
-		popKwd();
 		if (isExpr) {
 			funcReturns = store.popNode(); 
 			if (funcReturns == null) {
@@ -1958,7 +1955,10 @@ public class RunTime implements IConst, RunConst {
 		else {
 			popVal(); // EDBF: pop ZSTMT
 			popVal(); // NULL
-			//omsg("runRtnStmt: null kwd = " + rightp);
+		}
+		rtnval = pp.popUntilKwd(KeywordTyp.ZNULL);
+		if (rtnval < 0) {
+			return rtnval;
 		}
 		locDepth = popVal();
 		omsg("runRtnStmt: locDepth = " + locDepth);
@@ -2006,12 +2006,10 @@ public class RunTime implements IConst, RunConst {
 					return rtnval;
 				}
 			}
-			/*if (isExpr) {
-				store.popNode();
-			}*/
+			/*if (isExpr) { store.popNode(); }*/
 		}
 		else if (funcReturns == null) {
-			omsg("runRtnStmt: funrtn is null");
+			omsg("runRtnStmt: funrtn is null, locDepth = " + locDepth);
 			return FNCALLNORTNVAL;
 		}
 		else {  
@@ -2040,17 +2038,29 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		rightp = node.getRightp();
-		if (rightp > 0) { }
-		else if (!pushOpAsNode(KeywordTyp.NULL)) {
-			return STKOVERFLOW;
+		if (rightp == 0) { 
+			omsg("pushRtnStmt: no expr");
+			rightp = runRtnStmt(false);
+			return rightp;
 		}
-		// missing feature: return kwd w/o rtn val
-		//...
+		// (!pushOpAsNode(KeywordTyp.NULL)) 
 		node = store.getNode(rightp);
 		rightp = handleExprToken(rightp, true);
 		return rightp;
 	}
-	
+/*
+		// top of old runRtnStmt:
+		kwtyp = topKwd();
+		if (kwtyp != KeywordTyp.DO) {
+			omsg("runRtnStmt: expecting DO, popped kwtyp = " + 
+				kwtyp);
+			//return GENERR;
+		}
+		popKwd();
+		// EDBF
+		// pop an extra DO:
+		popKwd();
+*/	
 	private int runGlbCall() {
 		int i, j;
 		int len;

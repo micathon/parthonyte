@@ -5,6 +5,7 @@ import iconst.KeywordTyp;
 import iconst.PageTyp;
 import iconst.RunConst;
 import page.AddrNode;
+import page.Node;
 import page.Page;
 import page.Store;
 
@@ -847,6 +848,27 @@ class RunPushPop implements IConst, RunConst {
 		}
 		varNode = store.fetchNode(varidx);
 		return varNode;
+	}
+	
+	public int popUntilDoRepeats() {
+		KeywordTyp kwtyp;
+		boolean isDoKwd = false;
+		boolean wasDoKwd;
+		boolean isNullKwd;
+		
+		while (!store.isOpStkEmpty()) {
+			kwtyp = popKwd();
+			wasDoKwd = isDoKwd;
+			isNullKwd = (kwtyp == KeywordTyp.NULL);
+			isDoKwd = (kwtyp == KeywordTyp.DO);
+			if (isDoKwd && wasDoKwd) {
+				return 0; // bottom of function
+			}
+			if (isNullKwd) {
+				return EXIT; // bottom of gdefun
+			}
+		}
+		return STKUNDERFLOW;
 	}
 
 	public int popUntilZstmt() {
