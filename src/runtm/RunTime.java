@@ -40,6 +40,7 @@ public class RunTime implements IConst, RunConst {
 	private boolean afterStmtKwd;
 	private boolean isWhileUntil;
 	private boolean isForContinue;
+	private boolean isNakedKwd;
 	private int lastErrCode;
 	private int utKeyValIdx;
 	private boolean isBadUtPair;
@@ -72,6 +73,7 @@ public class RunTime implements IConst, RunConst {
 		afterStmtKwd = false;
 		isWhileUntil = false;
 		isForContinue = false;
+		isNakedKwd = true;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
 		glbFunList = new ArrayList<Integer>();
@@ -508,6 +510,7 @@ public class RunTime implements IConst, RunConst {
 	private int pushExprOrLeaf(Node node, int rightp) {
 		KeywordTyp kwtyp;
 
+		isNakedKwd = false;
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp == KeywordTyp.ZPAREN) {
 			locDepth++;
@@ -822,7 +825,7 @@ public class RunTime implements IConst, RunConst {
 			return runop.runIncDecStmt(kwtyp);
 		case PRINTLN: return runPrintlnStmt(kwtyp);
 		case ZCALL: return runZcallStmt();
-		case RETURN: return runRtnStmt(true);
+		case RETURN: return runRtnStmt(!isNakedKwd);
 		case BREAK:
 			return runBrkStmt();
 		case CONTINUE:
@@ -1166,6 +1169,7 @@ public class RunTime implements IConst, RunConst {
 		{
 			return STKOVERFLOW;
 		}
+		isNakedKwd = true;
 		switch (kwtyp) {
 		case ADDSET:
 		case MINUSSET: 
@@ -2040,8 +2044,8 @@ public class RunTime implements IConst, RunConst {
 		rightp = node.getRightp();
 		if (rightp == 0) { 
 			omsg("pushRtnStmt: no expr");
-			rightp = runRtnStmt(false);
-			return rightp;
+			//rightp = runRtnStmt(false);
+			return 0;
 		}
 		// (!pushOpAsNode(KeywordTyp.NULL)) 
 		node = store.getNode(rightp);
