@@ -1898,10 +1898,10 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		// EDBF:
-		if (!pushOpAsNode(KeywordTyp.ZNULL) || 
-			!pushOpAsNode(KeywordTyp.ZSTMT) || 
-			!pushOpAsNode(KeywordTyp.NULL)) 
-		{ 
+		if (!pushOpAsNode(KeywordTyp.ZNULL)  
+			//|| !pushOpAsNode(KeywordTyp.ZSTMT) 
+			//|| !pushOpAsNode(KeywordTyp.NULL) 
+		) { 
 			return STKOVERFLOW;
 		}
 		omsg("Zcall: btm, firstp = " + firstp);
@@ -1953,13 +1953,9 @@ public class RunTime implements IConst, RunConst {
 			if (!popSafeVal() || !popSafeVal()) {
 				return STKUNDERFLOW;
 			}
-			popVal(); // EDBF: pop NULL
-			popVal(); // EDBF: pop ZSTMT
 		}
-		else {
-			popVal(); // EDBF: pop ZSTMT
-			popVal(); // NULL
-		}
+		//popVal(); // EDBF: pop NULL
+		//popVal(); // EDBF: pop ZSTMT
 		rtnval = pp.popUntilKwd(KeywordTyp.ZNULL);
 		if (rtnval < 0) {
 			return rtnval;
