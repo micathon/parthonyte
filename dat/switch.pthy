@@ -1,0 +1,18 @@
+do (
+gdefun do (
+  p;
+);
+defun (p) (var n) do (
+  set n 2;
+  println "p: n =" n;
+  if true do (
+    switch n
+    case 1 do (println "1st")
+    case 2 do (println "2nd")
+    case 3 do (println "3rd")
+    else do (println "invalid case no.");
+	println "p: after switch";
+  );
+  println "p: btm";
+);
+)
