@@ -571,6 +571,7 @@ public class RunScanner implements IConst, RunConst {
 		case BREAK:
 		case CONTINUE:
 			return true;
+		case SWITCH: return scopeSwitchStmt(node);
 		default: 
 			omsg("scopeStmt: invalid kwtyp = " + kwtyp);
 			return false;
@@ -899,6 +900,16 @@ public class RunScanner implements IConst, RunConst {
 		}
 		rtnval = scopeDoBlock(node);
 		return rtnval;
+	}
+	
+	private boolean scopeSwitchStmt(Node node) {
+		int rightp;
+		KeywordTyp kwtyp;
+		boolean isElse = false;
+		boolean rtnval;
+		
+		omsg("scopeSwitchStmt: top");
+		return true;
 	}
 	
 	private boolean scopeUtPushStmt(Node node) {

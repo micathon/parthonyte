@@ -1216,6 +1216,12 @@ public class RunTime implements IConst, RunConst {
 		case FOR:
 			rightp = pushForStmt(node, savep);
 			break;
+		case SWITCH:
+			//rightp = pushSwitchStmt(node);
+			rightp = savep;
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
+			break;
 		default: return BADSTMT;
 		}
 		isForContinue = false;
