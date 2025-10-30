@@ -909,7 +909,80 @@ public class RunScanner implements IConst, RunConst {
 		boolean rtnval;
 		
 		omsg("scopeSwitchStmt: top");
-		return true;
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return false;
+		}
+		node = store.getNode(rightp);
+		rtnval = scopeExpr(rightp);
+		if (!rtnval) {
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return false;
+		}
+		node = store.getNode(rightp);
+		while (true) {
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp == KeywordTyp.ELSE) {
+				isElse = true;
+				break;
+			}
+			if (kwtyp != KeywordTyp.CASE) {
+				return false;
+			}
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				return false;
+			}
+			node = store.getNode(rightp);
+			rtnval = scopeExpr(rightp);
+			if (!rtnval) {
+				return false;
+			}
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				return false;
+			}
+			node = store.getNode(rightp);
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp != KeywordTyp.DO) {
+				omsg("Missing DO");
+				return false;
+			}
+			rtnval = scopeDoBlock(node);
+			if (!rtnval) {
+				return false;
+			}
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				return true;
+			}
+			node = store.getNode(rightp);
+		}
+		if (!isElse) {
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return false;
+		}
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		if (kwtyp != KeywordTyp.DO) {
+			omsg("Missing DO");
+			return false;
+		}
+		rtnval = scopeDoBlock(node);
+		if (!rtnval) {
+			return false;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			return true;
+		}
+		return false;
 	}
 	
 	private boolean scopeUtPushStmt(Node node) {
