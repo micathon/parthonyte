@@ -1240,9 +1240,8 @@ public class RunOperators implements IConst, RunConst {
 	
 	private int runEqExpr() {
 		// assume 2 literal values on stack, both int or string
-		// push back 2nd popped value
+		// get top value after 1st popped value (only pop once)
 		// push boolean: 2 values are equal
-		//...
 		AddrNode addrNode;
 		PageTyp pgtyp;
 		int stkidx;
@@ -1269,7 +1268,7 @@ public class RunOperators implements IConst, RunConst {
 			return BADOPTYP;
 		}
 		bval = getIntOffStk(stkidx);
-		stkidx = popIntStk();
+		stkidx = topIntStk();
 		if (stkidx < 0) {
 			return stkidx;
 		}
@@ -1282,9 +1281,6 @@ public class RunOperators implements IConst, RunConst {
 			return BADOPTYP;
 		}
 		aval = getIntOffStk(stkidx);
-		if (!pushIntStk(aval)) {  // wrong!
-			return STKOVERFLOW;
-		}
 		flag = (aval == bval);
 		ival = flag ? 1 : 0;
 		rtnval = pushBoolStk(ival) ? 0 : STKOVERFLOW;
@@ -1313,7 +1309,7 @@ public class RunOperators implements IConst, RunConst {
 		idx = store.getElemIdx(addr);
 		tval = page.getString(idx);
 
-		stkidx = popIntStk();
+		stkidx = topIntStk();
 		if (stkidx < 0) {
 			return stkidx;
 		}
@@ -1329,7 +1325,6 @@ public class RunOperators implements IConst, RunConst {
 		page = store.getPage(addr);
 		idx = store.getElemIdx(addr);
 		sval = page.getString(idx);
-		// need to push string sval onto stack...
 		
 		flag = sval.equals(tval);
 		ival = flag ? 1 : 0;
@@ -1368,6 +1363,10 @@ public class RunOperators implements IConst, RunConst {
 	
 	private int popIntStk() {
 		return pp.popIntStk();
+	}
+	
+	private int topIntStk() {
+		return pp.topIntStk();
 	}
 	
 	private boolean isNullKwd(AddrNode addrNode) {

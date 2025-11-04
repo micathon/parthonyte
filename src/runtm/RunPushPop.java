@@ -183,6 +183,44 @@ class RunPushPop implements IConst, RunConst {
 		}
 	}
 	
+	public int topIntStk() {
+		AddrNode addrNode;
+		int locVarTyp;
+		int varidx;
+		int addr;
+		int rtnval;
+		boolean ptrFlag;
+
+		addrNode = store.topNode(); 
+		if (addrNode == null){
+			return rt.STKUNDERFLOW;
+		}
+		rtnval = store.getStkIdx();
+		ptrFlag = addrNode.isPtr();
+		locVarTyp = addrNode.getHdrLocVarTyp();
+		addr = addrNode.getAddr();
+		omsg("popIntStk: ptrFlag = " + ptrFlag);
+		if (ptrFlag && addrNode.getHdrNonVar()) {
+			return addr;  // redirection
+		}
+		switch (locVarTyp) {
+		case NONVAR: 
+			// ptrFlag: false
+			omsg("popIntStk: nonvar, rtn = " + rtnval);
+			return rtnval;
+		case LOCVAR:
+		case GLBVAR:
+			varidx = addr;
+			if (addrNode.getHdrLocVar()) {
+				varidx += locBaseIdx;
+			}
+			omsg("popIntStk: addr = " + addr + 
+				", varidx = " + varidx);
+			return varidx;
+		default: return BADINTVAL;
+		}
+	}
+	
 	public boolean isNullKwd(AddrNode addrNode) {
 		PageTyp pgtyp;
 		int addr;
