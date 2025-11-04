@@ -1238,6 +1238,106 @@ public class RunOperators implements IConst, RunConst {
 		return rtnval;
 	}
 	
+	private int runEqExpr() {
+		// assume 2 literal values on stack, both int or string
+		// push back 2nd popped value
+		// push boolean: 2 values are equal
+		//...
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int stkidx;
+		int rtnval;
+		int aval = 0;
+		int bval = 0;
+		int ival;
+		boolean flag;
+		
+		omsg("runEqExpr: top");
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
+		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp == PageTyp.STRING) {
+			return runStrEqSwitch(addrNode);
+		}
+		if (pgtyp != PageTyp.INTVAL) {
+			return BADOPTYP;
+		}
+		bval = getIntOffStk(stkidx);
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
+		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp != PageTyp.INTVAL) {
+			return BADOPTYP;
+		}
+		aval = getIntOffStk(stkidx);
+		if (!pushIntStk(aval)) {  // wrong!
+			return STKOVERFLOW;
+		}
+		flag = (aval == bval);
+		ival = flag ? 1 : 0;
+		rtnval = pushBoolStk(ival) ? 0 : STKOVERFLOW;
+		return rtnval;
+	}
+	
+	private int runStrEqSwitch(AddrNode addrNode) {
+		PageTyp pgtyp;
+		Page page;
+		int addr;
+		int idx;
+		String sval;
+		String tval;
+		int stkidx;
+		int rtnval;
+		int ival;
+		boolean flag;
+
+		omsg("runStrEqSwitch: top");
+		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp != PageTyp.STRING) {
+			return BADOPTYP;
+		}
+		addr = addrNode.getAddr();
+		page = store.getPage(addr);
+		idx = store.getElemIdx(addr);
+		tval = page.getString(idx);
+
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
+		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp != PageTyp.STRING) {
+			return BADOPTYP;
+		}
+		addr = addrNode.getAddr();
+		page = store.getPage(addr);
+		idx = store.getElemIdx(addr);
+		sval = page.getString(idx);
+		// need to push string sval onto stack...
+		
+		flag = sval.equals(tval);
+		ival = flag ? 1 : 0;
+		omsg("runStrEqSwitch: ival = " + ival);
+		rtnval = pushBoolStk(ival) ? 0 : STKOVERFLOW;
+		return rtnval;
+	}
+	
 	private boolean isNumNode(AddrNode node) {
 		PageTyp pgtyp;
 		boolean flag;

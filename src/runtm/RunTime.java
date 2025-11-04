@@ -1217,10 +1217,7 @@ public class RunTime implements IConst, RunConst {
 			rightp = pushForStmt(node, savep);
 			break;
 		case SWITCH:
-			//rightp = pushSwitchStmt(node);
-			rightp = savep;
-			node = store.getNode(rightp);
-			rightp = node.getRightp();
+			rightp = pushSwitchStmt(node);
 			break;
 		default: return BADSTMT;
 		}
@@ -2190,6 +2187,19 @@ public class RunTime implements IConst, RunConst {
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
+		return rightp;
+	}
+	
+	private int pushSwitchStmt(Node node) {
+		int rightp;
+		KeywordTyp kwtyp;
+
+		omsg("pushSwitchStmt: top");
+		kwtyp = KeywordTyp.SWITCH;
+		if (!pushOp(kwtyp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
 		return rightp;
 	}
 	
