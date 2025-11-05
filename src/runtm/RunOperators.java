@@ -1238,7 +1238,7 @@ public class RunOperators implements IConst, RunConst {
 		return rtnval;
 	}
 	
-	private int runEqExpr() {
+	public int runEqExpr() {
 		// assume 2 literal values on stack, both int or string
 		// get top value after 1st popped value (only pop once)
 		// push boolean: 2 values are equal

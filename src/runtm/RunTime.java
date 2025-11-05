@@ -386,6 +386,14 @@ public class RunTime implements IConst, RunConst {
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
+		else if (kwtyp == KeywordTyp.SWITCH) {
+			popKwd();
+			popVal();
+			rightp = popVal();
+			popVal();
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
+		}
 		else if (kwtyp == KeywordTyp.WHILE) {
 			omsg("(4) handleBtmZeroAddr: WHILE");
 			popKwd();
@@ -837,6 +845,8 @@ public class RunTime implements IConst, RunConst {
 		case IF: 
 		case ELIF: 
 		case ELSE: 
+		case SWITCH:
+		case CASE:
 		case WHILE:
 		case FOR:
 			return 0;  
@@ -891,14 +901,18 @@ public class RunTime implements IConst, RunConst {
 		PageTyp pgtyp;
 		int stkidx;
 		int ival;
+		int rtnval;
 		boolean isWhile;
+		boolean isCase;
 		
 		kwtyp = topKwd();
 		isWhile = (kwtyp == KeywordTyp.WHILE);
+		isCase = (kwtyp == KeywordTyp.CASE);
 		isWhileUntil = false;
 		switch (kwtyp) {
 		case IF:
 		case ELIF:
+		case CASE:
 		case WHILE:
 			omsg("handleDoToken: afterStmtKwd = " + afterStmtKwd);
 			if (isWhile && afterStmtKwd) {
@@ -907,6 +921,12 @@ public class RunTime implements IConst, RunConst {
 				pushOp(KeywordTyp.UNTIL);
 				ival = 1;
 				break;
+			}
+			if (isCase) {
+				rtnval = runop.runEqExpr();
+				if (rtnval < 0) {
+					return rtnval;
+				}
 			}
 			stkidx = popIntStk();
 			if (stkidx < 0) {
@@ -1412,6 +1432,11 @@ public class RunTime implements IConst, RunConst {
 				popVal(); // addr
 				popVal(); // ZSTMT
 				break;
+			case SWITCH:
+				popVal(); // switch control expr.
+				popVal(); // addr
+				popVal(); // ZSTMT
+				break;
 			case WHILE:
 				popVal(); // 
 				popVal(); // ZSTMT
@@ -1457,6 +1482,11 @@ public class RunTime implements IConst, RunConst {
 			case IF:
 			case ELIF:
 			case ELSE:
+				popVal(); // addr
+				popVal(); // ZSTMT
+				break;
+			case SWITCH:
+				popVal(); // switch control expr.
 				popVal(); // addr
 				popVal(); // ZSTMT
 				break;
