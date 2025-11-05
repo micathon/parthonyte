@@ -1152,27 +1152,35 @@ public class ScanSrc implements IConst {
 		outDetl(outbuf);
 		return addNode(NodeCellTyp.STRING, 0, 0.0, stripTok);
 	}
-	
-	public int addKwdNode(KeywordTyp kwtyp, int rightp) {
+
+	public int insertKwdNode(KeywordTyp kwtyp, int nodep) {
 		int downp;
-		int nodep;
+		int rightp;
+		int midp;
 		Page page;
 		int idx;
+		Node basenode;
 		Node node;
 		NodeCellTyp celltyp = NodeCellTyp.KWD;
-		
+
+		basenode = store.getNode(nodep);
+		rightp = basenode.getRightp();
 		downp = kwtyp.ordinal();
 		node = new Node(0, downp, rightp);  // node of new token
 		node.setKeywordTyp(kwtyp);
 		node.setDownCellTyp(celltyp.ordinal());
 		node.setRightCell(false);
-		nodep = store.allocNode(node);
+		midp = store.allocNode(node);
+		basenode.setRightp(midp);
 		page = store.getPage(nodep);
 		idx = store.getElemIdx(nodep);
+		page.setNode(idx, basenode);
+		page = store.getPage(midp);
+		idx = store.getElemIdx(midp);
 		page.setNode(idx, node);
-		out("addDoNode: rightp = " + rightp + ", nodep = " + nodep +
-			", kwd = " + kwtyp);
-		return nodep;
+		out("insertKwdNode: nodep = " + nodep + ", midp = " + midp +
+			", rightp = " + rightp + ", kwd = " + kwtyp);
+		return midp;
 	}
 
 	public int addDoNode(int nodep) {
