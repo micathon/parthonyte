@@ -379,16 +379,20 @@ public class RunTime implements IConst, RunConst {
 		
 		kwtyp = topKwd();
 		omsg("handleBtmZeroAddr: top, kwtyp = " + kwtyp);
-		if (isBranchKwd(kwtyp)) {
+		if (kwtyp == KeywordTyp.CASE ||
+			kwtyp == KeywordTyp.ELSE
+		) {
 			popKwd();
+			kwtyp = topKwd();
+			//omsg("handleBtmZeroAddr: under kwd = " + kwtyp);
+			popVal();  // don't do this for if-else !!!
 			rightp = popVal();
 			popVal();
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
-		else if (kwtyp == KeywordTyp.SWITCH) {
+		else if (isBranchKwd(kwtyp)) {
 			popKwd();
-			popVal();
 			rightp = popVal();
 			popVal();
 			node = store.getNode(rightp);
@@ -849,7 +853,7 @@ public class RunTime implements IConst, RunConst {
 		case CASE:
 		case WHILE:
 		case FOR:
-			return 0;  
+			return 0;
 		case UNTIL:
 			oprn("Keyword: UNTIL detected.");
 			return BADOP;
@@ -1070,6 +1074,8 @@ public class RunTime implements IConst, RunConst {
 		case IF:
 		case ELIF:
 		case ELSE:
+		//case SWITCH:
+		//case CASE:
 			return true;
 		default:
 			return false;
@@ -2147,6 +2153,7 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case ELIF:
 		case ELSE:
+		case CASE:
 			return true;
 		default:
 			return false;
