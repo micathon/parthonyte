@@ -967,19 +967,22 @@ public class RunScanner implements IConst, RunConst {
 			node = store.getNode(rightp);
 		}
 		if (!isElse) {
-			// insert ZELSE keyword:
-			rightp = scanSrc.addKwdNode(KeywordTyp.ZELSE, savep);
-			node = store.getNode(savep);
-			node.setRightp(rightp);
-			page = store.getPage(savep);
-			idx = store.getElemIdx(savep);
-			page.setNode(idx, node);
+			// insert CASE TRUE DO:
+			rightp = scanSrc.insertKwdNode(KeywordTyp.CASE, savep);
+			rightp = scanSrc.insertKwdNode(KeywordTyp.TRUE, rightp);
+			rightp = scanSrc.addDoNode(rightp);
+			if (rightp <= 0) {
+				return false;
+			}
 			return true;
 		}
-		node.setKeywordTyp(KeywordTyp.ZELSE);
+		// change ELSE to CASE TRUE:
+		node.setKeywordTyp(KeywordTyp.CASE);
 		page = store.getPage(rightp);
 		idx = store.getElemIdx(rightp);
 		page.setNode(idx, node);
+		rightp = scanSrc.insertKwdNode(KeywordTyp.TRUE, rightp);
+		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			return false;

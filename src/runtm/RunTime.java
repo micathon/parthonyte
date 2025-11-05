@@ -850,9 +850,9 @@ public class RunTime implements IConst, RunConst {
 		case IF: 
 		case ELIF: 
 		case ELSE: 
-		case ZELSE:
 		case SWITCH:
 		case CASE:
+		case ZELSE:
 		case WHILE:
 		case FOR:
 			return 0;

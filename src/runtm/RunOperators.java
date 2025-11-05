@@ -1264,6 +1264,12 @@ public class RunOperators implements IConst, RunConst {
 		if (pgtyp == PageTyp.STRING) {
 			return runStrEqSwitch(addrNode);
 		}
+		if (pgtyp == PageTyp.BOOLEAN) {
+			flag = (addrNode.getAddr() == 1);
+			ival = flag ? 1 : 0;
+			rtnval = pushBoolStk(ival) ? 0 : STKOVERFLOW;
+			return rtnval;
+		}
 		if (pgtyp != PageTyp.INTVAL) {
 			return BADOPTYP;
 		}
