@@ -904,9 +904,11 @@ public class RunScanner implements IConst, RunConst {
 	
 	private boolean scopeSwitchStmt(Node node) {
 		int rightp;
+		int savep = 0;
 		int idx;
 		Page page;
 		KeywordTyp kwtyp;
+		Node elseNode;
 		boolean isElse = false;
 		boolean rtnval;
 		
@@ -957,14 +959,22 @@ public class RunScanner implements IConst, RunConst {
 			if (!rtnval) {
 				return false;
 			}
+			savep = rightp;
 			rightp = node.getRightp();
 			if (rightp <= 0) {
-				return true;
+				break;
 			}
 			node = store.getNode(rightp);
 		}
 		if (!isElse) {
-			return false;
+			// insert ZELSE keyword:
+			rightp = scanSrc.addKwdNode(KeywordTyp.ZELSE, savep);
+			node = store.getNode(savep);
+			node.setRightp(rightp);
+			page = store.getPage(savep);
+			idx = store.getElemIdx(savep);
+			page.setNode(idx, node);
+			return true;
 		}
 		node.setKeywordTyp(KeywordTyp.ZELSE);
 		page = store.getPage(rightp);
