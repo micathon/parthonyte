@@ -379,20 +379,21 @@ public class RunTime implements IConst, RunConst {
 		
 		kwtyp = topKwd();
 		omsg("handleBtmZeroAddr: top, kwtyp = " + kwtyp);
-		if (kwtyp == KeywordTyp.CASE ||
-			kwtyp == KeywordTyp.ELSE
-		) {
+		if (isBranchKwd(kwtyp)) {
 			popKwd();
-			kwtyp = topKwd();
-			//omsg("handleBtmZeroAddr: under kwd = " + kwtyp);
-			popVal();  // don't do this for if-else !!!
 			rightp = popVal();
 			popVal();
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
-		else if (isBranchKwd(kwtyp)) {
+		else if (
+			kwtyp == KeywordTyp.CASE ||
+			kwtyp == KeywordTyp.ZELSE
+		) {
 			popKwd();
+			kwtyp = topKwd();
+			//omsg("handleBtmZeroAddr: under kwd = " + kwtyp);
+			popVal();  // don't do this for if-else !!!
 			rightp = popVal();
 			popVal();
 			node = store.getNode(rightp);
@@ -849,6 +850,7 @@ public class RunTime implements IConst, RunConst {
 		case IF: 
 		case ELIF: 
 		case ELSE: 
+		case ZELSE:
 		case SWITCH:
 		case CASE:
 		case WHILE:
@@ -948,6 +950,7 @@ public class RunTime implements IConst, RunConst {
 			}
 			break;
 		case ELSE:
+		case ZELSE:
 			ival = 1;
 			break;
 		case FOR:
@@ -1439,6 +1442,8 @@ public class RunTime implements IConst, RunConst {
 				popVal(); // ZSTMT
 				break;
 			case SWITCH:
+			case CASE:
+			case ZELSE:
 				popVal(); // switch control expr.
 				popVal(); // addr
 				popVal(); // ZSTMT
@@ -1492,6 +1497,8 @@ public class RunTime implements IConst, RunConst {
 				popVal(); // ZSTMT
 				break;
 			case SWITCH:
+			case CASE:
+			case ZELSE:
 				popVal(); // switch control expr.
 				popVal(); // addr
 				popVal(); // ZSTMT
@@ -2153,6 +2160,7 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case ELIF:
 		case ELSE:
+		case ZELSE:
 		case CASE:
 			return true;
 		default:

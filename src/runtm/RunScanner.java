@@ -904,6 +904,8 @@ public class RunScanner implements IConst, RunConst {
 	
 	private boolean scopeSwitchStmt(Node node) {
 		int rightp;
+		int idx;
+		Page page;
 		KeywordTyp kwtyp;
 		boolean isElse = false;
 		boolean rtnval;
@@ -964,6 +966,10 @@ public class RunScanner implements IConst, RunConst {
 		if (!isElse) {
 			return false;
 		}
+		node.setKeywordTyp(KeywordTyp.ZELSE);
+		page = store.getPage(rightp);
+		idx = store.getElemIdx(rightp);
+		page.setNode(idx, node);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			return false;
