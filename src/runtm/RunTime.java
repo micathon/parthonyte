@@ -386,10 +386,7 @@ public class RunTime implements IConst, RunConst {
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
-		else if (
-			kwtyp == KeywordTyp.CASE ||
-			kwtyp == KeywordTyp.ZELSE
-		) {
+		else if (kwtyp == KeywordTyp.CASE) {
 			popKwd();
 			kwtyp = topKwd();
 			//omsg("handleBtmZeroAddr: under kwd = " + kwtyp);
@@ -852,7 +849,6 @@ public class RunTime implements IConst, RunConst {
 		case ELSE: 
 		case SWITCH:
 		case CASE:
-		case ZELSE:
 		case WHILE:
 		case FOR:
 			return 0;
@@ -950,7 +946,6 @@ public class RunTime implements IConst, RunConst {
 			}
 			break;
 		case ELSE:
-		case ZELSE:
 			ival = 1;
 			break;
 		case FOR:
@@ -1443,7 +1438,6 @@ public class RunTime implements IConst, RunConst {
 				break;
 			case SWITCH:
 			case CASE:
-			case ZELSE:
 				popVal(); // switch control expr.
 				popVal(); // addr
 				popVal(); // ZSTMT
@@ -1498,7 +1492,6 @@ public class RunTime implements IConst, RunConst {
 				break;
 			case SWITCH:
 			case CASE:
-			case ZELSE:
 				popVal(); // switch control expr.
 				popVal(); // addr
 				popVal(); // ZSTMT
@@ -2160,7 +2153,6 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case ELIF:
 		case ELSE:
-		case ZELSE:
 		case CASE:
 			return true;
 		default:
