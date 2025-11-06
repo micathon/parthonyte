@@ -2,8 +2,8 @@ do (
 gdefun do (
   p;
 );
-defun (p) (var a b c n) do (
-  set n "";
+defun (p) (var a b c d n) do (
+  set n "Aa";
   println "p: n =" n;
   if true do (
     switch n
@@ -14,16 +14,19 @@ defun (p) (var a b c n) do (
 	println "p: after switch";
   );
   while true do (
-  set n 44;
+  set n 888;
   println "p: n =" n;
   switch n
-    case 4 do (println "1st")
-    case 5 do (println "2nd")
-    case 44 do (
-	  println "3rd";
-	  break;
-	)
-    else do (println "invalid case no.");
+  case 40 do (println "1st")
+  case 50 do (println "2nd")
+  case 44 do (
+    println "3rd";
+	break;
+  )
+  else do (
+    println "invalid case no.";
+	break;
+  );
   );
   println "p: after switch";
   println "p: btm";
