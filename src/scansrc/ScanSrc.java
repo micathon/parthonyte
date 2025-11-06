@@ -1152,8 +1152,12 @@ public class ScanSrc implements IConst {
 		outDetl(outbuf);
 		return addNode(NodeCellTyp.STRING, 0, 0.0, stripTok);
 	}
-
+	
 	public int insertKwdNode(KeywordTyp kwtyp, int nodep) {
+		return insertKwdNodeRtn(kwtyp, nodep, false);
+	}
+	
+	public int insertKwdNodeRtn(KeywordTyp kwtyp, int nodep, boolean isBool) {
 		int downp;
 		int rightp;
 		int midp;
@@ -1161,11 +1165,17 @@ public class ScanSrc implements IConst {
 		int idx;
 		Node basenode;
 		Node node;
-		NodeCellTyp celltyp = NodeCellTyp.KWD;
-
+		NodeCellTyp celltyp;
+		
+		celltyp = isBool ? NodeCellTyp.BOOLEAN : NodeCellTyp.KWD;
+		if (isBool) {
+			downp = (kwtyp == KeywordTyp.TRUE) ? 1 : 0;
+		}
+		else {
+			downp = kwtyp.ordinal();
+		}
 		basenode = store.getNode(nodep);
 		rightp = basenode.getRightp();
-		downp = kwtyp.ordinal();
 		node = new Node(0, downp, rightp);  // node of new token
 		node.setKeywordTyp(kwtyp);
 		node.setDownCellTyp(celltyp.ordinal());
