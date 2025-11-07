@@ -321,6 +321,10 @@ public class Store implements IConst {
 		stackTab.putStkIdx(stkidx);
 	}
 	
+	public int getTopStkIdx() {
+		return stackTab.getTopStkIdx();
+	}
+	
 	public void initSpareStkIdx() {
 		stackTab.initSpareStkIdx();
 	}
@@ -640,22 +644,25 @@ class PageTab implements IConst {
 	
 	@SuppressWarnings("unchecked")
 	public AddrNode topNode() {
-		int idx;
+		int stkidx;
+		String s;
 		AddrNode node;
 		ArrayList<AddrNode> list;
 		
 		if (nodeStkIdx > 0) {
 			list = (ArrayList<AddrNode>) nodepg.getList(nodeStkLstIdx);
-			node = list.get(nodeStkIdx - 1);
+			stkidx = nodeStkIdx - 1;
 		}
 		else if (nodeStkLstIdx > 0) {
 			list = (ArrayList<AddrNode>) nodepg.getList(nodeStkLstIdx - 1);
-			idx = NODESTKLEN - 1;
-			node = list.get(idx);
+			stkidx = NODESTKLEN - 1;
 		}
 		else {
-			node = null;
+			return null;
 		}
+		node = list.get(stkidx);
+		s = ", stkidx = " + stkidx;
+		omsg("Top node: " + node.getAddr() + s);
 		return node;
 	}
 	
@@ -712,6 +719,9 @@ class PageTab implements IConst {
 		isKwd = (addrNode.getHdrPgTyp() == PageTyp.KWD);
 		if (isKwd) {
 			s = " KWD, stkidx = " + getStkIdx();
+		}
+		else {
+			s = ", stkidx = " + (nodeStkIdx - 1);
 		}
 		omsg("Pushed " + pval + s);
 		return true;
@@ -800,6 +810,26 @@ class PageTab implements IConst {
 	public void putStkIdx(int stkidx) {
 		nodeStkIdx = stkidx % NODESTKLEN;
 		nodeStkLstIdx = stkidx / NODESTKLEN;
+	}
+	
+	public int getTopStkIdx() {
+		int stkidx;
+		int highidx;
+		int rtnval;
+
+		if (nodeStkIdx > 0) {
+			highidx = nodeStkLstIdx;
+			stkidx = nodeStkIdx - 1;
+		}
+		else if (nodeStkLstIdx > 0) {
+			highidx = nodeStkLstIdx - 1;
+			stkidx = NODESTKLEN - 1;
+		}
+		else {
+			return -1;
+		}
+		rtnval = (highidx << 10) + stkidx;
+		return rtnval;
 	}
 	
 	public void initSpareStkIdx() {
@@ -1001,7 +1031,7 @@ class PageTab implements IConst {
 		addrNode.setAddr(addr);
 		return true;
 	}
-
+	
 	public byte topByte() {
 		byte byteval;
 		int idx;
