@@ -195,7 +195,7 @@ class RunPushPop implements IConst, RunConst {
 		if (addrNode == null){
 			return rt.STKUNDERFLOW;
 		}
-		rtnval = store.getStkIdx();
+		rtnval = store.getTopStkIdx();
 		ptrFlag = addrNode.isPtr();
 		locVarTyp = addrNode.getHdrLocVarTyp();
 		addr = addrNode.getAddr();
