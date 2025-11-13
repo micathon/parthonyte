@@ -570,6 +570,7 @@ public class RunScanner implements IConst, RunConst {
 		case FOR: return scopeForStmt(node);
 		case BREAK:
 		case CONTINUE:
+		case TUPLE:
 			return true;
 		case SWITCH: return scopeSwitchStmt(node);
 		default: 
@@ -1003,7 +1004,7 @@ public class RunScanner implements IConst, RunConst {
 		}
 		return false;
 	}
-	
+
 	private boolean scopeUtPushStmt(Node node) {
 		boolean rtnval;
 		

@@ -388,9 +388,7 @@ public class RunTime implements IConst, RunConst {
 		}
 		else if (kwtyp == KeywordTyp.CASE) {
 			popKwd();
-			kwtyp = topKwd();
-			//omsg("handleBtmZeroAddr: under kwd = " + kwtyp);
-			popVal();  // don't do this for if-else !!!
+			popVal();
 			rightp = popVal();
 			popVal();
 			node = store.getNode(rightp);
@@ -851,6 +849,7 @@ public class RunTime implements IConst, RunConst {
 		case CASE:
 		case WHILE:
 		case FOR:
+		case TUPLE:
 			return 0;
 		case UNTIL:
 			oprn("Keyword: UNTIL detected.");
@@ -1072,8 +1071,6 @@ public class RunTime implements IConst, RunConst {
 		case IF:
 		case ELIF:
 		case ELSE:
-		//case SWITCH:
-		//case CASE:
 			return true;
 		default:
 			return false;
@@ -1243,6 +1240,9 @@ public class RunTime implements IConst, RunConst {
 		case SWITCH:
 			rightp = pushSwitchStmt(node);
 			break;
+		case TUPLE:
+			rightp = pushTupleStmt(node);
+			break;
 		default: return BADSTMT;
 		}
 		isForContinue = false;
@@ -1376,6 +1376,22 @@ public class RunTime implements IConst, RunConst {
 			return BADFORSTMT;
 		}
 		rightp = handleExprToken(rightp, true);  // handle expr.
+		return rightp;
+	}
+	
+	private int pushTupleStmt(Node node) {
+		int rightp;
+		KeywordTyp kwtyp = KeywordTyp.TUPLE;
+		
+		omsg("pushTupleStmt: top");
+		if (!pushOp(kwtyp)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
+		if (rightp > 0) {  // naked tuple kwd expected
+			return GENERR;
+		}
+		rightp = 0;
 		return rightp;
 	}
 	
