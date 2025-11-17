@@ -46,9 +46,12 @@ public class RunOperators implements IConst, RunConst {
 			return runBitwiseExpr(kwtyp);
 		case AND:
 		case OR:
+		case QUEST:  // comment out, for-quest will work OK !!!
 			return runLogicalExpr(kwtyp);
+		/*
 		case QUEST:
 			return runQuestExpr(kwtyp);
+		*/
 		case EQ:
 		case NE:
 		case LT:
@@ -1239,7 +1242,7 @@ public class RunOperators implements IConst, RunConst {
 	}
 	
 	public int runEqExpr() {
-		// assume 2 literal values on stack, both int or string
+		// assume 1 arbitrary and 1 literal values on stack, both int or string
 		// get top value after 1st popped value (only pop once)
 		// push boolean: 2 values are equal
 		AddrNode addrNode;

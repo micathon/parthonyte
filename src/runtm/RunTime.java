@@ -1059,7 +1059,7 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case AND:
 		case OR:
-		//case QUEST:
+		case QUEST:  // commented out, for-quest will work OK !!!
 			return true;
 		default:
 			return false;
