@@ -1,11 +1,11 @@
 do (
 gdefun do (
-  ifstmt;
+  #ifstmt;
   #comparop;
   #strcomparop;
   #bitzop;
   #andop;
-  #questop;
+  questop;
 );
 defun (ifstmt) (var x) do (
   println "top";
@@ -20,7 +20,7 @@ defun (g) (var y) do (
   set y 1;
   #println "f body";
 );
-{
+{#
   if true do (
     println "blk1";
     f;
@@ -32,7 +32,7 @@ defun (g) (var y) do (
   else do (
     println "blk3";
   );
-}  
+#}  
 defun (comparop) (var x a b m n) do (
   set a 0.0;
   set b 1.0;
@@ -145,13 +145,17 @@ defun (bitzop) (var a b c d e f u v x y z) do (
   set x (& a b c d e f);
   println "xabcdef:" x a b c d e f;
 );
-defun (andop) (var a x c d) do (
+defun (andop) (var a a1 a2 x c d e) do (
   set c true;
-  set d false;
+  set d true;
+  set e true;
   println "cd:" c d;
-  set x (&& c (|| d false));
-  #set x (&& c (f d 7));
+  #set x (&& c (|| d false));
+  #set x (&& c (f d 7) e);
+  set x (&& c d e);
   println "x:" x;
+  return;
+  
   set x (xor c d);
   println "xor x:" x;
   set d true;
@@ -162,7 +166,6 @@ defun (f flag n) do (
   println "n:" n;
   return flag;
 );
-{
 defun (questop) (var c d flag x a b) do (
   set flag false;
   set a 101;
@@ -174,6 +177,5 @@ defun (fun x) do (
   println "y:" (+ x 1);
   return x;
 );
-}
 )
 
