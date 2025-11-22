@@ -558,7 +558,7 @@ public class RunScanner implements IConst, RunConst {
 		case INCINT:
 		case DECINT:
 			return scopeIncDecStmt(node);
-		case QUEST:
+		case ZQUEST:
 			return scopeBoolStmt(node);
 		case PRINTLN: return scopePrintlnStmt(node);
 		case ZCALL: return scopeZcallStmt(rightp, false);

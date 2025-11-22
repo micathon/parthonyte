@@ -46,12 +46,11 @@ public class RunOperators implements IConst, RunConst {
 			return runBitwiseExpr(kwtyp);
 		case AND:
 		case OR:
-		case QUEST:  // comment out, for-quest will work OK !!!
 			return runLogicalExpr(kwtyp);
-		/*
-		case QUEST:
+		case ZQUEST:
 			return runQuestExpr(kwtyp);
-		*/
+		case QUEST:
+			return 0;
 		case EQ:
 		case NE:
 		case LT:
@@ -865,7 +864,7 @@ public class RunOperators implements IConst, RunConst {
 		kwtop = pp.topKwd();
 		if (kwtop != KeywordTyp.FOR) {
 			omsg("runQuestExpr: FOR != kwtop = " + kwtop);
-			return BADFORSTMT; 
+			return BADFORSTMT;
 		}
 		pp.pushOp(kwtyp);
 		return NEGBASEVAL - kwtyp.ordinal();

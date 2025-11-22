@@ -421,7 +421,7 @@ public class RunTime implements IConst, RunConst {
 			node = store.getNode(rightp);
 			rightp = node.getDownp();
 		}
-		else if (kwtyp == KeywordTyp.QUEST) {
+		else if (kwtyp == KeywordTyp.ZQUEST) {
 			// end of for loop header reached
 			// loop control flag on stack
 			rightp = runForStmt();
@@ -849,6 +849,7 @@ public class RunTime implements IConst, RunConst {
 		case CASE:
 		case WHILE:
 		case FOR:
+		case ZQUEST:
 		case TUPLE:
 			return 0;
 		case UNTIL:
@@ -1047,6 +1048,7 @@ public class RunTime implements IConst, RunConst {
 		case BREAK:
 		case CONTINUE:
 		case QUEST:
+		case ZQUEST:
 		case DO:
 			omsg("isJumpKwd: kwtyp = " + kwtyp);
 			return true;
@@ -1206,6 +1208,9 @@ public class RunTime implements IConst, RunConst {
 		case DECINT:
 			rightp = pushIncDecStmt(node, kwtyp);
 			break;
+		case ZQUEST: 
+			//rightp = pushBoolForStmt(node);
+			//break;
 		case QUEST: 
 			rightp = pushBoolStmt(node);
 			break;
@@ -1363,7 +1368,7 @@ public class RunTime implements IConst, RunConst {
 	
 	private int pushBoolStmt(Node node) {
 		int rightp;
-		KeywordTyp kwtyp = KeywordTyp.QUEST;
+		KeywordTyp kwtyp = KeywordTyp.ZQUEST;
 		
 		omsg("pushBoolStmt: top");
 		rightp = popVal(); 
@@ -1373,6 +1378,21 @@ public class RunTime implements IConst, RunConst {
 		}
 		rightp = node.getRightp();
 		if (rightp <= 0) {  // naked quest kwd.
+			return BADFORSTMT;
+		}
+		rightp = handleExprToken(rightp, true);  // handle expr.
+		return rightp;
+	}
+	
+	private int pushBoolForStmt(Node node) {
+		int rightp;
+		
+		omsg("pushBoolForStmt: top");
+		if (!pushOp(KeywordTyp.ZQUEST)) {
+			return STKOVERFLOW;
+		}
+		rightp = node.getRightp();
+		if (rightp <= 0) {  // naked zquest kwd.
 			return BADFORSTMT;
 		}
 		rightp = handleExprToken(rightp, true);  // handle expr.
