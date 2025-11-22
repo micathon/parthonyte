@@ -2,6 +2,7 @@ package synchk;
 
 import iconst.KeywordTyp;
 import iconst.NodeCellTyp;
+import page.Page;
 import page.Node;
 import page.Store;
 import scansrc.ScanSrc;
@@ -105,6 +106,8 @@ public class SynChkStmt {
 		Node node;
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
+		Page page;
+		int idx;
 		boolean rtnval;
 
 		node = store.getNode(rightp);
@@ -114,7 +117,12 @@ public class SynChkStmt {
 				", kwd = " + kwtyp + ", celtyp = " + celltyp);
 		out("Loop Statement kwd = " + kwtyp);
 		switch (kwtyp) {
-		case QUEST: return (isBoolStmt && doBoolStmt(rightp));
+		case QUEST: 
+			node.setKeywordTyp(KeywordTyp.ZQUEST);
+			page = store.getPage(rightp);
+			idx = store.getElemIdx(rightp);
+			page.setNode(idx, node);
+			return (isBoolStmt && doBoolStmt(rightp));
 		case SET: 
 			rtnval = doSetStmt(rightp);
 			break;
