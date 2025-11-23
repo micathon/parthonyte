@@ -1,0 +1,13 @@
+do (
+gdefun do (
+  p;
+);
+defun (p) (var i j k) do (
+  set j 99;
+  set k (quest (< j 100) 40 70);
+  set i (cquest
+    (case (< j 100) 40)
+    (case true 70));
+  println "p: i =" i "_k =" k;
+);
+)
