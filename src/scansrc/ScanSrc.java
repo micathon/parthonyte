@@ -1877,6 +1877,7 @@ public class ScanSrc implements IConst {
 		case XORBSET: return "^=";
 		case ORBSET: return "|=";
 		case QUEST: return "?";
+		case CQUEST: return "??";
 		case MINUS: return "-";
 		case NOTBITZ: return "~";
 		case NOT: return "!";
@@ -2036,6 +2037,11 @@ public class ScanSrc implements IConst {
 		case '!': 
 			if (ch2 == '=') {
 				return KeywordTyp.NE;
+			}
+			break;
+		case '?': 
+			if (ch2 == '?') {
+				return KeywordTyp.CQUEST;
 			}
 			break;
 		}
