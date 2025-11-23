@@ -51,6 +51,8 @@ public class RunOperators implements IConst, RunConst {
 			return runQuestExpr(kwtyp);
 		case QUEST:
 			return 0;
+		case CQUEST:
+			return runCquestExpr(kwtyp);
 		case EQ:
 		case NE:
 		case LT:
@@ -868,6 +870,15 @@ public class RunOperators implements IConst, RunConst {
 		}
 		pp.pushOp(kwtyp);
 		return NEGBASEVAL - kwtyp.ordinal();
+	}
+
+	private int runCquestExpr(KeywordTyp kwtyp) {
+		KeywordTyp kwtop;
+		int rtnval;
+		
+		omsg("runCquestExpr: kwtyp = " + kwtyp);
+		rtnval = pushIntStk(0) ? 0 : STKOVERFLOW;
+		return rtnval;
 	}
 
 	private int runXorExpr() {

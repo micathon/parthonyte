@@ -1294,6 +1294,7 @@ public class RunTime implements IConst, RunConst {
 		case GT:
 		case NOT:
 		case NOTBITZ:
+		case CQUEST:
 			if (!pushOp(kwtyp)) {
 				return STKOVERFLOW;
 			}
