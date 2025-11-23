@@ -566,6 +566,10 @@ public class RunTime implements IConst, RunConst {
 			rightp = logicalQuestKwd(rightp);
 			return rightp;
 		}
+		else if (kwtop == KeywordTyp.CASE) { 
+			rightp = logicalCaseKwd(rightp);
+			return rightp;
+		}
 		else {
 			addrNode = store.popNode();
 			if (addrNode == null) {
@@ -681,6 +685,36 @@ public class RunTime implements IConst, RunConst {
 		}
 	}
 
+	private int logicalCaseKwd(int rightp) {
+		Node node;
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		int ival;
+		int stkidx;
+		
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		pgtyp = addrNode.getHdrPgTyp();
+		if (pgtyp != PageTyp.BOOLEAN) { 
+			omsg("handleDoToken: BADOPTYP");
+			return BADOPTYP;
+		}
+		ival = addrNode.getAddr();
+		if (ival == 1) {
+			return rightp;
+		}
+		popKwd();
+		addrNode = store.popNode();
+		if (addrNode == null) {
+			return STKUNDERFLOW;
+		}
+		rightp = addrNode.getAddr();
+		return rightp;
+	}
+
 	private int handleLeafToken(Node node) {
 		return handleLeafTokenRtn(node, false);
 	}
@@ -793,7 +827,7 @@ public class RunTime implements IConst, RunConst {
 		if (!store.swapNodes()) {
 			return STKUNDERFLOW;
 		}
-		rightp = popVal();  //###
+		rightp = popVal();
 		return rightp;
 	}
 	
@@ -1061,7 +1095,8 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case AND:
 		case OR:
-		case QUEST:  // commented out, for-quest will work OK !!!
+		case QUEST:
+		case CASE:
 			return true;
 		default:
 			return false;
@@ -1295,6 +1330,11 @@ public class RunTime implements IConst, RunConst {
 		case NOT:
 		case NOTBITZ:
 		case CQUEST:
+			if (!pushOp(kwtyp)) {
+				return STKOVERFLOW;
+			}
+			break;
+		case CASE:
 			if (!pushOp(kwtyp)) {
 				return STKOVERFLOW;
 			}

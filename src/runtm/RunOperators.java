@@ -52,7 +52,11 @@ public class RunOperators implements IConst, RunConst {
 		case QUEST:
 			return 0;
 		case CQUEST:
-			return runCquestExpr(kwtyp);
+			//return runCquestExpr(kwtyp);
+			return 0;
+		case CASE:
+			//return runCaseExpr(kwtyp);
+			return 0;
 		case EQ:
 		case NE:
 		case LT:
@@ -873,10 +877,21 @@ public class RunOperators implements IConst, RunConst {
 	}
 
 	private int runCquestExpr(KeywordTyp kwtyp) {
+		// unneeded right now
 		KeywordTyp kwtop;
 		int rtnval;
 		
 		omsg("runCquestExpr: kwtyp = " + kwtyp);
+		rtnval = pushIntStk(0) ? 0 : STKOVERFLOW;
+		return rtnval;
+	}
+
+	private int runCaseExpr(KeywordTyp kwtyp) {
+		// unneeded right now
+		KeywordTyp kwtop;
+		int rtnval;
+		
+		omsg("runCaseExpr: kwtyp = " + kwtyp);
 		rtnval = pushIntStk(0) ? 0 : STKOVERFLOW;
 		return rtnval;
 	}
