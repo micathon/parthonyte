@@ -103,6 +103,30 @@ defun (p)
 )
 @
 do (
+? 145.1;
+defun (p)
+  do (
+  ? (cquest);
+);
+)
+@
+do (
+? 145.2;
+defun (p)
+  do (
+  ? (cquest (add 2 2));
+);
+)
+@
+do (
+? 145.3;
+defun (p)
+  do (
+  ? (cquest (case true 1 2));
+);
+)
+@
+do (
 ? 150.1;
 defun (q)
   do (
