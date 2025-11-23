@@ -501,7 +501,7 @@ public class RunTime implements IConst, RunConst {
 			}
 			//omsg("exprtok: locDepth (2) = " + locDepth);
 			if ((rightp == 0) && isLogicalKwd(kwtop) &&
-				(kwtop != KeywordTyp.QUEST) && !isShortCircSkip &&
+				!isQuestKwd(kwtop) && !isShortCircSkip &&
 				(locDepth <= oldLocDepth))
 			{  
 				rightp = handleLogicalKwd(kwtop, rightp);
@@ -551,12 +551,15 @@ public class RunTime implements IConst, RunConst {
 		AddrNode addrNode;
 		PageTyp pgtyp;
 		int ival, jval, kval;
+		KeywordTyp kwtyp;
 		boolean isShortCircuit;
 		
 		isShortCircuit = false;
 		omsg("hlogkw: top, rightp = " + rightp);
 		addrNode = store.topNode();
 		pgtyp = addrNode.getHdrPgTyp();
+		ival = addrNode.getAddr();
+		omsg("hlogkw: pgtyp = " + pgtyp + ", addr = " + ival);
 		if (pgtyp == PageTyp.KWD) {
 			ival = topIntVal();  // = -1
 			jval = 0;
@@ -699,7 +702,7 @@ public class RunTime implements IConst, RunConst {
 		addrNode = store.fetchNode(stkidx);
 		pgtyp = addrNode.getHdrPgTyp();
 		if (pgtyp != PageTyp.BOOLEAN) { 
-			omsg("handleDoToken: BADOPTYP");
+			omsg("logicalCaseKwd: BADOPTYP");
 			return BADOPTYP;
 		}
 		ival = addrNode.getAddr();
@@ -1097,6 +1100,16 @@ public class RunTime implements IConst, RunConst {
 		case OR:
 		case QUEST:
 		case CASE:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	private boolean isQuestKwd(KeywordTyp kwtyp) {
+		switch (kwtyp) {
+		case QUEST:
+		case CQUEST:
 			return true;
 		default:
 			return false;
