@@ -68,6 +68,8 @@ public class SynChkExpr {
 			return doMinusOp(rightp);
 		case QUEST:
 			return doQuestOp(rightp);
+		case CQUEST:
+			return doCquestOp(rightp);
 		case MPY:
 		case ADD:
 		case STRDO:
@@ -425,6 +427,54 @@ public class SynChkExpr {
 			return false;
 		}
 		return true;
+	}
+	
+	private boolean doCquestOp(int rightp) {
+		Node node;
+		Node cnode;
+		int rightq;
+		int count;
+		KeywordTyp kwtyp;
+		
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerrd(rightp, "CQUEST operator has no case clauses",
+				145.1);
+			//return false;
+			return true;  // temp: allow (case)
+		}
+		while (rightp > 0) {
+			node = store.getNode(rightp);
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp != KeywordTyp.ZPAREN) {
+				return cQuestBadCase(rightp);
+			}
+			rightq = node.getDownp();
+			if (rightq <= 0) {
+				return cQuestBadCase(rightq);
+			}
+			cnode = store.getNode(rightq);
+			kwtyp = cnode.getKeywordTyp();
+			if (kwtyp != KeywordTyp.CASE) {
+				return cQuestBadCase(rightq);
+			}
+			rightq = cnode.getRightp();
+			count = getExprCount(rightq);
+			if (count != 2) {
+				oerrd(rightp, "CQUEST case clause has wrong no. of operands",
+					145.3);
+				return false;
+			}
+			rightp = node.getRightp();
+		}
+		return true;
+	}
+	
+	private boolean cQuestBadCase(int rightp) {
+		oerrd(rightp, "CQUEST operator has invalid case clause",
+			145.2);
+		return false;
 	}
 	
 	private boolean doMultiOp(int rightp) {
