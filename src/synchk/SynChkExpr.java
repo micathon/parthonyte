@@ -460,8 +460,7 @@ public class SynChkExpr {
 			}
 			rightq = cnode.getRightp();
 			count = getExprCount(rightq);
-			//if (count != 2) {
-			if (count != 3) {
+			if (count != 2) {
 				oerrd(rightp, "CQUEST case clause has wrong no. of operands",
 					145.3);
 				return false;
