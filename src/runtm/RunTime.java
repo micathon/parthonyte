@@ -691,6 +691,56 @@ public class RunTime implements IConst, RunConst {
 	private int logicalCaseKwd(int rightp) {
 		Node node;
 		AddrNode addrNode;
+		int ival, jval;
+
+		addrNode = store.popNode();
+		if (addrNode == null) {
+			return STKUNDERFLOW;
+		}
+		ival = topIntVal(); 
+		omsg("logicalCaseKwd: top, ival = " + ival);
+		if (ival < 0) {
+			if (store.popNode() == null) {  // pop -1
+				return STKUNDERFLOW;
+			}
+			if (addrNode.getHdrPgTyp() != PageTyp.BOOLEAN) {
+				return BADOPTYP; 
+			}
+			jval = nodeToIntVal(addrNode, locBaseIdx);
+			omsg("logicalCaseKwd: jval = " + jval);
+			if (jval == 0) { }
+			else if (!pushKwdVal(0)) {
+				return STKOVERFLOW;
+			}
+			else {
+				return rightp;
+			}
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
+			if (rightp <= 0) {
+				return GENERR;
+			}
+			omsg("logicalCaseKwd: rightp = " + rightp);
+			return rightp;
+		}
+		else if (ival == 0) {
+			if (store.popNode() == null) {  
+				return STKUNDERFLOW;
+			}
+			if (!store.pushNode(addrNode)) {
+				return STKOVERFLOW;
+			}
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
+			return rightp;
+		}
+		else {
+			omsg("logicalQuestKwd: bad ival = " + ival);
+			return GENERR;
+		}
+		/*
+		Node node;
+		AddrNode addrNode;
 		PageTyp pgtyp;
 		int ival;
 		int stkidx;
@@ -716,6 +766,7 @@ public class RunTime implements IConst, RunConst {
 		}
 		rightp = addrNode.getAddr();
 		return rightp;
+		*/
 	}
 
 	private int handleLeafToken(Node node) {
@@ -831,6 +882,7 @@ public class RunTime implements IConst, RunConst {
 			return STKUNDERFLOW;
 		}
 		rightp = popVal();
+		omsg("handleExprKwd: rightp = " + rightp);
 		return rightp;
 	}
 	
@@ -1110,6 +1162,7 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case QUEST:
 		case CQUEST:
+		case CASE:
 			return true;
 		default:
 			return false;
@@ -1347,14 +1400,10 @@ public class RunTime implements IConst, RunConst {
 				return STKOVERFLOW;
 			}
 			break;
-		case CASE:
-			if (!pushOp(kwtyp)) {
-				return STKOVERFLOW;
-			}
-			break;
 		case AND:
 		case OR:
 		case QUEST:
+		case CASE:
 			//nullkwd = KeywordTyp.NULL; 
 			//if (!pushOp(kwtyp) || !pushOpAsNode(nullkwd)) {
 			//ival = (kwtyp == KeywordTyp.AND) ? 1 : 0;

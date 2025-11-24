@@ -53,7 +53,7 @@ public class RunOperators implements IConst, RunConst {
 			return 0;
 		case CQUEST:
 			//return runCquestExpr(kwtyp);
-			return 0;
+			return runUnaryExpr(kwtyp);
 		case CASE:
 			//return runCaseExpr(kwtyp);
 			return 0;
@@ -1043,6 +1043,7 @@ public class RunOperators implements IConst, RunConst {
 			delta = 1 - delta;
 			break;
 		case NOTBITZ:
+		case CQUEST:  //## don't need
 			delta = ~delta;
 			break;
 		default:
@@ -1053,6 +1054,7 @@ public class RunOperators implements IConst, RunConst {
 		}
 		else if (pgtyp == PageTyp.INTVAL) { 
 			rtnval = pushIntStk((int)delta) ? 0 : STKOVERFLOW;
+			//omsg("runUnaryExpr: rtn = " + rtnval);
 		}
 		else if (pgtyp == PageTyp.BOOLEAN) {
 			rtnval = pushBoolStk((int)delta) ? 0 : STKOVERFLOW;
