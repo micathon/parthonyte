@@ -441,8 +441,7 @@ public class SynChkExpr {
 		if (rightp <= 0) {
 			oerrd(rightp, "CQUEST operator has no case clauses",
 				145.1);
-			//return false;
-			return true;  // temp: allow (case)
+			return false;
 		}
 		while (rightp > 0) {
 			node = store.getNode(rightp);
@@ -461,7 +460,8 @@ public class SynChkExpr {
 			}
 			rightq = cnode.getRightp();
 			count = getExprCount(rightq);
-			if (count != 2) {
+			//if (count != 2) {
+			if (count != 3) {
 				oerrd(rightp, "CQUEST case clause has wrong no. of operands",
 					145.3);
 				return false;
