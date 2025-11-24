@@ -713,11 +713,13 @@ public class RunTime implements IConst, RunConst {
 				return STKOVERFLOW;
 			}
 			else {
+				popVal();  //##
 				return rightp;
 			}
+			pushKwdVal(0); //##
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
-			if (rightp <= 0) {
+			if (rightp < 0) {
 				return GENERR;
 			}
 			omsg("logicalCaseKwd: rightp = " + rightp);
@@ -730,8 +732,8 @@ public class RunTime implements IConst, RunConst {
 			if (!store.pushNode(addrNode)) {
 				return STKOVERFLOW;
 			}
-			node = store.getNode(rightp);
-			rightp = node.getRightp();
+			//node = store.getNode(rightp);
+			//rightp = node.getRightp();
 			return rightp;
 		}
 		else {

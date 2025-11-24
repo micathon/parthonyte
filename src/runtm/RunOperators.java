@@ -52,8 +52,10 @@ public class RunOperators implements IConst, RunConst {
 		case QUEST:
 			return 0;
 		case CQUEST:
-			//return runCquestExpr(kwtyp);
-			return runUnaryExpr(kwtyp);
+			return runCquestExpr(kwtyp);
+			//pp.popVal();
+			//pp.pushAddr(0);
+			//return 0;
 		case CASE:
 			//return runCaseExpr(kwtyp);
 			return 0;
@@ -882,7 +884,10 @@ public class RunOperators implements IConst, RunConst {
 		int rtnval;
 		
 		omsg("runCquestExpr: kwtyp = " + kwtyp);
-		rtnval = pushIntStk(0) ? 0 : STKOVERFLOW;
+		//rtnval = pushIntStk(0) ? 0 : STKOVERFLOW;
+		
+		// need to push 0 if flag is false...
+		rtnval = 0;
 		return rtnval;
 	}
 
