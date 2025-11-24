@@ -2,12 +2,14 @@ do (
 gdefun do (
   p;
 );
-defun (p) (var i j k) do (
+defun (p) (var j k i) do (
+  set i 0;
   set j 99;
-  set k (quest (< j 100) 40 70);
+  #set k (quest (< j 100) 40 70);
   set i (cquest
-    (case (< j 100) 40)
-    (case true 70));
-  println "p: i =" i "_k =" k;
+    (case (< j 100) 255 127)
+	);
+
+  println "p: i =" i;
 );
 )
