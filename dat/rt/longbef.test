@@ -1,0 +1,38 @@
+do (
+# A, B or C
+# D, E or H
+# F or G
+gdefun  # BEF
+  #(var y) #H
+  #(var y res) #AH
+  #(var x) #C
+  #(var y x) #CH
+  #(ivar res res2) #AC
+  (ivar x res res2) #B
+  #(ivar res2) #AH
+do (
+  #set y 1; #H
+  set x 8100200300L; #BC
+  set res (dbl-func x); #BC
+  #set res (dbl-func 8100200300L); #A
+  println "res =" res;
+  #set y 1; #H
+  set res2 (dbl-func res);
+  println "res2 =" res2;
+  utpush "res" res;
+  utpush "res2" res2;
+  utscan "res" "16200400601";
+  utscan "res2" "32400801203";
+);
+defun (dbl-func z)
+  (var y) #DE 
+do (
+  #set y 1; #D
+  set y 1L; #E
+  #set y (+ (* 2 z) y); #G
+  #println "y =" y; #G
+  #return y; #G
+  return (+ (* 2 z) y); #F
+);
+)
+

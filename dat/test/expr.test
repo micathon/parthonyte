@@ -1,0 +1,589 @@
+do (
+? -1.0;
+? 10.5;
+defun (p)
+  do (
+  ? (else);
+);
+)
+@
+do (
+? 40.1;
+defun (p)
+  do (
+  ? else;
+);
+)
+@
+do (
+? 80.3;
+defun (p)
+  do (
+  ? (cast true b);
+);
+)
+@
+do (
+? 100.1;
+defun (p)
+  do (
+  ? (not if);
+);
+)
+@
+do (
+? 100.2;
+defun (p)
+  do (
+  ? (not a b);
+);
+)
+@
+do (
+? 110.1;
+defun (p)
+  do (
+  return if;
+);
+)
+@
+do (
+? 110.2;
+defun (p)
+  do (
+  return a b;
+);
+)
+@
+do (
+? 120.1;
+defun (p)
+  do (
+  continue a;
+);
+)
+@
+do (
+? 130.1;
+defun (p)
+  do (
+  set x (minus y (add 0));
+);
+)
+@
+do (
+? 130.2;
+defun (p)
+  do (
+  set x (minus y 4 9);
+);
+)
+@
+do (
+? 140.1;
+defun (p)
+  do (
+  ? (? y z (add 0));
+);
+)
+@
+do (
+? 140.2;
+defun (p)
+  do (
+  ? (? y z);
+);
+)
+@
+do (
+defun (p)
+  do (
+  ? (? x y z);
+);
+)
+@
+do (
+? 145.1;
+defun (p)
+  do (
+  ? (cquest);
+);
+)
+@
+do (
+? 145.2;
+defun (p)
+  do (
+  ? (cquest (add 2 2));
+);
+)
+@
+do (
+? 145.3;
+defun (p)
+  do (
+  ? (cquest (case true 1 2));
+);
+)
+@
+do (
+? 150.1;
+defun (q)
+  do (
+  ? (add z (mpy 1));
+);
+)
+@
+do (
+? 150.2;
+defun (q)
+  do (
+  ? (add z);
+);
+)
+@
+do (
+? 160.1;
+defun (q)
+  do (
+  ? (eq z (mpy 1));
+);
+)
+@
+do (
+? 160.2;
+defun (q)
+  do (
+  ? (eq z);
+);
+)
+@
+do (
+? 180.1;
+defun (q)
+  do (
+  ? (quote (mpy 1));
+);
+)
+@
+do (
+? 180.2;
+defun (q)
+  do (
+  ? (quote);
+);
+)
+@
+do (
+? 200.1;
+defun (q)
+  do (
+  ? (dict if);
+);
+)
+@
+do (
+? 210.1;
+defun (q)
+  do (
+  ? (dict (mpy 1));
+);
+)
+@
+do (
+? 210.2;
+defun (q)
+  do (
+  ? (dict (: a b c));
+);
+)
+@
+do (
+? 30.1;
+defun (q)
+  do (
+  set true x;
+);
+)
+@
+do (
+? 220.2;
+defun (q)
+  do (
+  set (add a b) x;
+);
+)
+@
+do (
+? 230.2;
+defun (q)
+  do (
+  ? (slice (add x));
+);
+)
+@
+do (
+? 230.3;
+defun (q)
+  do (
+  ? (slice (add x y));
+);
+)
+@
+do (
+? 230.4;
+defun (q)
+  do (
+  ? (slice z (add x));
+);
+)
+@
+do (
+? 230.5;
+defun (q)
+  do (
+  ? (slice y z (add x));
+);
+)
+@
+do (
+? 230.6;
+defun (q)
+  do (
+  ? (slice y z (add x 4) w);
+);
+)
+@
+do (
+? 250.1;
+defun (q)
+  do (
+  ? (: 24);
+);
+)
+@
+do (
+? 250.2;
+defun (q)
+  do (
+  ? (: (24));
+);
+)
+@
+do (
+? 250.3;
+defun (q)
+  do (
+  ? (: a);
+);
+)
+@
+do (
+? 250.4;
+defun (q)
+  do (
+  set (: a (f)) 7;
+);
+)
+@
+do (
+? 250.5;
+defun (q)
+  do (
+  : a (f x) b;
+);
+)
+@
+do (
+? 260.1;
+defun (q)
+  do (
+  call (add x);
+);
+)
+@
+do (
+? 260.2;
+defun (q)
+  do (
+  call;
+);
+)
+@
+do (
+? 280.1;
+defun (q)
+  do (
+  f (add x);
+);
+)
+@
+do (
+? 280.3;
+defun (q)
+  do (
+  f (= x 0) y;
+);
+)
+@
+do (
+? 280.2;
+defun (q)
+  do (
+  f (= x 0) (=);
+);
+)
+@
+do (
+? 280.2;
+defun (q)
+  do (
+  f (= x 0) (= 24);
+);
+)
+@
+do (
+? 280.2;
+defun (q)
+  do (
+  f (= x 0) (= y);
+);
+)
+@
+do (
+? 280.2;
+defun (q)
+  do (
+  f (= x 0) (= y (add z));
+);
+)
+@
+do (
+? 280.2;
+defun (q)
+  do (
+  f (= x 0) (= y (add z 1) w);
+);
+)
+@
+do (
+? 300.1;
+defun (q)
+  do (
+  ? (venum);
+);
+)
+@
+do (
+? 310.1;
+defun (q)
+  do (
+  ? (lambda);
+);
+)
+@
+do (
+? 310.2;
+defun (q)
+  do (
+  ? (lambda x);
+);
+)
+@
+do (
+? 310.3;
+defun (q)
+  do (
+  ? (lambda (2));
+);
+)
+@
+do (
+? 310.4;
+defun (q)
+  do (
+  ? (lambda (+ x 2));
+);
+)
+@
+do (
+? 310.5;
+defun (q)
+  do (
+  ? (lambda (a b c));
+);
+)
+@
+do (
+? 310.6;
+defun (q)
+  do (
+  ? (lambda (a b c)(add x));
+);
+)
+@
+do (
+? 310.7;
+defun (q)
+  do (
+  ? (lambda (a b c) x 1);
+);
+)
+@
+do (
+# ? 310.8;
+defun (q)
+  do (
+  ? (lambda (a) do (
+    return;
+  ));
+);
+)
+@
+do (
+? 310.8;
+defun (q)
+  do (
+  ? (lambda (a b c) do (
+    = x;
+  ));
+);
+)
+@
+do (
+? 320.1;
+defun (q)
+  do (
+  ? (cast);
+);
+)
+@
+do (
+? 320.2;
+defun (q)
+  do (
+  ? (cast null);
+);
+)
+@
+do (
+? 320.3;
+defun (q)
+  do (
+  ? (cast 177);
+);
+)
+@
+do (
+? 320.4;
+defun (q)
+  do (
+  ? (cast 17 (add x));
+);
+)
+@
+do (
+? 320.5;
+defun (q)
+  do (
+  ? (cast 17 (add x -50) 0);
+);
+)
+@
+do (
+? 340.1;
+defun (q)
+  do (
+  ? (rplaca (add x));
+);
+)
+@
+do (
+? 340.2;
+defun (q)
+  do (
+  ? (rplacd x);
+);
+)
+@
+do (
+? 350.1;
+defun (q)
+  do (
+  ? (car (add x));
+);
+)
+@
+do (
+? 350.2;
+defun (q)
+  do (
+  ? (cdr x y);
+);
+)
+@
+do (
+# ? 360.1;
+defun (q)
+  do (
+  ? (caar x);
+);
+)
+@
+do (
+? 360.1;
+defun (q)
+  do (
+  ? (crpath);
+);
+)
+@
+do (
+? 360.2;
+defun (q)
+  do (
+  ? (crpath -44);
+);
+)
+@
+do (
+? 360.3;
+defun (q)
+  do (
+  ? (crpath 404);
+);
+)
+@
+do (
+? 360.4;
+defun (q)
+  do (
+  ? (crpath 67 -404);
+);
+)
+@
+do (
+? 360.5;
+defun (q)
+  do (
+  ? (crpath 7 4);
+);
+)
+@
+do (
+? 360.6;
+defun (q)
+  do (
+  ? (crpath 27 34 (add x));
+);
+)
+@
+do (
+? 360.7;
+defun (q)
+  do (
+  ? (crpath 27 34 x 0);
+);
+)
+@
+

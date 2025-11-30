@@ -1,0 +1,31 @@
+do (
+gdefun do (
+  base;
+  println "gdefun: btm";
+);
+defun (base) do (
+  println "base: top";
+  p;
+  println "rtnval =" (p);
+  println "base: btm";
+);
+defun (p) (var i) do (
+  println "p: top";
+  for (= i 0; ? (< i 2); ++ i) do (
+  if true do (
+    if true do (
+      println "p: if body";
+	  while true do (
+        println "p: while body";
+		if false do (
+		  break;
+		);
+	    return 777;
+	  );
+      return 555;
+    );
+  );
+  );
+);
+)
+
