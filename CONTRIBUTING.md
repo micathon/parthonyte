@@ -5,7 +5,7 @@
 # How to run Themapole
 * Install the Java SDK
 * `$ cd path/to/bin`
-* `$ java tpol atest > out.txt`
+* `$ java a.tpol atest > out.txt`
 * text files:
   * `dat/atest.tpol`: sample Themapole source code
   * `bin/out.txt`: used for debugging and logging what my code is doing
