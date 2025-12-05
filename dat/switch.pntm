@@ -1,0 +1,45 @@
+do (
+gdefun do (
+  q;
+  p;
+);
+defun (q) (var a b c d n) do (
+  set n 48;
+  println "p: n =" n;
+  switch (+ n 3)
+  case 40 do (println "1st")
+  case 50 do (println "2nd")
+  case 44 do (println "3rd")
+  else do (println "invalid case no.");
+);
+defun (p) (var a b c d n) do (
+  set n "Aa";
+  println "p: n =" n;
+  if true do (
+    switch n
+    case "B" do (println "1st")
+    case "A" do (println "2nd")
+    case "B" do (println "3rd")
+    else do (println "invalid case no.");
+	println "p: after switch";
+  );
+  while true do (
+  set n 48;
+  println "p: n =" n;
+  switch (+ n 2)
+  case 40 do (println "1st")
+  case 50 do (println "2nd")
+  case 44 do (
+    println "3rd";
+	break;
+  )
+  else do (
+    println "invalid case no.";
+	break;
+  );
+  break;
+  );
+  println "p: after switch";
+  println "p: btm";
+);
+)
