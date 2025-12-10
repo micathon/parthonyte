@@ -692,6 +692,8 @@ public class RunTime implements IConst, RunConst {
 	private int logicalCaseKwd(int rightp) {
 		Node node;
 		AddrNode addrNode;
+		NodeCellTyp pgtyp;
+		KeywordTyp kwtyp;
 		int ival, jval;
 		
 		addrNode = store.topNode();
@@ -699,7 +701,18 @@ public class RunTime implements IConst, RunConst {
 			return STKOVERFLOW;
 		}
 		node = store.getNode(rightp);
-		rightp = node.getRightp();
+		//rightp = node.getRightp();
+		//##
+		if (rightp == 0) {
+			omsg("logicalCaseKwd: rightp = 0");
+		}
+		else {
+			//node = store.getNode(rightp);
+			pgtyp = node.getDownCellTyp();
+			//kwtyp = node.getKeywordTyp();
+			omsg("logicalCaseKwd: pgtyp = " + pgtyp);
+				//+ ", kwtyp = " + kwtyp);
+		}
 		return rightp;
 		/*
 		addrNode = store.popNode();
