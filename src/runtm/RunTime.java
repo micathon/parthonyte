@@ -696,22 +696,13 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtyp;
 		int ival, jval;
 		
-		addrNode = store.topNode();
-		if (!store.pushNode(addrNode)) {
-			return STKOVERFLOW;
-		}
 		node = store.getNode(rightp);
-		//rightp = node.getRightp();
-		//##
-		if (rightp == 0) {
-			omsg("logicalCaseKwd: rightp = 0");
-		}
-		else {
-			//node = store.getNode(rightp);
-			pgtyp = node.getDownCellTyp();
-			//kwtyp = node.getKeywordTyp();
-			omsg("logicalCaseKwd: pgtyp = " + pgtyp);
-				//+ ", kwtyp = " + kwtyp);
+		pgtyp = node.getDownCellTyp();
+		kwtyp = node.getKeywordTyp();
+		omsg("logicalCaseKwd: pgtyp = " + pgtyp + ", kwtyp = " + kwtyp);
+		addrNode = store.topNode();
+		if ((kwtyp != KeywordTyp.DO) && !store.pushNode(addrNode)) { 
+			return STKOVERFLOW;
 		}
 		return rightp;
 		/*
