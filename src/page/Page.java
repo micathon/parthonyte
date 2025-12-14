@@ -76,8 +76,7 @@ public class Page implements IConst {
 	}
 	
 	public void out(String msg) {
-		if (debug) {
-		//if (true) {
+		if (idebug == 1) {
 			System.out.println(msg);
 		}
 	}

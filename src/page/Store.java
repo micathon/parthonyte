@@ -1136,7 +1136,7 @@ class PageTab implements IConst {
 	}
 	
 	public void omsg(String msg) {
-		if (isrtbug) {
+		if (irtbug == 1) {
 			System.out.println(msg);
 		}
 	}
