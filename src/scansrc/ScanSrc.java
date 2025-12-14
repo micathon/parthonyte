@@ -505,7 +505,7 @@ public class ScanSrc implements IConst {
 	}
 	
 	public void out(String msg) {
-		if (debug) {
+		if (idebug == 1) {
 			System.out.println(msg);
 		}
 	}
