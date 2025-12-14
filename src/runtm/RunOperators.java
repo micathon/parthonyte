@@ -21,7 +21,7 @@ public class RunOperators implements IConst, RunConst {
 	}
 	
 	private void omsg(String msg) {
-		if (debug) {
+		if (idebug == 1) {
 			System.out.println(msg);
 		}
 	}

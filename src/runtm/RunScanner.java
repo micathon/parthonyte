@@ -65,13 +65,13 @@ public class RunScanner implements IConst, RunConst {
 	}
 	
 	public void out(String msg) {
-		if (debug) {
+		if (idebug == 1) {
 			System.out.println(msg);
 		}
 	}
 	
 	public void omsg(String msg) {  
-		if (isrtbug) {
+		if (irtbug == 1) {
 			System.out.println(msg);
 		}
 	}
