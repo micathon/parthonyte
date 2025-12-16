@@ -393,6 +393,13 @@ public class RunTime implements IConst, RunConst {
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
+		else if (kwtyp == KeywordTyp.SWITCH) {
+			popKwd();
+			popVal();
+			rightp = popVal();
+			node = store.getNode(rightp);
+			rightp = node.getRightp();
+		}
 		else if (kwtyp == KeywordTyp.WHILE) {
 			omsg("(4) handleBtmZeroAddr: WHILE");
 			popKwd();
@@ -966,7 +973,7 @@ public class RunTime implements IConst, RunConst {
 		case TUPLE:
 			return 0;
 		case SWITCH:
-			return runSwitchStmt();
+			return runSwitchStmt(); // don't need, just return 0?
 		case UNTIL:
 			oprn("Keyword: UNTIL detected.");
 			return BADOP;
@@ -1135,6 +1142,9 @@ public class RunTime implements IConst, RunConst {
 		else {
 			rightp = node.getRightp();
 			return rightp;
+		}
+		if (isCase) {
+			popKwd();
 		}
 		rightp = node.getDownp();
 		if (!pushAddr(rightp)) {
@@ -2358,20 +2368,12 @@ public class RunTime implements IConst, RunConst {
 	}
 	
 	private int handleCaseKwd(Node node, int rightp) {
+		// don't need?
 		KeywordTyp kwtyp;
 		KeywordTyp switchkwd;
 		int addr1, addr2;
 
 		omsg("handleCaseKwd: top");
-		switchkwd = KeywordTyp.NULL;
-		//switchkwd = popKwd();
-		if (switchkwd == KeywordTyp.SWITCH) {
-			addr1 = popVal();
-			addr2 = popVal();
-			popVal();  // ZSTMT of switch?
-			pushAddr(addr2);
-			pushAddr(addr1);
-		}
 		kwtyp = node.getKeywordTyp();
 		if (!pushOp(kwtyp)) {
 			return STKOVERFLOW;
