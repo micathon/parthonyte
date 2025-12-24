@@ -397,6 +397,7 @@ public class RunTime implements IConst, RunConst {
 			popKwd();
 			popVal();
 			rightp = popVal();
+			popVal();
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
