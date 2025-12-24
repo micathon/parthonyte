@@ -390,13 +390,7 @@ public class RunTime implements IConst, RunConst {
 			popKwd();
 			popVal();
 			rightp = popVal();
-			node = store.getNode(rightp);
-			rightp = node.getRightp();
-		}
-		else if (kwtyp == KeywordTyp.SWITCH) {
-			popKwd();
 			popVal();
-			rightp = popVal();
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
@@ -526,7 +520,6 @@ public class RunTime implements IConst, RunConst {
 
 		isNakedKwd = false;
 		kwtyp = node.getKeywordTyp();
-		omsg("pushExprOrLeaf: kwtyp = " + kwtyp);
 		if (kwtyp == KeywordTyp.ZPAREN) {
 			locDepth++;
 			currZexpr = rightp;
@@ -534,9 +527,6 @@ public class RunTime implements IConst, RunConst {
 		}
 		else if (kwtyp == KeywordTyp.DO) {
 			rightp = handleDoToken(node, rightp);
-		}
-		else if (kwtyp == KeywordTyp.CASE) {
-			rightp = handleCaseKwd(node, rightp);
 		}
 		else if (isKwdSkipped(kwtyp)) {
 			rightp = handleSkipKwd(node, rightp);
@@ -701,21 +691,7 @@ public class RunTime implements IConst, RunConst {
 	private int logicalCaseKwd(int rightp) {
 		Node node;
 		AddrNode addrNode;
-		NodeCellTyp pgtyp;
-		KeywordTyp kwtyp;
 		int ival, jval;
-		
-		return rightp;
-		/*
-		node = store.getNode(rightp);
-		pgtyp = node.getDownCellTyp();
-		kwtyp = node.getKeywordTyp();
-		omsg("logicalCaseKwd: pgtyp = " + pgtyp + ", kwtyp = " + kwtyp);
-		addrNode = store.topNode();
-		if ((kwtyp != KeywordTyp.DO) && !store.pushNode(addrNode)) {
-			return STKOVERFLOW;
-		}
-		return rightp;
 
 		addrNode = store.popNode();
 		if (addrNode == null) {
@@ -761,12 +737,9 @@ public class RunTime implements IConst, RunConst {
 			return rightp;
 		}
 		else {
-			omsg("logicalCaseKwd: bad ival = " + ival);
+			omsg("logicalQuestKwd: bad ival = " + ival);
 			return GENERR;
 		}
-		*/
-		
-		
 		/*
 		Node node;
 		AddrNode addrNode;
@@ -907,7 +880,7 @@ public class RunTime implements IConst, RunConst {
 		if (rightp < 0) {
 			return rightp;
 		}
-		if (isNoSwapKwd(kwtyp)) {
+		if (!isNoSwapKwd(kwtyp)) {
 			return rightp;
 		}
 		if (!store.swapNodes()) {
@@ -966,14 +939,13 @@ public class RunTime implements IConst, RunConst {
 		case IF: 
 		case ELIF: 
 		case ELSE: 
+		case SWITCH:
 		case CASE:
 		case WHILE:
 		case FOR:
 		case ZQUEST:
 		case TUPLE:
 			return 0;
-		case SWITCH:
-			return runSwitchStmt(); // don't need, just return 0?
 		case UNTIL:
 			oprn("Keyword: UNTIL detected.");
 			return BADOP;
@@ -1143,9 +1115,6 @@ public class RunTime implements IConst, RunConst {
 			rightp = node.getRightp();
 			return rightp;
 		}
-		if (isCase) {
-			popKwd();
-		}
 		rightp = node.getDownp();
 		if (!pushAddr(rightp)) {
 			return STKOVERFLOW;
@@ -1237,12 +1206,6 @@ public class RunTime implements IConst, RunConst {
 
 	private int runBoolStmt() {
 		omsg("runBoolStmt: top");
-		return 0; 
-	}
-	
-	private int runSwitchStmt() {
-		omsg("runSwitchStmt: top");
-		popVal();  // ZSTMT?
 		return 0; 
 	}
 	
@@ -2349,7 +2312,7 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case ELIF:
 		case ELSE:
-		//case CASE:
+		case CASE:
 			return true;
 		default:
 			return false;
@@ -2359,21 +2322,6 @@ public class RunTime implements IConst, RunConst {
 	private int handleSkipKwd(Node node, int rightp) {
 		KeywordTyp kwtyp;
 		popKwd();
-		kwtyp = node.getKeywordTyp();
-		if (!pushOp(kwtyp)) {
-			return STKOVERFLOW;
-		}
-		rightp = node.getRightp();
-		return rightp;
-	}
-	
-	private int handleCaseKwd(Node node, int rightp) {
-		// don't need?
-		KeywordTyp kwtyp;
-		KeywordTyp switchkwd;
-		int addr1, addr2;
-
-		omsg("handleCaseKwd: top");
 		kwtyp = node.getKeywordTyp();
 		if (!pushOp(kwtyp)) {
 			return STKOVERFLOW;
