@@ -881,12 +881,14 @@ public class RunOperators implements IConst, RunConst {
 	private int runCquestExpr(KeywordTyp kwtyp) {
 		// unneeded right now
 		KeywordTyp kwtop;
+		int addr;
 		int rtnval;
 		
 		omsg("runCquestExpr: kwtyp = " + kwtyp);
-		//rtnval = pushIntStk(0) ? 0 : STKOVERFLOW;
-		
-		// need to push 0 if flag is false...
+		addr = pp.popVal();
+		pp.popVal();
+		pp.popVal();
+		pp.pushAddr(addr);
 		rtnval = 0;
 		return rtnval;
 	}

@@ -40,6 +40,7 @@ public class RunTime implements IConst, RunConst {
 	private boolean afterStmtKwd;
 	private boolean isWhileUntil;
 	private boolean isForContinue;
+	private boolean isCqCase; // don't need!
 	private boolean isNakedKwd;
 	private int lastErrCode;
 	private int utKeyValIdx;
@@ -73,6 +74,7 @@ public class RunTime implements IConst, RunConst {
 		afterStmtKwd = false;
 		isWhileUntil = false;
 		isForContinue = false;
+		isCqCase = false;
 		isNakedKwd = true;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
@@ -386,6 +388,7 @@ public class RunTime implements IConst, RunConst {
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
+		/*
 		else if (kwtyp == KeywordTyp.CASE) {
 			popKwd();
 			popVal();
@@ -393,6 +396,7 @@ public class RunTime implements IConst, RunConst {
 			node = store.getNode(rightp);
 			rightp = node.getRightp();
 		}
+		*/
 		else if (kwtyp == KeywordTyp.SWITCH) {
 			popKwd();
 			popVal();
@@ -495,6 +499,10 @@ public class RunTime implements IConst, RunConst {
 			kwtop = topKwd();
 			numstr = getWhileDoKwd(kwtop);
 			omsg(numstr + "exprtok: kwtop = " + kwtop);
+			if (isCqCase) {
+				omsg(":::::::::::::::: exprtok: isCqCase detected!");
+				isCqCase = false;
+			}
 			if (isLogicalKwd(kwtop)) {  
 				rightp = handleLogicalKwd(kwtop, rightp);
 				omsg("exprtok: hlogkw-> rightp = " + rightp);
@@ -702,79 +710,23 @@ public class RunTime implements IConst, RunConst {
 	private int logicalCaseKwd(int rightp) {
 		Node node;
 		AddrNode addrNode;
-		NodeCellTyp pgtyp;
 		KeywordTyp kwtyp;
+		KeywordTyp kwtop;
+		boolean isCqCase;
+		boolean isCqTrue;
 		int ival, jval;
-		
-		return rightp;
-		/*
-		node = store.getNode(rightp);
-		pgtyp = node.getDownCellTyp();
-		kwtyp = node.getKeywordTyp();
-		omsg("logicalCaseKwd: pgtyp = " + pgtyp + ", kwtyp = " + kwtyp);
-		addrNode = store.topNode();
-		if ((kwtyp != KeywordTyp.DO) && !store.pushNode(addrNode)) {
-			return STKOVERFLOW;
-		}
-		return rightp;
-
-		addrNode = store.popNode();
-		if (addrNode == null) {
-			return STKUNDERFLOW;
-		}
-		ival = topIntVal(); 
-		omsg("logicalCaseKwd: top, ival = " + ival);
-		if (ival < 0) {
-			if (store.popNode() == null) {  // pop -1
-				return STKUNDERFLOW;
-			}
-			if (addrNode.getHdrPgTyp() != PageTyp.BOOLEAN) {
-				return BADOPTYP; 
-			}
-			jval = nodeToIntVal(addrNode, locBaseIdx);
-			omsg("logicalCaseKwd: jval = " + jval);
-			if (jval == 0) { }
-			else if (!pushKwdVal(0)) {
-				return STKOVERFLOW;
-			}
-			else {
-				popVal();  //##
-				return rightp;
-			}
-			node = store.getNode(rightp);
-			rightp = node.getRightp();
-			if (rightp <= 0) {
-				rightp = popVal();
-			}
-			pushKwdVal(0); //##
-			omsg("logicalCaseKwd: rightp = " + rightp);
-			return rightp;
-		}
-		else if (ival == 0) {
-			if (store.popNode() == null) {  
-				return STKUNDERFLOW;
-			}
-			if (!store.pushNode(addrNode)) {
-				return STKOVERFLOW;
-			}
-			//node = store.getNode(rightp);
-			//rightp = node.getRightp();
-			return rightp;
-		}
-		else {
-			omsg("logicalCaseKwd: bad ival = " + ival);
-			return GENERR;
-		}
-		*/
-		
-		
-		/*
-		Node node;
-		AddrNode addrNode;
-		PageTyp pgtyp;
-		int ival;
 		int stkidx;
+		PageTyp pgtyp;
 		
+		omsg("logicalCaseKwd: top");
+		kwtop = popKwd();
+		kwtyp = topKwd();
+		omsg("logicalCaseKwd: kwtyp = " + kwtyp);
+		isCqCase = (kwtyp == KeywordTyp.CQUEST);
+		pushOp(kwtop);
+		if (!isCqCase) {
+			return rightp;
+		}
 		stkidx = popIntStk();
 		if (stkidx < 0) {
 			return stkidx;
@@ -786,17 +738,14 @@ public class RunTime implements IConst, RunConst {
 			return BADOPTYP;
 		}
 		ival = addrNode.getAddr();
+		omsg("logicalCaseKwd: ival = " + ival);
 		if (ival == 1) {
 			return rightp;
 		}
 		popKwd();
-		addrNode = store.popNode();
-		if (addrNode == null) {
-			return STKUNDERFLOW;
-		}
-		rightp = addrNode.getAddr();
+		popVal();
+		rightp = popVal();
 		return rightp;
-		*/
 	}
 
 	private int handleLeafToken(Node node) {
@@ -1466,6 +1415,7 @@ public class RunTime implements IConst, RunConst {
 		case CASE:
 			rightp = topIntVal();
 			omsg("pushExpr: CASE top = " + rightp);
+			//if (!pushOp(kwtyp)) {  
 			if (!pushOp(kwtyp) || !pushKwdVal(-1)) {  
 				return STKOVERFLOW;
 			}
