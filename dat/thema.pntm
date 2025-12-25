@@ -2,15 +2,20 @@ do (
 gdefun do (
   p;
 );
-defun (p) (var x j k i) do (
+defun (p) (var x k n j i) do (
   set i 7;
   set j 99;
   #set k (quest (< j 100) 40 70);
   set i (cquest
     (case (< j 100) 255)
 	(case true 127)
-	);
-
+  );
+  {#
+  switch j
+  case 7 do (set i 255)
+  else do (set i 127);
+  #}
   println "p: i =" i;
+  #println "p: k =" k;
 );
 )
