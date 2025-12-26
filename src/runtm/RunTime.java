@@ -708,7 +708,9 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtop;
 		boolean isCqCase;
 		boolean isCqTrue;
+		boolean isSwixCase;
 		int ival, jval;
+		int rtnval;
 		int stkidx;
 		PageTyp pgtyp;
 		
@@ -717,9 +719,17 @@ public class RunTime implements IConst, RunConst {
 		kwtyp = topKwd();
 		omsg("logicalCaseKwd: kwtyp = " + kwtyp);
 		isCqCase = (kwtyp == KeywordTyp.CQUEST);
+		isSwixCase = (kwtyp == KeywordTyp.SWIX);
 		pushOp(kwtop);
-		if (!isCqCase) {
+		if (!isCqCase && !isSwixCase) {
 			return rightp;
+		}
+		if (isSwixCase) {
+			popKwd();
+			rtnval = runop.runEqExpr();
+			if (rtnval < 0) {
+				return rtnval;
+			}
 		}
 		stkidx = popIntStk();
 		if (stkidx < 0) {
@@ -743,6 +753,8 @@ public class RunTime implements IConst, RunConst {
 			omsg("logicalCaseKwd: top = 0");
 			popKwd();
 			popVal();
+			popVal();
+			pushAddr(0);
 			return 0;
 		}
 		rightp = popVal();

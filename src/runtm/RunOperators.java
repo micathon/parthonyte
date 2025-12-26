@@ -53,9 +53,8 @@ public class RunOperators implements IConst, RunConst {
 			return 0;
 		case CQUEST:
 			return runCquestExpr(kwtyp);
-			//pp.popVal();
-			//pp.pushAddr(0);
-			//return 0;
+		case SWIX:
+			return runSwixExpr(kwtyp);
 		case CASE:
 			//return runCaseExpr(kwtyp);
 			return 0;
@@ -879,18 +878,27 @@ public class RunOperators implements IConst, RunConst {
 	}
 
 	private int runCquestExpr(KeywordTyp kwtyp) {
-		// unneeded right now
-		KeywordTyp kwtop;
-		int addr;
-		int rtnval;
+		AddrNode node;
 		
 		omsg("runCquestExpr: kwtyp = " + kwtyp);
-		addr = pp.popVal();
+		node = store.popNode();
 		pp.popVal();
 		pp.popVal();
-		pp.pushAddr(addr);
-		rtnval = 0;
-		return rtnval;
+		store.pushNode(node);
+		return 0;
+	}
+
+	private int runSwixExpr(KeywordTyp kwtyp) {
+		AddrNode node;
+		
+		omsg("runSwixExpr: kwtyp = " + kwtyp);
+		/*
+		node = store.popNode();
+		pp.popVal();
+		pp.popVal();
+		store.pushNode(node);
+		*/
+		return 0;
 	}
 
 	private int runCaseExpr(KeywordTyp kwtyp) {
