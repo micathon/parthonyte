@@ -70,6 +70,8 @@ public class SynChkExpr {
 			return doQuestOp(rightp);
 		case CQUEST:
 			return doCquestOp(rightp);
+		case SWIX:
+			return doSwixOp(rightp);
 		case MPY:
 		case ADD:
 		case STRDO:
@@ -470,10 +472,77 @@ public class SynChkExpr {
 		return true;
 	}
 	
+	private boolean doSwixOp(int rightp) {
+		Node node;
+		Node cnode;
+		int rightq;
+		int count;
+		KeywordTyp kwtyp;
+		
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		if (!doSwixExpr(rightp)) {
+			return false;
+		}
+		node = store.getNode(rightp);
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerrd(rightp, "SWIX operator has no case clauses",
+				145.1);
+			return false;
+		}
+		while (rightp > 0) {
+			node = store.getNode(rightp);
+			kwtyp = node.getKeywordTyp();
+			if (kwtyp != KeywordTyp.ZPAREN) {
+				return swixBadCase(rightp);
+			}
+			rightq = node.getDownp();
+			if (rightq <= 0) {
+				return swixBadCase(rightq);
+			}
+			cnode = store.getNode(rightq);
+			kwtyp = cnode.getKeywordTyp();
+			if (kwtyp != KeywordTyp.CASE) {
+				return swixBadCase(rightq);
+			}
+			rightq = cnode.getRightp();
+			count = getExprCount(rightq);
+			if (count != 2) {
+				oerrd(rightp, "SWIX case clause has wrong no. of operands",
+					145.3);
+				return false;
+			}
+			rightp = node.getRightp();
+		}
+		return true;
+	}
+	
 	private boolean cQuestBadCase(int rightp) {
 		oerrd(rightp, "CQUEST operator has invalid case clause",
 			145.2);
 		return false;
+	}
+	
+	private boolean swixBadCase(int rightp) {
+		oerrd(rightp, "SWIX operator has invalid case clause",
+			145.2);
+		return false;
+	}
+	
+	public boolean doSwixExpr(int rightp) {
+		int count;
+		
+		count = getExprCount(rightp);
+		if (count < 0) { 
+			oerrd(rightp, "Swix expr. has invalid argument(s)", 100.1);
+			return false;
+		}
+		if (count != 1) {
+			oerrd(rightp, "Swix expr. occurs multiple times", 100.2);
+			return false;
+		}
+		return true;
 	}
 	
 	private boolean doMultiOp(int rightp) {
