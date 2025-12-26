@@ -40,7 +40,6 @@ public class RunTime implements IConst, RunConst {
 	private boolean afterStmtKwd;
 	private boolean isWhileUntil;
 	private boolean isForContinue;
-	private boolean isCqCase; // don't need!
 	private boolean isNakedKwd;
 	private int lastErrCode;
 	private int utKeyValIdx;
@@ -74,7 +73,6 @@ public class RunTime implements IConst, RunConst {
 		afterStmtKwd = false;
 		isWhileUntil = false;
 		isForContinue = false;
-		isCqCase = false;
 		isNakedKwd = true;
 		glbFunMap = new HashMap<String, Integer>();
 		glbLocVarMap = new HashMap<String, Integer>();
@@ -499,10 +497,6 @@ public class RunTime implements IConst, RunConst {
 			kwtop = topKwd();
 			numstr = getWhileDoKwd(kwtop);
 			omsg(numstr + "exprtok: kwtop = " + kwtop);
-			if (isCqCase) {
-				omsg(":::::::::::::::: exprtok: isCqCase detected!");
-				isCqCase = false;
-			}
 			if (isLogicalKwd(kwtop)) {  
 				rightp = handleLogicalKwd(kwtop, rightp);
 				omsg("exprtok: hlogkw-> rightp = " + rightp);
@@ -744,6 +738,13 @@ public class RunTime implements IConst, RunConst {
 		}
 		popKwd();
 		popVal();
+		if (topIntVal() == 0) {
+			// no cases were true:
+			omsg("logicalCaseKwd: top = 0");
+			popKwd();
+			popVal();
+			return 0;
+		}
 		rightp = popVal();
 		return rightp;
 	}
