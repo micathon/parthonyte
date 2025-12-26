@@ -39,6 +39,24 @@ public class SynChkExpr {
 		synChk.oerr(nodep, msg);
 	}
 	
+	private boolean doKwdConst(int rightp) {
+		Node node;
+		KeywordTyp kwtyp;
+	
+		node = store.getNode(rightp);
+		kwtyp = node.getKeywordTyp();
+		switch (kwtyp) {
+		case TRUE:
+		case FALSE:
+		case NULL:
+			return true;
+		default:
+			oerrd(rightp, "Invalid keyword: " + kwtyp +
+				" encountered in middle of expression", 40.1);
+			return false;
+		}
+	}
+
 	private void oerrd(int nodep, String msg, double bval) {
 		synChk.oerrmod(nodep, msg, bval, 1);
 	}
@@ -229,24 +247,6 @@ public class SynChkExpr {
 		out("rightp = " + rightp + ", kwd = " + kwtyp);
 		out("Paren Expr kwd = " + kwtyp);
 		return rightp;
-	}
-	
-	private boolean doKwdConst(int rightp) {
-		Node node;
-		KeywordTyp kwtyp;
-
-		node = store.getNode(rightp);
-		kwtyp = node.getKeywordTyp();
-		switch (kwtyp) {
-		case TRUE:
-		case FALSE:
-		case NULL:
-			return true;
-		default:
-			oerrd(rightp, "Invalid keyword: " + kwtyp +
-				" encountered in middle of expression", 40.1);
-			return false;
-		}
 	}
 	
 	private boolean doIdentifier(int rightp) {
@@ -481,7 +481,9 @@ public class SynChkExpr {
 		
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
-		if (!doSwixExpr(rightp)) {
+		if (!doExpr(rightp)) {
+			oerrd(rightp, "Error in control expr. of SWIX expr.",
+				145.5);
 			return false;
 		}
 		node = store.getNode(rightp);
@@ -540,6 +542,7 @@ public class SynChkExpr {
 		}
 		if (count != 1) {
 			oerrd(rightp, "Swix expr. occurs multiple times", 100.2);
+			//oerrd(rightp, "count = " + count, 100.25);
 			return false;
 		}
 		return true;
