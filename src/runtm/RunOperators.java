@@ -892,12 +892,10 @@ public class RunOperators implements IConst, RunConst {
 		AddrNode node;
 		
 		omsg("runSwixExpr: kwtyp = " + kwtyp);
-		/*
 		node = store.popNode();
 		pp.popVal();
 		pp.popVal();
 		store.pushNode(node);
-		*/
 		return 0;
 	}
 

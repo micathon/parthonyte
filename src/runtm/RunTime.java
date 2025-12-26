@@ -1162,6 +1162,7 @@ public class RunTime implements IConst, RunConst {
 		switch (kwtyp) {
 		case QUEST:
 		case CQUEST:
+		case SWIX:
 		case CASE:
 			return true;
 		default:
@@ -1411,6 +1412,7 @@ public class RunTime implements IConst, RunConst {
 		case NOT:
 		case NOTBITZ:
 		case CQUEST:
+		case SWIX:
 			if (!pushOp(kwtyp)) {
 				return STKOVERFLOW;
 			}
