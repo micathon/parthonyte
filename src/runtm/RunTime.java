@@ -726,6 +726,10 @@ public class RunTime implements IConst, RunConst {
 		}
 		if (isSwixCase) {
 			popKwd();
+			addrNode = store.popNode();
+			popVal();
+			store.swapNodes();
+			store.pushNode(addrNode);
 			rtnval = runop.runEqExpr();
 			if (rtnval < 0) {
 				return rtnval;
@@ -746,7 +750,10 @@ public class RunTime implements IConst, RunConst {
 		if (ival == 1) {
 			return rightp;
 		}
-		popKwd();
+		kwtyp = popKwd();
+		if (kwtyp == KeywordTyp.SWIX) {
+			pushOp(kwtyp);
+		}
 		popVal();
 		if (topIntVal() == 0) {
 			// no cases were true:
