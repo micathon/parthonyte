@@ -753,8 +753,21 @@ public class RunTime implements IConst, RunConst {
 		kwtyp = popKwd();
 		if (kwtyp == KeywordTyp.SWIX) {
 			pushOp(kwtyp);
+			addrNode = store.popNode();
+			if (topIntVal() == 0) {
+				// no cases were true:
+				omsg("logicalCaseKwd: top = 0 (swix)");
+				popKwd();
+				popVal();
+				popVal();
+				pushAddr(0);
+				return 0;
+			}
+			rightp = popVal();
+			store.pushNode(addrNode);
+			return rightp;
 		}
-		popVal();  // error!!! (popping m in 1st case)
+		popVal();
 		if (topIntVal() == 0) {
 			// no cases were true:
 			omsg("logicalCaseKwd: top = 0");
