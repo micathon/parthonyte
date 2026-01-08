@@ -754,7 +754,7 @@ public class RunTime implements IConst, RunConst {
 		if (kwtyp == KeywordTyp.SWIX) {
 			pushOp(kwtyp);
 		}
-		popVal();
+		popVal();  // error!!! (popping m in 1st case)
 		if (topIntVal() == 0) {
 			// no cases were true:
 			omsg("logicalCaseKwd: top = 0");
