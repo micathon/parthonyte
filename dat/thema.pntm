@@ -5,20 +5,19 @@ gdefun do (
 );
 defun (p) (var x k n j i m) do (
   set i 7;
-  set m 50;
-  set j 99;
-  #set k (quest (< j 100) 40 70);
+  set m 505;
+  set j 7;
+  set k (quest (< j 100) 40 70);
   set i (swix m
     (case 40 255)
 	(case 50 127)
 	(case 999 -888)
   );
-  {#
+  println "p: i =" i;
   switch j
   case 7 do (set i 255)
   else do (set i 127);
-  #}
-  println "p: i =" i;
-  #println "p: k =" k;
+  println "p: i(2) =" i;
+  println "p: k =" k;
 );
 )
