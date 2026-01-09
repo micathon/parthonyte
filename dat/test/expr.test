@@ -83,7 +83,7 @@ do (
 ? 140.1;
 defun (p)
   do (
-  ? (? y z (add 0));
+  set x (? y z (add 0));
 );
 )
 @
@@ -91,14 +91,7 @@ do (
 ? 140.2;
 defun (p)
   do (
-  ? (? y z);
-);
-)
-@
-do (
-defun (p)
-  do (
-  ? (? x y z);
+  set x (? y z);
 );
 )
 @
@@ -106,7 +99,7 @@ do (
 ? 145.1;
 defun (p)
   do (
-  ? (cquest);
+  set x (cquest);
 );
 )
 @
@@ -114,7 +107,7 @@ do (
 ? 145.2;
 defun (p)
   do (
-  ? (cquest (add 2 2));
+  set x (cquest (add 2 2));
 );
 )
 @
@@ -122,7 +115,55 @@ do (
 ? 145.3;
 defun (p)
   do (
-  ? (cquest (case true 1 2));
+  set x (cquest (case true 1 2));
+);
+)
+@
+do (
+? 146.9;
+defun (p)
+  do (
+  set x (swix (+ 0));
+);
+)
+@
+do (
+? 146.1;
+defun (p)
+  do (
+  set x (swix 44);
+);
+)
+@
+do (
+? 146.2;
+defun (p)
+  do (
+  set x (swix 2 3);
+);
+)
+@
+do (
+? 146.3;
+defun (p)
+  do (
+  set x (swix 90 (case 2 3 5));
+);
+)
+@
+do (
+? 146.4;
+defun (p)
+  do (
+  set x (swix 90 (case 2 3) else);
+);
+)
+@
+do (
+? 146.5;
+defun (p)
+  do (
+  set x (swix 90 (case 2 3) else 5 7);
 );
 )
 @
