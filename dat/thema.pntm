@@ -1,15 +1,13 @@
 do (
 gdefun do (
   p;
-  println "gdefun: btm";
+  #println "gdefun: btm";
 );
-defun (p) (var x i) do (
-  set x -1;
+defun (p) (var a b c x i) do (
+  set x 49;
   set i (swix x
     (case 40 255)
-	(case 50 127)
-	(case 999 -888)
-	#else 100
+	else 100
   );
   println "p: i =" i "_x =" x;
 );
