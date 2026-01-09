@@ -472,6 +472,12 @@ public class SynChkExpr {
 		return true;
 	}
 	
+	private boolean cQuestBadCase(int rightp) {
+		oerrd(rightp, "CQUEST operator has invalid case clause",
+			145.2);
+		return false;
+	}
+	
 	private boolean doSwixOp(int rightp) {
 		Node node;
 		Node cnode;
@@ -485,7 +491,7 @@ public class SynChkExpr {
 		rightp = node.getRightp();
 		if (!doExpr(rightp)) {
 			oerrd(rightp, "Error in control expr. of SWIX expr.",
-				145.9);
+				146.9);
 			return false;
 		}
 		rightq = rightp;
@@ -493,7 +499,7 @@ public class SynChkExpr {
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerrd(rightq, "SWIX operator has no case clauses",
-				145.1);
+				146.1);
 			return false;
 		}
 		while (rightp > 0) {
@@ -519,7 +525,7 @@ public class SynChkExpr {
 			count = getExprCount(rightq);
 			if (count != 2) {
 				oerrd(rightp, "SWIX case clause has wrong no. of operands",
-					145.3);
+					146.3);
 				return false;
 			}
 			caseCount++;
@@ -527,7 +533,7 @@ public class SynChkExpr {
 		}
 		if (caseCount == 0) {
 			oerrd(rightp, "SWIX operator has no case clauses",
-				145.1);
+				146.1);
 			return false;
 		}
 		if (!isElse) {
@@ -537,43 +543,21 @@ public class SynChkExpr {
 		rightp = node.getRightp();
 		if (rightp <= 0) {
 			oerrd(rightq, "SWIX operator has empty else clause",
-				145.4);
+				146.4);
 			return false;
 		}
 		if (getExprCount(rightp) != 1) {
 			oerrd(rightp, "SWIX operator has invalid else clause",
-				145.5);
+				146.5);
 			return false;
 		}
 		return true;
-	}
-	
-	private boolean cQuestBadCase(int rightp) {
-		oerrd(rightp, "CQUEST operator has invalid case clause",
-			145.2);
-		return false;
 	}
 	
 	private boolean swixBadCase(int rightp) {
 		oerrd(rightp, "SWIX operator has invalid case clause",
-			145.2);
+			146.2);
 		return false;
-	}
-	
-	public boolean doSwixExpr(int rightp) {
-		int count;
-		
-		count = getExprCount(rightp);
-		if (count < 0) { 
-			oerrd(rightp, "Swix expr. has invalid argument(s)", 100.1);
-			return false;
-		}
-		if (count != 1) {
-			oerrd(rightp, "Swix expr. occurs multiple times", 100.2);
-			//oerrd(rightp, "count = " + count, 100.25);
-			return false;
-		}
-		return true;
 	}
 	
 	private boolean doMultiOp(int rightp) {
