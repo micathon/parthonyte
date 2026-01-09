@@ -3,6 +3,18 @@ gdefun do (
   p;
   println "gdefun: btm";
 );
+defun (p) (var x i) do (
+  set x -1;
+  set i (swix x
+    (case 40 255)
+	(case 50 127)
+	(case 999 -888)
+	#else 100
+  );
+  println "p: i =" i "_x =" x;
+);
+
+{#
 defun (p) (var x k n j i m) do (
   set i 7;
   set m 505;
@@ -20,4 +32,5 @@ defun (p) (var x k n j i m) do (
   println "p: i(2) =" i;
   println "p: k =" k;
 );
+#}
 )
