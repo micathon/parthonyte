@@ -56,7 +56,6 @@ public class RunOperators implements IConst, RunConst {
 		case SWIX:
 			return runSwixExpr(kwtyp);
 		case CASE:
-			//return runCaseExpr(kwtyp);
 			return 0;
 		case EQ:
 		case NE:
@@ -897,16 +896,6 @@ public class RunOperators implements IConst, RunConst {
 		pp.popVal();
 		store.pushNode(node);
 		return 0;
-	}
-
-	private int runCaseExpr(KeywordTyp kwtyp) {
-		// unneeded right now
-		KeywordTyp kwtop;
-		int rtnval;
-		
-		omsg("runCaseExpr: kwtyp = " + kwtyp);
-		rtnval = pushIntStk(0) ? 0 : STKOVERFLOW;
-		return rtnval;
 	}
 
 	private int runXorExpr() {

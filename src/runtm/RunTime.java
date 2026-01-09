@@ -2345,10 +2345,16 @@ public class RunTime implements IConst, RunConst {
 	
 	private int handleSkipKwd(Node node, int rightp) {
 		KeywordTyp kwtyp;
-		popKwd();
-		kwtyp = node.getKeywordTyp();
-		if (!pushOp(kwtyp)) {
-			return STKOVERFLOW;
+		
+		if (topKwd() == KeywordTyp.SWIX) { 
+			pushAddr(0);
+		}
+		else {
+			popKwd();
+			kwtyp = node.getKeywordTyp();
+			if (!pushOp(kwtyp)) {
+				return STKOVERFLOW;
+			}
 		}
 		rightp = node.getRightp();
 		return rightp;
