@@ -477,25 +477,32 @@ public class SynChkExpr {
 		Node cnode;
 		int rightq;
 		int count;
+		int caseCount = 0;
+		boolean isElse = false;
 		KeywordTyp kwtyp;
 		
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (!doExpr(rightp)) {
 			oerrd(rightp, "Error in control expr. of SWIX expr.",
-				145.5);
+				145.9);
 			return false;
 		}
+		rightq = rightp;
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
 		if (rightp <= 0) {
-			oerrd(rightp, "SWIX operator has no case clauses",
+			oerrd(rightq, "SWIX operator has no case clauses",
 				145.1);
 			return false;
 		}
 		while (rightp > 0) {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
+			if (kwtyp == KeywordTyp.ELSE) {
+				isElse = true;
+				break;
+			}
 			if (kwtyp != KeywordTyp.ZPAREN) {
 				return swixBadCase(rightp);
 			}
@@ -515,7 +522,28 @@ public class SynChkExpr {
 					145.3);
 				return false;
 			}
+			caseCount++;
 			rightp = node.getRightp();
+		}
+		if (caseCount == 0) {
+			oerrd(rightp, "SWIX operator has no case clauses",
+				145.1);
+			return false;
+		}
+		if (!isElse) {
+			return true;
+		}
+		rightq = rightp;
+		rightp = node.getRightp();
+		if (rightp <= 0) {
+			oerrd(rightq, "SWIX operator has empty else clause",
+				145.4);
+			return false;
+		}
+		if (getExprCount(rightp) != 1) {
+			oerrd(rightp, "SWIX operator has invalid else clause",
+				145.5);
+			return false;
 		}
 		return true;
 	}
