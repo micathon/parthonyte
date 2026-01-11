@@ -36,6 +36,11 @@ public class RunOperators implements IConst, RunConst {
 		case MPY: return runMpyExpr();
 		case MINUS: return runMinusExpr();
 		case DIV: return runDivExpr();
+		case IDIV: return runIDivExpr();
+		case MOD: return runModExpr();
+		case SHL: return runShlExpr();
+		case SHR: return runShrExpr(true);
+		case SHRU: return runShrExpr(false);
 		case XOR: return runXorExpr();
 		case NOT:
 		case NOTBITZ:
@@ -397,66 +402,7 @@ public class RunOperators implements IConst, RunConst {
 			", pgtyp = " + pgtyp);
 		return 0;  
 	}
-/* duplicate:
-	
-	public int runIncDecStmt(KeywordTyp kwtyp) {
-		int stkidx;
-		AddrNode destNode;
-		PageTyp pgtyp;
-		Page page;
-		int idx;
-		int addr;
-		long longval = 0;
-		boolean isInc;
-		
-		omsg("runIncDecStmt: top");
-		isInc = (kwtyp == KeywordTyp.INCINT);
-		destNode = store.popNode();
-		if (destNode == null) {
-			return STKUNDERFLOW;
-		}
-		if (destNode.getHdrNonVar()) {
-			omsg("runIncDecStmt: BADINCDEC");
-			return BADINCDECSTMT; 
-		}
-		stkidx = destNode.getAddr();
-		if (destNode.getHdrLocVar()) {
-			stkidx += rt.getLocBaseIdx();
-		}
-		destNode = pp.getVarNode(destNode);
-		pgtyp = destNode.getHdrPgTyp();
-		addr = destNode.getAddr();
-		switch (pgtyp) {
-		case LONG:
-			page = store.getPage(addr);
-			idx = store.getElemIdx(addr);
-			longval = page.getLong(idx);
-			omsg("runIncDecStmt: longval = " + longval);
-			if (isInc) {
-				longval++;
-			}
-			else {
-				longval--;
-			}
-			page.setLong(idx, longval);
-			return 0;
-		case INTVAL:
-			if (isInc) {
-				addr++;
-			}
-			else {
-				addr--;
-			}
-			break;
-		default:
-			return BADINCDECSTMT;
-		}
-		store.writeNodeRtn(stkidx, addr, pgtyp, true);
-		omsg("runIncDecStmt: stk = " + stkidx + ", addr = " + addr +
-			", pgtyp = " + pgtyp);
-		return 0;
-	}
-*/
+
 	private int runAddExpr() {
 		long sum = 0L;
 		AddrNode addrNode;
@@ -478,6 +424,7 @@ public class RunOperators implements IConst, RunConst {
 		boolean isConcat = false;
 		int rtnval;
 		
+		omsg("runAddExpr: top");
 		while (true) {
 			stkidx = popIntStk();
 			if (stkidx < 0) {
@@ -495,6 +442,7 @@ public class RunOperators implements IConst, RunConst {
 				isConcat = true;
 			}
 			if (!isConcat && !isNumeric(pgtyp)) {
+				omsg("runAddExpr: BADOPTYP");
 				return BADOPTYP;
 			}
 			if (isConcat) {
@@ -835,6 +783,22 @@ public class RunOperators implements IConst, RunConst {
 			rtnval = pushIntStk((int)diff) ? 0 : STKOVERFLOW;
 		}
 		return rtnval;
+	}
+	
+	private int runIDivExpr() {
+		return runAddExpr();
+	}
+	
+	private int runModExpr() {
+		return runAddExpr();
+	}
+	
+	private int runShlExpr() {
+		return runAddExpr();
+	}
+	
+	private int runShrExpr(boolean isSigned) {
+		return runAddExpr();
 	}
 	
 	private int runLogicalExpr(KeywordTyp kwtyp) {

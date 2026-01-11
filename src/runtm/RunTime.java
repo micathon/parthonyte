@@ -1423,6 +1423,11 @@ public class RunTime implements IConst, RunConst {
 			break;
 		case MINUS:
 		case DIV:
+		case IDIV:
+		case MOD:
+		case SHL:
+		case SHR:
+		case SHRU:
 		case EQ:
 		case NE:
 		case LT:
