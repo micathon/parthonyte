@@ -786,19 +786,19 @@ public class RunOperators implements IConst, RunConst {
 	}
 	
 	private int runIDivExpr() {
-		return runAddExpr();
+		return runMinusExpr();
 	}
 	
 	private int runModExpr() {
-		return runAddExpr();
+		return runMinusExpr();
 	}
 	
 	private int runShlExpr() {
-		return runAddExpr();
+		return runMinusExpr();
 	}
 	
 	private int runShrExpr(boolean isSigned) {
-		return runAddExpr();
+		return runMinusExpr();
 	}
 	
 	private int runLogicalExpr(KeywordTyp kwtyp) {
