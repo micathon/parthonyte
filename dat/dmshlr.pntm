@@ -6,9 +6,8 @@ gdefun do (
 );
 defun (p) (var res m n) do (
   println "p: top";
-  set res 0;
-  set m 14;
-  set n 3;
+  set m 12;
+  set n 2;
   println "m =" m "; n =" n;
   set res (idiv m n);
   println "idiv res =" res;
