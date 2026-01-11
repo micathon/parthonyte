@@ -7,9 +7,9 @@ gdefun do (
 defun (p) (var res m n) do (
   println "p: top";
   set res 0;
-  set m 2;
+  set m 14;
   set n 3;
-  println "m =" m "_n =" n;
+  println "m =" m "; n =" n;
   set res (idiv m n);
   println "idiv res =" res;
   set res (mod m n);
@@ -20,7 +20,7 @@ defun (p) (var res m n) do (
   println "shr res =" res;
   set res (shru m n);
   println "shru res =" res;
-  println;
+  println "";
   set res (// m n);
   println "idiv res =" res;
   set res (% m n);
