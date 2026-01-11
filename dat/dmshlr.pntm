@@ -1,0 +1,36 @@
+do (
+gdefun do (
+  println "gdefun: top";
+  p;
+  println "gdefun: btm";
+);
+defun (p) (var res m n) do (
+  println "p: top";
+  set res 0;
+  set m 2;
+  set n 3;
+  println "m =" m "_n =" n;
+  set res (idiv m n);
+  println "idiv res =" res;
+  set res (mod m n);
+  println "mod res =" res;
+  set res (shl m n);
+  println "shl res =" res;
+  set res (shr m n);
+  println "shr res =" res;
+  set res (shru m n);
+  println "shru res =" res;
+  println;
+  set res (// m n);
+  println "idiv res =" res;
+  set res (% m n);
+  println "mod res =" res;
+  set res (<< m n);
+  println "shl res =" res;
+  set res (>> m n);
+  println "shr res =" res;
+  set res (>>> m n);
+  println "shru res =" res;
+  println "p: btm";
+);
+)
