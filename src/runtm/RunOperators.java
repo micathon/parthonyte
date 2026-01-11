@@ -36,8 +36,8 @@ public class RunOperators implements IConst, RunConst {
 		case MPY: return runMpyExpr();
 		case MINUS: return runMinusExpr();
 		case DIV: return runDivExpr();
-		case IDIV: return runIDivExpr();
-		case MOD: return runModExpr();
+		case IDIV: return runDivModExpr(false);
+		case MOD: return runDivModExpr(true);
 		case SHL: return runShlExpr();
 		case SHR: return runShrExpr(true);
 		case SHRU: return runShrExpr(false);
@@ -784,13 +784,84 @@ public class RunOperators implements IConst, RunConst {
 		}
 		return rtnval;
 	}
-	
-	private int runIDivExpr() {
-		return runMinusExpr();
-	}
-	
-	private int runModExpr() {
-		return runMinusExpr();
+
+	private int runDivModExpr(boolean isMod) {
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		Page page;
+		int addr;
+		int idx;
+		long denom;
+		long base;
+		long quotient;
+		int stkidx;
+		boolean isLong;
+		boolean isResLong = false;
+		int rtnval;
+		
+		omsg("runIDivExpr: top");
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
+		pgtyp = addrNode.getHdrPgTyp();
+		if (!isNumeric(pgtyp) || (pgtyp == PageTyp.FLOAT)) {
+			return BADOPTYP;
+		}
+		addr = addrNode.getAddr();
+		isLong = (pgtyp == PageTyp.LONG);
+		isResLong = isResLong || isLong;
+		if (isLong) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			denom = page.getLong(idx);
+		}
+		else {
+			denom = getIntOffStk(stkidx);
+		}
+		if (denom == 0) {
+			return ZERODIV;
+		}
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
+		pgtyp = addrNode.getHdrPgTyp();
+		if (!isNumeric(pgtyp) || (pgtyp == PageTyp.FLOAT)) {
+			return BADOPTYP;
+		}
+		addr = addrNode.getAddr();
+		isLong = (pgtyp == PageTyp.LONG);
+		isResLong = isResLong || isLong;
+		if (isLong) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			base = page.getLong(idx);
+		}
+		else {
+			base = getIntOffStk(stkidx);
+		}
+		if (isMod) {
+			quotient = base % denom;
+		}
+		else {
+			quotient = base / denom;
+		}
+		if (isResLong) {
+			rtnval = pushLong(quotient);
+		}
+		else { 
+			rtnval = pushIntStk((int)quotient) ? 0 : STKOVERFLOW;
+		}
+		return rtnval;
 	}
 	
 	private int runShlExpr() {
