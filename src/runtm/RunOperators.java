@@ -38,9 +38,9 @@ public class RunOperators implements IConst, RunConst {
 		case DIV: return runDivExpr();
 		case IDIV: return runDivModExpr(false);
 		case MOD: return runDivModExpr(true);
-		case SHL: return runShlExpr();
-		case SHR: return runShrExpr(true);
-		case SHRU: return runShrExpr(false);
+		case SHL: return runShiftExpr(true, false);
+		case SHR: return runShiftExpr(false, true);
+		case SHRU: return runShiftExpr(false, false);
 		case XOR: return runXorExpr();
 		case NOT:
 		case NOTBITZ:
@@ -799,7 +799,7 @@ public class RunOperators implements IConst, RunConst {
 		boolean isResLong = false;
 		int rtnval;
 		
-		omsg("runIDivExpr: top");
+		omsg("runDivModExpr: top");
 		stkidx = popIntStk();
 		if (stkidx < 0) {
 			return stkidx;
@@ -864,12 +864,80 @@ public class RunOperators implements IConst, RunConst {
 		return rtnval;
 	}
 	
-	private int runShlExpr() {
-		return runMinusExpr();
-	}
-	
-	private int runShrExpr(boolean isSigned) {
-		return runMinusExpr();
+	private int runShiftExpr(boolean isLeft, boolean isSigned) {
+		AddrNode addrNode;
+		PageTyp pgtyp;
+		Page page;
+		int addr;
+		int idx;
+		long shqty;
+		long base;
+		long result;
+		int stkidx;
+		boolean isLong;
+		int rtnval;
+		
+		omsg("runShiftExpr: top");
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
+		pgtyp = addrNode.getHdrPgTyp();
+		if (!isNumeric(pgtyp) || (pgtyp == PageTyp.FLOAT)) {
+			return BADOPTYP;
+		}
+		addr = addrNode.getAddr();
+		isLong = (pgtyp == PageTyp.LONG);
+		if (isLong) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			shqty = page.getLong(idx);
+		}
+		else {
+			shqty = getIntOffStk(stkidx);
+		}
+		stkidx = popIntStk();
+		if (stkidx < 0) {
+			return stkidx;
+		}
+		addrNode = store.fetchNode(stkidx);
+		if (!addrNode.isInzValid()) {
+			return NOVARINZ;
+		}
+		pgtyp = addrNode.getHdrPgTyp();
+		if (!isNumeric(pgtyp) || (pgtyp == PageTyp.FLOAT)) {
+			return BADOPTYP;
+		}
+		addr = addrNode.getAddr();
+		isLong = (pgtyp == PageTyp.LONG);
+		if (isLong) {
+			page = store.getPage(addr);
+			idx = store.getElemIdx(addr);
+			base = page.getLong(idx);
+		}
+		else {
+			base = getIntOffStk(stkidx);
+		}
+		if (isLeft) {
+			result = base << shqty;
+		}
+		else if (isSigned) {
+			result = base >> shqty;
+		}
+		else {
+			result = base >>> shqty;
+		}
+		if (isLong) {
+			rtnval = pushLong(result);
+		}
+		else { 
+			rtnval = pushIntStk((int)result) ? 0 : STKOVERFLOW;
+		}
+		return rtnval;
 	}
 	
 	private int runLogicalExpr(KeywordTyp kwtyp) {
