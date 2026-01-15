@@ -20,6 +20,7 @@ defun (p) (var res m n) do (
   set res (shru m n);
   println "shru res =" res;
   println "";
+  {#
   set res (// m n);
   println "idiv res =" res;
   set res (% m n);
@@ -30,6 +31,48 @@ defun (p) (var res m n) do (
   println "shr res =" res;
   set res (>>> m n);
   println "shru res =" res;
+  #}
+  set res m;
+  idivset res n;
+  println "idivset res =" res;
+  set res m;
+  modset res n;
+  println "modset res =" res;
+  set res m;
+  shlset res n;
+  println "shlset res =" res;
+  set res m;
+  shrset res n;
+  println "shrset res =" res;
+  set res m;
+  shruset res n;
+  println "shruset res =" res;
+  println "";
+  set res m;
+  //= res n;
+  println "idivset res =" res;
+  set res m;
+  %= res n;
+  println "modset res =" res;
+  set res m;
+  <<= res n;
+  println "shlset res =" res;
+  set res m;
+  >>= res n;
+  println "shrset res =" res;
+  set res m;
+  >>>= res n;
+  println "shruset res =" res;
+  println "";
+  #set res "0";
+  #//= res 1;
+  
+  set res m;
+  #set n 0;
+  #%= res n;
+  #set n 1.0;
+  #>>>= res n;
+  #println "";
   println "p: btm";
 );
 )
