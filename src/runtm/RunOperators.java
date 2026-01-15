@@ -185,8 +185,26 @@ public class RunOperators implements IConst, RunConst {
 		boolean isLong = false;
 		boolean isFloat = false;
 		boolean isStrExpr = false;
-		
+		boolean isIntOp = false;
+		boolean isIntZeroDiv = false;
+
 		omsg("runOpSetStmt: top");
+		switch (kwtyp) {
+		case IDIVSET:
+		case MODSET:
+		case SHLSET:
+		case SHRSET:
+		case SHRUSET:
+			isIntOp = true;
+			break;
+		}
+		switch (kwtyp) {
+		case IDIVSET:
+		case MODSET:
+		case DIVSET:
+			isIntZeroDiv = true;
+			break;
+		}
 		srcNode = store.popNode(); 
 		if (srcNode == null){
 			return STKUNDERFLOW;
@@ -224,7 +242,7 @@ public class RunOperators implements IConst, RunConst {
 		case LONG:
 			longval = page.getLong(idx);
 			omsg("runOpSetStmt: longval = " + longval);
-			if ((kwtyp == KeywordTyp.DIVSET) && (longval == 0)) {
+			if (isIntZeroDiv && (longval == 0)) {
 				return ZERODIV;
 			}
 			dval = longval;
@@ -245,7 +263,7 @@ public class RunOperators implements IConst, RunConst {
 			break;
 		default:
 			ival = addr;
-			if ((kwtyp == KeywordTyp.DIVSET) && (ival == 0)) {
+			if (isIntZeroDiv && (ival == 0)) {
 				return ZERODIV;
 			}
 			longval = ival;
@@ -325,6 +343,11 @@ public class RunOperators implements IConst, RunConst {
 		case ANDBSET: longvaldest &= longval; break;
 		case ORBSET: longvaldest |= longval; break;
 		case XORBSET: longvaldest ^= longval; break;
+		case IDIVSET: longvaldest /= longval; break;
+		case MODSET: longvaldest %= longval; break;
+		case SHLSET: longvaldest <<= longval; break;
+		case SHRSET: longvaldest >>= longval; break;
+		case SHRUSET: longvaldest >>>= longval; break;
 		default:
 			return BADSETSTMT;
 		}

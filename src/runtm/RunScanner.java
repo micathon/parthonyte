@@ -554,6 +554,11 @@ public class RunScanner implements IConst, RunConst {
 		case ANDBSET: 
 		case ORBSET: 
 		case XORBSET: 
+		case IDIVSET:
+		case MODSET:
+		case SHLSET:
+		case SHRSET:
+		case SHRUSET:
 			return scopeSetStmt(node);
 		case INCINT:
 		case DECINT:

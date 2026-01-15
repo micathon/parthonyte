@@ -930,6 +930,11 @@ public class RunTime implements IConst, RunConst {
 		case ANDBSET:
 		case ORBSET:
 		case XORBSET:
+		case IDIVSET:
+		case MODSET:
+		case SHLSET:
+		case SHRSET:
+		case SHRUSET:
 		case SET: 
 			return runop.runSetStmt(kwtyp);
 		case INCINT:
@@ -1337,7 +1342,12 @@ public class RunTime implements IConst, RunConst {
 		case DIVSET: 
 		case ANDBSET: 
 		case ORBSET: 
-		case XORBSET: 
+		case XORBSET:
+		case IDIVSET:
+		case MODSET:
+		case SHLSET:
+		case SHRSET:
+		case SHRUSET:
 		case SET: 
 			rightp = pushSetStmt(node, kwtyp);
 			break;
