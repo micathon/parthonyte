@@ -1,0 +1,181 @@
+do (
+gdefun do (
+  #ifstmt;
+  #comparop;
+  #strcomparop;
+  #bitzop;
+  #andop;
+  questop;
+);
+defun (ifstmt) (var x) do (
+  println "top";
+  if true do (
+    println "blk1";
+    g;
+    println "blk1: btm";
+  );
+  println "btm";
+);
+defun (g) (var y) do (
+  set y 1;
+  #println "f body";
+);
+{#
+  if true do (
+    println "blk1";
+    f;
+    println "blk1: btm";
+  );
+  elif false do (
+    println "blk2";
+  )
+  else do (
+    println "blk3";
+  );
+#}  
+defun (comparop) (var x a b m n) do (
+  set a 0.0;
+  set b 1.0;
+  set m 0;
+  set n 1;
+  println "abmn:" a b m n;
+  set x (== a b);
+  println "a == b:" x;
+  set x (!= m n);
+  println "m != n:" x;
+  set x (< a b);
+  println "a < b:" x;
+  set x (<= m n);
+  println "m <= n:" x;
+  set x (>= m n);
+  println "m >= n:" x;
+  set x (> a b);
+  println "a > b:" x;
+  set x (== m b);
+  println "m == b:" x;
+  set x (!= m b);
+  println "m != b:" x;
+  set x (< m b);
+  println "m < b:" x;
+  set x (<= m b);
+  println "m <= b:" x;
+  set x (>= m b);
+  println "m >= b:" x;
+  set x (> m b);
+  println "m > b:" x;
+);
+defun (strcomparop) (var x a b m n) do (
+  set a "0.0";
+  set b "1.0";
+  set m "0";
+  set n "1";
+  println "abmn:" a b m n;
+  set x (== a b);
+  println "a == b:" x;
+  set x (!= m n);
+  println "m != n:" x;
+  set x (< a b);
+  println "a < b:" x;
+  set x (<= m n);
+  println "m <= n:" x;
+  set x (>= m n);
+  println "m >= n:" x;
+  set x (> a b);
+  println "a > b:" x;
+  set x (== m b);
+  println "m == b:" x;
+  set x (!= m b);
+  println "m != b:" x;
+  set x (< m b);
+  println "m < b:" x;
+  set x (<= m b);
+  println "m <= b:" x;
+  set x (>= m b);
+  println "m >= b:" x;
+  set x (> m b);
+  println "m > b:" x;
+);
+defun (bitzop) (var a b c d e f u v x y z) do (
+  set u false;
+  set v (! u);
+  println "uv:" u v;
+  set a 1;
+  set b 2;
+  set c 4;
+  set y 0;
+  |= y a;
+  |= y b;
+  |= y c;
+  println "y or:" y;
+  set y 0x7FFFFFFF;
+  println "y:" y;
+  set x (~ a);
+  &= x y;
+  println "xa:" x a;
+  set d 8L;
+  set e 16L;
+  set f 32L;
+  set x (~ d);
+  &= x y;
+  println "xd:" x d;
+  set x (- a);
+  set y (- 3.1416);
+  set z (- d);
+  println "minus xyz:" x y z;
+  set y 0x7FFFFFFF;
+  set x (| a b c);
+  println "xabc:" x a b c;
+  set x (| a b);
+  println "xab:" x a b;
+  set x (| d e f);
+  println "xdef:" x d e f;
+  set a (^ y a);
+  set b (^ y b);
+  set c (^ y c);
+  set x (& a b c);
+  println "xabc:" x a b c;
+  &= y a;
+  &= y b;
+  &= y c;
+  println "y and:" y;
+  set y 0x7FFFFFFF;
+  set d (^ y d);
+  set e (^ y e);
+  set f (^ y f);
+  set x (& a b c d e f);
+  println "xabcdef:" x a b c d e f;
+);
+defun (andop) (var a a1 a2 x c d e) do (
+  set c true;
+  set d true;
+  set e true;
+  println "cd:" c d;
+  #set x (&& c (|| d false));
+  #set x (&& c (f d 7) e);
+  set x (&& c d e);
+  println "x:" x;
+  return;
+  
+  set x (xor c d);
+  println "xor x:" x;
+  set d true;
+  set x (^^ c d);
+  println "xor x:" x;
+);
+defun (f flag n) do (
+  println "n:" n;
+  return flag;
+);
+defun (questop) (var c d flag x a b) do (
+  set flag true;
+  set a 101;
+  set b 202;
+  set x (quest flag (fun a) (fun b));
+  println "x:" x;
+);
+defun (fun x) do (
+  println "y:" (+ x 1);
+  return x;
+);
+)
+

@@ -1,0 +1,17 @@
+do (
+gdefun do (
+  println "gdefun: top";
+  p;
+  q;
+  println "gdefun: btm";
+);
+defun (p) do (
+  println "p: top";
+  if true do ()
+  else do (println "p: if body";);
+  println "p: btm";
+);
+defun (q) do (
+  #println "q: top";
+);
+)
