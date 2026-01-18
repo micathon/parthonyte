@@ -25,6 +25,10 @@ class RunPushPop implements IConst, RunConst {
 		rt.omsg(s);
 	}
 	
+	private void omsgz(String msg) {
+		rt.omsgz(msg);
+	}
+	
 	private void out(String s) {
 		System.out.println(s);
 	}
@@ -176,8 +180,8 @@ class RunPushPop implements IConst, RunConst {
 			if (addrNode.getHdrLocVar()) {
 				varidx += locBaseIdx;
 			}
-			omsg("popIntStk: addr = " + addr + 
-				", varidx = " + varidx);
+			omsgz("popIntStk: addr = " + addr); 
+			omsg(", varidx = " + varidx);
 			return varidx;
 		default: return BADINTVAL;
 		}
@@ -214,8 +218,8 @@ class RunPushPop implements IConst, RunConst {
 			if (addrNode.getHdrLocVar()) {
 				varidx += locBaseIdx;
 			}
-			omsg("topIntStk: addr = " + addr + 
-				", varidx = " + varidx);
+			omsgz("topIntStk: addr = " + addr); 
+			omsg(", varidx = " + varidx);
 			return varidx;
 		default: return BADINTVAL;
 		}
@@ -323,9 +327,9 @@ class RunPushPop implements IConst, RunConst {
 			if (addrNode.getHdrLocVar()) {
 				varidx += lbidx;
 			}
-			omsg("nodeToIntVal: addr = " + addr + 
-				", varidx = " + varidx + 
-				", locBaseIdx = " + lbidx);
+			omsgz("nodeToIntVal: addr = " + addr); 
+			omsgz(", varidx = " + varidx);
+			omsg(", locBaseIdx = " + lbidx);
 			addrNode = store.fetchNode(varidx);
 			rtnval = addrNode.getAddr();
 			break;
@@ -386,8 +390,8 @@ class RunPushPop implements IConst, RunConst {
 			isImmed = (pgtyp == PageTyp.INTVAL);
 			isBool = (pgtyp == PageTyp.BOOLEAN);
 			rtnval = addrNode.getAddr();
-			omsg("popStrFromNode: varidx = " + varidx + 
-				", pgtyp = " + pgtyp);
+			omsgz("popStrFromNode: varidx = " + varidx); 
+			omsg(", pgtyp = " + pgtyp);
 			break;
 		default: 
 			return err;
@@ -446,8 +450,8 @@ class RunPushPop implements IConst, RunConst {
 		boolean isGlb) 
 	{
 		char ch = isGlb ? 'G' : 'L';
-		omsg("storeLocGlbInt: varidx = " + varidx + ", val = " +
-			val + ", pgtyp = " + pgtyp + ", lbidx = " + locBaseIdx + ch);
+		omsgz("storeLocGlbInt: varidx = " + varidx + ", val = ");
+		omsg(val + ", pgtyp = " + pgtyp + ", lbidx = " + locBaseIdx + ch);
 		if (!isGlb) {
 			varidx += locBaseIdx;
 		}
@@ -765,7 +769,7 @@ class RunPushPop implements IConst, RunConst {
 		
 		addrNode = store.newAddrNode(0, val);
 		addrNode.setHdrPgTyp(PageTyp.KWD);
-		omsg("pushOpAsNode: --------------------------");
+		omsg("pushOpAsNode: ------");
 		if (!store.pushNode(addrNode)) {
 			return false;
 		}
@@ -805,8 +809,8 @@ class RunPushPop implements IConst, RunConst {
 		//val = addrNode.getAddr();
 		val = varidx;
 		if (pushValRtn(val, pgtyp, locVarTyp, isInz)) {
-			omsg("pushVar: val = " + val + ", pgtyp = " + 
-				pgtyp + ", locvartyp = " + locVarTyp);
+			omsgz("pushVar: val = " + val + ", pgtyp = "); 
+			omsg(pgtyp + ", locvartyp = " + locVarTyp);
 			return true;
 		}
 		else {

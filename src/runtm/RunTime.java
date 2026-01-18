@@ -94,6 +94,10 @@ public class RunTime implements IConst, RunConst {
 		rscan.omsg(msg);
 	}
 	
+	public void omsgz(String msg) {  
+		rscan.omsgz(msg);
+	}
+	
 	public void oprn(String msg) {  
 		rscan.oprn(msg);
 	}
@@ -623,8 +627,8 @@ public class RunTime implements IConst, RunConst {
 				isShortCircuit = 
 					((ival == 1) || (jval == 1));
 				kval = isShortCircuit ? 1 : 0;
-				omsg("hlogkw: OR ival = " + ival + 
-					", jval = " + jval + ", kval = " + kval);
+				omsgz("hlogkw: OR ival = " + ival); 
+				omsg(", jval = " + jval + ", kval = " + kval);
 			}
 			if (store.popNode() == null) {
 				return STKUNDERFLOW;
@@ -804,8 +808,8 @@ public class RunTime implements IConst, RunConst {
 		varidx = node.getDownp();
 		celltyp = node.getDownCellTyp();
 		rightp = node.getRightp();
-		omsg("htok: celltyp = " + celltyp + ", downp = " + varidx +
-			", rightp = " + rightp);
+		omsgz("htok: celltyp = " + celltyp + ", downp = " + varidx);
+		omsg(", rightp = " + rightp);
 		if (isQuote) {
 			switch (celltyp) {
 			case ID:
@@ -1314,8 +1318,7 @@ public class RunTime implements IConst, RunConst {
 		KeywordTyp kwtyp;
 		int rightp, rightq;
 		
-		omsg(":::::::::: pushStmt: stkidx = " + 
-			store.getStkIdx());
+		omsg(":: pushStmt: stkidx = " + store.getStkIdx());
 		//rightq = node.getRightp();
 		rightq = savep;
 		rightp = node.getDownp();
@@ -1909,13 +1912,13 @@ public class RunTime implements IConst, RunConst {
 			pgtyp = addrNode.getHdrPgTyp();
 			val = nodeToIntVal(addrNode, lbidx);
 			if (val == null) {
-				omsg("runAltZcallStmt: rtn = " + lastErrCode + 
-					", i = " + i);
+				omsgz("runAltZcallStmt: rtn = " + lastErrCode); 
+				omsg(", i = " + i);
 				return lastErrCode;
 			}
-			omsg("runAltZcallStmt: i/pc = " + i + "/" + parmCount +
-				", val = " + val +
-				", pgtyp = " + pgtyp);
+			omsgz("runAltZcallStmt: i/pc = " + i + "/" + parmCount);
+			omsgz(", val = " + val);
+			omsg(", pgtyp = " + pgtyp);
 			rtnval = storeLocGlbInt(i, val, pgtyp, false);
 			if (rtnval < 0) {
 				return rtnval;
@@ -1938,8 +1941,8 @@ public class RunTime implements IConst, RunConst {
 			}
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
-			omsg("getCountOfPrintSpares: addr = " + addr + 
-				", pgtyp = " + pgtyp);
+			omsgz("getCountOfPrintSpares: addr = " + addr); 
+			omsg(", pgtyp = " + pgtyp);
 			if ((addr == kwtyp.ordinal()) && (pgtyp == PageTyp.KWD)) {
 				break;
 			}
@@ -2099,8 +2102,8 @@ public class RunTime implements IConst, RunConst {
 		}
 		i = glbLocVarMap.get(funcName);
 		setLocBaseIdx(store.getStkIdx() - parmCount);
-		omsg("runZcallStmt: lbidx = " + locBaseIdx + 
-			", parmCount = " + parmCount);
+		omsgz("runZcallStmt: lbidx = " + locBaseIdx); 
+		omsg(", parmCount = " + parmCount);
 		while (true) {
 			if (varCount < parmCount) {
 				varCount++;
@@ -2285,19 +2288,7 @@ public class RunTime implements IConst, RunConst {
 		rightp = handleExprToken(rightp, true);
 		return rightp;
 	}
-/*
-		// top of old runRtnStmt:
-		kwtyp = topKwd();
-		if (kwtyp != KeywordTyp.DO) {
-			omsg("runRtnStmt: expecting DO, popped kwtyp = " + 
-				kwtyp);
-			//return GENERR;
-		}
-		popKwd();
-		// EDBF
-		// pop an extra DO:
-		popKwd();
-*/	
+
 	private int runGlbCall() {
 		int i, j;
 		int len;

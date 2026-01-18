@@ -21,9 +21,11 @@ public class RunOperators implements IConst, RunConst {
 	}
 	
 	private void omsg(String msg) {
-		if (idebug == 1) {
-			System.out.println(msg);
-		}
+		rt.omsg(msg);
+	}
+	
+	private void omsgz(String msg) {
+		rt.omsgz(msg);
 	}
 	
 	private void oprn(String msg) {
@@ -159,8 +161,8 @@ public class RunOperators implements IConst, RunConst {
 			return BADALLOC;
 		}
 		store.writeNodeRtn(stkidx, addr, pgtyp, true);
-		omsg("runSetStmt: stk = " + stkidx + ", addr = " + addr +
-			", pgtyp = " + pgtyp);
+		omsgz("runSetStmt: stk = " + stkidx + ", addr = " + addr);
+		omsg(", pgtyp = " + pgtyp);
 		return 0;
 	}
 	
@@ -270,8 +272,8 @@ public class RunOperators implements IConst, RunConst {
 			dval = ival;
 		}
 		addrdest = destNode.getAddr();
-		omsg("runOpSetStmt: addrdest = " + addrdest +
-			", pgtypdest = " + pgtypdest);
+		omsgz("runOpSetStmt: addrdest = " + addrdest);
+		omsg(", pgtypdest = " + pgtypdest);
 		switch (pgtypdest) {
 		case LONG:
 			if (isStrExpr) {
@@ -290,8 +292,8 @@ public class RunOperators implements IConst, RunConst {
 			pagedest = store.getPage(addrdest);
 			idx = store.getElemIdx(addrdest);
 			dvaldest = pagedest.getFloat(idx);
-			omsg("runOpSetStmt: dvaldest = " + dvaldest +
-					", pgtypdest = " + pgtypdest);
+			omsgz("runOpSetStmt: dvaldest = " + dvaldest);
+			omsg(", pgtypdest = " + pgtypdest);
 			isFloat = true;
 			break;
 		case STRING:
@@ -329,8 +331,8 @@ public class RunOperators implements IConst, RunConst {
 				return BADFREE; 
 			}
 			pgtypdest = PageTyp.FLOAT;
-			omsg("runOpSetStmt (2): dvaldest = " + dvaldest +
-				", pgtypdest = " + pgtypdest);
+			omsgz("runOpSetStmt (2): dvaldest = " + dvaldest);
+			omsg(", pgtypdest = " + pgtypdest);
 			addr = store.allocFloat(dvaldest);
 			store.writeNodeRtn(stkidx, addr, pgtypdest, true);
 			return 0;
@@ -363,8 +365,8 @@ public class RunOperators implements IConst, RunConst {
 			pgtypdest = PageTyp.INTVAL;
 		}
 		store.writeNodeRtn(stkidx, addr, pgtypdest, true);
-		omsg("runOpSetStmt: stk = " + stkidx + ", addr = " + addr +
-			", pgtyp = " + pgtypdest);
+		omsgz("runOpSetStmt: stk = " + stkidx + ", addr = " + addr);
+		omsg(", pgtyp = " + pgtypdest);
 		return 0;
 	}
 	
@@ -421,8 +423,8 @@ public class RunOperators implements IConst, RunConst {
 			return BADINCDECSTMT;
 		}
 		store.writeNodeRtn(stkidx, addr, pgtyp, true);
-		omsg("runIncDecStmt: stk = " + stkidx + ", addr = " + addr +
-			", pgtyp = " + pgtyp);
+		omsgz("runIncDecStmt: stk = " + stkidx + ", addr = " + addr);
+		omsg(", pgtyp = " + pgtyp);
 		return 0;  
 	}
 
@@ -790,10 +792,10 @@ public class RunOperators implements IConst, RunConst {
 		else {
 			fdiff = fbase - delta;
 		}
-		omsg("runMinusExpr: base, delta, diff = " + base +
-				" " + delta + " " + diff);
-		omsg("runMinusExpr: fbase, fdelta, fdiff = " + fbase +
-				" " + fdelta + " " + fdiff);
+		omsgz("runMinusExpr: base, delta, diff = " + base);
+		omsg(" " + delta + " " + diff);
+		omsgz("runMinusExpr: fbase, fdelta, fdiff = " + fbase);
+		omsg(" " + fdelta + " " + fdiff);
 		isResFloat = isDeltaFloat || isBaseFloat;
 		isResLong = isDeltaLong || isBaseLong;
 		if (isResFloat) {
@@ -1045,8 +1047,8 @@ public class RunOperators implements IConst, RunConst {
 			}
 			addr = addrNode.getAddr();
 			pgtyp = addrNode.getHdrPgTyp();
-			omsg("runXorExpr: stkidx = " + stkidx +
-				", addr = " + addr);
+			omsgz("runXorExpr: stkidx = " + stkidx);
+			omsg(", addr = " + addr);
 			if (pgtyp != PageTyp.BOOLEAN) {
 				return BADOPTYP;
 			}

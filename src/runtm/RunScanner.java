@@ -32,6 +32,7 @@ public class RunScanner implements IConst, RunConst {
 	private boolean isSyntaxError;
 	private int stmtCount;
 	private int runidx;
+	private String omsgbuf;
 	private boolean isRunTest;
 	private boolean isBadUtPair;
 
@@ -45,6 +46,7 @@ public class RunScanner implements IConst, RunConst {
 		lastRightp = 0;
 		lastErrCode = 0;
 		isSyntaxError = false;
+		omsgbuf = "";
 		defunCount = 0;
 		count = 0;
 		stmtCount = 0;
@@ -72,7 +74,15 @@ public class RunScanner implements IConst, RunConst {
 	
 	public void omsg(String msg) {  
 		if (irtbug == 1) {
-			System.out.println(msg);
+			omsgbuf += msg;
+			System.out.println(omsgbuf);
+			omsgbuf = "";
+		}
+	}
+	
+	public void omsgz(String msg) {  
+		if (irtbug == 1) {
+			omsgbuf += msg;
 		}
 	}
 	
@@ -369,8 +379,8 @@ public class RunScanner implements IConst, RunConst {
 			kwtyp = node.getKeywordTyp();
 			if (kwtyp != KeywordTyp.ZPAREN) { }
 			else if (prefix == 'i') {
-				omsg("scanGlbDefStmt: open paren found " + 
-					"after (ivar ...)");
+				omsgz("scanGlbDefStmt: open paren found "); 
+				omsg("after (ivar ...)");
 				return -1;
 			}
 			else {
@@ -436,8 +446,8 @@ public class RunScanner implements IConst, RunConst {
 			node.setDownp(0);
 			node.setRightCell(true);
 			page.setNode(idx, node);
-			omsg("scanGlbVarList: var = " + varName + 
-				", idx = " + varidx);
+			omsgz("scanGlbVarList: var = " + varName); 
+			omsg(", idx = " + varidx);
 			omsg("Global public var/ivar count = " + varidx);
 		}
 		glbVarListIdx = varidx;
@@ -507,8 +517,8 @@ public class RunScanner implements IConst, RunConst {
 			if (kwtyp != KeywordTyp.VAR && 
 				kwtyp != KeywordTyp.IVAR) 
 			{
-				omsg("scopeGlbDefStmt: expecting var/ivar, " +
-					"found kwd = " + kwtyp);
+				omsgz("scopeGlbDefStmt: expecting var/ivar, ");
+				omsg("found kwd = " + kwtyp);
 				return -1;
 			}
 			rightp = upNode.getRightp();
