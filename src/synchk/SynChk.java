@@ -31,12 +31,16 @@ public class SynChk {
 		synExpr.init();
 	}
 	
-	public void out(String msg) {
-		scan.out(msg);
+	public void omsg(String msg) {
+		scan.omsg(msg);
 	}
 	
-	public void oprn(String msg) {
-		scan.omsg(msg);
+	public void omsgz(String msg) {
+		scan.omsgz(msg);
+	}
+	
+	public void outdebug(String msg) {
+		scan.outdebug(msg);
 	}
 	
 	public void oerr(int nodep, String msg) {
@@ -70,7 +74,7 @@ public class SynChk {
 		{
 			// unit test success: break condition reproduced
 			// unit test is supposed to be invalid syntax
-			oprn("oerrd: brkval found = " + brkval + " | " + msg);
+			outdebug("oerrd: brkval found = " + brkval + " | " + msg);
 			isBrkFound = true;
 			return;
 		}
@@ -142,18 +146,18 @@ public class SynChk {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			celltyp = node.getDownCellTyp();
-			out("rightp = " + rightp +
-				", kwd = " + kwtyp + ", celtyp = " + celltyp);
+			omsgz("rightp = " + rightp);
+			omsg(", kwd = " + kwtyp + ", celtyp = " + celltyp);
 			if (kwtyp == KeywordTyp.DO) {
-				out("Here is open par!");
+				omsg("Here is open par!");
 				listCount++;
 				downp = node.getDownp();
-				out("root downp = " + downp + ", rightp = " +
-					node.getRightp());
+				omsgz("root downp = " + downp);
+				omsg(", rightp = " + node.getRightp());
 				count = doListCounts(downp, true);
 				tokenCount += count & 0xFFFF;
 				listCount += count >>> 16;
-				out("Here is close par!");
+				omsg("Here is close par!");
 			}
 			rightp = node.getRightp();
 			tokenCount++;
@@ -174,17 +178,17 @@ public class SynChk {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			celltyp = node.getDownCellTyp();
-			out("rightp = " + rightp + 
-				", kwd = " + kwtyp + ", celtyp = " + celltyp);
+			omsgz("rightp = " + rightp);
+			omsg(", kwd = " + kwtyp + ", celtyp = " + celltyp);
 			if (isTopLevel && node.isOpenPar()) {
-				out("Here is (");
+				omsg("Here is (");
 				listCount++;
 				downp = node.getDownp();
-				out("doLstCts: recurse, downp = " + downp);
+				omsg("doLstCts: recurse, downp = " + downp);
 				count = doListCounts(downp, false);
 				tokenCount += count & 0xFFFF;
 				listCount += count >>> 16;
-				out("Here is )");
+				omsg("Here is )");
 			}
 			rightp = node.getRightp();
 			tokenCount++;
@@ -206,7 +210,7 @@ public class SynChk {
 		int stmtNo = 0;
 		int doBlkCount = 0;
 
-		out("Top of isValidSrc");
+		omsg("Top of isValidSrc");
 		brkval = 0.0;
 		rightp = scan.getRootNodep();
 		if (rightp == 0) {
@@ -227,17 +231,17 @@ public class SynChk {
 				return false;
 			}
 			celltyp = node.getDownCellTyp();
-			out("rightp = " + rightp + 
-				", kwd = " + kwtyp + ", celtyp = " + celltyp);
+			omsgz("rightp = " + rightp); 
+			omsg(", kwd = " + kwtyp + ", celtyp = " + celltyp);
 			if (isDo) {
 				doBlkCount++;
 				if (doBlkCount > 1) {
 					return false;
 				}
-				out("Here is open par!");
+				omsg("Here is open par!");
 				downp = node.getDownp();
-				out("root downp = " + downp + ", rightp = " +
-					node.getRightp());
+				omsgz("root downp = " + downp);
+				omsg(", rightp = " + node.getRightp());
 				if (downp > 0) {
 					count = doStmtCounts(downp);
 				}
@@ -248,12 +252,12 @@ public class SynChk {
 					return false;
 				}
 				stmtCount += count;
-				out("Here is close par!");
+				omsg("Here is close par!");
 			}
 			rightp = node.getRightp();
 			stmtNo++;
 		}
-		out("Stmt count = " + stmtCount);
+		omsg("Stmt count = " + stmtCount);
 		return (stmtCount >= 0);
 	}
 
@@ -270,19 +274,19 @@ public class SynChk {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			celltyp = node.getDownCellTyp();
-			out("rightp = " + rightp +  
-				", kwd = " + kwtyp + ", celtyp = " + celltyp);
+			omsgz("rightp = " + rightp);  
+			omsg(", kwd = " + kwtyp + ", celtyp = " + celltyp);
 			if (kwtyp != KeywordTyp.ZSTMT) {
 				return -1;
 			}
 			if (node.isOpenPar()) {
-				out("Here is (");
+				omsg("Here is (");
 				downp = node.getDownp();
 				phaseNo = doStmt(downp, phaseNo);
 				if (phaseNo < 0) {
 					return -1;
 				}
-				out("Here is )");
+				omsg("Here is )");
 			}
 			else {
 				return -1;
@@ -315,11 +319,11 @@ public class SynChk {
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			celltyp = node.getDownCellTyp();
-			out("rightp = " + rightp +  
-					", kwd = " + kwtyp + ", celtyp = " + celltyp);
+			omsgz("rightp = " + rightp);  
+			omsg(", kwd = " + kwtyp + ", celtyp = " + celltyp);
 			if (first) {
 				// at keyword token, beginning of top-level stmt.
-				out("Statement kwd = " + kwtyp);
+				omsg("Statement kwd = " + kwtyp);
 				currPhaseNo = getPhaseNo(kwtyp);
 				phaseDesc = getPhaseDesc(currPhaseNo);
 				if ((currPhaseNo < phaseNo) && (currPhaseNo != 0)) {
@@ -486,12 +490,12 @@ public class SynChk {
 
 		while (rightp > 0) {
 			modCount++;
-			out("modCount = " + modCount);
+			omsg("modCount = " + modCount);
 			node = store.getNode(rightp);
 			kwtyp = node.getKeywordTyp();
 			celltyp = node.getDownCellTyp();
 			if (celltyp == NodeCellTyp.ID) {
-				out("celltyp = ID");
+				omsg("celltyp = ID");
 			}
 			else if (celltyp != NodeCellTyp.PTR) {
 				oerrd(rightp, "Keyword 'import' followed by invalid text: " +
@@ -499,7 +503,7 @@ public class SynChk {
 				return 0;
 			}
 			else if (hasColonCase && isColonListQuiet(node)) {
-				out("celltyp = PTR, (: a b)");
+				omsg("celltyp = PTR, (: a b)");
 			}
 			else {
 				currp = node.getDownp();
@@ -775,7 +779,7 @@ public class SynChk {
 			rightq = rightp;
 			rightp = parNode.getRightp();
 		}
-		out("gdefun: chk DO");
+		omsg("gdefun: chk DO");
 		rightp = chkDoBlock(rightq);
 		if (rightp != 0) {
 			oerrd(savep, "Error in gdefun stmt. DO block", 80.5);
@@ -847,7 +851,7 @@ public class SynChk {
 			else {
 				oerrd(rightp, "Invalid text encountered in defun stmt. header",
 					100.1);
-				out("chkDefunStmt (): fail 0");
+				omsg("chkDefunStmt (): fail 0");
 				return -1;
 			}
 			rightp = node.getRightp();
@@ -855,26 +859,26 @@ public class SynChk {
 			if (phaseNo < 0) {
 				oerrd(savep, "Invalid keyword " + kwtyp.toString() + 
 					" encountered in defun stmt.", 100.2);
-				out("chkDefunStmt (): fail 0.5");
+				omsg("chkDefunStmt (): fail 0.5");
 				return -1;
 			}
 			if (phaseNo <= oldPhaseNo) {
 				oerrd(savep, "Defun statement header error: " +
 					kwtyp.toString() + " encountered unexpectedly", 100.3);
-				out("chkDefunStmt (): fail 1");
+				omsg("chkDefunStmt (): fail 1");
 				return -1;
 			}
 			if (phaseNo > 1 && !isParms) {
 				oerrd(savep, "Defun statement header error: " +
 					"missing function name/parameters", 100.4);
-				out("chkDefunStmt (): fail 2");
+				omsg("chkDefunStmt (): fail 2");
 				return -1;
 			}
 			switch (phaseNo) {
 			case 1:
 				if (!chkParmList(rightp)) {
 					oerrd(savep, "Error in parm list of defun stmt.", 100.5);
-					out("chkDefunStmt (): fail 3");
+					omsg("chkDefunStmt (): fail 3");
 					return -1;
 				}
 				isParms = true;
@@ -884,21 +888,21 @@ public class SynChk {
 				if (chkVarList(rightp) < 0) {
 					oerrd(savep, "Error in var list of defun stmt.: " +
 						"invalid text found when processing identifier list", 100.6);
-					out("chkDefunStmt (): fail 4");
+					omsg("chkDefunStmt (): fail 4");
 					return -1;
 				}
 				break;
 			case 4:
 				if (!chkDecorList(rightp)) {
 					oerrd(savep, "Error in decor list of defun stmt.", 100.65);
-					out("chkDefunStmt (): fail 5");
+					omsg("chkDefunStmt (): fail 5");
 					return -1;
 				}
 				break;
 			default:
 				oerrd(savep, "Invalid keyword encountered in " +
 					"defun stmt. header", 100.68);
-				out("chkDefunStmt (): fail 6");
+				omsg("chkDefunStmt (): fail 6");
 				return -1;
 			}
 			oldPhaseNo = phaseNo;
@@ -908,14 +912,14 @@ public class SynChk {
 		if (!isParms) {
 			oerrd(rightq, "Defun statement header error: " +
 				"missing function name/parameters, post-loop", 100.7);
-			out("chkDefunStmt (): fail 7");
+			omsg("chkDefunStmt (): fail 7");
 			return -1;
 		}
-		out("defun: chk DO");
+		omsg("defun: chk DO");
 		rightp = chkDoBlock(rightq);
 		if (rightp < 0) {
 			oerrd(rightq, "Error in do-block of defun stmt.", 100.8);
-			out("chkDefunStmt (): fail 8");
+			omsg("chkDefunStmt (): fail 8");
 			return -1;
 		}
 		return savep;
@@ -930,7 +934,7 @@ public class SynChk {
 		int oldPhaseNo = 0;
 		boolean isParms = false;
 
-		out("chkAbDefunStmt() - top");
+		omsg("chkAbDefunStmt() - top");
 		while (rightp > 0) {
 			parNode = store.getNode(rightp);
 			node = store.getSubNode(parNode);
@@ -989,7 +993,7 @@ public class SynChk {
 				"missing function name/parameters, post-loop", 110.7);
 			return -1;
 		}
-		out("abdefun: end loop");
+		omsg("abdefun: end loop");
 		if (rightp > 0) {
 			//oerr(rightp, "Error: DO keyword #2 found in abdefun stmt.");
 			return -1;
@@ -1052,7 +1056,7 @@ public class SynChk {
 				return false;
 			}
 			rightp = parNode.getRightp();
-			out("decor # " + count);
+			omsg("decor # " + count);
 		}
 		return true;
 	}
@@ -1068,11 +1072,11 @@ public class SynChk {
 			if (celltyp != NodeCellTyp.FUNC &&
 				celltyp != NodeCellTyp.ID)
 			{
-				out("var (): fail 1");
+				omsg("var (): fail 1");
 				return -1;
 			}
 			count++;
-			out("var (): count = " + count);
+			omsg("var (): count = " + count);
 			rightp = node.getRightp();
 		}
 		return count;
@@ -1111,11 +1115,11 @@ public class SynChk {
 			celltyp = node.getDownCellTyp();
 			if (celltyp != NodeCellTyp.ID) {
 				oerrd(rightp, "Invalid dot-call: expecting identifier", 140.4);
-				out("dotCall: fail 1");
+				omsg("dotCall: fail 1");
 				return -1;
 			}
 			count++;
-			out("dotCall: count = " + count);
+			omsg("dotCall: count = " + count);
 			rightp = node.getRightp();
 		}
 		return count;
@@ -1183,7 +1187,7 @@ public class SynChk {
 			}
 			oldPhaseNo = phaseNo;
 			rightp = parNode.getRightp();
-			out("parm # " + count);
+			omsg("parm # " + count);
 		}
 		return true;
 	}
@@ -1227,15 +1231,15 @@ public class SynChk {
 		if (celltyp != inCellTyp) {
 			oerrd(rightp, "Error in default parameter (or const. pair):" +
 				" identifier not found", 170.1);
-			out("chkDefParm (): celltyp = " + celltyp);
-			out("chkDefParm (): fail 0");
+			omsg("chkDefParm (): celltyp = " + celltyp);
+			omsg("chkDefParm (): fail 0");
 			return false;
 		}
 		rightp = node.getRightp();
 		if (!isConstExpr(rightp)) {
 			oerrd(rightp, "Error in default parameter (or const. pair):" +
 				" constant expr. not found", 170.2);
-			out("chkDefParm (): fail 1");
+			omsg("chkDefParm (): fail 1");
 			return false;
 		}
 		return true;
@@ -1287,12 +1291,12 @@ public class SynChk {
 				oerr(rightp, "Do block error (in chkDo): isOpenPar failure");
 				return -1;
 			}
-			out("Here is (");
+			omsg("Here is (");
 			downp = node.getDownp();
 			if ((downp <= 0) || !synStmt.doStmt(downp)) {
 				return -1;
 			}
-			out("Here is )");
+			omsg("Here is )");
 			rightp = node.getRightp();
 		}
 		return 0; // OK
@@ -1317,14 +1321,14 @@ public class SynChk {
 		
 		if (rightp <= 0) {
 			oerr(0, "Internal error: do-block handler was passed zero address");
-			out("doBlock (): fail 0");
+			omsg("doBlock (): fail 0");
 			return -1;
 		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
 			oerr(rightp, "Error: do-block handler called, no DO keyword");
-			out("doBlock (): fail 1");
+			omsg("doBlock (): fail 1");
 			return -1;
 		}
 		rightq = node.getRightp();
@@ -1332,7 +1336,7 @@ public class SynChk {
 		else if (isFinal) {
 			oerr(rightp, "Unexpected/invalid text encountered after " +
 				"do-block containing stmts.");
-			out("doBlock (): fail 1.5");
+			omsg("doBlock (): fail 1.5");
 			return -1;
 		}
 		else {
@@ -1346,7 +1350,7 @@ public class SynChk {
 		node = store.getNode(rightp);
 		if (!node.isOpenPar()) {  // never lands here
 			oerr(rightp, "Do block error: body lacks parentheses");
-			out("doBlock (): fail 2");
+			omsg("doBlock (): fail 2");
 			return -1;
 		}
 		rightq = rightp;
@@ -1405,7 +1409,7 @@ public class SynChk {
 			else {
 				oerrd(rightp, "Error in class def, unexpected keyword found: " +
 					curkwtyp, 240.1);
-				out("chkClassStmt (): fail 0");
+				omsg("chkClassStmt (): fail 0");
 				return -1;
 			}
 			phaseNo = getClassPhase(kwtyp, oldPhaseNo);
@@ -1415,7 +1419,7 @@ public class SynChk {
 			}
 			if (phaseNo <= oldPhaseNo) {
 				oerrd(rightp, "Malformed (mixed up) class def", 240.3);
-				out("chkClassStmt (): fail 1");
+				omsg("chkClassStmt (): fail 1");
 				return -1;
 			}
 			switch (phaseNo) {
@@ -1441,25 +1445,25 @@ public class SynChk {
 				if (chkVarList(rightp) < 0) {
 					oerrd(rightq, "Error in class def: malformed var list",
 						240.35);
-					out("chkClassStmt (): fail 2");
+					omsg("chkClassStmt (): fail 2");
 					return -1;
 				}
 				break;
 			default:
 				// never happens because getClassPhase will catch it
 				oerr(rightp, "Error in class def: system error");
-				out("chkClassStmt (): fail 3");
+				omsg("chkClassStmt (): fail 3");
 				return -1;
 			}
 			if (!isNameFound && (phaseNo > 1)) {
 				oerrd(rightp, "Class definition: Name of class not found",
 					240.4);
-				out("chkClassStmt (): fail 4");
+				omsg("chkClassStmt (): fail 4");
 				return -1;
 			}
 			if (isDotOK) { }
 			else if (phaseNo == 2) {
-				//out("chkClassStmt (): fail 5");
+				//omsg("chkClassStmt (): fail 5");
 				oerrd(rightq, "Error in class def: " + 
 					"base class has invalid dot list", 240.5);
 				return -1;
@@ -1472,16 +1476,16 @@ public class SynChk {
 			oldPhaseNo = phaseNo;
 			rightp = parNode.getRightp();
 		}
-		out("class: chk DO");
+		omsg("class: chk DO");
 		if (rightp <= 0) {
 			oerrd(rightq, "Missing DO in class def", 240.6);
-			out("chkClassStmt (): fail 6");
+			omsg("chkClassStmt (): fail 6");
 			return -1;
 		}
 		rightp = chkDoDefBlock(rightp, isAbCls);
 		if (rightp != 0) {
 			oerrd(rightq, "Error in DO block in class def", 240.7);
-			out("chkClassStmt (): fail 7");
+			omsg("chkClassStmt (): fail 7");
 			return -1;
 		}
 		return savep;
@@ -1497,7 +1501,7 @@ public class SynChk {
 				return 2;
 			}
 			else {
-				out("getClassPhase (): fail 0");
+				omsg("getClassPhase (): fail 0");
 				return -1;
 			}
 		case DOT:
@@ -1509,7 +1513,7 @@ public class SynChk {
 		case IVAR:
 			return 5;
 		default:
-			out("getClassPhase (): fail 1");
+			omsg("getClassPhase (): fail 1");
 			return -1;
 		}
 	}
@@ -1540,7 +1544,7 @@ public class SynChk {
 			else {
 				oerrd(rightp, "Error in hedron def: unexpected keyword encountered",
 					260.1);
-				out("chkHedronStmt (): fail 0");
+				omsg("chkHedronStmt (): fail 0");
 				return -1;
 			}
 			phaseNo = getHedronPhase(kwtyp, oldPhaseNo);
@@ -1551,7 +1555,7 @@ public class SynChk {
 			}
 			if (phaseNo <= oldPhaseNo) {
 				oerrd(rightp, "Malformed (mixed up) hedron def", 260.25);
-				out("chkHedronStmt (): fail 1");
+				omsg("chkHedronStmt (): fail 1");
 				return -1;
 			}
 			switch (phaseNo) {
@@ -1562,7 +1566,7 @@ public class SynChk {
 				// does
 				rightp = node.getRightp();
 				if (!isValidDoesList(rightp, rightq)) {
-					out("chkHedronStmt (): fail 2");
+					omsg("chkHedronStmt (): fail 2");
 					return -1;
 				}
 				break;
@@ -1570,7 +1574,7 @@ public class SynChk {
 				// const
 				rightp = node.getRightp();
 				if (!isValidConstList(rightp, rightq)) {
-					out("chkHedronStmt (): fail 3");
+					omsg("chkHedronStmt (): fail 3");
 					return -1;
 				}
 				break;
@@ -1580,13 +1584,13 @@ public class SynChk {
 			if (!isNameFound && (phaseNo > 1)) {
 				oerrd(rightp, "Error in hedron def: missing hedron name",
 					260.4);
-				out("chkHedronStmt (): fail 4");
+				omsg("chkHedronStmt (): fail 4");
 				return -1;
 			}
 			oldPhaseNo = phaseNo;
 			rightp = parNode.getRightp();
 		}
-		out("hedron: chk DO");
+		omsg("hedron: chk DO");
 		if (rightp <= 0) {
 			oerrd(rightq, "Missing DO in hedron def", 260.5);
 			return -1;
@@ -1594,7 +1598,7 @@ public class SynChk {
 		rightp = chkHedronDoBlock(rightp);
 		if (rightp != 0) {
 			oerrd(rightq, "Error in DO block in hedron def", 260.6);
-			out("chkHedronStmt (): fail 5");
+			omsg("chkHedronStmt (): fail 5");
 			return -1;
 		}
 		return savep;
@@ -1609,7 +1613,7 @@ public class SynChk {
 		case CONST:
 			return 3;
 		default:
-			out("getHedronPhase (): fail 1");
+			omsg("getHedronPhase (): fail 1");
 			return -1;
 		}
 	}
@@ -1629,25 +1633,25 @@ public class SynChk {
 				if (subnode == null) {
 					oerrd(rightp, "Error in const list: missing parens",
 						280.1);
-					out("isValidConstList (): null subnode!");
+					omsg("isValidConstList (): null subnode!");
 				}
 				else {
 					oerrd(downp, "Error in const list: invalid const pair",
 						280.2);
 				}
-				out("isValidConstList (): count = " + count);
-				out("isValidConstList (): fail 1");
+				omsg("isValidConstList (): count = " + count);
+				omsg("isValidConstList (): fail 1");
 				return false;
 			}
 			rightp = node.getRightp();
 		}
-		out("isValidConstList (): bottom");
+		omsg("isValidConstList (): bottom");
 		isValid = (count >= 1);
 		if (!isValid) {
-			//oprn("isValidConstList (): fail 2");
+			//outdebug("isValidConstList (): fail 2");
 			oerrd(rightq, "Error in const list: no const pairs found",
 				280.3);
-			out("isValidConstList (): fail 2");
+			omsg("isValidConstList (): fail 2");
 		}
 		return isValid;
 	}
@@ -1700,7 +1704,7 @@ public class SynChk {
 				300.4);
 			return -1;
 		}
-		out("chkEnumStmt: count = " + count);
+		omsg("chkEnumStmt: count = " + count);
 		return savep;
 	}
 	
@@ -1741,7 +1745,7 @@ public class SynChk {
 		if (rightp <= 0) {
 			oerrd(rightq, "Invalid enum pair: DOT operator has no operands",
 				320.2);
-			out("getEnumPair (): fail 0");
+			omsg("getEnumPair (): fail 0");
 			return -1;
 		}
 		node = store.getNode(rightp);
@@ -1751,7 +1755,7 @@ public class SynChk {
 		if (rightp <= 0) {
 			oerrd(rightq, "Invalid enum pair: DOT operator has only single operand",
 				320.3);
-			out("getEnumPair (): fail 0.5");
+			omsg("getEnumPair (): fail 0.5");
 			return -1;
 		}
 		node = store.getNode(rightp);
@@ -1760,20 +1764,20 @@ public class SynChk {
 		if (rightp > 0) {
 			oerrd(rightq, "Invalid enum pair: DOT operator has more than 2 operands",
 				320.4);
-			out("getEnumPair (): fail 1");
+			omsg("getEnumPair (): fail 1");
 			return -1;
 		}
 		if (etyp != enumTyp) {
 			oerrd(rightq, "Invalid enum pair: DOT operator has mixed operands",
 				320.5);
-			out("getEnumPair (): fail 2");
+			omsg("getEnumPair (): fail 2");
 			return -1;
 		}
-		out("getEnumPair() = " + enumTyp);
+		omsg("getEnumPair() = " + enumTyp);
 		if ((enumTyp == 0) && !isExpr) {
 			oerrd(rightq, "Invalid enum pair: expecting constants, identifiers found",
 				320.6);
-			out("getEnumPair (): fail 2");
+			omsg("getEnumPair (): fail 2");
 			return -1;
 		}
 		return enumTyp;
@@ -1815,7 +1819,7 @@ public class SynChk {
 			else if (subNode == null) {
 				oerrd(rightp, "Error in does list: expecting identifier or dot list",
 					400.1);
-				out("isValidDoesList (): fail 0");
+				omsg("isValidDoesList (): fail 0");
 				return false;
 			}
 			else {
@@ -1823,14 +1827,14 @@ public class SynChk {
 				if (kwtyp != KeywordTyp.DOT) {
 					oerrd(rightp, "Error in does list: expecting dot operator, " +
 						kwtyp + " found", 400.2);
-					out("isValidDoesList (): fail 1");
+					omsg("isValidDoesList (): fail 1");
 					return false;
 				}
 				subRightp = subNode.getRightp();
 				if (!isValidDotList(subRightp)) {
 					oerrd(rightp, "Error in does list: malformed dot list",
 						400.3);
-					out("isValidDoesList (): fail 2");
+					omsg("isValidDoesList (): fail 2");
 					return false;
 				}
 			}
@@ -1841,7 +1845,7 @@ public class SynChk {
 		if (!isValid) {
 			oerrd(rightq, "Error in does list: no args found (identifiers/dot-lists)",
 				400.4);
-			out("isValidDoesList (): fail 3");
+			omsg("isValidDoesList (): fail 3");
 		}
 		return isValid;
 	}
@@ -1854,7 +1858,7 @@ public class SynChk {
 		boolean abfound;
 		
 		if (rightp <= 0) {
-			out("doDefBlock (): fail 0");
+			omsg("doDefBlock (): fail 0");
 			return -1;
 		}
 		node = store.getNode(rightp);
@@ -1862,7 +1866,7 @@ public class SynChk {
 		if (kwtyp != KeywordTyp.DO) {
 			oerrd(rightp, "Error in class def DO block, instead of DO, " +
 				kwtyp + " encountered", 410.1);
-			out("doDefBlock (): fail 1");
+			omsg("doDefBlock (): fail 1");
 			return -1;
 		}
 		rightp = node.getDownp();
@@ -1870,7 +1874,7 @@ public class SynChk {
 			node = store.getNode(rightp);
 			if (!node.isOpenPar()) {
 				oerr(rightp, "Class def DO block system error: isOpenPar failure");
-				out("doDefBlock (): fail 5");
+				omsg("doDefBlock (): fail 5");
 				return -1;
 			}
 			downp = node.getDownp();
@@ -1886,10 +1890,10 @@ public class SynChk {
 				break;
 			default:
 				oerrd(downp, "Expecting func def, " + kwtyp + " found", 410.2);
-				out("doDefBlock (): fail 3");
+				omsg("doDefBlock (): fail 3");
 				return -1;
 			}
-			out("doDefBlock (): OK - 3");
+			omsg("doDefBlock (): OK - 3");
 			downp = subNode.getRightp();
 			if (abfound && isAbCls) {
 				downq = chkAbDefunStmt(downp);
@@ -1897,7 +1901,7 @@ public class SynChk {
 			else if (abfound) {
 				oerrd(downp, "Error: ABDEFUN found in DO block of class def", 
 					410.3);
-				out("doDefBlock (): fail 4");
+				omsg("doDefBlock (): fail 4");
 				return -1;
 			}
 			else {
@@ -1905,7 +1909,7 @@ public class SynChk {
 			}
 			if (downq <= 0) {
 				oerrd(downp, "Error in func def", 410.4);
-				out("doDefBlock (): fail 5");
+				omsg("doDefBlock (): fail 5");
 				return -1;
 			}
 			rightp = node.getRightp();
@@ -1919,14 +1923,14 @@ public class SynChk {
 		int downp, downq;
 		
 		if (rightp <= 0) {
-			out("doHedronBlock (): fail 0");
+			omsg("doHedronBlock (): fail 0");
 			return -1;
 		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		if (kwtyp != KeywordTyp.DO) {
 			oerr(rightp, "System error in hedron do block: missing DO keyword");
-			out("doHedronBlock (): fail 1");
+			omsg("doHedronBlock (): fail 1");
 			return -1;
 		}
 		rightp = node.getDownp();
@@ -1934,7 +1938,7 @@ public class SynChk {
 			node = store.getNode(rightp);
 			if (!node.isOpenPar()) {
 				oerr(rightp, "System error in hedron do block: isOpenPar failure");
-				out("doHedronBlock (): fail 3");
+				omsg("doHedronBlock (): fail 3");
 				return -1;
 			}
 			downp = node.getDownp();
@@ -1944,7 +1948,7 @@ public class SynChk {
 			if (downp == 0) {
 				oerrd(rightp, "Error in hedron def: " + kwtyp +
 					" missing open paren", 420.1);
-				out("doHedronBlock (): fail 4");
+				omsg("doHedronBlock (): fail 4");
 				return -1;
 			}
 			switch (kwtyp) {
@@ -1957,14 +1961,14 @@ public class SynChk {
 			default:
 				oerrd(downp, "Error in hedron def: unexpected keyword " +
 					kwtyp + " found", 420.2);
-				out("doHedronBlock (): fail 5");
+				omsg("doHedronBlock (): fail 5");
 				return -1;
 			}
-			out("doHedronBlock (): OK - 5");
+			omsg("doHedronBlock (): OK - 5");
 			if (downq <= 0) {
 				oerrd(downp, "Error in hedron def: invalid abdefun/defimp def",
 					420.3);
-				out("doHedronBlock (): fail 6");
+				omsg("doHedronBlock (): fail 6");
 				return -1;
 			}
 			rightp = node.getRightp();

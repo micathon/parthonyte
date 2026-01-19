@@ -24,17 +24,16 @@ public class SynChkStmt {
 		this.synExpr = synChk.synExpr;
 	}
 
-	private void out(String msg) {
-		scan.out(msg);
+	private void omsg(String msg) {
+		scan.omsg(msg);
+	}
+	
+	private void omsgz(String msg) {
+		scan.omsgz(msg);
 	}
 	
 	private void oprn(String msg) {
 		scan.oprn(msg);
-	}
-	
-	@SuppressWarnings("unused")
-	private void omsg(String msg) {
-		scan.omsg(msg);
 	}
 	
 	@SuppressWarnings("unused")
@@ -54,9 +53,9 @@ public class SynChkStmt {
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		celltyp = node.getDownCellTyp();
-		out("rightp = " + rightp +  
-				", kwd = " + kwtyp + ", celtyp = " + celltyp);
-		out("Statement kwd = " + kwtyp);
+		omsgz("rightp = " + rightp);  
+		omsg(", kwd = " + kwtyp + ", celtyp = " + celltyp);
+		omsg("Statement kwd = " + kwtyp);
 		switch (kwtyp) {
 		case SET: return doSetStmt(rightp);
 		case INCINT:
@@ -113,9 +112,9 @@ public class SynChkStmt {
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		celltyp = node.getDownCellTyp();
-		out("rightp = " + rightp +  
-				", kwd = " + kwtyp + ", celtyp = " + celltyp);
-		out("Loop Statement kwd = " + kwtyp);
+		omsgz("rightp = " + rightp);  
+		omsg(", kwd = " + kwtyp + ", celtyp = " + celltyp);
+		omsg("Loop Statement kwd = " + kwtyp);
 		switch (kwtyp) {
 		case QUEST: 
 			node.setKeywordTyp(KeywordTyp.ZQUEST);

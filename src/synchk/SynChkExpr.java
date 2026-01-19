@@ -25,13 +25,12 @@ public class SynChkExpr {
 		this.synStmt = synChk.synStmt;
 	}
 
-	private void out(String msg) {
-		scan.out(msg);
-	}
-	
-	@SuppressWarnings("unused")
 	private void omsg(String msg) {
 		scan.omsg(msg);
+	}
+	
+	private void omsgz(String msg) {
+		scan.omsgz(msg);
 	}
 	
 	@SuppressWarnings("unused")
@@ -174,15 +173,15 @@ public class SynChkExpr {
 		NodeCellTyp celltyp;
 		boolean isValid;
 
-		out("doParenExpr: top");
+		omsg("doParenExpr: top");
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
 		celltyp = node.getDownCellTyp();
-		out("rightp = " + rightp + 
-				", kwd = " + kwtyp + ", celtyp = " + celltyp +
-				", top level = " + isTopLevel);
-		out("Expression kwd = " + kwtyp);
-		out("Expression celltyp = " + celltyp);
+		omsgz("rightp = " + rightp); 
+		omsgz(", kwd = " + kwtyp + ", celtyp = " + celltyp);
+		omsg(", top level = " + isTopLevel);
+		omsg("Expression kwd = " + kwtyp);
+		omsg("Expression celltyp = " + celltyp);
 		if (isTopLevel && !node.isOpenPar()) {
 			switch (celltyp) {
 			case KWD: 
@@ -214,7 +213,7 @@ public class SynChkExpr {
 			if (isValid) {
 				return 0;
 			}
-			out("doParenExpr: !isValid");
+			omsg("doParenExpr: !isValid");
 			return -1;
 		}
 		return parenExprRtn(rightp, node);
@@ -224,7 +223,7 @@ public class SynChkExpr {
 		int rightq;
 		KeywordTyp kwtyp = node.getKeywordTyp();
 		
-		out("parenExprRtn: top");
+		omsg("parenExprRtn: top");
 		if (!node.isOpenPar()) {
 			oerrd(rightp, "Error: unexpected token while scanning for " +
 				"parenthesized expression", 30.1);
@@ -244,8 +243,8 @@ public class SynChkExpr {
 		}
 		node = store.getNode(rightp);
 		kwtyp = node.getKeywordTyp();
-		out("rightp = " + rightp + ", kwd = " + kwtyp);
-		out("Paren Expr kwd = " + kwtyp);
+		omsg("rightp = " + rightp + ", kwd = " + kwtyp);
+		omsg("Paren Expr kwd = " + kwtyp);
 		return rightp;
 	}
 	
@@ -254,7 +253,7 @@ public class SynChkExpr {
 	}
 	
 	private boolean doIntConst(int rightp) {
-		out("doIntConst: rightp = " + rightp);
+		omsg("doIntConst: rightp = " + rightp);
 		return true;
 	}
 	
@@ -395,7 +394,7 @@ public class SynChkExpr {
 		
 		node = store.getNode(rightp);
 		rightq = node.getRightp();
-		out("MinusOp: rightp, q = " + rightp + ", " + rightq);
+		omsg("MinusOp: rightp, q = " + rightp + ", " + rightq);
 		count = getExprCount(rightq);
 		if (count < 0) { 
 			oerrd(rightp, "MINUS operator has invalid argument(s)",
@@ -701,7 +700,7 @@ public class SynChkExpr {
 		Node node;
 		KeywordTyp kwtyp;
 
-		out("DictPair top: rightp = " + rightp);
+		omsg("DictPair top: rightp = " + rightp);
 		rightp = doParenExpr(rightp, false);
 		if (rightp <= 0) {
 			return false;
@@ -897,7 +896,7 @@ public class SynChkExpr {
 			first = false;
 			msg = doKeywordArg(rightp);
 			isValidKwdArg = (msg == "");
-			out("doKwdArg : " + msg);
+			omsg("doKwdArg : " + msg);
 			if (!isValidKwdArg) {
 				isValidExpr = doExpr(rightp);
 			}
@@ -944,7 +943,7 @@ public class SynChkExpr {
 			}
 			msg = doKeywordArg(rightp);
 			isValidKwdArg = (msg == "");
-			out("doKwdArg : " + msg);
+			omsg("doKwdArg : " + msg);
 			if (!isValidKwdArg) {
 				isValidExpr = doExpr(rightp);
 			}
@@ -985,7 +984,7 @@ public class SynChkExpr {
 		KeywordTyp kwtyp;
 		NodeCellTyp celltyp;
 
-		out("doKeywordArg top: rightp = " + rightp);
+		omsg("doKeywordArg top: rightp = " + rightp);
 		rightp = doParenExpr(rightp, true);
 		if (rightp <= 0) {
 			return "invalid or not found parenthesized expr.";
@@ -1016,7 +1015,7 @@ public class SynChkExpr {
 		if (rightp > 0) {
 			return "expression value followed by invalid text";
 		}
-		out("doKeywordArg OK");
+		omsg("doKeywordArg OK");
 		return "";
 	}
 
@@ -1127,14 +1126,14 @@ public class SynChkExpr {
 			oerrd(savep, "CAST expr. has no expr. arg.", 320.3);
 			return false;
 		}
-		out("doCastOp: 1st rightp = " + rightp);
+		omsg("doCastOp: 1st rightp = " + rightp);
 		if (!doExpr(rightp)) {
 			oerrd(savep, "CAST expr. has invalid expr. arg.", 320.4);
 			return false;
 		}
 		node = store.getNode(rightp);
 		rightp = node.getRightp();
-		out("doCastOp: 2nd rightp = " + rightp);
+		omsg("doCastOp: 2nd rightp = " + rightp);
 		if (rightp > 0) {
 			oerrd(savep, "CAST expr. has too many args.", 320.5);
 			return false;
