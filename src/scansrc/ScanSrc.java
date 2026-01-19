@@ -63,6 +63,7 @@ public class ScanSrc implements IConst {
 	private boolean isAllWhiteSp;
 	private String strLitBuf;
 	private String srcFileName;
+	private String omsgbuf;
 	private boolean wasdo;
 	private boolean wasparen;
 	private boolean wassemicln;
@@ -96,6 +97,7 @@ public class ScanSrc implements IConst {
 		inStrLit = false;
 		isAllWhiteSp = false;
 		strLitBuf = "";
+		omsgbuf = "";
 		wasdo = false;
 		wasparen = false;
 		wassemicln = false;
@@ -280,7 +282,7 @@ public class ScanSrc implements IConst {
 			}
 			else if (!wasWhiteSp) {
 				// handle token, (inWhiteSp && !wasWhiteSp)
-				out("main loop: doToken = " + token);
+				omsg("main loop: doToken = " + token);
 				doToken(token);
 				token = "";
 			}
@@ -346,7 +348,7 @@ public class ScanSrc implements IConst {
 				outStructTok(ch);
 			}
 			else if (ch == CLOSEPARCH) {
-				//out("ch = ), oldch = [" + oldch + ']');
+				//omsg("ch = ), oldch = [" + oldch + ']');
 				rtnval = putPar(2);  // 2nd of 3 chars.: ( ) ;
 				incTokCount(TokenTyp.CLOSEPAR);
 				outStructTok(ch);
@@ -421,7 +423,7 @@ public class ScanSrc implements IConst {
 		wasfor = (token.equals("for"));
 		outSumm(token);
 		incTokCount(toktyp);
-		out("doToken: " + token);
+		omsg("doToken: " + token);
 	}
 	
 	private void incTokCount(TokenTyp toktyp) {
@@ -504,9 +506,17 @@ public class ScanSrc implements IConst {
 		}
 	}
 	
-	public void out(String msg) {
+	public void omsg(String msg) {  
 		if (idebug == 1) {
-			System.out.println(msg);
+			omsgbuf += msg;
+			System.out.println(omsgbuf);
+			omsgbuf = "";
+		}
+	}
+	
+	public void omsgz(String msg) {  
+		if (idebug == 1) {
+			omsgbuf += msg;
 		}
 	}
 	
@@ -514,16 +524,12 @@ public class ScanSrc implements IConst {
 		System.out.println(msg);  //##
 	}
 	
-	public void omsg(String msg) {  
+	public void outdebug(String msg) {  
 		// used for temp. debug output
 		// usually deleted after bug fixed
 		if (!isSilent) {
 			System.out.println(msg);
 		}
-	}
-	
-	public void otmp(String msg) {
-		//System.out.println(msg);  
 	}
 	
 	private String padLineNo(int lineNo) {
@@ -550,13 +556,13 @@ public class ScanSrc implements IConst {
 		int tokenCount, listCount, count;
 		
 		if (fatalErr) {
-			out("Fatal error encountered!");
+			omsg("Fatal error encountered!");
 		}
 		count = synchk.getNodeCount();
 		tokenCount = count & 0xFFFF;
 		listCount = count >>> 16;
-		out("Nodes created = " + tokenCount);
-		out("Lists created = " + listCount);
+		omsg("Nodes created = " + tokenCount);
+		omsg("Lists created = " + listCount);
 		outSumm("\nLines read = " + lineCount);
 		outSumm("");
 		if (tokCatgLen == 0) {
@@ -587,20 +593,20 @@ public class ScanSrc implements IConst {
 	
 	public boolean scanSummSynChk(boolean fatalErr, boolean suppressFatal) {
 		if (!suppressFatal && fatalErr) {
-			out("Fatal error encountered!");
+			omsg("Fatal error encountered!");
 			return false;
 		}
 		if (!fatalErr && isClean && synchk.isValidSrc()) {
-			out("Src file is valid.");
+			omsg("Src file is valid.");
 			return true;
 		}
 		if (!isClean) {
-			omsg("Error detected during initial scan:");
-			omsg("Line no. = " + dirtyLine);
-			omsg("Column no. = " + dirtyCol);
-			omsg("");
+			outdebug("Error detected during initial scan:");
+			outdebug("Line no. = " + dirtyLine);
+			outdebug("Column no. = " + dirtyCol);
+			outdebug("");
 		}
-		omsg("Src file is invalid!");
+		outdebug("Src file is invalid!");
 		return false;
 	}
 	
@@ -829,7 +835,7 @@ public class ScanSrc implements IConst {
 		int rtnCode;
 
 		if (kwtyp == KeywordTyp.NULL) {
-			out("kwtyp is null!");
+			omsg("kwtyp is null!");
 			putTokErr(TokenTyp.ERROP, token);
 			return TokenTyp.ERROP;
 		}
@@ -991,7 +997,7 @@ public class ScanSrc implements IConst {
 		token = token.toLowerCase();
 		opstr = getOpStr(kwtyp);
 		if (opstr.length() > 0) {
-			out("putKwd: op = " + opstr);
+			omsg("putKwd: op = " + opstr);
 		}
 		else if ((kwtyp == KeywordTyp.TRUE) ||
 			(kwtyp == KeywordTyp.FALSE)) 
@@ -1002,7 +1008,7 @@ public class ScanSrc implements IConst {
 		else {
 			outbuf = TABSTR + "KWD" + sp + token;
 			outDetl(outbuf);
-			out("putKwd:" + outbuf);
+			omsg("putKwd:" + outbuf);
 			return addNode(NodeCellTyp.KWD, kwtyp.ordinal(), 0.0, "");
 		}
 		return putKwdOp(token, opstr, kwtyp);
@@ -1041,7 +1047,7 @@ public class ScanSrc implements IConst {
 		
 		outbuf = TABSTR + "ID " + sp + token;
 		outDetl(outbuf);
-		out("Ident added: " + token);
+		omsg("Ident added: " + token);
 		return addNode(NodeCellTyp.ID, 0, 0.0, token);
 	}
 	
@@ -1188,8 +1194,8 @@ public class ScanSrc implements IConst {
 		page = store.getPage(midp);
 		idx = store.getElemIdx(midp);
 		page.setNode(idx, node);
-		out("insertKwdNode: nodep = " + nodep + ", midp = " + midp +
-			", rightp = " + rightp + ", kwd = " + kwtyp);
+		omsgz("insertKwdNode: nodep = " + nodep + ", midp = " + midp);
+		omsg(", rightp = " + rightp + ", kwd = " + kwtyp);
 		return midp;
 	}
 
@@ -1211,10 +1217,10 @@ public class ScanSrc implements IConst {
 		node.setKeywordTyp(kwtyp);
 		node.setDownCellTyp(celltyp.ordinal());
 		node.setRightCell(false);
-		out("addDoNode: nodep = " + nodep + ", idx = " + idx);
+		omsg("addDoNode: nodep = " + nodep + ", idx = " + idx);
 		rightp = store.allocNode(node);
-		out("rightp = " + rightp + ", celltyp = " + celltyp +
-			", kwd = " + node.getKeywordTyp());
+		omsgz("rightp = " + rightp + ", celltyp = " + celltyp);
+		omsg(", kwd = " + node.getKeywordTyp());
 		page.setPtrNode(idx, rightp);
 		node.setOpenPar(true);
 		node.setDownp(0);
@@ -1244,15 +1250,15 @@ public class ScanSrc implements IConst {
 		
 		nodep = addSimpleNode(celltyp, val, dval, sval);
 		if (nodep < 0) {
-			out("addNode: < 0");
+			omsg("addNode: < 0");
 			return nodep;
 		}
 		page = store.getPage(nodep);
 		idx = store.getElemIdx(nodep);
 		node = page.getNode(idx);
 		kwtyp = node.getKeywordTyp();
-		out("addNode: nodep = " + nodep + ", idx = " + idx +
-			", kwd = " + kwtyp);
+		omsgz("addNode: nodep = " + nodep + ", idx = " + idx);
+		omsg(", kwd = " + kwtyp);
 		return rtnval;
 	}
 	
@@ -1272,7 +1278,7 @@ public class ScanSrc implements IConst {
 		switch (celltyp) {
 		case KWD:
 			downp = (int) val;
-			out("addSimp: KWD, downp = " + downp);
+			omsg("addSimp: KWD, downp = " + downp);
 			isDoBlock = (downp == KeywordTyp.DO.ordinal());
 			break;
 		case INT:
@@ -1313,14 +1319,14 @@ public class ScanSrc implements IConst {
 		node.setKeywordTyp(kwtyp);
 		node.setDownCellTyp(celltyp.ordinal());
 		node.setRightCell(false);
-		out("currNodep = " + currNodep + ", idx = " + idx);
+		omsg("currNodep = " + currNodep + ", idx = " + idx);
 		rightp = store.allocNode(node);
-		out("rightp = " + rightp + ", celltyp = " + celltyp +
-			", kwd = " + node.getKeywordTyp());
+		omsgz("rightp = " + rightp + ", celltyp = " + celltyp);
+		omsg(", kwd = " + node.getKeywordTyp());
 		page.setPtrNode(idx, rightp);
 		if (isDoBlock) {
 			// push do node
-			out("addSimp: isDoBlk");
+			omsg("addSimp: isDoBlk");
 			wasdo = true;
 			wassemicln = true;
 			node.setOpenPar(true);
@@ -1363,19 +1369,19 @@ public class ScanSrc implements IConst {
 		if (!isTopKwtyp(KeywordTyp.DO)) {
 			kwtyp = KeywordTyp.ZPAREN;
 			currNode.setRightp(rightp);
-			out("addZpar: not DO, currNodep = " + currNodep);
+			omsg("addZpar: not DO, currNodep = " + currNodep);
 		}
 		else {
 			kwtyp = KeywordTyp.ZSTMT;
 			if (wasdo) {
 				currNode.setDownp(rightp);
-				out("addZpar: setDownp(p), p = " + rightp);
+				omsg("addZpar: setDownp(p), p = " + rightp);
 			}
 			else {
 				currNode.setRightp(rightp);
-				out("addZpar: setRightp(p), p = " + rightp);
+				omsg("addZpar: setRightp(p), p = " + rightp);
 			}
-			out("addZpar: currNodep = " + currNodep);
+			omsg("addZpar: currNodep = " + currNodep);
 			wasdo = false;
 		}
 		page.setNode(idx, currNode);
@@ -1408,8 +1414,8 @@ public class ScanSrc implements IConst {
 			currNode.setDownCellTyp(celltyp.ordinal());
 			currNode.setRightCell(false);
 			page.setNode(idx, currNode);
-			out("List kwtyp = " + kwtyp + ", downp = " + downp);
-			out("rightp = " + rightp + ", celltyp = " + celltyp);
+			omsg("List kwtyp = " + kwtyp + ", downp = " + downp);
+			omsg("rightp = " + rightp + ", celltyp = " + celltyp);
 			currNodep = rightp;
 			return currNodep;
 		}
@@ -1420,14 +1426,14 @@ public class ScanSrc implements IConst {
 			currNode.setRightCell(false);
 			currNode.setDownp(downp);
 			page.setNode(idx, currNode);
-			out("BIF kwtyp = " + kwtyp + ", downp = " + downp);
-			out("rightp = " + rightp + ", celltyp = " + celltyp);
+			omsg("BIF kwtyp = " + kwtyp + ", downp = " + downp);
+			omsg("rightp = " + rightp + ", celltyp = " + celltyp);
 			currNodep = rightp;
 			return currNodep;
 		}
 		if (celltyp == NodeCellTyp.ID) {  // (func x y z)
 			varName = store.getVarName(downp);
-			out("( varname = " + varName);
+			omsg("( varname = " + varName);
 			if (isCrPathName(varName)) {  // func = car/cdr/caar/cadr/...
 				return genCrPathCall(varName, downp, rightp);
 			}
@@ -1438,8 +1444,8 @@ public class ScanSrc implements IConst {
 			currNode.setRightCell(false);
 			currNode.setDownp(downp);
 			page.setNode(idx, currNode);
-			out("Func kwtyp = " + kwtyp + ", downp = " + downp);
-			out("rightp = " + rightp + ", celltyp = " + celltyp);
+			omsg("Func kwtyp = " + kwtyp + ", downp = " + downp);
+			omsg("rightp = " + rightp + ", celltyp = " + celltyp);
 			currNodep = rightp;
 			return currNodep;
 		}
@@ -1453,8 +1459,8 @@ public class ScanSrc implements IConst {
 			currNode.setDownCellTyp(ctyp.ordinal());
 			currNode.setRightCell(false);
 			page.setNode(idx, currNode);
-			out("Const kwtyp = " + kwtyp + ", downp = " + downp);
-			out("rightp = " + rightp + ", celltyp = " + celltyp);
+			omsg("Const kwtyp = " + kwtyp + ", downp = " + downp);
+			omsg("rightp = " + rightp + ", celltyp = " + celltyp);
 			if (!nullCellTyp) {
 				// insert node of numeric constant or string literal
 				node = currNode;
@@ -1494,7 +1500,7 @@ public class ScanSrc implements IConst {
 		if (rtnval < 0) {
 			return rtnval;
 		}
-		out("doAddZtuple: rtnval = " + rtnval);
+		omsg("doAddZtuple: rtnval = " + rtnval);
 		return popZparStmt(true);
 	}
 	
@@ -1515,7 +1521,7 @@ public class ScanSrc implements IConst {
 				return getNegErrCode(TokenTyp.ERRSTKUNDFLW);
 			}
 			currNodep = addrNode.getAddr();
-			out("popZparStmt: isDoBlk, currNodep = " + currNodep);
+			omsg("popZparStmt: isDoBlk, currNodep = " + currNodep);
 			return chkAddrValid(currNodep);
 		}
 		// pop zstmt or zparen
@@ -1526,7 +1532,7 @@ public class ScanSrc implements IConst {
 		}
 		currNodep = addrNode.getAddr();
 		kwtyp = KeywordTyp.values[byteval];
-		out("popZparStmt: kwtyp = " + kwtyp);
+		omsg("popZparStmt: kwtyp = " + kwtyp);
 		isZstmt = (kwtyp == KeywordTyp.ZSTMT); 
 		isZparen = (kwtyp == KeywordTyp.ZPAREN); 
 		if (!isZstmt && !isZparen) {
@@ -1546,7 +1552,7 @@ public class ScanSrc implements IConst {
 			return getNegErrCode(TokenTyp.ERRBADDO);
 		}
 		currNodep = addrNode.getAddr();
-		out("popZparStmt: popped do, currNodep = " + currNodep);
+		omsg("popZparStmt: popped do, currNodep = " + currNodep);
 		return chkAddrValid(currNodep);
 	}
 		
@@ -1564,19 +1570,19 @@ public class ScanSrc implements IConst {
 		}
 		currNodep = addrNode.getAddr();
 		kwtyp = KeywordTyp.values[byteval];
-		out("popZStmt: kwtyp = " + kwtyp);
+		omsg("popZStmt: kwtyp = " + kwtyp);
 		isZstmt = (kwtyp == KeywordTyp.ZSTMT); 
 		if (!isZstmt) {
 			return getNegErrCode(TokenTyp.ERRBADZPAREN);
 		}
-		out("popZStmt: currNodep = " + currNodep);
+		omsg("popZStmt: currNodep = " + currNodep);
 		return chkAddrValid(currNodep);
 	}
 		
 	private int closeParenRtn(boolean isSemicln) {
 		wassemicln = false;
 		wasparen = false;
-		out("closeParen: semi/wasstmt = (" + isSemicln + ", " + wasstmt + ")");
+		omsg("closeParen: semi/wasstmt = (" + isSemicln + ", " + wasstmt + ")");
 		if (!isSemicln && !wasstmt) { 
 			return doAddZtuple();
 		}
@@ -1646,7 +1652,7 @@ public class ScanSrc implements IConst {
 		case LONG:
 		case FLOAT:
 		case STRING:
-			out("isConst-celltyp = " + celltyp);
+			omsg("isConst-celltyp = " + celltyp);
 			return true;
 		default:
 			return false;
@@ -1669,7 +1675,7 @@ public class ScanSrc implements IConst {
 		crPathLen = varName.length() - 2;
 		crPathVal = getCrPathVal(varName);
 		//store.setVarName(downp, varName);
-		out("genCrPathCall: len = " + crPathLen + ", val = " + crPathVal);
+		omsg("genCrPathCall: len = " + crPathLen + ", val = " + crPathVal);
 		
 		// (crpath
 		page = store.getPage(rightp);
@@ -1774,7 +1780,7 @@ public class ScanSrc implements IConst {
 			return;
 		}
 		toktyp = TokenTyp.values[-rtncode];
-		out(putErr(toktyp));
+		omsg(putErr(toktyp));
 		fatalRtnCode = rtncode;
 	}
 
@@ -1808,7 +1814,7 @@ public class ScanSrc implements IConst {
 		}
 		msg = getTokErrStr(toktyp);
 		outbuf = TABSTR + "ERR" + sp + toktyp + sp + msg + colStr;
-		out("");
+		omsg("");
 		outDetl(outbuf);
 		return outbuf;
 	}
