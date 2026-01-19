@@ -75,7 +75,7 @@ public class Page implements IConst {
 		}
 	}
 	
-	public void out(String msg) {
+	public void omsg(String msg) {
 		if (idebug == 1) {
 			System.out.println(msg);
 		}
@@ -247,14 +247,14 @@ public class Page implements IConst {
 		if (freeidx < 0) {
 			//oprn("allocNode: valcount = " + valcount);
 			setNode(valcount, node);
-			out("allocNode: rtns valcount = " + valcount);
+			omsg("allocNode: rtns valcount = " + valcount);
 			return valcount++;
 		}
 		nextidx = getPtrNode(freeidx);
 		setNode(freeidx, node);
 		rtnval = freeidx;
 		freeidx = nextidx;
-		out("allocNode: rtns freeidx was = " + rtnval);
+		omsg("allocNode: rtns freeidx was = " + rtnval);
 		return rtnval;
 	}
 	
@@ -313,7 +313,7 @@ public class Page implements IConst {
 			if (idx < (valcount - 1)) {
 				freeidx = idx;
 				freeVal = idxToFreeVal(-1);
-				out("freeNum: pgtyp = " + pgtyp);
+				omsg("freeNum: pgtyp = " + pgtyp);
 				setNumVal(idx, freeVal);
 			}
 			else if (valcount == 1) {
