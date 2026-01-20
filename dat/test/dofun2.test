@@ -1,0 +1,17 @@
+do (
+? 150.2;
+defun (q)
+  do (
+  set w (add z);
+);
+)
+@
+do (
+? 130.2;
+defun (p)
+  do (
+  set x (minus y 4 9);
+);
+)
+@
+

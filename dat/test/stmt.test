@@ -1,0 +1,875 @@
+do (
+? -2.0;
+? 10.1;
+defun (p)
+  do (
+  else;
+);
+)
+@
+do (
+? 30.1;
+defun (p)
+  do (
+  if;
+);
+)
+@
+do (
+? 30.2;
+defun (p)
+  do (
+  if (add x);
+);
+)
+@
+do (
+? 30.3;
+defun (p)
+  do (
+  if (add x 0);
+);
+)
+@
+do (
+? 30.4;
+defun (p)
+  do (
+  if (eq x 0) do (
+    ? (add x);
+  );
+);
+)
+@
+do (
+? 30.5;
+defun (p)
+  do (
+  if (eq x 0) do (
+    set x 0;
+  )
+  if;
+);
+)
+@
+do (
+? 30.6;
+defun (p)
+  do (
+  if (eq x 0) do (
+    set x 0;
+  )
+  else;
+);
+)
+@
+do (
+? 40.1;
+defun (p)
+  do (
+  addset;
+);
+)
+@
+do (
+? 40.2;
+defun (p)
+  do (
+  addset (add x y);
+);
+)
+@
+do (
+? 50.1;
+defun (p)
+  do (
+  addset x;
+);
+)
+@
+do (
+? 50.2;
+defun (p)
+  do (
+  addset x (add y);
+);
+)
+@
+do (
+? 50.3;
+defun (p)
+  do (
+  addset x (add y z) w;
+);
+)
+@
+do (
+? 60.1;
+defun (p)
+  do (
+  set;
+);
+)
+@
+do (
+? 70.4;
+defun (p)
+  do (
+  set (tuple 501);
+);
+)
+@
+do (
+? 70.5;
+defun (p)
+  do (
+  set (tuple);
+);
+)
+@
+do (
+defun (p)
+  do (
+  set (tuple a (: b c)) 99;
+);
+)
+@
+do (
+? 80.1;
+defun (p)
+  do (
+  incint;
+);
+)
+@
+do (
+? 80.2;
+defun (p)
+  do (
+  ++ 18;
+);
+)
+@
+do (
+? 80.3;
+defun (p)
+  do (
+  -- x y;
+);
+)
+@
+do (
+? 90.1;
+defun (p)
+  do (
+  while;
+);
+)
+@
+do (
+? 90.2;
+defun (p)
+  do (
+  while (add x);
+);
+)
+@
+do (
+? 90.3;
+defun (p)
+  do (
+  while (add x y);
+);
+)
+@
+do (
+? 90.4;
+defun (p)
+  do (
+  while true do (
+    set x;
+  );
+);
+)
+@
+do (
+? 90.45;
+defun (p)
+  do (
+  while do (
+    set x;
+  );
+);
+)
+@
+do (
+? 90.5;
+defun (p)
+  do (
+  while do (
+    set x 0;
+  );
+);
+)
+@
+do (
+? 90.6;
+defun (p)
+  do (
+  while do (
+    set x 0;
+  )
+  set;
+);
+)
+@
+do (
+? 90.7;
+defun (p)
+  do (
+  while do (
+    set x 0;
+  ) until;
+);
+)
+@
+do (
+? 90.8;
+defun (p)
+  do (
+  while do (
+    set x 0;
+  ) until (add x);
+);
+)
+@
+do (
+? 90.9;
+defun (p)
+  do (
+  while do (
+    set x 0;
+  ) until (add x y) z;
+);
+)
+@
+do (
+? 100.1;
+defun (p)
+  do (
+  for;
+);
+)
+@
+do (
+? 100.2;
+defun (p)
+  do (
+  for set;
+);
+)
+@
+do (
+? 100.3;
+defun (p)
+  do (
+  for s;
+);
+)
+@
+do (
+? 100.4;
+defun (p)
+  do (
+  for i set;
+);
+)
+@
+do (
+? 100.5;
+defun (p)
+  do (
+  for i in;
+);
+)
+@
+do (
+? 100.6;
+defun (p)
+  do (
+  for i in (add x);
+);
+)
+@
+do (
+? 100.7;
+defun (p)
+  do (
+  for i in (add x y);
+);
+)
+@
+do (
+defun (p)
+  do (
+  for (= i 1; ? (<= i n); ++ i) do (
+    += sum i;
+  );
+);
+)
+@
+do (
+? 100.85;
+defun (p)
+  do (
+  for (= i 1; ? (<= i n); set x) do (
+    += sum i;
+  );
+);
+)
+@
+do (
+? 100.87;
+defun (p)
+  do (
+  for (= i 1; ? (<= i n); ++ i);
+);
+)
+@
+do (
+? 100.8;
+defun (p)
+  do (
+  for (= i 1; ? (<= i n); );
+);
+)
+@
+do (
+? 100.9;
+defun (p)
+  do (
+  for (= i 1; ? (<= i n); ++ i) do (
+    += sum;
+  );
+);
+)
+@
+do (
+? 120.2;
+defun (p)
+  do (
+  ? (add x);
+);
+)
+@
+do (
+? 120.3;
+defun (p)
+  do (
+  ? (add x y) z;
+);
+)
+@
+do (
+? 130.05;
+defun (p)
+  do (
+  switch;
+);
+)
+@
+do (
+? 130.1;
+defun (p)
+  do (
+  switch (add x);
+);
+)
+@
+do (
+? 130.15;
+defun (p)
+  do (
+  switch x;
+);
+)
+@
+do (
+? 130.2;
+defun (p)
+  do (
+  switch x set;
+);
+)
+@
+do (
+? 130.25;
+defun (p)
+  do (
+  switch x
+  case;
+);
+)
+@
+do (
+? 130.3;
+defun (p)
+  do (
+  switch x
+  case y do ()
+  case 8;
+);
+)
+@
+do (
+? 130.35;
+defun (p)
+  do (
+  switch x
+  case 3.14;
+);
+)
+@
+do (
+? 130.4;
+defun (p)
+  do (
+  switch x
+  case (2 3 5);
+);
+)
+@
+do (
+? 130.45;
+defun (p)
+  do (
+  switch x
+  case 2;
+);
+)
+@
+do (
+? 130.5;
+defun (p)
+  do (
+  switch x
+  case 2 do (
+    set y;
+  );
+);
+)
+@
+do (
+? 130.6;
+defun (p)
+  do (
+  switch x
+  case 2 do (
+    set y 0;
+  )
+  else;
+);
+)
+@
+do (
+? 130.7;
+defun (p)
+  do (
+  switch x
+  case 2 do (
+    set y 16;
+  )
+  else do (
+    set z;
+  );
+);
+)
+@
+do (
+defun (p)
+  do (
+  switch x
+  case 2 do (
+    set y 16;
+  )
+  else do (
+    set z 32;
+  );
+);
+)
+@
+do (
+defun (p)
+  do (
+  switch x
+  case 2 do (
+    set y 16;
+  );
+);
+)
+@
+do (
+? 140.0;
+defun (p)
+  do (
+  try;
+);
+)
+@
+do (
+? 140.05;
+defun (p)
+  do (
+  try do (
+    set x;
+  );
+);
+)
+@
+do (
+? 140.1;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  );
+);
+)
+@
+do (
+? 140.2;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  set;
+);
+)
+@
+do (
+? 140.25;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except;
+);
+)
+@
+do (
+? 140.3;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except 9;
+);
+)
+@
+do (
+? 140.35;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e;
+);
+)
+@
+do (
+? 140.4;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e as;
+);
+)
+@
+do (
+? 140.45;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e as 6;
+);
+)
+@
+do (
+? 140.5;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e as d;
+);
+)
+@
+do (
+? 140.55;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e as d do (
+    set y;
+  );
+);
+)
+@
+do (
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e as d do (
+    set y z;
+  );
+);
+)
+@
+do (
+? 140.6;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e as d do (
+    set y z;
+  )
+  else;
+);
+)
+@
+do (
+? 140.65;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  else do ();
+);
+)
+@
+do (
+? 140.7;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e as d do (
+    set y z;
+  )
+  else do (
+    set w;
+  );
+);
+)
+@
+do (
+? 140.75;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e as d do (
+    set y z;
+  )
+  eotry do (
+    set w 28;
+  )
+  if;
+);
+)
+@
+do (
+? 140.8;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e as d do (
+    set y z;
+  )
+  else do (
+    set w 28;
+  )
+  if;
+);
+)
+@
+do (
+? 140.85;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e as d do (
+    set y z;
+  )
+  else do (
+    set w 28;
+  )
+  eotry;
+);
+)
+@
+do (
+? 140.9;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e as d do (
+    set y z;
+  )
+  else do (
+    set w 28;
+  )
+  eotry do (
+    set u;
+  );
+);
+)
+@
+do (
+? 140.95;
+defun (p)
+  do (
+  try do (
+    set x 75;
+  )
+  except e as d do (
+    set y z;
+  )
+  else do (
+    set w 28;
+  )
+  eotry do (
+    set v 54;
+  )
+  if;
+);
+)
+@
+do (
+? 160.1;
+defun (p)
+  do (
+  println (add x);
+);
+)
+@
+do (
+? 170.1;
+defun (p)
+  do (
+  print (add x);
+);
+)
+@
+do (
+? 170.2;
+defun (p)
+  do (
+  print;
+);
+)
+@
+do (
+? 170.1;
+defun (p)
+  do (
+  echo (add x);
+);
+)
+@
+do (
+? 170.2;
+defun (p)
+  do (
+  echo;
+);
+)
+@
+do (
+? 200.1;
+defun (p)
+  do (
+  return (add x);
+);
+)
+@
+do (
+? 200.2;
+defun (p)
+  do (
+  return x y;
+);
+)
+@
+do (
+defun (p)
+  do (
+  return;
+);
+)
+@
+do (
+? 210.1;
+defun (p)
+  do (
+  raise (add x);
+);
+)
+@
+do (
+? 210.2;
+defun (p)
+  do (
+  raise e while;
+);
+)
+@
+do (
+? 210.3;
+defun (p)
+  do (
+  raise e from;
+);
+)
+@
+do (
+? 210.4;
+defun (p)
+  do (
+  raise e from (add x);
+);
+)
+@
+do (
+? 210.5;
+defun (p)
+  do (
+  raise e from d x77;
+);
+)
+@
+
