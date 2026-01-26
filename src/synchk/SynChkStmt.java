@@ -74,7 +74,8 @@ public class SynChkStmt {
 		case UTSCAN: return doUtScanStmt(rightp);
 		case CALL: return doCallStmt(rightp);
 		case ZCALL: return doCallFunStmt(rightp);
-		//case QUEST: return doBoolStmt(rightp);
+		// remove comment in order to run unit test (-u)
+		//case QUEST: return doBoolStmt(rightp);  
 		case DOT: return doDotStmt(rightp);
 		case RAISE: return doRaiseStmt(rightp);
 		case CONTINUE: return doContinueStmt(rightp);
